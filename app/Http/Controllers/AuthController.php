@@ -18,7 +18,7 @@ class AuthController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify']]);
     }
 
     /**
@@ -62,23 +62,28 @@ class AuthController extends Controller
 
         $userData = array_merge(
             $validator->validated(),
-            ['pass' => bcrypt($request->pass)]
+            ['pass' => bcrypt($request->password)]
         );
         $userData["avatar_path"] = "";
         $userData["referrer_users_id"] = 0;
-        $userData["pass_txt"] = $request->pass;
+        $userData["pass_txt"] = $request->password;
         $userData["adress"] = "";
         $userData["postall"] = "";
         $userData["cities_id"] = 0;
 
-        // $user = User::create($userData);
         $code = rand(1000,9999);
-        SmsValidation::create([
-            "mobile" => $userData["email"],
-            "code" => $code,
-            "user_info" => json_encode($userData),
-            "type" => "register"
-        ]);
+        SmsValidation::updateOrCreate(
+            [
+                "mobile" => $userData["email"],
+                "type" => "register"
+            ]
+            ,[
+                "mobile" => $userData["email"],
+                "code" => $code,
+                "user_info" => json_encode($userData),
+                "type" => "register"
+            ]
+        );
         $sms = new Sms;
         $sms->sendCode($userData["email"], $code);
         return response()->json([
@@ -86,6 +91,32 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Register a User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verify(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'otp' => 'required|integer|min:1000',
+            'email' => 'required|string|max:12|unique:users'
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
+        if($smsValidation->code !== $request->input("otp")) {
+            return response()->json(['error' => 'OTP is incorrect!'], 406);
+        }
+
+        $userData = json_decode($smsValidation->user_info, true);
+        $user = User::create($userData);
+
+        $token = auth('api')->login($user);
+        return $this->createNewToken($token);
+    }
 
     /**
      * Log the user out (Invalidate the token).
