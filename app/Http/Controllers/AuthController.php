@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\SmsValidation;
+use App\Utils\Sms;
 use Validator;
 
 
@@ -69,8 +71,16 @@ class AuthController extends Controller
         $userData["postall"] = "";
         $userData["cities_id"] = 0;
 
-        $user = User::create($userData);
-
+        // $user = User::create($userData);
+        $code = rand(1000,9999);
+        SmsValidation::create([
+            "mobile" => $userData["email"],
+            "code" => $code,
+            "user_info" => json_encode($userData),
+            "type" => "register"
+        ]);
+        $sms = new Sms;
+        $sms->sendCode($userData["email"], $code);
         return response()->json([
             'message' => 'User successfully registered'
         ], 201);
