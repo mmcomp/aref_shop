@@ -62,7 +62,7 @@ class AuthController extends Controller
 
         $userData = array_merge(
             $validator->validated(),
-            ['pass' => bcrypt($request->password)]
+            ['password' => bcrypt($request->password)]
         );
         $userData["avatar_path"] = "";
         $userData["referrer_users_id"] = 0;
@@ -80,7 +80,7 @@ class AuthController extends Controller
             ,[
                 "mobile" => $userData["email"],
                 "code" => $code,
-                "user_info" => json_encode($userData),
+                "user_info" => json_encode($userData, JSON_UNESCAPED_UNICODE),
                 "type" => "register"
             ]
         );
@@ -110,6 +110,8 @@ class AuthController extends Controller
         if($smsValidation->code !== $request->input("otp")) {
             return response()->json(['error' => 'OTP is incorrect!'], 406);
         }
+
+        $smsValidation->delete();
 
         $userData = json_decode($smsValidation->user_info, true);
         $user = User::create($userData);
