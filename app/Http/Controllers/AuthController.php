@@ -164,5 +164,73 @@ class AuthController extends Controller
             'menus' => auth('api')->getUser()->menus()
         ]);
     }
+     /**
+     *
+     * Forget password
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function forgetPassword(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|max:12'
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $userData = $validator->validated();
+
+        $code = rand(1000,9999);
+        SmsValidation::updateOrCreate(
+            [
+                "mobile" => $userData["email"],
+                "type" => "forget_pass"
+            ]
+            ,[
+                "mobile" => $userData["email"],
+                "code" => $code,
+                "user_info" => json_encode($userData, JSON_UNESCAPED_UNICODE),
+                "type" => "forget_pass"
+            ]
+        );
+        $sms = new Sms;
+        $sms->sendCode($userData["email"], $code);
+        return response()->json([
+            'message' => 'Getting mobile of user and sending Sms forget password is successfully done!'
+        ], 201);
+    }
+     /**
+     *
+     * Verify forget password
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyForgetPassword(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'otp' => 'required|integer|min:1000',
+            'email' => 'required|string|max:12',
+            'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
+            'password_confirmation' => 'required|string|min:6',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
+        if($smsValidation->code !== $request->input("otp")) {
+            return response()->json(['error' => 'OTP is incorrect!'], 406);
+        }
+
+        $smsValidation->delete();
+        User::where('email',$request->email)->update(["password" => bcrypt($request->password)]);
+
+        return response()->json([
+            'message' => 'Verfying forget password is successfully done!'
+        ], 201);
+    }
 
 }
