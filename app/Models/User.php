@@ -47,5 +47,22 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims() {
         return [];
-    } 
+    }
+
+    public function group()
+    {
+        return $this->hasOne('App\Models\Group', 'id', 'groups_id');
+    }
+
+    public function menus()
+    {
+        $groupMenus = $this->group()->first()->menus()->with('menu')->get();
+        $menus = [];
+        foreach ($groupMenus as $groupMenu) {
+            if ($groupMenu->menu) {
+                $menus[] = $groupMenu->menu;
+            }
+        }
+        return $menus;
+    }
 }
