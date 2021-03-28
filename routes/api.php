@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,4 +34,14 @@ Route::group([
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
     Route::post('/forget-password',[AuthController::class, 'forgetPassword']);
     Route::post('/verify-forget-password',[AuthController::class, 'verifyForgetPassword']);
+});
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'users'
+
+], function ($router) {
+    Route::post('/', [UserController::class, 'index']);
+    Route::post('/add', [UserController::class, 'create']);
+    Route::post('/edit', [UserController::class, 'edit']);
+    Route::post('/delete', [UserController::class, 'destroy']);
 });
