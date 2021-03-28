@@ -70,6 +70,7 @@ class AuthController extends Controller
         $userData["adress"] = "";
         $userData["postall"] = "";
         $userData["cities_id"] = 0;
+        $userData["groups_id"] = 2;
 
         $code = rand(1000,9999);
         SmsValidation::updateOrCreate(
