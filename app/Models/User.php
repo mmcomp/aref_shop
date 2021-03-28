@@ -58,9 +58,32 @@ class User extends Authenticatable implements JWTSubject
     {
         $groupMenus = $this->group()->first()->menus()->with('menu')->get();
         $menus = [];
+        $menuIndex = [];
         foreach ($groupMenus as $groupMenu) {
-            if ($groupMenu->menu) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id==null) {
+                $menuIndex[$groupMenu->menu->id] = count($menus);
+                $groupMenu->menu->elements = [];
+                unset($groupMenu->menu->created_at);
+                unset($groupMenu->menu->updated_at);
+                unset($groupMenu->menu->parent_id);
                 $menus[] = $groupMenu->menu;
+            }
+        }
+        foreach ($groupMenus as $groupMenu) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id!=null) {
+                $parent_id = $groupMenu->menu->parent_id;
+                if (!isset($menuIndex[$parent_id])) {
+                    $menuIndex[$parent_id] = count($menus);
+                    $parent = $groupMenu->menu->parent()->first();
+                    $parent->elements = [];
+                    $menus[] = $parent;
+                }
+                $elements = $menus[$menuIndex[$parent_id]]->elements;
+                unset($groupMenu->menu->created_at);
+                unset($groupMenu->menu->updated_at);
+                unset($groupMenu->menu->parent_id);
+                array_push($elements, $groupMenu->menu);
+                $menus[$menuIndex[$parent_id]]->elements = $elements;
             }
         }
         return $menus;
