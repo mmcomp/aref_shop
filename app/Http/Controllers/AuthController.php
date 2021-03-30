@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ForgetPasswordRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\VerifyForgetPasswordRequest;
+use App\Http\Requests\VerifyRegisterRequest;
 use App\Models\User;
 use App\Models\SmsValidation;
 use App\Utils\Sms;
-use Validator;
 use Exception;
+use Validator;
 
 
 class AuthController extends Controller
@@ -21,7 +24,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify','forgetPassword','verifyForgetPassword']]);
     }
 
     /**
@@ -29,18 +32,12 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|min:10',
-            'password' => 'required|string|min:6',
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+        if (!$token = auth('api')->attempt($validated)) {
 
-        if (!$token = auth('api')->attempt($validator->validated())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -54,6 +51,49 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+       // $validated = $request->validated();
+        // $validator = Validator::make($request->all(), [
+        //     'first_name' => 'required|string|between:2,100',
+        //     'last_name' => 'required|string|between:2,100',
+        //     'email' => 'required|string|max:12|unique:users',
+        //     'password' => 'required|string|confirmed|min:6',
+        // ]);
+
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors()->toJson(), 400);
+        // }
+
+        // $userData = array_merge(
+        //     $validator->validated(),
+        //     //$validated,
+        //     ['password' => bcrypt($request->password)]
+        // );
+        // $userData["avatar_path"] = "";
+        // $userData["referrer_users_id"] = 0;
+        // $userData["pass_txt"] = $request->password;
+        // $userData["adress"] = "";
+        // $userData["postall"] = "";
+        // $userData["cities_id"] = 0;
+        // $userData["groups_id"] = 2;
+
+        // $code = rand(1000, 9999);
+        // SmsValidation::updateOrCreate(
+        //     [
+        //         "mobile" => $userData["email"],
+        //         "type" => "register"
+        //     ],
+        //     [
+        //         "mobile" => $userData["email"],
+        //         "code" => $code,
+        //         "user_info" => json_encode($userData, JSON_UNESCAPED_UNICODE),
+        //         "type" => "register"
+        //     ]
+        // );
+        // $sms = new Sms;
+        // $sms->sendCode($userData["email"], $code);
+        // return response()->json([
+        //     'message' => 'User successfully registered'
+        // ], 201);
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string|between:2,100',
             'last_name' => 'required|string|between:2,100',
@@ -102,16 +142,16 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verify(Request $request)
+    public function verify(VerifyRegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'otp' => 'required|integer|min:1000',
-            'email' => 'required|string|max:12|unique:users'
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'otp' => 'required|integer|min:1000',
+        //     'email' => 'required|string|max:12|unique:users'
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors()->toJson(), 400);
+        // }
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
@@ -181,18 +221,18 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forgetPassword(Request $request)
+    public function forgetPassword(ForgetPasswordRequest $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|max:12'
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'email' => 'required|string|max:12'
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors()->toJson(), 400);
+        // }
 
-        $userData = $validator->validated();
+        $userData = $request->validated();
 
         $code = rand(1000, 9999);
         SmsValidation::updateOrCreate(
@@ -219,19 +259,19 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verifyForgetPassword(Request $request)
+    public function verifyForgetPassword(VerifyForgetPasswordRequest $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'otp' => 'required|integer|min:1000',
-            'email' => 'required|string|max:12',
-            'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
-            'password_confirmation' => 'required|string|min:6',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'otp' => 'required|integer|min:1000',
+        //     'email' => 'required|string|max:12',
+        //     'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
+        //     'password_confirmation' => 'required|string|min:6',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors()->toJson(), 400);
+        // }
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
@@ -248,7 +288,7 @@ class AuthController extends Controller
                     'message' => 'Verfying forget password is successfully done!'
                 ], 201);
             } catch (Exception $e) {
-                Log::info('fails in AuthController/verifyForgetPassword ' . $e);
+                Log::info('fails in AuthController/verifyForgetPassword ' . json_encode($e));
             }
         }
         return response()->json([
