@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserEditRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Validator;
@@ -39,64 +41,39 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param App\Http\Requests\UserCreateRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request)
+    public function create(UserCreateRequest $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12',
-            'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
-            'password_confirmation' => 'required|string|min:6',
-            'referrer_users_id' => 'required|integer',
-            'address' => 'required|min:10|max:1000',
-            'postall' => 'required|digits:10',
-            'cities_id' => 'required|integer'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-        $user = User::where('email',$request->email)->first();
-        if($user != null){
-            return response()->json([
-                'id' => $user->id,
-            ], 201);
-        }
-        return response()->json([
-            'message' => 'User not found!'
-        ], 400);
-
+        $user = new User;
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->password_confirmation = $user->password;
+        $user->pass_txt = $request->password;
+        $user->referrer_users_id = $request->referrer_users_id;
+        $user->adress = $request->address;
+        $user->postall = $request->postall;
+        $user->groups_id = 2;
+        $user->cities_id = $request->cities_id;
+        $user->save();
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\UserEditRequest  $request
+     * @param id $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(Request $request)
+    public function edit($id, UserEditRequest $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'id' => 'required|integer',
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12',
-            'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
-            'password_confirmation' => 'required|string|min:6',
-            'referrer_users_id' => 'required|integer',
-            'address' => 'required|min:10|max:1000',
-            'postall' => 'required|digits:10',
-            'cities_id' => 'required|integer'
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-        $user = User::where('id',$request->id)->first();
-        if($user != null){
+        $user = User::where('id', $id)->first();
+        if ($user != null) {
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->email = $request->email;
@@ -106,38 +83,32 @@ class UserController extends Controller
             $user->adress = $request->address;
             $user->postall = $request->postall;
             $user->cities_id = $request->cities_id;
-            try{
+            try {
                 $user->save();
                 return response()->json([
                     'message' => 'User updated successfully!'
                 ], 200);
-            }catch(Exception $e){
-                Log::info('fails in UserController/edit '.$e);
+            } catch (Exception $e) {
+                Log::info('fails in UserController/edit ' . json_encode($e));
             }
         }
         return response()->json([
             'message' => 'User not found!'
         ], 400);
     }
-    
+
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param id $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-        $user = User::findOrFail($request->id);
-        if($user != null){
-            $user->delete();
+        $user = User::findOrFail($id);
+        if ($user != null) {
+            $user->is_deleted = 1;
+            $user->email = '_' . $user->email;
             return response()->json([
                 'message' => 'User deleted successfully!'
             ], 200);

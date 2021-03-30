@@ -42,6 +42,6 @@ Route::group([
 ], function ($router) {
     Route::post('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'create']);
-    Route::post('/edit', [UserController::class, 'edit']);
-    Route::post('/delete', [UserController::class, 'destroy']);
+    Route::post('/edit/{id}', [UserController::class, 'edit']);
+    Route::post('/delete/{id}', [UserController::class, 'destroy']);
 });
