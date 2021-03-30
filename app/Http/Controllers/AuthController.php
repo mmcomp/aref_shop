@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\ForgetPasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
@@ -12,7 +11,6 @@ use App\Models\User;
 use App\Models\SmsValidation;
 use App\Utils\Sms;
 use Exception;
-use Validator;
 
 
 class AuthController extends Controller
@@ -49,64 +47,12 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-       // $validated = $request->validated();
-        // $validator = Validator::make($request->all(), [
-        //     'first_name' => 'required|string|between:2,100',
-        //     'last_name' => 'required|string|between:2,100',
-        //     'email' => 'required|string|max:12|unique:users',
-        //     'password' => 'required|string|confirmed|min:6',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json($validator->errors()->toJson(), 400);
-        // }
-
-        // $userData = array_merge(
-        //     $validator->validated(),
-        //     //$validated,
-        //     ['password' => bcrypt($request->password)]
-        // );
-        // $userData["avatar_path"] = "";
-        // $userData["referrer_users_id"] = 0;
-        // $userData["pass_txt"] = $request->password;
-        // $userData["adress"] = "";
-        // $userData["postall"] = "";
-        // $userData["cities_id"] = 0;
-        // $userData["groups_id"] = 2;
-
-        // $code = rand(1000, 9999);
-        // SmsValidation::updateOrCreate(
-        //     [
-        //         "mobile" => $userData["email"],
-        //         "type" => "register"
-        //     ],
-        //     [
-        //         "mobile" => $userData["email"],
-        //         "code" => $code,
-        //         "user_info" => json_encode($userData, JSON_UNESCAPED_UNICODE),
-        //         "type" => "register"
-        //     ]
-        // );
-        // $sms = new Sms;
-        // $sms->sendCode($userData["email"], $code);
-        // return response()->json([
-        //     'message' => 'User successfully registered'
-        // ], 201);
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12|unique:users',
-            'password' => 'required|string|confirmed|min:6',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
+        $validated = $request->validated();
 
         $userData = array_merge(
-            $validator->validated(),
+            $validated,
             ['password' => bcrypt($request->password)]
         );
         $userData["avatar_path"] = "";
@@ -135,6 +81,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User successfully registered'
         ], 201);
+
     }
 
     /**
@@ -144,14 +91,6 @@ class AuthController extends Controller
      */
     public function verify(VerifyRegisterRequest $request)
     {
-        // $validator = Validator::make($request->all(), [
-        //     'otp' => 'required|integer|min:1000',
-        //     'email' => 'required|string|max:12|unique:users'
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json($validator->errors()->toJson(), 400);
-        // }
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
@@ -224,14 +163,6 @@ class AuthController extends Controller
     public function forgetPassword(ForgetPasswordRequest $request)
     {
 
-        // $validator = Validator::make($request->all(), [
-        //     'email' => 'required|string|max:12'
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json($validator->errors()->toJson(), 400);
-        // }
-
         $userData = $request->validated();
 
         $code = rand(1000, 9999);
@@ -261,17 +192,6 @@ class AuthController extends Controller
      */
     public function verifyForgetPassword(VerifyForgetPasswordRequest $request)
     {
-
-        // $validator = Validator::make($request->all(), [
-        //     'otp' => 'required|integer|min:1000',
-        //     'email' => 'required|string|max:12',
-        //     'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
-        //     'password_confirmation' => 'required|string|min:6',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json($validator->errors()->toJson(), 400);
-        // }
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {

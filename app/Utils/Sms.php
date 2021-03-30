@@ -16,7 +16,6 @@ class Sms {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         //curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
         $result = curl_exec($ch);
-        dd('1');
         curl_close($ch);
         return json_decode($result);
     }
