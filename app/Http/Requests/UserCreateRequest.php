@@ -30,7 +30,6 @@ class UserCreateRequest extends FormRequest
             'last_name' => 'required|string|between:2,100',
             'email' => 'required|string|max:12',
             'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
-            'password_confirmation' => 'required|string|min:6',
             'referrer_users_id' => 'required|integer',
             'address' => 'required|min:10|max:1000',
             'postall' => 'required|digits:10',

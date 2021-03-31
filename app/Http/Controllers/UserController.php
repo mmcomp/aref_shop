@@ -20,14 +20,6 @@ class UserController extends Controller
     public function index(UserIndexRequest $request)
     {
 
-        // $validator = Validator::make($request->all(), [
-        //     'page' => 'required|integer',
-        //     'page_count' => 'required|integer',
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return response()->json($validator->errors(), 422);
-        // }
         $paginated_users = User::paginate($request->page_count);
         $allUsers = User::where('is_deleted',0)->get();
         $count = User::count();
@@ -72,8 +64,9 @@ class UserController extends Controller
     public function create(UserCreateRequest $request)
     {
 
-        $userData = array_merge($request->except('password_confirmation'), ['pass_txt' => $request->password, 'groups_id' => 2]);
+        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'groups_id' => 2, 'avatar_path' => ""]);
         $user = User::create($userData);
+        dd($user);
         if ($user != null) {
             return response()->json([
                 'id' => $user->id
