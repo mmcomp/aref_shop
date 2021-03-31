@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -44,4 +45,15 @@ Route::group([
     Route::post('/add', [UserController::class, 'create']);
     Route::post('/edit', [UserController::class, 'edit']);
     Route::post('/delete', [UserController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'products'
+
+], function ($router) {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/getProduct/{id}',[ProductController::class,'getProduct']);
+    Route::post('/add', [ProductController::class, 'create']);
+    Route::post('/edit/{id}', [ProductController::class, 'edit']);
+    Route::post('/delete/{id}', [ProductController::class, 'destroy']);
 });
