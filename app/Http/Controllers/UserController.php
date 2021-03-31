@@ -20,14 +20,18 @@ class UserController extends Controller
     public function index(UserIndexRequest $request)
     {
 
-        $paginated_users = User::paginate($request->page_count);
-        $allUsers = User::where('is_deleted',0)->get();
-        $count = User::count();
+        $not_deleted_users = User::where('is_deleted', 0);
+        $paginated_users = $not_deleted_users->paginate($request->page_count);
+        $allUsers = $not_deleted_users->get();
+        $count = $not_deleted_users->count();
         return response()->json([
-            'list' => $allUsers,
-            'paginated_users' => $paginated_users,
-            'user_counts' => $count
-        ], 201);
+            'error' => null,
+            'data' => [
+                'list' => $allUsers,
+                'paginated_users' => $paginated_users,
+                'user_counts' => $count
+            ]
+        ], 200);
     }
     /**
      * get User Id and display all his/her properties
@@ -38,20 +42,28 @@ class UserController extends Controller
     public function getUser($id)
     {
 
-        $user = User::findOrFail($id);
+        $user = User::find($id);
         if ($user != null && !$user->is_deleted) {
             return response()->json([
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'avatar_path' => $user->avatar_path,
-                'referrer_users_id' => $user->referrer_users_id,
-                'address' => $user->address,
-                'postall' => $user->postall,
-                'cities_id' => $user->cities_id,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-                'groups_id' => $user->groups_id
-            ], 201);
+                'error' => null,
+                'data' => [
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'avatar_path' => $user->avatar_path,
+                    'referrer_users_id' => $user->referrer_users_id,
+                    'address' => $user->address,
+                    'postall' => $user->postall,
+                    'cities_id' => $user->cities_id,
+                    'created_at' => $user->created_at,
+                    'updated_at' => $user->updated_at,
+                    'groups_id' => $user->groups_id
+                ]
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'User not found',
+                'data' => null
+            ], 404);
         }
     }
 
@@ -66,13 +78,12 @@ class UserController extends Controller
 
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'groups_id' => 2, 'avatar_path' => ""]);
         $user = User::create($userData);
-        dd($user);
-        if ($user != null) {
-            return response()->json([
+        return response()->json([
+            'error' => null,
+            'data' => [
                 'id' => $user->id
-            ], 201);
-        }
-        return response()->json(['message' => 'Creating user failed!'], 400);
+            ]
+        ], 201);
     }
 
     /**
@@ -99,15 +110,21 @@ class UserController extends Controller
             try {
                 $user->save();
                 return response()->json([
-                    'message' => 'User updated successfully!'
+                    'error' => null,
+                    'data'  => null
                 ], 200);
             } catch (Exception $e) {
+                return response()->json([
+                    'error' => 'User updating failed!',
+                    'data'  => null
+                ], 500);
                 Log::info('fails in UserController/edit ' . json_encode($e));
             }
         }
         return response()->json([
-            'message' => 'User not found!'
-        ], 400);
+            'error' => 'User not found!',
+            'data'  =>  null
+        ], 404);
     }
 
     /**
@@ -118,21 +135,27 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::find($id);
         if ($user != null) {
             $user->is_deleted = 1;
             $user->email = '_' . $user->email;
             try {
                 $user->save();
                 return response()->json([
-                    'message' => 'User deleted successfully!'
+                    'error' => null,
+                    'data'  => null
                 ], 200);
             } catch (Exception $e) {
+                return response()->json([
+                    'error' => 'User deleting failed!',
+                    'data' => null
+                ], 500);
                 Log::info('fails in UserController/destroy ' . json_encode($e));
             }
         }
-        // return response()->json([
-        //     'message' => 'Deleting user failed!'
-        // ], 200);
+        return response()->json([
+            'error' => 'User not found!',
+            'data'  => null
+        ], 404);
     }
 }
