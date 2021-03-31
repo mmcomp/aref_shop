@@ -28,8 +28,7 @@ class VerifyForgetPasswordRequest extends FormRequest
         return [
             'otp' => 'required|integer|min:1000',
             'email' => 'required|string|max:12',
-            'password' => 'required_with:password_confirmation|same:password_confirmation|string|min:6',
-            'password_confirmation' => 'required|string|min:6',
+            'password' => 'required|string|min:6',
         ];
     }
      /**
