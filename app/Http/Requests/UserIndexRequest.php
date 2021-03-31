@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserEditRequest extends FormRequest
+class UserIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,14 +26,7 @@ class UserEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12',
-            'password' => 'required|string|min:6',
-            'referrer_users_id' => 'required|integer',
-            'address' => 'required|min:10|max:1000',
-            'postall' => 'required|digits:10',
-            'cities_id' => 'required|integer'
+            'page_count' => 'required|integer'
         ];
     }
      /**

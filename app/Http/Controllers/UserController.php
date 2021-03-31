@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\UserIndexRequest;
 use App\Models\User;
-use Validator;
 use Exception;
 use Log;
 
@@ -15,27 +14,53 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param   App\Http\Requests\UserIndexRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(UserIndexRequest $request)
     {
 
-        $validator = Validator::make($request->all(), [
-            'page' => 'required|integer',
-            'page_count' => 'required|integer',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'page' => 'required|integer',
+        //     'page_count' => 'required|integer',
+        // ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $users = User::all();
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors(), 422);
+        // }
+        $paginated_users = User::paginate($request->page_count);
+        $allUsers = User::where('is_deleted',0)->get();
         $count = User::count();
         return response()->json([
-            'list' => $users,
+            'list' => $allUsers,
+            'paginated_users' => $paginated_users,
             'user_counts' => $count
         ], 201);
+    }
+    /**
+     * get User Id and display all his/her properties
+     *
+     * @param  id $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUser($id)
+    {
+
+        $user = User::findOrFail($id);
+        if ($user != null && !$user->is_deleted) {
+            return response()->json([
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'avatar_path' => $user->avatar_path,
+                'referrer_users_id' => $user->referrer_users_id,
+                'address' => $user->address,
+                'postall' => $user->postall,
+                'cities_id' => $user->cities_id,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
+                'groups_id' => $user->groups_id
+            ], 201);
+        }
     }
 
     /**
@@ -47,19 +72,14 @@ class UserController extends Controller
     public function create(UserCreateRequest $request)
     {
 
-        $user = new User;
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->password_confirmation = $user->password;
-        $user->pass_txt = $request->password;
-        $user->referrer_users_id = $request->referrer_users_id;
-        $user->adress = $request->address;
-        $user->postall = $request->postall;
-        $user->groups_id = 2;
-        $user->cities_id = $request->cities_id;
-        $user->save();
+        $userData = array_merge($request->except('password_confirmation'), ['pass_txt' => $request->password, 'groups_id' => 2]);
+        $user = User::create($userData);
+        if ($user != null) {
+            return response()->json([
+                'id' => $user->id
+            ], 201);
+        }
+        return response()->json(['message' => 'Creating user failed!'], 400);
     }
 
     /**
@@ -80,7 +100,7 @@ class UserController extends Controller
             $user->password = bcrypt($request->password);
             $user->pass_txt = $request->password;
             $user->referrer_users_id = $request->referrer_users_id;
-            $user->adress = $request->address;
+            $user->address = $request->address;
             $user->postall = $request->postall;
             $user->cities_id = $request->cities_id;
             try {
@@ -109,12 +129,17 @@ class UserController extends Controller
         if ($user != null) {
             $user->is_deleted = 1;
             $user->email = '_' . $user->email;
-            return response()->json([
-                'message' => 'User deleted successfully!'
-            ], 200);
+            try {
+                $user->save();
+                return response()->json([
+                    'message' => 'User deleted successfully!'
+                ], 200);
+            } catch (Exception $e) {
+                Log::info('fails in UserController/destroy ' . json_encode($e));
+            }
         }
-        return response()->json([
-            'message' => 'Deleting user failed!'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Deleting user failed!'
+        // ], 200);
     }
 }
