@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CityCreateRequest;
+use App\Http\Requests\CityUpdateRequest;
 use App\Models\City;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Exception;
+use Log;
 
 class CityController extends Controller
 {
@@ -20,32 +21,36 @@ class CityController extends Controller
 
         $cities = City::where('is_deleted', false)->get();
         return response()->json([
-            'cities' => $cities,
-        ], 201);
+            'error' => null,
+            'data' => $cities,
+        ], 200);
     }
 
     /**
      * Get city and return its properties
      *
-     * @param id $id
+     * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function getCity($id)
     {
 
-        $city = City::findOrFail($id);
-        if(!$city->is_deleted){
+        $city = City::find($id);
+        if ($city != null && !$city->is_deleted) {
             return response()->json([
-                'name' => $city->name,
-                'provinces_id' => $city->provinces_id,
-                'created_at' => $city->created_at,
-                'updated_at' => $city->updated_at
-            ], 201);
+                'error' => null,
+                'data'  => [
+                    'name' => $city->name,
+                    'provinces_id' => $city->provinces_id,
+                    'created_at' => $city->created_at,
+                    'updated_at' => $city->updated_at
+                ]
+            ], 200);
         }
         return response()->json([
-            'message' => 'The city you want is deleted!'
-        ]);
-
+            'error' => 'City not found!',
+            'data'  => null
+        ], 404);
     }
 
     /**
@@ -58,21 +63,37 @@ class CityController extends Controller
     {
 
         $city = City::create([
-           'name' => $request->name,
-           'provinces_id' => $request->provinces_id
+            'name' => $request->name,
+            'provinces_id' => $request->provinces_id
         ]);
+        return response()->json([
+            'error' => null,
+            'data'  => $city->id
+        ], 201);
     }
 
     /**
      * Edit and Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\CityUpdateRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(CityUpdateRequest $request, $id)
     {
-        //
+
+        $city = City::find($id);
+        if ($city != null && !$city->is_deleted) {
+            $city->update($request->all());
+            return response()->json([
+                'error' => null,
+                'data'  => null
+            ], 200);
+        }
+        return response()->json([
+            'error' => 'City not found!',
+            'data' => null
+        ], 404);
     }
 
     /**
@@ -83,6 +104,27 @@ class CityController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        $city = City::find($id);
+        if ($city != null) {
+            $city->is_deleted = 1;
+            try {
+                $city->save();
+                return response()->json([
+                    'error' => null,
+                    'data' => null
+                ], 200);
+            } catch (Exception $e) {
+                Log::info('failed in CityController/destory', json_encode($e));
+                return response()->json([
+                    'error' => 'failed in CityController/destory',
+                    'data' => null
+                ], 500);
+            }
+        }
+        return response()->json([
+            'error' => 'City not found!',
+            'data' => null
+        ], 404);
     }
 }
