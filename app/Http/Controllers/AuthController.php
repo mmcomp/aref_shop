@@ -36,7 +36,7 @@ class AuthController extends Controller
 
         if (!$token = auth('api')->attempt($validated)) {
 
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized','data' => null], 401);
         }
 
         return $this->createNewToken($token);
@@ -79,7 +79,8 @@ class AuthController extends Controller
         $sms = new Sms;
         $sms->sendCode($userData["email"], $code);
         return response()->json([
-            'message' => 'User successfully registered'
+            'error' => null,
+            'data'  => null
         ], 201);
 
     }
@@ -94,7 +95,7 @@ class AuthController extends Controller
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
-            return response()->json(['error' => 'OTP is incorrect!'], 406);
+            return response()->json(['error' => 'OTP is incorrect!','data' => null], 406);
         }
 
         $smsValidation->delete();
@@ -115,7 +116,7 @@ class AuthController extends Controller
     {
         auth('api')->logout();
 
-        return response()->json(['message' => 'User successfully signed out']);
+        return response()->json(['error' => null, 'data' => null],200);
     }
 
     /**
@@ -148,10 +149,14 @@ class AuthController extends Controller
     protected function createNewToken($token)
     {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
-            'menus' => auth('api')->getUser()->menus()
+            'error' => null,
+            'data'  => [
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth('api')->factory()->getTTL() * 60,
+                'menus' => auth('api')->getUser()->menus()
+            ]
+
         ]);
     }
     /**
@@ -181,8 +186,9 @@ class AuthController extends Controller
         $sms = new Sms;
         $sms->sendCode($userData["email"], $code);
         return response()->json([
-            'message' => 'Getting mobile of user and sending Sms forget password is successfully done!'
-        ], 201);
+            'error' => null,
+            'data'  => null
+        ], 200);
     }
     /**
      *
@@ -195,7 +201,7 @@ class AuthController extends Controller
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
-            return response()->json(['error' => 'OTP is incorrect!'], 406);
+            return response()->json(['error' => 'OTP is incorrect!','data' => null], 406);
         }
         $smsValidation->delete();
         $user = User::where('email', $request->input("email"))->first();
@@ -205,14 +211,21 @@ class AuthController extends Controller
             try {
                 $user->save();
                 return response()->json([
-                    'message' => 'Verfying forget password is successfully done!'
-                ], 201);
+                    'error' => null,
+                    'data'  => null
+                ], 200);
             } catch (Exception $e) {
+                return response()->json([
+                    'error' => 'fails in AuthController/verifyForgetPassword',
+                    'data'  => null
+                ], 500);
                 Log::info('fails in AuthController/verifyForgetPassword ' . json_encode($e));
+
             }
         }
         return response()->json([
-            'message' => 'User not found!'
-        ], 400);
+            'error' => 'User not found!',
+            'data'  => null
+        ], 404);
     }
 }
