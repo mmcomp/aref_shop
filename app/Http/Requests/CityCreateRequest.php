@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
+
 
 class CityCreateRequest extends FormRequest
 {
@@ -27,7 +29,13 @@ class CityCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:255',
-            'provinces_id' => 'required|integer|max:255'
+            'provinces_id' => [
+                'required',
+                'integer',
+                Rule::exists('provinces','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ]
         ];
     }
      /**

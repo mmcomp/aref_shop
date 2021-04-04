@@ -13,4 +13,9 @@ class City extends Model
        'name',
        'provinces_id'
     ];
+
+    public function province()
+    {
+        return $this->hasOne('App\Models\Province','id','provinces_id');
+    }
 }

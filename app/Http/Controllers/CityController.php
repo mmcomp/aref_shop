@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CityCreateRequest;
 use App\Http\Requests\CityUpdateRequest;
+use App\Http\Resources\CityCollection;
+use App\Http\Resources\CityResource;
 use App\Models\City;
 use Exception;
 use Log;
@@ -20,10 +22,9 @@ class CityController extends Controller
     {
 
         $cities = City::where('is_deleted', false)->get();
-        return response()->json([
+        return (new CityCollection($cities))->additional([
             'error' => null,
-            'data' => $cities,
-        ], 200);
+        ])->response()->setStatusCode(200);
     }
 
     /**
@@ -35,22 +36,16 @@ class CityController extends Controller
     public function getCity($id)
     {
 
-        $city = City::find($id);
-        if ($city != null && !$city->is_deleted) {
-            return response()->json([
+        $city = City::where('is_deleted', false)->find($id);
+        if ($city != null) {
+            return (new CityResource($city))->additional([
                 'error' => null,
-                'data'  => [
-                    'name' => $city->name,
-                    'provinces_id' => $city->provinces_id,
-                    'created_at' => $city->created_at,
-                    'updated_at' => $city->updated_at
-                ]
-            ], 200);
+            ])->response()->setStatusCode(200);
         }
-        return response()->json([
+        return (new CityResource($city))->additional([
             'error' => 'City not found!',
-            'data'  => null
-        ], 404);
+        ])->response()->setStatusCode(404);
+
     }
 
     /**
@@ -64,12 +59,11 @@ class CityController extends Controller
 
         $city = City::create([
             'name' => $request->name,
-            'provinces_id' => $request->provinces_id
+            'provinces_id' => $request->provinces_id,
         ]);
-        return response()->json([
-            'error' => null,
-            'data'  => $city->id
-        ], 201);
+        return (new CityResource($city))->additional([
+            'error' => null
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -82,18 +76,16 @@ class CityController extends Controller
     public function edit(CityUpdateRequest $request, $id)
     {
 
-        $city = City::find($id);
-        if ($city != null && !$city->is_deleted) {
+        $city = City::where('is_deleted',false)->find($id);
+        if ($city != null) {
             $city->update($request->all());
-            return response()->json([
-                'error' => null,
-                'data'  => null
-            ], 200);
+            return (new CityResource(null))->additional([
+                'error' => null
+            ])->response()->setStatusCode(200);
         }
-        return response()->json([
+        return (new CityResource(null))->additional([
             'error' => 'City not found!',
-            'data' => null
-        ], 404);
+        ])->response()->setStatusCode(404);
     }
 
     /**
@@ -110,21 +102,18 @@ class CityController extends Controller
             $city->is_deleted = 1;
             try {
                 $city->save();
-                return response()->json([
+                return (new CityResource(null))->additional([
                     'error' => null,
-                    'data' => null
-                ], 200);
+                ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CityController/destory', json_encode($e));
-                return response()->json([
-                    'error' => 'failed in CityController/destory',
-                    'data' => null
-                ], 500);
+                return (new CityResource(null))->additional([
+                    'error' => 'City deleting failed!',
+                ])->response()->setStatusCode(500);
             }
         }
-        return response()->json([
+        return (new CityResource(null))->additional([
             'error' => 'City not found!',
-            'data' => null
-        ], 404);
+        ])->response()->setStatusCode(404);
     }
 }
