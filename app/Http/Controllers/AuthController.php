@@ -58,7 +58,7 @@ class AuthController extends Controller
         $userData["avatar_path"] = "";
         $userData["referrer_users_id"] = 0;
         $userData["pass_txt"] = $request->password;
-        $userData["adress"] = "";
+        $userData["address"] = "";
         $userData["postall"] = "";
         $userData["cities_id"] = 0;
         $userData["groups_id"] = 2;
