@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class ForgetPasswordRequest extends FormRequest
 {
@@ -26,7 +27,14 @@ class ForgetPasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|string|max:12'
+            'email' => [
+                'required',
+                'string',
+                'max:12',
+                Rule::exists('users','email')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ]
         ];
     }
     /**
