@@ -22,18 +22,7 @@ class UserController extends Controller
     public function index(UserIndexRequest $request)
     {
 
-        $not_deleted_users = User::where('is_deleted', false);
-        $paginated_users = $not_deleted_users->paginate($request->page_count);
-        $allUsers = $not_deleted_users->get();
-        //$count = $not_deleted_users->count();
-        // return response()->json([
-        //     'error' => null,
-        //     'data' => [
-        //         'list' => $allUsers,
-        //         'paginated_users' => $paginated_users,
-        //         'user_counts' => $count
-        //     ]
-        // ], 200);
+        $paginated_users = User::where('is_deleted', false)->paginate($request->page_count);
         return (new UserCollection($paginated_users))->additional([
             'error' => null
         ])->response()->setStatusCode(200);
@@ -70,12 +59,9 @@ class UserController extends Controller
 
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'groups_id' => 2, 'avatar_path' => ""]);
         $user = User::create($userData);
-        return response()->json([
-            'error' => null,
-            'data' => [
-                'id' => $user->id
-            ]
-        ], 201);
+        return (new UserResource($user))->additional([
+            'error' => null
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -101,22 +87,19 @@ class UserController extends Controller
             $user->cities_id = $request->cities_id;
             try {
                 $user->save();
-                return response()->json([
-                    'error' => null,
-                    'data'  => null
-                ], 200);
+                return (new UserResource(null))->additional([
+                    'error' => null
+                ])->response()->setStatusCode(200);
             } catch (Exception $e) {
-                return response()->json([
-                    'error' => 'User updating failed!',
-                    'data'  => null
-                ], 500);
+                return (new UserResource(null))->additional([
+                    'error' =>'User updating failed!',
+                ])->response()->setStatusCode(500);
                 Log::info('fails in UserController/edit ' . json_encode($e));
             }
         }
-        return response()->json([
+        return (new UserResource(null))->additional([
             'error' => 'User not found!',
-            'data'  =>  null
-        ], 404);
+        ])->response()->setStatusCode(404);
     }
 
     /**
@@ -130,24 +113,23 @@ class UserController extends Controller
         $user = User::find($id);
         if ($user != null) {
             $user->is_deleted = 1;
-            $user->email = '_' . $user->email;
+            if(substr($user->email,0,1) != '_'){
+                $user->email = '_' . $user->email;
+            }
             try {
                 $user->save();
-                return response()->json([
+                return (new UserResource(null))->additional([
                     'error' => null,
-                    'data'  => null
-                ], 204);
+                ])->response()->setStatusCode(204);
             } catch (Exception $e) {
-                return response()->json([
+                return (new UserResource(null))->additional([
                     'error' => 'User deleting failed!',
-                    'data' => null
-                ], 500);
+                ])->response()->setStatusCode(500);
                 Log::info('fails in UserController/destroy ' . json_encode($e));
             }
         }
-        return response()->json([
+        return (new UserResource(null))->additional([
             'error' => 'User not found!',
-            'data'  => null
-        ], 404);
+        ])->response()->setStatusCode(404);
     }
 }

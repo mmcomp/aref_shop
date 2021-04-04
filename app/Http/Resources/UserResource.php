@@ -24,7 +24,7 @@ class UserResource extends JsonResource
                 'referrer_users_id' => $this->referrer_users_id,
                 'address' => $this->address,
                 'postall' => $this->postall,
-                //'cities_id' => ($this->city) ? $this->city->name : '-',
+                'cities_id' => ($this->city) ? $this->city->name : '-',
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
                 'groups_id' => ($this->group) ? $this->group->name : '-',
