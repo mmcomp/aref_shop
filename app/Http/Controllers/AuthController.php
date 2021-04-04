@@ -184,11 +184,15 @@ class AuthController extends Controller
             ]
         );
         $sms = new Sms;
-        $sms->sendCode($userData["email"], $code);
+        $found = User::where('is_deleted',false)->where('email',$userData['email'])->first();
+        if($found != null){
+            $sms->sendCode($userData["email"], $code);
+        }
         return response()->json([
             'error' => null,
             'data'  => null
         ], 200);
+       
     }
     /**
      *
@@ -204,7 +208,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'OTP is incorrect!','data' => null], 406);
         }
         $smsValidation->delete();
-        $user = User::where('email', $request->input("email"))->first();
+        $user = User::where('is_deleted',false)->where('email', $request->input("email"))->first();
         if ($user != null) {
             $user->password = bcrypt($request->password);
             $user->pass_txt = $request->password;
