@@ -187,15 +187,11 @@ class AuthController extends Controller
         $found = User::where('is_deleted',false)->where('email',$userData['email'])->first();
         if($found != null){
             $sms->sendCode($userData["email"], $code);
-            return response()->json([
-                'error' => null,
-                'data'  => null
-            ], 200);
         }
         return response()->json([
-            'error' => 'User not found!',
+            'error' => null,
             'data'  => null
-        ], 404);
+        ], 200);
        
     }
     /**
