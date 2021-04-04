@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductDetailChairsController;
+use App\Http\Controllers\ProductDetailDownloadsController;
+use App\Http\Controllers\ProductDetailPackagesController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -68,4 +70,26 @@ Route::group([
     Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'getProductDetailChair']);
     Route::post('/edit/{id}', [ProductDetailChairsController::class, 'edit']);
     Route::post('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'product-detail-downloads'
+
+], function ($router) {
+    Route::get('/', [ProductDetailDownloadsController::class, 'index']);
+    Route::post('/add', [ProductDetailDownloadsController::class, 'store']);
+    Route::get('/show/{id}',[ProductDetailDownloadsController::class, 'show']);
+    Route::post('/edit/{id}', [ProductDetailDownloadsController::class, 'update']);
+    Route::post('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'product-detail-packages'
+
+], function ($router) {
+    Route::get('/', [ProductDetailPackagesController::class, 'index']);
+    Route::post('/add', [ProductDetailPackagesController::class, 'store']);
+    Route::get('/show/{id}',[ProductDetailPackagesController::class, 'show']);
+    Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
+    Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });

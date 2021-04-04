@@ -36,7 +36,7 @@ class ProductDetailChairsCreateRequest extends FormRequest
                 }),
             ],
             'start' => 'required|integer',
-            'end' => 'required|integer',
+            'end' => 'required|integer|gt:start',
             'price' => 'required|integer',
             'description' => 'required|string|max:1000'
         ];
