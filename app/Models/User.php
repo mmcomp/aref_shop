@@ -29,8 +29,9 @@ class User extends Authenticatable implements JWTSubject
         'adress',
         'postall',
         'cities_id',
+        'groups_id'
     ];
-        
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
