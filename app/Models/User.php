@@ -26,7 +26,7 @@ class User extends Authenticatable implements JWTSubject
         'avatar_path',
         'referrer_users_id',
         'pass_txt',
-        'adress',
+        'address',
         'postall',
         'cities_id',
         'groups_id'
@@ -52,7 +52,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function group()
     {
-        return $this->hasOne('App\Models\Group', 'id', 'groups_id');
+        return $this->hasOne('App\Models\Group', 'id', 'groups_id')->where('is_deleted',false);
+    }
+
+    public function city()
+    {
+        return $this->hasOne('App\Models\City','id','cities_id')->where('is_deleted',false);
     }
 
     public function menus()
