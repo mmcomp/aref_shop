@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
+
 
 class ProductCreateRequest extends FormRequest
 {
@@ -33,18 +35,38 @@ class ProductCreateRequest extends FormRequest
             'sale_price' => 'integer',
             'sale_expire' => 'date',
             'video_props' => 'string|max:1000',
-            'category_ones_id' => 'integer',
-            'category_twos_id' => 'integer',
-            'category_threes_id' => 'integer',
-            'category_fours_id' => 'integer',
+            'category_ones_id' => [
+                'integer',
+                Rule::exists('category_ones', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'category_twos_id' => [
+                'integer',
+                Rule::exists('category_twos', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'category_threes_id' => [
+                'integer',
+                Rule::exists('category_threes', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'category_fours_id' => [
+                'integer',
+                Rule::exists('category_fours', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
             'main_image_path' => 'string|max:1000',
             'main_image_thumb_path' => 'string|max:1000',
             'second_image_path' => 'string|max:1000',
             'published' => 'required|integer',
-            'type' => 'required|string|in:normal,download,chairs,video'
+            'type' => 'required|string|in:normal,download,chairs,video',
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

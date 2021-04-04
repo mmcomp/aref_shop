@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductDetailChairsController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -56,4 +57,15 @@ Route::group([
     Route::post('/add', [ProductController::class, 'create']);
     Route::post('/edit/{id}', [ProductController::class, 'edit']);
     Route::post('/delete/{id}', [ProductController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'product-detail-chairs'
+
+], function ($router) {
+    Route::get('/', [ProductDetailChairsController::class, 'index']);
+    Route::post('/add', [ProductDetailChairsController::class, 'create']);
+    Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'getProductDetailChair']);
+    Route::post('/edit/{id}', [ProductDetailChairsController::class, 'edit']);
+    Route::post('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
 });
