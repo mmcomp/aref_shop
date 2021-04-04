@@ -27,14 +27,7 @@ class ForgetPasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => [
-                'required',
-                'string',
-                'max:12',
-                Rule::exists('users','email')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ]
+            'email' => 'required|string|max:12'
         ];
     }
     /**
