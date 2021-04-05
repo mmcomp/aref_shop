@@ -24,11 +24,10 @@ class UploadImage
     {
 
         if($image){
-            $filename = 'thumbnail_'.now()->timestamp . '.' . $image->extension();
-            //$image->storeAs('public/uploads/thumbnails', $filename);
+            $filename = 'thumbnail_'.now()->timestamp . '.webp';
+            $image->storeAs('public/uploads/thumbnails', $filename);
             $thumbnailpath = 'storage/uploads/thumbnails/'.$filename;
             $img = Image::make($thumbnailpath)->resize(300, 300);
-            // //dd($img);
             $img->save($thumbnailpath);
             return $thumbnailpath;
         }
