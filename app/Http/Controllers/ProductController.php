@@ -43,7 +43,6 @@ class ProductController extends Controller
         $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "main");
         $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
         $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "second");
-        //$img = Image::make($path)->resize($width, $height)->save($path);
         try {
             $product->save();
         } catch (Exception $e) {
