@@ -9,6 +9,9 @@ use App\Http\Requests\ProductEditRequest;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
+use App\Utils\UploadImage;
+
 
 class ProductController extends Controller
 {
@@ -32,10 +35,15 @@ class ProductController extends Controller
      * @param  \App\Http\Requests\ProductCreateRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
+    //<img src="{{ Storage::disk('public')->url($model->path) }}">
     public function create(ProductCreateRequest $request)
     {
 
-        $product = Product::create($request->all());
+        $product = Product::create($request->except(['main_image_path','main_image_thumb_path','second_image_path']));
+        $upload_image = new UploadImage;
+        $product->main_image_path = $upload_image->getImage($request->file('main_image_path'),"main");
+        $product->second_image_path = $upload_image->getImage($request->file('second_image_path'),"second");
+        $product->save();
         return (new ProductResource($product))->additional([
             'error' => null
         ])->response()->setStatusCode(201);
