@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Log;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductEditRequest;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
-use Illuminate\Support\Facades\Storage;
 use App\Utils\UploadImage;
-
+use Exception;
+use Intervention\Image\Facades\Image;
+use Log;
 
 class ProductController extends Controller
 {
@@ -25,7 +24,7 @@ class ProductController extends Controller
 
         $products = Product::where('is_deleted', false)->get();
         return (new ProductCollection($products))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -39,13 +38,19 @@ class ProductController extends Controller
     public function create(ProductCreateRequest $request)
     {
 
-        $product = Product::create($request->except(['main_image_path','main_image_thumb_path','second_image_path']));
+        $product = Product::create($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path']));
         $upload_image = new UploadImage;
-        $product->main_image_path = $upload_image->getImage($request->file('main_image_path'),"main");
-        $product->second_image_path = $upload_image->getImage($request->file('second_image_path'),"second");
-        $product->save();
+        $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "main");
+        $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
+        $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "second");
+        //$img = Image::make($path)->resize($width, $height)->save($path);
+        try {
+            $product->save();
+        } catch (Exception $e) {
+            Log::info("fails in saving image " . json_encode($e));
+        }
         return (new ProductResource($product))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -58,14 +63,14 @@ class ProductController extends Controller
     public function getProduct($id)
     {
 
-        $product = Product::where('is_deleted',false)->find($id);
+        $product = Product::where('is_deleted', false)->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductResource($product))->additional([
-            'error' => 'Product not found!'
+            'error' => 'Product not found!',
         ])->response()->setStatusCode(404);
     }
 
@@ -79,11 +84,11 @@ class ProductController extends Controller
     public function edit($id, ProductEditRequest $request)
     {
 
-        $product = Product::where('is_deleted',false)->find($id);
-        if($product != null){
+        $product = Product::where('is_deleted', false)->find($id);
+        if ($product != null) {
             $product->update($request->all());
             return (new ProductResource(null))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductResource(null))->additional([
@@ -108,9 +113,9 @@ class ProductController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
-                Log::info('fail in ProductController/destroy'. json_encode($e));
+                Log::info('fail in ProductController/destroy' . json_encode($e));
                 return (new ProductResource(null))->additional([
-                    'error' => 'fail in ProductController/destroy'. json_encode($e),
+                    'error' => 'fail in ProductController/destroy' . json_encode($e),
                 ])->response()->setStatusCode(500);
             }
         }
