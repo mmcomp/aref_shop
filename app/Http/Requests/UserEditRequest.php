@@ -30,7 +30,7 @@ class UserEditRequest extends FormRequest
             'first_name' => 'required|string|between:2,100',
             'last_name' => 'required|string|between:2,100',
             'email' => 'required|string|max:12',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|confirmed|min:6',
             'referrer_users_id' => [
                 'required',
                 'integer',
