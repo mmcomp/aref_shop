@@ -41,6 +41,7 @@ class UserCreateRequest extends FormRequest
             'address' => 'nullable|min:10|max:1000',
             'postall' => 'nullable|digits:10',
             'cities_id' => [
+                'nullable',
                 'integer',
                 Rule::exists('cities','id')->where(function ($query) {
                     return $query->where('is_deleted', false);
