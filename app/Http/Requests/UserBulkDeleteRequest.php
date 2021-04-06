@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class UserBulkDeleteRequest extends FormRequest
 {
@@ -26,7 +27,14 @@ class UserBulkDeleteRequest extends FormRequest
     public function rules()
     {
         return [
-            'ids' => 'required|array'
+            'ids' => 'required|array',
+            'ids.*' =>  [
+                'required',
+                'integer',
+                Rule::exists('users','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
         ];
     }
      /**
