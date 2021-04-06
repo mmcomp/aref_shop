@@ -57,6 +57,7 @@ class UserController extends Controller
     public function create(UserCreateRequest $request)
     {
 
+
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'groups_id' => 2, 'avatar_path' => ""]);
         $user = User::create($userData);
         return (new UserResource($user))->additional([
