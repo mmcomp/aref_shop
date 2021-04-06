@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\VerifyForgetPasswordRequest;
 use App\Http\Requests\VerifyRegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\SmsValidation;
 use App\Utils\Sms;
@@ -36,7 +37,9 @@ class AuthController extends Controller
 
         if (!$token = auth('api')->attempt($validated)) {
 
-            return response()->json(['error' => 'Unauthorized','data' => null], 401);
+            return (new UserResource(null))->additional([
+                'error' => 'Unauthorized',
+            ])->response()->setStatusCode(401);
         }
 
         return $this->createNewToken($token);
@@ -78,10 +81,9 @@ class AuthController extends Controller
         );
         $sms = new Sms;
         $sms->sendCode($userData["email"], $code);
-        return response()->json([
+        return (new UserResource(null))->additional([
             'error' => null,
-            'data'  => null
-        ], 201);
+        ])->response()->setStatusCode(201);
 
     }
 
@@ -95,7 +97,9 @@ class AuthController extends Controller
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
-            return response()->json(['error' => 'OTP is incorrect!','data' => null], 406);
+            return (new UserResource(null))->additional([
+                'error' => 'OTP is incorrect!',
+            ])->response()->setStatusCode(406);
         }
 
         $smsValidation->delete();
@@ -116,7 +120,10 @@ class AuthController extends Controller
     {
         auth('api')->logout();
 
-        return response()->json(['error' => null, 'data' => null],200);
+        return (new UserResource(null))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(200);
+
     }
 
     /**
@@ -136,7 +143,11 @@ class AuthController extends Controller
      */
     public function userProfile()
     {
-        return response()->json(auth('api')->user());
+
+        return (new UserResource(auth('api')->user()))->additional([
+            'error' => null,
+        ]);
+
     }
 
     /**
@@ -188,10 +199,9 @@ class AuthController extends Controller
         if($found != null){
             $sms->sendCode($userData["email"], $code);
         }
-        return response()->json([
+        return (new UserResource(null))->additional([
             'error' => null,
-            'data'  => null
-        ], 200);
+        ])->response()->setStatusCode(200);
        
     }
     /**
@@ -205,7 +215,9 @@ class AuthController extends Controller
 
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
-            return response()->json(['error' => 'OTP is incorrect!','data' => null], 406);
+            return (new UserResource(null))->additional([
+                'error' => 'OTP is incorrect!',
+            ])->response()->setStatusCode(406);
         }
         $smsValidation->delete();
         $user = User::where('is_deleted',false)->where('email', $request->input("email"))->first();
@@ -214,22 +226,19 @@ class AuthController extends Controller
             $user->pass_txt = $request->password;
             try {
                 $user->save();
-                return response()->json([
+                return (new UserResource(null))->additional([
                     'error' => null,
-                    'data'  => null
-                ], 200);
+                ])->response()->setStatusCode(200);
             } catch (Exception $e) {
-                return response()->json([
-                    'error' => 'fails in AuthController/verifyForgetPassword',
-                    'data'  => null
-                ], 500);
+                return (new UserResource(null))->additional([
+                    'error' => 'fails in AuthController/verifyForgetPassword ' . json_encode($e),
+                ])->response()->setStatusCode(500);
                 Log::info('fails in AuthController/verifyForgetPassword ' . json_encode($e));
 
             }
         }
-        return response()->json([
-            'error' => 'User not found!',
-            'data'  => null
-        ], 404);
+        return (new UserResource(null))->additional([
+            'error' =>'User not found!',
+        ])->response()->setStatusCode(404);
     }
 }
