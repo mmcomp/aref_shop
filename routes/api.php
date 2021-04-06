@@ -45,4 +45,5 @@ Route::group([
     Route::get('/get/{id}',[UserController::class, 'getUser']);
     Route::post('/edit/{id}', [UserController::class, 'edit']);
     Route::post('/delete/{id}', [UserController::class, 'destroy']);
+    Route::post('/set-avatar/{id}',[UserController::class,'setAvatar']);
 });

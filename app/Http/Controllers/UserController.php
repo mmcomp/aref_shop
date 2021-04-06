@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserIndexRequest;
-use App\Models\User;
+use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
+use App\Models\User;
+use App\Utils\UploadImage;
 use Exception;
 use Log;
 
@@ -24,7 +26,7 @@ class UserController extends Controller
 
         $paginated_users = User::where('is_deleted', false)->paginate($request->page_count);
         return (new UserCollection($paginated_users))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(200);
     }
     /**
@@ -36,14 +38,14 @@ class UserController extends Controller
     public function getUser($id)
     {
 
-        $user = User::where('is_deleted',false)->find($id);
+        $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             return (new UserResource($user))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         } else {
             return (new UserResource($user))->additional([
-                'error' => 'User not found!'
+                'error' => 'User not found!',
             ])->response()->setStatusCode(404);
         }
     }
@@ -60,7 +62,7 @@ class UserController extends Controller
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'groups_id' => 2, 'avatar_path' => ""]);
         $user = User::create($userData);
         return (new UserResource($user))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -88,11 +90,11 @@ class UserController extends Controller
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
-                    'error' => null
+                    'error' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 return (new UserResource(null))->additional([
-                    'error' =>'User updating failed!',
+                    'error' => 'User updating failed!',
                 ])->response()->setStatusCode(500);
                 Log::info('fails in UserController/edit ' . json_encode($e));
             }
@@ -113,7 +115,7 @@ class UserController extends Controller
         $user = User::find($id);
         if ($user != null) {
             $user->is_deleted = 1;
-            if(substr($user->email,0,1) != '_'){
+            if (substr($user->email, 0, 1) != '_') {
                 $user->email = '_' . $user->email;
             }
             try {
@@ -126,6 +128,33 @@ class UserController extends Controller
                     'error' => 'User deleting failed!',
                 ])->response()->setStatusCode(500);
                 Log::info('fails in UserController/destroy ' . json_encode($e));
+            }
+        }
+        return (new UserResource(null))->additional([
+            'error' => 'User not found!',
+        ])->response()->setStatusCode(404);
+    }
+    /**
+     * Set user avatar
+     *
+     * @param int $id
+     * @param App\Http\Requests\UserSetAvatarRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function setAvatar(UserSetAvatarRequest $request, $id)
+    {
+
+        $user = User::where('is_deleted', false)->find($id);
+        if ($user != null) {
+            $upload_image = new UploadImage;
+            $user->avatar_path = $upload_image->getImage($request->file('avatar_path'),'public/uploads/avatars');
+            try {
+                $user->save();
+                return (new UserResource(null))->additional([
+                    'error' => null,
+                ])->response()->setStatusCode(200);
+            } catch (Exception $e) {
+                Log::info("fails in saving image set avater in UserController " . json_encode($e));
             }
         }
         return (new UserResource(null))->additional([
