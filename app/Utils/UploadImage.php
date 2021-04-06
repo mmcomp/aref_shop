@@ -8,13 +8,13 @@ use Intervention\Image\Facades\Image;
 class UploadImage
 {
 
-    public function getImage(object $image, string $prefix="")
+    public function getImage(object $image, string $image_path, string $prefix="")
     {
 
         if ($image) {
             $filename = $prefix.now()->timestamp . '.' . $image->extension();
             $path = Storage::putFileAs(
-                'public/uploads', $image, $filename
+                $image_path, $image, $filename
             );
             return $path = str_replace("public", "storage", $path);
         }
