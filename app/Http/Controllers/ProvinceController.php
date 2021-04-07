@@ -7,8 +7,6 @@ use App\Http\Requests\ProvinceEditRequest;
 use App\Http\Resources\ProvinceResource;
 use App\Http\Resources\ProvinceCollection;
 use App\Models\Province;
-use App\Models\City;
-use App\Http\Resources\CityCollection;
 use Exception;
 use Log;
 
@@ -44,11 +42,16 @@ class ProvinceController extends Controller
      */
     public function getCitiesOfAProvince($id)
     {
-
-        $cities = City::where('is_deleted',false)->where('provinces_id',$id)->get();
-        return (new CityCollection($cities))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(200);
+        
+        $province = Province::where('is_deleted',false)->find($id);
+        if($province != null ){
+            return (new ProvinceCollection($province->cities))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(200);  
+        }
+        return (new ProvinceResource($province))->additional([
+            'error' => "Province not found!",
+        ])->response()->setStatusCode(404);
     }
 
     /**
