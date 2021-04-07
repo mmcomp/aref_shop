@@ -32,16 +32,16 @@ class UserEditRequest extends FormRequest
             'email' => 'required|string|max:12',
             'password' => 'required|string|confirmed|min:6',
             'referrer_users_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('users','id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'address' => 'required|min:10|max:1000',
-            'postall' => 'required|digits:10',
+            'address' => 'nullable|min:10|max:1000',
+            'postall' => 'nullable|digits:10',
             'cities_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('cities','id')->where(function ($query) {
                     return $query->where('is_deleted', false);
