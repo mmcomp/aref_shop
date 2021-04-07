@@ -155,6 +155,9 @@ class UserController extends Controller
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info("fails in saving image set avater in UserController " . json_encode($e));
+                return (new UserResource(null))->additional([
+                    'error' => "fails in saving image set avater in UserController " . json_encode($e),
+                ])->response()->setStatusCode(500);
             }
         }
         return (new UserResource(null))->additional([
