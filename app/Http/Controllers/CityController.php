@@ -13,7 +13,6 @@ use Log;
 class CityController extends Controller
 {
     /**
-<<<<<<< HEAD
      * Create a new CityController instance.
      *
      * @return void
@@ -23,8 +22,6 @@ class CityController extends Controller
         $this->middleware('auth:api');
     }
     /**
-=======
->>>>>>> d4f944b8cdac5a7dc5dcdcf966d92545e703484f
      * Display a listing of the resource.
      *
      * @param  \Illuminate\Http\Request  $request

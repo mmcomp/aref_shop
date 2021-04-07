@@ -44,8 +44,9 @@ Route::group([
     Route::post('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'create']);
     Route::get('/get/{id}',[UserController::class, 'getUser']);
-    Route::post('/edit/{id}', [UserController::class, 'edit']);
-    Route::post('/delete/{id}', [UserController::class, 'destroy']);
+    Route::put('/edit/{id}', [UserController::class, 'edit']);
+    Route::delete('/delete/{id}', [UserController::class, 'destroy']);
+    Route::patch('/bulk-delete',[UserController::class, 'bulkDelete']);
 });
 Route::group([
     'middleware' => 'api',
