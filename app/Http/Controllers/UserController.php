@@ -156,11 +156,10 @@ class UserController extends Controller
      */
     public function setAvatar(UserSetAvatarRequest $request, $id)
     {
-        
         $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $upload_image = new UploadImage;
-            $user->avatar_path = $upload_image->getImage($request->file('avatar_path'),'public/uploads/avatars');
+            $user->avatar_path = $upload_image->getImage($request->file('avatar_path'), 'public/uploads/avatars');
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
@@ -168,11 +167,11 @@ class UserController extends Controller
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info("fails in saving image set avater in UserController " . json_encode($e));
-                if(env('APP_ENV') == "development"){
+                if (env('APP_ENV') == "development") {
                     return (new UserResource(null))->additional([
                         'error' => "fails in saving image set avater in UserController " . json_encode($e)
                     ])->response()->setStatusCode(500);
-                } else if(env('APP_ENV') == "production"){
+                } elseif (env('APP_ENV') == "production") {
                     return (new UserResource(null))->additional([
                         'error' => "fails in saving image set avater in UserController "
                     ])->response()->setStatusCode(500);
@@ -182,6 +181,7 @@ class UserController extends Controller
         return (new UserResource(null))->additional([
             'error' => 'User not found!',
         ])->response()->setStatusCode(404);
+    }
 
     public function bulkDelete(UserBulkDeleteRequest $request)
     {
