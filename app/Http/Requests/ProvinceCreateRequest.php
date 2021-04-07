@@ -5,9 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
-class UserEditRequest extends FormRequest
+class ProvinceCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,7 +18,7 @@ class UserEditRequest extends FormRequest
         return true;
     }
 
-    /**
+     /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -27,26 +26,7 @@ class UserEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12',
-            'password' => 'nullable|string|min:6|confirmed',
-            'referrer_users_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('users','id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
-            'address' => 'nullable|min:10|max:1000',
-            'postall' => 'nullable|digits:10',
-            'cities_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('cities','id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
+           'name' => 'required|min:3|max:255'
         ];
     }
      /**
