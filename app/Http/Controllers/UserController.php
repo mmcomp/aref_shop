@@ -90,8 +90,10 @@ class UserController extends Controller
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->email = $request->email;
-            $user->password = bcrypt($request->password);
-            $user->pass_txt = $request->password;
+            if($request->password){
+                $user->password = bcrypt($request->password);
+                $user->pass_txt = $request->password;
+            }
             $user->referrer_users_id = $request->referrer_users_id;
             $user->address = $request->address;
             $user->postall = $request->postall;
