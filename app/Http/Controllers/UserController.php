@@ -96,7 +96,13 @@ class UserController extends Controller
                 $user->password = bcrypt($request->password);
                 $user->pass_txt = $request->password;
             }
-            $user->referrer_users_id = $request->referrer_users_id;
+            if((int)$id != $request->referrer_users_id){
+                $user->referrer_users_id = $request->referrer_users_id;
+            } else {
+                return (new UserResource(null))->additional([
+                    'error' => 'referrers_users_id and user id should be different!',
+                ])->response()->setStatusCode(406);
+            }
             $user->address = $request->address;
             $user->postall = $request->postall;
             $user->cities_id = $request->cities_id;
