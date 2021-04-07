@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
 /*
@@ -56,4 +57,15 @@ Route::group([
     Route::get('/get/{id}',[ProvinceController::class, 'show']);
     Route::put('/edit/{id}', [ProvinceController::class, 'update']);
     Route::delete('/delete/{id}', [ProvinceController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'cities'
+
+], function ($router) {
+    Route::get('/', [CityController::class, 'index']);
+    Route::post('/add', [CityController::class, 'create']);
+    Route::get('/getCity/{id}',[CityController::class, 'getCity']);
+    Route::put('/edit/{id}', [CityController::class, 'edit']);
+    Route::delete('/delete/{id}', [CityController::class, 'destroy']);
 });
