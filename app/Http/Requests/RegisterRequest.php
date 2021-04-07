@@ -5,9 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
-class UserEditRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,24 +28,8 @@ class UserEditRequest extends FormRequest
         return [
             'first_name' => 'required|string|between:2,100',
             'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12',
-            'password' => 'nullable|string|min:6|confirmed',
-            'referrer_users_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('users','id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
-            'address' => 'nullable|min:10|max:1000',
-            'postall' => 'nullable|digits:10',
-            'cities_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('cities','id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
+            'email' => 'required|string|max:12|unique:users',
+            'password' => 'required|string|confirmed|min:6',
         ];
     }
      /**
@@ -61,7 +44,7 @@ class UserEditRequest extends FormRequest
             $errors = (new ValidationException($validator))->errors();
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 422)
+                response()->json(['errors' => $errors], 400)
             );
         }
     }
