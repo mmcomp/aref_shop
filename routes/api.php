@@ -37,7 +37,7 @@ Route::group([
     Route::post('/verify-forget-password',[AuthController::class, 'verifyForgetPassword']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => ['api','can:admin'],
     'prefix' => 'users'
 
 ], function ($router) {
