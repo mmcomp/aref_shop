@@ -104,10 +104,10 @@ class UserController extends Controller
                     'error' => null
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
+                Log::info('fails in UserController/edit ' . json_encode($e));
                 return (new UserResource(null))->additional([
                     'error' => 'User updating failed!',
                 ])->response()->setStatusCode(500);
-                Log::info('fails in UserController/edit ' . json_encode($e));
             }
         }
         return (new UserResource(null))->additional([
@@ -135,10 +135,10 @@ class UserController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
+                Log::info('fails in UserController/destroy ' . json_encode($e));
                 return (new UserResource(null))->additional([
                     'error' => 'User deleting failed!',
                 ])->response()->setStatusCode(500);
-                Log::info('fails in UserController/destroy ' . json_encode($e));
             }
         }
         return (new UserResource(null))->additional([
