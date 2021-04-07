@@ -93,10 +93,10 @@ class UserController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
+                Log::info('fails in UserController/edit ' . json_encode($e));
                 return (new UserResource(null))->additional([
                     'error' => 'User updating failed!',
                 ])->response()->setStatusCode(500);
-                Log::info('fails in UserController/edit ' . json_encode($e));
             }
         }
         return (new UserResource(null))->additional([
@@ -124,10 +124,10 @@ class UserController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
+                Log::info('fails in UserController/destroy ' . json_encode($e));
                 return (new UserResource(null))->additional([
                     'error' => 'User deleting failed!',
                 ])->response()->setStatusCode(500);
-                Log::info('fails in UserController/destroy ' . json_encode($e));
             }
         }
         return (new UserResource(null))->additional([
@@ -143,7 +143,7 @@ class UserController extends Controller
      */
     public function setAvatar(UserSetAvatarRequest $request, $id)
     {
-
+        
         $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $upload_image = new UploadImage;
@@ -155,9 +155,15 @@ class UserController extends Controller
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info("fails in saving image set avater in UserController " . json_encode($e));
-                return (new UserResource(null))->additional([
-                    'error' => "fails in saving image set avater in UserController " . json_encode($e),
-                ])->response()->setStatusCode(500);
+                if(env('APP_ENV') == "development"){
+                    return (new UserResource(null))->additional([
+                        'error' => "fails in saving image set avater in UserController " . json_encode($e)
+                    ])->response()->setStatusCode(500);
+                } else if(env('APP_ENV') == "production"){
+                    return (new UserResource(null))->additional([
+                        'error' => "fails in saving image set avater in UserController "
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new UserResource(null))->additional([
