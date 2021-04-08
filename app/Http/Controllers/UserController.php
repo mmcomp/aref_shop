@@ -11,13 +11,12 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Utils\UploadImage;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Log;
 
 class UserController extends Controller
 {
-     
     /**
      * Display a listing of the resource.
      *
@@ -62,7 +61,7 @@ class UserController extends Controller
     public function create(UserCreateRequest $request)
     {
 
-        $userData = array_merge($request->validated(), ['pass_txt' => $request->password,'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
+        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
         $user = User::create($userData);
         return (new UserResource($user))->additional([
             'error' => null,
@@ -73,18 +72,17 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  App\Http\Requests\UserEditRequest  $request
-     * @param id $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit($id, UserEditRequest $request)
+    public function edit(UserEditRequest $request)
     {
 
-        $user = User::where('id', $id)->first();
+        $user = User::where('id', $request->id)->first();
         if ($user != null) {
             $user->first_name = $request->first_name;
             $user->last_name = $request->last_name;
             $user->email = $request->email;
-            if($request->password){
+            if ($request->password) {
                 $user->password = bcrypt($request->password);
                 $user->pass_txt = $request->password;
             }
@@ -161,11 +159,11 @@ class UserController extends Controller
                 Log::info("fails in saving image set avater in UserController " . json_encode($e));
                 if (env('APP_ENV') == "development") {
                     return (new UserResource(null))->additional([
-                        'error' => "fails in saving image set avater in UserController " . json_encode($e)
+                        'error' => "fails in saving image set avater in UserController " . json_encode($e),
                     ])->response()->setStatusCode(500);
                 } elseif (env('APP_ENV') == "production") {
                     return (new UserResource(null))->additional([
-                        'error' => "fails in saving image set avater in UserController "
+                        'error' => "fails in saving image set avater in UserController ",
                     ])->response()->setStatusCode(500);
                 }
             }
