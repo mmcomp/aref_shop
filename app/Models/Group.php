@@ -9,6 +9,12 @@ class Group extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'type',
+        'description'
+    ];
+
     public function menus()
     {
         return $this->hasMany('App\Models\GroupMenu', 'groups_id', 'id');
