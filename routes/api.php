@@ -57,6 +57,7 @@ Route::group([
     Route::get('/', [ProvinceController::class, 'index']);
     Route::post('/add', [ProvinceController::class, 'store']);
     Route::get('/get/{id}',[ProvinceController::class, 'show']);
+    Route::get('/get-provinces-of-a-city/{id}',[ProvinceController::class,'getCitiesOfAProvince']);
     Route::put('/edit/{id}', [ProvinceController::class, 'update']);
     Route::delete('/delete/{id}', [ProvinceController::class, 'destroy']);
 });

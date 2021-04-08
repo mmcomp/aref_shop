@@ -147,8 +147,8 @@ class UserController extends Controller
             'error' => 'User not found!',
         ])->response()->setStatusCode(404);
     }
-    /**
-     * Set user avatar
+   
+     /* Set user avatar
      *
      * @param int $id
      * @param App\Http\Requests\UserSetAvatarRequest  $request
@@ -182,7 +182,12 @@ class UserController extends Controller
             'error' => 'User not found!',
         ])->response()->setStatusCode(404);
     }
-
+    /**
+     * Remove some specified resources from storage.
+     *
+     * @param  App\Http\Requests\UserBulkDeleteRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function bulkDelete(UserBulkDeleteRequest $request)
     {
 

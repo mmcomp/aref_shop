@@ -34,6 +34,25 @@ class ProvinceController extends Controller
             'error' => null,
         ])->response()->setStatusCode(200);
     }
+     /**
+     * get cities of a province(input = province_id)
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCitiesOfAProvince($id)
+    {
+        
+        $province = Province::where('is_deleted',false)->find($id);
+        if($province != null ){
+            return (new ProvinceCollection($province->cities))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(200);  
+        }
+        return (new ProvinceResource($province))->additional([
+            'error' => "Province not found!",
+        ])->response()->setStatusCode(404);
+    }
 
     /**
      * Store a newly created resource in storage.
