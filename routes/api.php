@@ -54,7 +54,7 @@ Route::group([
     Route::patch('/bulk-delete',[UserController::class, 'bulkDelete']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'products'
 
 ], function ($router) {
@@ -62,32 +62,32 @@ Route::group([
     Route::get('/getProduct/{id}',[ProductController::class,'getProduct']);
     Route::post('/add', [ProductController::class, 'create']);
     Route::post('/edit/{id}', [ProductController::class, 'edit']);
-    Route::post('/delete/{id}', [ProductController::class, 'destroy']);
+    Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'product-detail-chairs'
 
 ], function ($router) {
     Route::get('/', [ProductDetailChairsController::class, 'index']);
     Route::post('/add', [ProductDetailChairsController::class, 'create']);
     Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'getProductDetailChair']);
-    Route::post('/edit/{id}', [ProductDetailChairsController::class, 'edit']);
-    Route::post('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
+    Route::put('/edit/{id}', [ProductDetailChairsController::class, 'edit']);
+    Route::delete('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'product-detail-downloads'
 
 ], function ($router) {
     Route::get('/', [ProductDetailDownloadsController::class, 'index']);
     Route::post('/add', [ProductDetailDownloadsController::class, 'store']);
     Route::get('/show/{id}',[ProductDetailDownloadsController::class, 'show']);
-    Route::post('/edit/{id}', [ProductDetailDownloadsController::class, 'update']);
-    Route::post('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
+    Route::put('/edit/{id}', [ProductDetailDownloadsController::class, 'update']);
+    Route::delete('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'product-detail-packages'
 
 ], function ($router) {

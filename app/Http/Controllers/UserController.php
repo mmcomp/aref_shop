@@ -90,6 +90,7 @@ class UserController extends Controller
             $user->address = $request->address;
             $user->postall = $request->postall;
             $user->cities_id = $request->cities_id;
+            $user->groups_id = $request->groups_id;
             try {
                 $user->save();
                 return (new UserResource(null))->additional([

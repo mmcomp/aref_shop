@@ -27,7 +27,7 @@ class UploadImage
             $filename = 'thumbnail_'.now()->timestamp . '.webp';
             $image->storeAs('public/uploads/thumbnails', $filename);
             $thumbnailpath = 'storage/uploads/thumbnails/'.$filename;
-            $img = Image::make($thumbnailpath)->resize(300, 300);
+            $img = Image::make($thumbnailpath)->fit(300);
             $img->save($thumbnailpath);
             return $thumbnailpath;
         }

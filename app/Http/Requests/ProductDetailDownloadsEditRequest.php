@@ -33,7 +33,7 @@ class ProductDetailDownloadsEditRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'file_path' => 'string|max:1500'
+            'file_path' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
      /**

@@ -17,7 +17,7 @@ class ProductDetailDownloadsResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'products_id' => $this->product ? $this->product->name : '-',
+                'products_id' => $this->product,
                 'file_path' => $this->file_path
             ];
         }

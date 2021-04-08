@@ -28,10 +28,10 @@ class ProductEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
-            'short_description' => 'required|string|max:1500',
-            'long_description' => 'required|string|max:2000',
-            'price' => 'required|integer',
+            'name' => 'string|min:3|max:255',
+            'short_description' => 'string|max:1500',
+            'long_description' => 'string|max:2000',
+            'price' => 'integer',
             'sale_price' => 'integer',
             'sale_expire' => 'date',
             'video_props' => 'string|max:1000',
@@ -61,8 +61,8 @@ class ProductEditRequest extends FormRequest
             ],
             'main_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'second_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'published' => 'required|integer',
-            'type' => 'required|string|in:normal,download,chairs,video'
+            'published' => 'integer',
+            'type' => 'string|in:normal,download,chairs,video'
         ];
     }
      /**

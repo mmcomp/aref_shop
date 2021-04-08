@@ -47,6 +47,12 @@ class UserCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'groups_id' => [
+                'integer',
+                Rule::exists('groups','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
         ];
     }
      /**
