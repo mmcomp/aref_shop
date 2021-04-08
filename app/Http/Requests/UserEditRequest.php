@@ -27,12 +27,14 @@ class UserEditRequest extends FormRequest
     public function rules()
     {
         return [
+            'id' => 'required|integer',
             'first_name' => 'required|string|between:2,100',
             'last_name' => 'required|string|between:2,100',
             'email' => 'required|string|max:12',
             'password' => 'nullable|string|min:6|confirmed',
             'referrer_users_id' => [
                 'nullable',
+                'different:id',
                 'integer',
                 Rule::exists('users','id')->where(function ($query) {
                     return $query->where('is_deleted', false);
