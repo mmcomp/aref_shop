@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\GroupGatesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -69,4 +70,15 @@ Route::group([
     Route::get('/getCity/{id}',[CityController::class, 'getCity']);
     Route::put('/edit/{id}', [CityController::class, 'edit']);
     Route::delete('/delete/{id}', [CityController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'group-gates'
+
+], function ($router) {
+    Route::get('/', [GroupGatesController::class, 'index']);
+    Route::post('/add', [GroupGatesController::class, 'store']);
+    Route::get('/get/{id}',[GroupGatesController::class, 'show']);
+    Route::put('/edit/{id}', [GroupGatesController::class, 'update']);
+    Route::delete('/delete/{id}', [GroupGatesController::class, 'destroy']);
 });

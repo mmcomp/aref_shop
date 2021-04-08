@@ -13,4 +13,9 @@ class Group extends Model
     {
         return $this->hasMany('App\Models\GroupMenu', 'groups_id', 'id');
     }
+    
+    public function gates()
+    {
+        return $this->hasMany('App\Models\GroupGate','groups_id','id');
+    }
 }
