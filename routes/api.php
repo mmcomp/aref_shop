@@ -6,9 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductDetailChairsController;
 use App\Http\Controllers\ProductDetailDownloadsController;
-use App\Http\Controllers\ProductDetailPackagesController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\GroupController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -40,14 +41,17 @@ Route::group([
     Route::post('/verify-forget-password',[AuthController::class, 'verifyForgetPassword']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'users'
 
 ], function ($router) {
     Route::post('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'create']);
-    Route::post('/edit', [UserController::class, 'edit']);
-    Route::post('/delete', [UserController::class, 'destroy']);
+    Route::get('/get/{id}',[UserController::class, 'getUser']);
+    Route::put('/edit', [UserController::class, 'edit']);
+    Route::delete('/delete/{id}', [UserController::class, 'destroy']);
+    Route::post('/set-avatar/{id}',[UserController::class,'setAvatar']);
+    Route::patch('/bulk-delete',[UserController::class, 'bulkDelete']);
 });
 Route::group([
     'middleware' => 'api',
@@ -92,4 +96,38 @@ Route::group([
     Route::get('/show/{id}',[ProductDetailPackagesController::class, 'show']);
     Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
     Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'provinces'
+
+], function ($router) {
+    Route::get('/', [ProvinceController::class, 'index']);
+    Route::post('/add', [ProvinceController::class, 'store']);
+    Route::get('/get/{id}',[ProvinceController::class, 'show']);
+    Route::get('/get-provinces-of-a-city/{id}',[ProvinceController::class,'getCitiesOfAProvince']);
+    Route::put('/edit/{id}', [ProvinceController::class, 'update']);
+    Route::delete('/delete/{id}', [ProvinceController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'cities'
+
+], function ($router) {
+    Route::get('/', [CityController::class, 'index']);
+    Route::post('/add', [CityController::class, 'create']);
+    Route::get('/getCity/{id}',[CityController::class, 'getCity']);
+    Route::put('/edit/{id}', [CityController::class, 'edit']);
+    Route::delete('/delete/{id}', [CityController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'groups'
+
+], function ($router) {
+    Route::get('/', [GroupController::class, 'index']);
+    Route::post('/add', [GroupController::class, 'store']);
+    Route::get('/get/{id}',[GroupController::class, 'show']);
+    Route::put('/edit/{id}', [GroupController::class, 'update']);
+    Route::delete('/delete/{id}', [GroupController::class, 'destroy']);
 });

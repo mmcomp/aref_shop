@@ -5,18 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
+class Province extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'type',
-        'description'
+        'name'
     ];
 
-    public function menus()
-    {
-        return $this->hasMany('App\Models\GroupMenu', 'groups_id', 'id');
+    public function cities(){
+
+        return $this->hasMany('App\Models\City','provinces_id','id')->where('is_deleted',false);
     }
+ 
 }

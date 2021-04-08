@@ -5,18 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Group extends Model
+class City extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'type',
-        'description'
+       'name',
+       'provinces_id'
     ];
 
-    public function menus()
+    public function province()
     {
-        return $this->hasMany('App\Models\GroupMenu', 'groups_id', 'id');
+        
+        return $this->hasOne('App\Models\Province', 'id', 'provinces_id');
     }
+    
 }
+
