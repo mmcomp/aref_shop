@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\GroupController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -37,20 +38,20 @@ Route::group([
     Route::post('/verify-forget-password',[AuthController::class, 'verifyForgetPassword']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'users'
 
 ], function ($router) {
     Route::post('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'create']);
     Route::get('/get/{id}',[UserController::class, 'getUser']);
-    Route::post('/edit/{id}', [UserController::class, 'edit']);
-    Route::post('/delete/{id}', [UserController::class, 'destroy']);
+    Route::put('/edit/{id}', [UserController::class, 'edit']);
+    Route::delete('/delete/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}',[UserController::class,'setAvatar']);
     Route::patch('/bulk-delete',[UserController::class, 'bulkDelete']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'provinces'
 
 ], function ($router) {
@@ -62,7 +63,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProvinceController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'cities'
 
 ], function ($router) {
@@ -71,4 +72,15 @@ Route::group([
     Route::get('/getCity/{id}',[CityController::class, 'getCity']);
     Route::put('/edit/{id}', [CityController::class, 'edit']);
     Route::delete('/delete/{id}', [CityController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'groups'
+
+], function ($router) {
+    Route::get('/', [GroupController::class, 'index']);
+    Route::post('/add', [GroupController::class, 'store']);
+    Route::get('/get/{id}',[GroupController::class, 'show']);
+    Route::put('/edit/{id}', [GroupController::class, 'update']);
+    Route::delete('/delete/{id}', [GroupController::class, 'destroy']);
 });
