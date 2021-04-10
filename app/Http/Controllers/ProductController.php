@@ -39,9 +39,13 @@ class ProductController extends Controller
 
         $product = Product::create($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path']));
         $upload_image = new UploadImage;
-        $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "public/uploads", "main");
-        $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
-        $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
+        if($request->file('main_image_path')){
+            $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "public/uploads", "main");
+            $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
+        }
+        if($request->file('second_image_path')){
+            $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
+        } 
         try {
             $product->save();
         } catch (Exception $e) {
