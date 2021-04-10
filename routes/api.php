@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CategoryOnesController;
+use App\Http\Controllers\CategoryTwosController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -154,3 +155,13 @@ Route::group([
     Route::put('/edit/{id}', [GroupController::class, 'update']);
     Route::delete('/delete/{id}', [GroupController::class, 'destroy']);
 });
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'category-twos'
+], function ($router) {
+    Route::get('/', [CategoryTwosController::class, 'index']);
+    Route::post('/add', [CategoryTwosController::class, 'store']);
+    Route::get('/show/{id}', [CategoryTwosController::class, 'show']);
+    Route::put('/edit/{id}', [CategoryTwosController::class, 'update']);
+    Route::delete('/delete/{id}', [CategoryTwosController::class, 'destroy']);
+}); 

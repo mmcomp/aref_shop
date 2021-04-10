@@ -7,7 +7,6 @@ use App\Http\Requests\CategoryOnesEditRequest;
 use App\Http\Resources\CategoryOnesCollection;
 use App\Http\Resources\CategoryOnesResource;
 use App\Models\CategoryOne;
-use App\Models\CategoryOnes;
 use Exception;
 use Log;
 
@@ -74,7 +73,7 @@ class CategoryOnesController extends Controller
     public function update(CategoryOnesEditRequest $request, $id)
     {
 
-        $category_one = CategoryOnes::where('is_deleted', false)->find($id);
+        $category_one = CategoryOne::where('is_deleted', false)->find($id);
         if ($category_one != null) {
             $category_one->update($request->all());
             return (new CategoryOnesResource(null))->additional([
@@ -95,7 +94,7 @@ class CategoryOnesController extends Controller
     public function destroy($id)
     {
 
-        $category_one = CategoryOnes::find($id);
+        $category_one = CategoryOne::find($id);
         if ($category_one != null) {
             $category_one->is_deleted = 1;
             try {
