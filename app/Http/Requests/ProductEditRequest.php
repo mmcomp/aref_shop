@@ -31,7 +31,7 @@ class ProductEditRequest extends FormRequest
             'name' => 'string|min:3|max:255',
             'short_description' => 'string|max:1500',
             'long_description' => 'string|max:2000',
-            'price' => 'required|integer',
+            'price' => 'integer',
             'sale_price' => 'nullable|integer|lte:price',
             'sale_expire' => 'date',
             'video_props' => 'string|max:1000',
