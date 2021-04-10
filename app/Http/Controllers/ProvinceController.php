@@ -114,7 +114,7 @@ class ProvinceController extends Controller
     public function destroy($id)
     {
         
-        $province = Province::find($id);
+        $province = Province::where('is_deleted',false)->find($id);
         if ($province != null) {
             $province->is_deleted = 1;
             try {

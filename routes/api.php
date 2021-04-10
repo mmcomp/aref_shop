@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CategoryOnesController;
+use App\Http\Controllers\CategoryThreesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -154,3 +155,13 @@ Route::group([
     Route::put('/edit/{id}', [GroupController::class, 'update']);
     Route::delete('/delete/{id}', [GroupController::class, 'destroy']);
 });
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'category-threes'
+], function ($router) {
+    Route::get('/', [CategoryThreesController::class, 'index']);
+    Route::post('/add', [CategoryThreesController::class, 'store']);
+    Route::get('/show/{id}', [CategoryThreesController::class, 'show']);
+    Route::put('/edit/{id}', [CategoryThreesController::class, 'update']);
+    Route::delete('/delete/{id}', [CategoryThreesController::class, 'destroy']);
+}); 

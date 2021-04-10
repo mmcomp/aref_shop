@@ -92,7 +92,7 @@ class ProductDetailVideosController extends Controller
     public function destroy($id)
     {
 
-        $product_detail_video = ProductDetailVideo::find($id);
+        $product_detail_video = ProductDetailVideo::where('is_deleted',false)->find($id);
         if ($product_detail_video != null) {
             $product_detail_video->is_deleted = 1;
             try {

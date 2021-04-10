@@ -91,7 +91,7 @@ class ProductDetailChairsController extends Controller
      */
     public function destroy($id)
     {
-        $product_detail_chair = ProductDetailChair::find($id);
+        $product_detail_chair = ProductDetailChair::where('is_deleted',false)->find($id);
         if ($product_detail_chair != null) {
             $product_detail_chair->is_deleted = 1;
             try {

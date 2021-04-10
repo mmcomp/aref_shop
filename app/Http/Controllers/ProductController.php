@@ -143,7 +143,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::find($id);
+        $product = Product::where('is_deleted',false)->find($id);
         if ($product != null) {
             $product->is_deleted = 1;
             if ($product->main_image_path != null) {
