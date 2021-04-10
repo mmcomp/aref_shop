@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductDetailChairsController;
+use App\Http\Controllers\ProductDetailDownloadsController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
@@ -49,6 +52,50 @@ Route::group([
     Route::delete('/delete/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}',[UserController::class,'setAvatar']);
     Route::patch('/bulk-delete',[UserController::class, 'bulkDelete']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'products'
+
+], function ($router) {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/getProduct/{id}',[ProductController::class,'getProduct']);
+    Route::post('/add', [ProductController::class, 'create']);
+    Route::post('/edit/{id}', [ProductController::class, 'edit']);
+    Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'product-detail-chairs'
+
+], function ($router) {
+    Route::get('/', [ProductDetailChairsController::class, 'index']);
+    Route::post('/add', [ProductDetailChairsController::class, 'create']);
+    Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'getProductDetailChair']);
+    Route::put('/edit/{id}', [ProductDetailChairsController::class, 'edit']);
+    Route::delete('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'product-detail-downloads'
+
+], function ($router) {
+    Route::get('/', [ProductDetailDownloadsController::class, 'index']);
+    Route::post('/add', [ProductDetailDownloadsController::class, 'store']);
+    Route::get('/show/{id}',[ProductDetailDownloadsController::class, 'show']);
+    Route::put('/edit/{id}', [ProductDetailDownloadsController::class, 'update']);
+    Route::delete('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'product-detail-packages'
+
+], function ($router) {
+    Route::get('/', [ProductDetailPackagesController::class, 'index']);
+    Route::post('/add', [ProductDetailPackagesController::class, 'store']);
+    Route::get('/show/{id}',[ProductDetailPackagesController::class, 'show']);
+    Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
+    Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([
     'middleware' => 'auth:api',
