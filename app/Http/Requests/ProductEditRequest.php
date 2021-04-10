@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\IfBetweenTwoFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -31,8 +32,8 @@ class ProductEditRequest extends FormRequest
             'name' => 'string|min:3|max:255',
             'short_description' => 'string|max:1500',
             'long_description' => 'string|max:2000',
-            'price' => 'integer',
-            'sale_price' => 'integer',
+            'price' => 'required|integer',
+            'sale_price' => 'nullable|integer|lte:price',
             'sale_expire' => 'date',
             'video_props' => 'string|max:1000',
             'category_ones_id' => [
