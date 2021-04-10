@@ -19,6 +19,8 @@ class ProductDetailPackagesResource extends JsonResource
                 'id' => $this->id,
                 'products_id' => $this->product ? $this->product->name : '-',
                 'child_products_id' => $this->childproduct ? $this->childproduct->name : '-',
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
             ];
         }
     }

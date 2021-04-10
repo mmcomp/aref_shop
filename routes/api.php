@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductDetailChairsController;
+use App\Http\Controllers\ProductDetailPackagesController;
 use App\Http\Controllers\ProductDetailDownloadsController;
+use App\Http\Controllers\ProductDetailVideosController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
@@ -46,7 +48,7 @@ Route::group([
     'prefix' => 'users'
 
 ], function ($router) {
-    Route::post('/', [UserController::class, 'index']);
+    Route::get('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'create']);
     Route::get('/get/{id}',[UserController::class, 'getUser']);
     Route::put('/edit', [UserController::class, 'edit']);
@@ -101,13 +103,21 @@ Route::group([
 Route::group([
     'middleware' => 'auth:api',
     'prefix' => 'category-ones'
-
 ], function ($router) {
     Route::get('/', [CategoryOnesController::class, 'index']);
     Route::post('/add', [CategoryOnesController::class, 'store']);
     Route::get('/show/{id}',[CategoryOnesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
+
+    'prefix' => 'product-detail-videos'
+
+], function ($router) {
+    Route::get('/', [ProductDetailVideosController::class, 'index']);
+    Route::post('/add', [ProductDetailVideosController::class, 'store']);
+    Route::get('/show/{id}',[ProductDetailVideosController::class, 'show']);
+    Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
+    Route::delete('/delete/{id}', [ProductDetailVideosController::class, 'destroy']);
 });
 Route::group([
     'middleware' => 'auth:api',

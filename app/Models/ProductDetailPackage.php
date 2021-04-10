@@ -20,11 +20,11 @@ class ProductDetailPackage extends Model
     public function product()
     {
         
-        return $this->hasOne('App\Models\Product', 'id', 'products_id');
+        return $this->belongsTo('App\Models\Product', 'products_id', 'id');
     }
     public function childproduct()
     {
 
-        return $this->hasOne('App\Models\Product', 'id', 'child_products_id');
+        return $this->belongsTo('App\Models\Product', 'child_products_id', 'id');
     }
 }

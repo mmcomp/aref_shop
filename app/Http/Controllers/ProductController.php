@@ -22,7 +22,7 @@ class ProductController extends Controller
     public function index()
     {
 
-        $products = Product::where('is_deleted', false)->get();
+        $products = Product::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
         return (new ProductCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

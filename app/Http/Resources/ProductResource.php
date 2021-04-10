@@ -32,7 +32,9 @@ class ProductResource extends JsonResource
                 'main_image_thumb_path' => $this->main_image_thumb_path,
                 'second_image_path' => $this->second_image_path,
                 'published' => $this->published,
-                'type' => $this->type
+                'type' => $this->type,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
             ];
         }
     }
