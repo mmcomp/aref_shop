@@ -106,10 +106,12 @@ Route::group([
 ], function ($router) {
     Route::get('/', [CategoryOnesController::class, 'index']);
     Route::post('/add', [CategoryOnesController::class, 'store']);
-    Route::get('/show/{id}',[CategoryOnesController::class, 'show']);
+    Route::get('/show/{id}', [CategoryOnesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
-
+});    
+Route::group([
+    'middleware' => 'auth:api',
     'prefix' => 'product-detail-videos'
 
 ], function ($router) {
