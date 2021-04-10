@@ -10,6 +10,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\CategoryOnesController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -96,6 +97,17 @@ Route::group([
     Route::get('/show/{id}',[ProductDetailPackagesController::class, 'show']);
     Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
     Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'category-ones'
+
+], function ($router) {
+    Route::get('/', [CategoryOnesController::class, 'index']);
+    Route::post('/add', [CategoryOnesController::class, 'store']);
+    Route::get('/show/{id}',[CategoryOnesController::class, 'show']);
+    Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
+    Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
 });
 Route::group([
     'middleware' => 'auth:api',
