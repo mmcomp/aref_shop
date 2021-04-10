@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\IfBetweenTwoFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
