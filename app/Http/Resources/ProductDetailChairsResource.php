@@ -21,7 +21,9 @@ class ProductDetailChairsResource extends JsonResource
                 'start' => $this->start,
                 'end' => $this->end,
                 'price' => $this->price,
-                'description' => $this->description
+                'description' => $this->description,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
             ];
         }
     }

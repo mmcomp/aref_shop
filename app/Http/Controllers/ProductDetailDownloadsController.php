@@ -21,7 +21,7 @@ class ProductDetailDownloadsController extends Controller
     public function index()
     {
 
-        $product_detail_downloads = ProductDetailDownload::where('is_deleted', false)->get();
+        $product_detail_downloads = ProductDetailDownload::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
         return (new ProductDetailDownloadsCollection($product_detail_downloads))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

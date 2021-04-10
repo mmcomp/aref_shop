@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductDetailChairsController;
+use App\Http\Controllers\ProductDetailPackagesController;
 use App\Http\Controllers\ProductDetailDownloadsController;
+use App\Http\Controllers\ProductDetailVideosController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProvinceController;
@@ -45,7 +47,7 @@ Route::group([
     'prefix' => 'users'
 
 ], function ($router) {
-    Route::post('/', [UserController::class, 'index']);
+    Route::get('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'create']);
     Route::get('/get/{id}',[UserController::class, 'getUser']);
     Route::put('/edit', [UserController::class, 'edit']);
@@ -96,6 +98,17 @@ Route::group([
     Route::get('/show/{id}',[ProductDetailPackagesController::class, 'show']);
     Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
     Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'product-detail-videos'
+
+], function ($router) {
+    Route::get('/', [ProductDetailVideosController::class, 'index']);
+    Route::post('/add', [ProductDetailVideosController::class, 'store']);
+    Route::get('/show/{id}',[ProductDetailVideosController::class, 'show']);
+    Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
+    Route::delete('/delete/{id}', [ProductDetailVideosController::class, 'destroy']);
 });
 Route::group([
     'middleware' => 'auth:api',

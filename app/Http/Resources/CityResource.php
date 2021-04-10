@@ -18,7 +18,7 @@ class CityResource extends JsonResource
             return [
                 'id' => $this->id,
                 'name' => $this->name,
-                'provinces_id' => ($this->province) ? $this->province->name : '-',
+                'provinces_id' => $this->province,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
