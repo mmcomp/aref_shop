@@ -20,7 +20,7 @@ class GroupController extends Controller
     public function index()
     {
 
-        $groups = Group::where('is_deleted', false)->get();
+        $groups = Group::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
         return (new GroupCollection($groups))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

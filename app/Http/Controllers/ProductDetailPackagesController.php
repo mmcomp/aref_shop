@@ -20,7 +20,7 @@ class ProductDetailPackagesController extends Controller
     public function index()
     {
         
-        $product_detail_packages = ProductDetailPackage::where('is_deleted', false)->get();
+        $product_detail_packages = ProductDetailPackage::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
         return (new ProductDetailPackagesCollection($product_detail_packages))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

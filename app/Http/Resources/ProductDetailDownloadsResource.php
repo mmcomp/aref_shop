@@ -18,7 +18,9 @@ class ProductDetailDownloadsResource extends JsonResource
             return [
                 'id' => $this->id,
                 'products_id' => $this->product,
-                'file_path' => $this->file_path
+                'file_path' => $this->file_path,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
             ];
         }
     }
