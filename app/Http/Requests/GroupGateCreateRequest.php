@@ -34,13 +34,6 @@ class GroupGateCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'users_id' => [
-                'required',
-                'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
             'key' => 'required|min:3|max:255',
         ];
     }

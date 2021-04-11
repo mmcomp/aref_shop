@@ -33,12 +33,6 @@ class GroupGateEditRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'users_id' => [
-                'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
             'key' => 'min:3|max:255',
         ];
     }

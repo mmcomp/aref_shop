@@ -45,7 +45,7 @@ Route::group([
     Route::post('/verify-forget-password', [AuthController::class, 'verifyForgetPassword']);
 });
 Route::group([
-    'middleware' => ['auth:api', 'can:admin'],
+    'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'users',
 
 ], function ($router) {
@@ -58,7 +58,7 @@ Route::group([
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:product'],
     'prefix' => 'products',
 
 ], function ($router) {
@@ -69,7 +69,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:productDetailChair'],
     'prefix' => 'product-detail-chairs',
 
 ], function ($router) {
@@ -80,7 +80,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:productDetailDownload'],
     'prefix' => 'product-detail-downloads',
 
 ], function ($router) {
@@ -91,7 +91,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:productDetailPackage'],
     'prefix' => 'product-detail-packages',
 
 ], function ($router) {
@@ -102,7 +102,7 @@ Route::group([
     Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' =>['auth:api','can:category-one'],
     'prefix' => 'category-ones',
 ], function ($router) {
     Route::get('/', [CategoryOnesController::class, 'index']);
@@ -112,7 +112,7 @@ Route::group([
     Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:productDetailVideo'],
     'prefix' => 'product-detail-videos',
 ], function ($router) {
     Route::get('/', [ProductDetailVideosController::class, 'index']);
@@ -122,7 +122,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProductDetailVideosController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:province'],
     'prefix' => 'provinces',
 
 ], function ($router) {
@@ -134,7 +134,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProvinceController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:city'],
     'prefix' => 'cities',
 
 ], function ($router) {
@@ -156,7 +156,7 @@ Route::group([
     Route::delete('/delete/{id}', [GroupGatesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:group'],
     'prefix' => 'groups',
 ], function ($router) {
     Route::get('/', [GroupController::class, 'index']);

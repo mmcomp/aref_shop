@@ -7,6 +7,7 @@ use App\Http\Requests\GroupGateEditRequest;
 use App\Models\GroupGate;
 use App\Http\Resources\GroupGateCollection;
 use App\Http\Resources\GroupGateResource;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use Log;
 
@@ -38,7 +39,7 @@ class GroupGatesController extends Controller
         $group_gate = GroupGate::create([
             'key' => $request->key,
             'groups_id' => $request->groups_id,
-            'users_id' => $request->users_id
+            'users_id' => Auth::user()->id
         ]);
         return (new GroupGateResource($group_gate))->additional([
             'error' => null
@@ -77,6 +78,7 @@ class GroupGatesController extends Controller
         
         $group_gate = GroupGate::where('is_deleted',false)->find($id);
         if ($group_gate != null) {
+            $group_gate->users_id = Auth::user()->id;
             $group_gate->update($request->all());
             return (new GroupGateResource(null))->additional([
                 'error' => null

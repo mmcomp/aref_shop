@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\GroupGate;
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use App\Models\User;
-
 class AuthServiceProvider extends ServiceProvider
 {
     /**
@@ -26,8 +26,14 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('admin', function (User $user) {
-            return $user->groups_id == 1 ;
-        });
+        $group_gates = GroupGate::where('is_deleted', false)->get();
+        foreach ($group_gates as $group_gate) {
+            $key = $group_gate->key;
+            Gate::define($key, function (User $user) use ($key) {
+                $group = $user->group()->first();
+                $count_gates = $group->gates()->where('key', $key)->count();
+                return $count_gates > 0; 
+            });
+        }
     }
 }
