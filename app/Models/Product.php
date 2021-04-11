@@ -34,18 +34,15 @@ class Product extends Model
 
     public function category_ones()
     {
-        return $this->hasOne('App\Models\CategoryOnes', 'id', 'category_ones_id');
+        return $this->hasOne('App\Models\CategoryOne', 'id', 'category_ones_id');
     }
     public function category_twos()
     {
-        return $this->hasOne('App\Models\CategoryTwos', 'id', 'category_twos_id');
+        return $this->hasOne('App\Models\CategoryTwo', 'id', 'category_twos_id');
     }
     public function category_threes()
     {
-        return $this->hasOne('App\Models\CategoryThrees', 'id', 'category_threes_id');
+        return $this->hasOne('App\Models\CategoryThree', 'id', 'category_threes_id');
     }
-    public function category_fours()
-    {
-        return $this->hasOne('App\Models\CategoryFours', 'id', 'category_fours_id');
-    }
+
 }
