@@ -166,6 +166,7 @@ Route::group([
     Route::get('/show/{id}', [CategoryTwosController::class, 'show']);
     Route::put('/edit/{id}', [CategoryTwosController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryTwosController::class, 'destroy']);
+});    
 Route::group([
     'middleware' => 'auth:api',
     'prefix' => 'category-threes'
