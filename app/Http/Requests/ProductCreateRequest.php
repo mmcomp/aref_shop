@@ -34,7 +34,7 @@ class ProductCreateRequest extends FormRequest
             'price' => 'required|integer',
             'sale_price' => 'nullable|integer|lte:price',
             'sale_expire' => 'date',
-            'video_props' => 'string|max:1000',
+            'video_props' => 'nullable|string|max:1000',
             'category_ones_id' => [
                 'integer',
                 Rule::exists('category_ones', 'id')->where(function ($query) {
