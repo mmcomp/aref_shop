@@ -96,7 +96,7 @@ class GroupController extends Controller
     public function destroy($id)
     {
 
-        $group = Group::find($id);
+        $group = Group::where('is_deleted',false)->find($id);
         if ($group != null) {
             $group->is_deleted = 1;
             try {

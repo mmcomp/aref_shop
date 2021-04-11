@@ -109,7 +109,7 @@ class ProductDetailDownloadsController extends Controller
     public function destroy($id)
     {
 
-        $product_detail_download = ProductDetailDownload::find($id);
+        $product_detail_download = ProductDetailDownload::where('is_deleted',false)->find($id);
         if ($product_detail_download != null) {
             $product_detail_download->is_deleted = 1;
             try {

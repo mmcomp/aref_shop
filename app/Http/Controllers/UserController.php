@@ -115,7 +115,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::find($id);
+        $user = User::where('is_deleted',false)->find($id);
         if ($user != null) {
             $user->is_deleted = 1;
             if (substr($user->email, 0, 1) != '_') {

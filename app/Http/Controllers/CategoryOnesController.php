@@ -93,8 +93,8 @@ class CategoryOnesController extends Controller
      */
     public function destroy($id)
     {
+        $category_one = CategoryOnes::where('is_deleted',false)->find($id);
 
-        $category_one = CategoryOne::find($id);
         if ($category_one != null) {
             $category_one->is_deleted = 1;
             try {

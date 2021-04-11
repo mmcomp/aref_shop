@@ -14,6 +14,8 @@ use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
+use App\Http\Controllers\CategoryThreesController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -164,4 +166,14 @@ Route::group([
     Route::get('/show/{id}', [CategoryTwosController::class, 'show']);
     Route::put('/edit/{id}', [CategoryTwosController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryTwosController::class, 'destroy']);
+Route::group([
+    'middleware' => 'auth:api',
+    'prefix' => 'category-threes'
+], function ($router) {
+    Route::get('/', [CategoryThreesController::class, 'index']);
+    Route::post('/add', [CategoryThreesController::class, 'store']);
+    Route::get('/show/{id}', [CategoryThreesController::class, 'show']);
+    Route::put('/edit/{id}', [CategoryThreesController::class, 'update']);
+    Route::delete('/delete/{id}', [CategoryThreesController::class, 'destroy']);
+
 }); 
