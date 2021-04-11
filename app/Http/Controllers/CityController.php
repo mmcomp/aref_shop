@@ -13,15 +13,6 @@ use Log;
 class CityController extends Controller
 {
     /**
-     * Create a new CityController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
-    /**
      * Display a listing of the resource.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -30,7 +21,7 @@ class CityController extends Controller
     public function index()
     {
 
-        $cities = City::where('is_deleted', false)->get();
+        $cities = City::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
         return (new CityCollection($cities))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

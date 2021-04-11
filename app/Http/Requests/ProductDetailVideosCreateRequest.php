@@ -3,11 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 
-class UserCreateRequest extends FormRequest
+class ProductDetailVideosCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,32 +27,28 @@ class UserCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12|unique:users',
-            'password' => 'required|string|confirmed|min:6',
-            'referrer_users_id' => [
+            'name' => 'required|string|min:3|max:255',
+            'start_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'teacher_users_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('users','id')->where(function ($query) {
+                Rule::exists('users', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'address' => 'nullable|min:10|max:1000',
-            'postall' => 'nullable|digits:10',
-            'cities_id' => [
-                'nullable',
+            'products_id' => [
+                'required',
                 'integer',
-                Rule::exists('cities','id')->where(function ($query) {
+                Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'groups_id' => [
-                'integer',
-                Rule::exists('groups','id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
+            'price' => 'required|integer',
+            'video_session_type' => 'required|in:online,offline',
+            'video_link' => 'required|url',
+            'is_hidden' => 'boolean'
         ];
     }
      /**

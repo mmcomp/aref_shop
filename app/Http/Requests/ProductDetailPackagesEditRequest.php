@@ -5,8 +5,9 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
-class UserIndexRequest extends FormRequest
+class ProductDetailPackagesEditRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,7 +19,7 @@ class UserIndexRequest extends FormRequest
         return true;
     }
 
-    /**
+   /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -26,7 +27,20 @@ class UserIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'page_count' => 'required|integer'
+            'products_id' => [
+                'required',
+                'integer',
+                Rule::exists('products', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'child_products_id' => [
+                'required',
+                'integer',
+                Rule::exists('products', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ]
         ];
     }
      /**

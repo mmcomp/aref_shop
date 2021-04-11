@@ -7,7 +7,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class UserCreateRequest extends FormRequest
+
+class ProductEditRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,32 +28,41 @@ class UserCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12|unique:users',
-            'password' => 'required|string|confirmed|min:6',
-            'referrer_users_id' => [
-                'nullable',
+            'name' => 'string|min:3|max:255',
+            'short_description' => 'string|max:1500',
+            'long_description' => 'string|max:2000',
+            'price' => 'integer',
+            'sale_price' => 'integer',
+            'sale_expire' => 'date',
+            'video_props' => 'string|max:1000',
+            'category_ones_id' => [
                 'integer',
-                Rule::exists('users','id')->where(function ($query) {
+                Rule::exists('category_ones', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'address' => 'nullable|min:10|max:1000',
-            'postall' => 'nullable|digits:10',
-            'cities_id' => [
-                'nullable',
+            'category_twos_id' => [
                 'integer',
-                Rule::exists('cities','id')->where(function ($query) {
+                Rule::exists('category_twos', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'groups_id' => [
+            'category_threes_id' => [
                 'integer',
-                Rule::exists('groups','id')->where(function ($query) {
+                Rule::exists('category_threes', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'category_fours_id' => [
+                'integer',
+                Rule::exists('category_fours', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'main_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'second_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'published' => 'integer',
+            'type' => 'string|in:normal,download,chairs,video'
         ];
     }
      /**

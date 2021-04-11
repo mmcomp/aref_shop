@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CityResource extends JsonResource
+class ProductDetailDownloadsResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,8 +17,8 @@ class CityResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'name' => $this->name,
-                'provinces_id' => $this->province,
+                'products_id' => $this->product,
+                'file_path' => $this->file_path,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

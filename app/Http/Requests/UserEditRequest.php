@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use App\Rules\theInt;
 
 class UserEditRequest extends FormRequest
 {
@@ -27,13 +28,15 @@ class UserEditRequest extends FormRequest
     public function rules()
     {
         return [
+            'id' => ['required',new theInt],
             'first_name' => 'required|string|between:2,100',
             'last_name' => 'required|string|between:2,100',
             'email' => 'required|string|max:12',
             'password' => 'nullable|string|min:6|confirmed',
             'referrer_users_id' => [
                 'nullable',
-                'integer',
+                'different:id',
+                new theInt,
                 Rule::exists('users','id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
@@ -44,6 +47,12 @@ class UserEditRequest extends FormRequest
                 'nullable',
                 'integer',
                 Rule::exists('cities','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'groups_id' => [
+                'integer',
+                Rule::exists('groups','id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],

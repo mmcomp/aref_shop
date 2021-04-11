@@ -11,6 +11,11 @@ class Province extends Model
 
     protected $fillable = [
         'name'
-     ];
+    ];
+
+    public function cities(){
+
+        return $this->hasMany('App\Models\City','provinces_id','id')->where('is_deleted',false);
+    }
  
 }

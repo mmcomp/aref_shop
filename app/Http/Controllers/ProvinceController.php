@@ -12,15 +12,7 @@ use Log;
 
 class ProvinceController extends Controller
 {
-     /**
-     * Create a new ProvinceController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-    }
+     
     /**
      * Display a listing of the resource.
      *
@@ -29,10 +21,29 @@ class ProvinceController extends Controller
     public function index()
     {
         
-        $provinces = Province::where('is_deleted', false)->get();
+        $provinces = Province::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
         return (new ProvinceCollection($provinces))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
+    }
+     /**
+     * get cities of a province(input = province_id)
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCitiesOfAProvince($id)
+    {
+        
+        $province = Province::where('is_deleted',false)->find($id);
+        if($province != null ){
+            return (new ProvinceCollection($province->cities))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(200);  
+        }
+        return (new ProvinceResource($province))->additional([
+            'error' => "Province not found!",
+        ])->response()->setStatusCode(404);
     }
 
     /**
