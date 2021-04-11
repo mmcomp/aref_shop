@@ -92,7 +92,7 @@ class ProductDetailPackagesController extends Controller
     public function destroy($id)
     {
 
-        $product_detail_package = ProductDetailPackage::find($id);
+        $product_detail_package = ProductDetailPackage::where('is_deleted',false)->find($id);
         if ($product_detail_package != null) {
             $product_detail_package->is_deleted = 1;
             try {
