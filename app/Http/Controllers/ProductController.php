@@ -22,7 +22,7 @@ class ProductController extends Controller
     public function index()
     {
 
-        $products = Product::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+        $products = Product::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         return (new ProductCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -39,14 +39,15 @@ class ProductController extends Controller
 
         $product = Product::create($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path']));
         $upload_image = new UploadImage;
-        if($request->file('main_image_path')){
+        if ($request->file('main_image_path')) {
             $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "public/uploads", "main");
             $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
         }
-        if($request->file('second_image_path')){
+        if ($request->file('second_image_path')) {
             $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
-        } 
+        }
         try {
+            $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $product->save();
         } catch (Exception $e) {
             Log::info("fails in saving image " . json_encode($e));
@@ -125,7 +126,9 @@ class ProductController extends Controller
             } else {
                 $product->second_image_path = null;
             }
-            $product->update($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path']));
+            $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
+            $product->update($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path','sale_price']));
+            
             return (new ProductResource(null))->additional([
                 'error' => null,
             ])->response()->setStatusCode(200);
