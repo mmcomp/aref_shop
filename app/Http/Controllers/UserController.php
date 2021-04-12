@@ -36,7 +36,7 @@ class UserController extends Controller
      * @param  id $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getUser($id)
+    public function show($id)
     {
 
         $user = User::where('is_deleted', false)->find($id);
@@ -57,7 +57,7 @@ class UserController extends Controller
      * @param App\Http\Requests\UserCreateRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(UserCreateRequest $request)
+    public function store(UserCreateRequest $request)
     {
 
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
@@ -73,7 +73,7 @@ class UserController extends Controller
      * @param  App\Http\Requests\UserEditRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(UserEditRequest $request)
+    public function update(UserEditRequest $request)
     {
 
         $user = User::where('id', $request->id)->first();

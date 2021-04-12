@@ -33,7 +33,7 @@ class CityController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getCity($id)
+    public function show($id)
     {
 
         $city = City::where('is_deleted', false)->find($id);
@@ -54,7 +54,7 @@ class CityController extends Controller
      * @param  App\Http\Requests\CityCreateRequest
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(CityCreateRequest $request)
+    public function store(CityCreateRequest $request)
     {
 
         $city = City::create([
@@ -73,7 +73,7 @@ class CityController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(CityUpdateRequest $request, $id)
+    public function update(CityUpdateRequest $request, $id)
     {
 
         $city = City::where('is_deleted',false)->find($id);
