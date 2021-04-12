@@ -145,7 +145,7 @@ Route::group([
     Route::delete('/delete/{id}', [CityController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:group_gate'],
     'prefix' => 'group-gates',
 
 ], function ($router) {

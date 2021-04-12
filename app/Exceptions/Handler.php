@@ -2,10 +2,10 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Exception;
 
 class Handler extends ExceptionHandler
 {
@@ -27,7 +27,7 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-
+   
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -35,12 +35,19 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
+        $this->renderable(function(Exception $e, $request) {
+            return $this->handleException($request, $e);
         });
     }
 
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         return response()->json(['error' => 'Unauthenticated.'], 401);
+    } 
+    public function handleException($request, Exception $exception)
+    {
+        if($exception instanceof AccessDeniedHttpException) {
+            return response()->json(['error' => 'Forbidden.'], 403);
+        }
     }
 }
