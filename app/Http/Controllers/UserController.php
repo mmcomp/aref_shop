@@ -25,7 +25,12 @@ class UserController extends Controller
     public function index()
     {
         
-        $paginated_users = User::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+        $per_page = request()->get('per_page');
+        if ($per_page == "all") {
+            $paginated_users = User::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $paginated_users = User::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new UserCollection($paginated_users))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
