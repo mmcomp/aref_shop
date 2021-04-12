@@ -29,9 +29,9 @@ class UserEditRequest extends FormRequest
     {
         return [
             'id' => ['required',new theInt],
-            'first_name' => 'required|string|between:2,100',
-            'last_name' => 'required|string|between:2,100',
-            'email' => 'required|string|max:12',
+            'first_name' => 'string|between:2,100',
+            'last_name' => 'string|between:2,100',
+            'email' => 'string|max:12',
             'password' => 'nullable|string|min:6|confirmed',
             'referrer_users_id' => [
                 'nullable',
