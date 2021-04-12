@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductDetailPackagesCreateRequest;
 use App\Http\Requests\ProductDetailPackagesEditRequest;
-use App\Models\ProductDetailPackage;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Http\Resources\ProductDetailPackagesResource;
+use App\Models\ProductDetailPackage;
 use Exception;
 use Log;
 
@@ -19,8 +19,8 @@ class ProductDetailPackagesController extends Controller
      */
     public function index()
     {
-        
-        $product_detail_packages = ProductDetailPackage::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+
+        $product_detail_packages = ProductDetailPackage::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         return (new ProductDetailPackagesCollection($product_detail_packages))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -34,10 +34,10 @@ class ProductDetailPackagesController extends Controller
      */
     public function store(ProductDetailPackagesCreateRequest $request)
     {
-        
+
         $product_detail_package = ProductDetailPackage::create($request->all());
         return (new ProductDetailPackagesResource($product_detail_package))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -49,7 +49,7 @@ class ProductDetailPackagesController extends Controller
      */
     public function show($id)
     {
-        
+
         $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
         if ($product_detail_package != null) {
             return (new ProductDetailPackagesResource($product_detail_package))->additional([
@@ -70,12 +70,12 @@ class ProductDetailPackagesController extends Controller
      */
     public function update(ProductDetailPackagesEditRequest $request, $id)
     {
-        
-        $product_detail_package = ProductDetailPackage::where('is_deleted',false)->find($id);
+
+        $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
         if ($product_detail_package != null) {
             $product_detail_package->update($request->all());
             return (new ProductDetailPackagesResource(null))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailPackagesResource(null))->additional([
@@ -92,7 +92,7 @@ class ProductDetailPackagesController extends Controller
     public function destroy($id)
     {
 
-        $product_detail_package = ProductDetailPackage::where('is_deleted',false)->find($id);
+        $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
         if ($product_detail_package != null) {
             $product_detail_package->is_deleted = 1;
             try {
@@ -102,9 +102,16 @@ class ProductDetailPackagesController extends Controller
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProductDetailPackagesController/destory', json_encode($e));
-                return (new ProductDetailPackagesResource(null))->additional([
-                    'error' => 'failed in ProductDetailPackagesController/destory', json_encode($e),
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new ProductDetailPackagesResource(null))->additional([
+                        'error' => 'failed in ProductDetailPackagesController/destory ' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new ProductDetailPackagesResource(null))->additional([
+                        'error' => 'failed in ProductDetailPackagesController/destory',
+                    ])->response()->setStatusCode(500);
+                }
+
             }
         }
         return (new ProductDetailPackagesResource(null))->additional([

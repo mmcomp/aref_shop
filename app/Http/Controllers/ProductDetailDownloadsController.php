@@ -121,7 +121,7 @@ class ProductDetailDownloadsController extends Controller
                 Log::info('failed in ProductDetailDownloadsController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailDownloadsResource(null))->additional([
-                        'error' => 'failed in ProductDetailDownloadsController/destory', json_encode($e)
+                        'error' => 'failed in ProductDetailDownloadsController/destory '.json_encode($e)
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductDetailDownloadsResource(null))->additional([

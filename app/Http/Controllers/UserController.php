@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
@@ -24,8 +23,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        
-        $paginated_users = User::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+
+        $paginated_users = User::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         return (new UserCollection($paginated_users))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -97,9 +96,15 @@ class UserController extends Controller
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info('fails in UserController/edit ' . json_encode($e));
-                return (new UserResource(null))->additional([
-                    'error' => 'User updating failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User updating failed! ' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User updating failed!',
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new UserResource(null))->additional([
@@ -115,7 +120,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::where('is_deleted',false)->find($id);
+        $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $user->is_deleted = 1;
             if (substr($user->email, 0, 1) != '_') {
@@ -128,17 +133,23 @@ class UserController extends Controller
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fails in UserController/destroy ' . json_encode($e));
-                return (new UserResource(null))->additional([
-                    'error' => 'User deleting failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User deleting failed!' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User deleting failed!',
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new UserResource(null))->additional([
             'error' => 'User not found!',
         ])->response()->setStatusCode(404);
     }
-   
-     /* Set user avatar
+
+    /* Set user avatar
      *
      * @param int $id
      * @param App\Http\Requests\UserSetAvatarRequest  $request

@@ -8,11 +8,10 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\VerifyForgetPasswordRequest;
 use App\Http\Requests\VerifyRegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use App\Models\SmsValidation;
+use App\Models\User;
 use App\Utils\Sms;
 use Exception;
-
 
 class AuthController extends Controller
 {
@@ -23,7 +22,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify','forgetPassword','verifyForgetPassword']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify', 'forgetPassword', 'verifyForgetPassword']]);
     }
 
     /**
@@ -70,13 +69,13 @@ class AuthController extends Controller
         SmsValidation::updateOrCreate(
             [
                 "mobile" => $userData["email"],
-                "type" => "register"
+                "type" => "register",
             ],
             [
                 "mobile" => $userData["email"],
                 "code" => $code,
                 "user_info" => json_encode($userData, JSON_UNESCAPED_UNICODE),
-                "type" => "register"
+                "type" => "register",
             ]
         );
         $sms = new Sms;
@@ -161,12 +160,12 @@ class AuthController extends Controller
     {
         return response()->json([
             'error' => null,
-            'data'  => [
+            'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
                 'expires_in' => auth('api')->factory()->getTTL() * 60,
-                'menus' => auth('api')->getUser()->menus()
-            ]
+                'menus' => auth('api')->getUser()->menus(),
+            ],
 
         ]);
     }
@@ -185,24 +184,24 @@ class AuthController extends Controller
         SmsValidation::updateOrCreate(
             [
                 "mobile" => $userData["email"],
-                "type" => "forget_pass"
+                "type" => "forget_pass",
             ],
             [
                 "mobile" => $userData["email"],
                 "code" => $code,
                 "user_info" => json_encode($userData, JSON_UNESCAPED_UNICODE),
-                "type" => "forget_pass"
+                "type" => "forget_pass",
             ]
         );
         $sms = new Sms;
-        $found = User::where('is_deleted',false)->where('email',$userData['email'])->first();
-        if($found != null){
+        $found = User::where('is_deleted', false)->where('email', $userData['email'])->first();
+        if ($found != null) {
             $sms->sendCode($userData["email"], $code);
         }
         return (new UserResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
-       
+
     }
     /**
      *
@@ -220,7 +219,7 @@ class AuthController extends Controller
             ])->response()->setStatusCode(406);
         }
         $smsValidation->delete();
-        $user = User::where('is_deleted',false)->where('email', $request->input("email"))->first();
+        $user = User::where('is_deleted', false)->where('email', $request->input("email"))->first();
         if ($user != null) {
             $user->password = bcrypt($request->password);
             $user->pass_txt = $request->password;
@@ -230,15 +229,20 @@ class AuthController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
-                return (new UserResource(null))->additional([
-                    'error' => 'fails in AuthController/verifyForgetPassword ' . json_encode($e),
-                ])->response()->setStatusCode(500);
                 Log::info('fails in AuthController/verifyForgetPassword ' . json_encode($e));
-
+                if (env('APP_ENV') == 'development') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'fails in AuthController/verifyForgetPassword ' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'fails in AuthController/verifyForgetPassword',
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new UserResource(null))->additional([
-            'error' =>'User not found!',
+            'error' => 'User not found!',
         ])->response()->setStatusCode(404);
     }
 }
