@@ -10,7 +10,6 @@ use App\Http\Resources\CityResource;
 use App\Models\City;
 use Exception;
 use Log;
-use Illuminate\Support\Facades\DB;
 
 class CityController extends Controller
 {
@@ -23,10 +22,17 @@ class CityController extends Controller
     public function index(CityIndexRequest $request)
     {
 
-        $cities = City::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        $sort = "id";
+        $type = "desc";
         if ($request->get('type') != null && $request->get('sort') != null) {
-            $cities = City::where('is_deleted', false)->orderBy($request->get('sort'), $request->get('type'))->paginate(env('PAGE_COUNT'));
-        } 
+            $sort = $request->get('sort');
+            $type = $request->get('type');
+        }
+        if ($request->get('per_page') == "all") {
+            $cities = City::where('is_deleted', false)->orderBy($sort, $type)->get();
+        } else {
+            $cities = City::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+        }
         return (new CityCollection($cities))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

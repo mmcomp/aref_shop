@@ -25,11 +25,18 @@ class UserController extends Controller
      */
     public function index(UserIndexRequest $request)
     {
-        
-        $paginated_users = User::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+
+        $sort = "id";
+        $type = "desc";
         if ($request->get('type') != null && $request->get('sort') != null) {
-            $paginated_users = User::where('is_deleted', false)->orderBy($request->get('sort'), $request->get('type'))->paginate(env('PAGE_COUNT'));
-        } 
+            $sort = $request->get('sort');
+            $type = $request->get('type');
+        }
+        if ($request->get('per_page') == "all") {
+            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->get();
+        } else {
+            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+        }
         return (new UserCollection($paginated_users))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -119,7 +126,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::where('is_deleted',false)->find($id);
+        $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $user->is_deleted = 1;
             if (substr($user->email, 0, 1) != '_') {
@@ -141,8 +148,8 @@ class UserController extends Controller
             'error' => 'User not found!',
         ])->response()->setStatusCode(404);
     }
-   
-     /* Set user avatar
+
+    /* Set user avatar
      *
      * @param int $id
      * @param App\Http\Requests\UserSetAvatarRequest  $request

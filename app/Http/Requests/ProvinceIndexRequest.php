@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CityIndexRequest extends FormRequest
+class ProvinceIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,12 +26,12 @@ class CityIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'sort' => 'required_with:type|in:id,name,provinces_id',
+            'sort' => 'required_with:type|in:id,name',
             'type' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255'
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator
