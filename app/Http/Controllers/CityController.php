@@ -97,7 +97,7 @@ class CityController extends Controller
     public function destroy($id)
     {
 
-        $city = City::find($id);
+        $city = City::where('is_deleted',false)->find($id);
         if ($city != null) {
             $city->is_deleted = 1;
             try {
