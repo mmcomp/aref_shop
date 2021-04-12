@@ -22,7 +22,12 @@ class ProductController extends Controller
     public function index()
     {
 
-        $products = Product::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        $per_page = request()->get('per_page');       
+        if ($per_page == "all") {
+            $products = Product::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $products = Product::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new ProductCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -127,8 +132,8 @@ class ProductController extends Controller
                 $product->second_image_path = null;
             }
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
-            $product->update($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path','sale_price']));
-            
+            $product->update($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path', 'sale_price']));
+
             return (new ProductResource(null))->additional([
                 'error' => null,
             ])->response()->setStatusCode(200);
@@ -146,7 +151,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::where('is_deleted',false)->find($id);
+        $product = Product::where('is_deleted', false)->find($id);
         if ($product != null) {
             $product->is_deleted = 1;
             if ($product->main_image_path != null) {
