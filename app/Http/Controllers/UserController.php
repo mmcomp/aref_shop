@@ -20,12 +20,16 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param App\Http\Requests\UserIndexRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(UserIndexRequest $request)
     {
         
         $paginated_users = User::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+        if ($request->get('type') != null && $request->get('sort') != null) {
+            $paginated_users = User::where('is_deleted', false)->orderBy($request->get('sort'), $request->get('type'))->paginate(env('PAGE_COUNT'));
+        } 
         return (new UserCollection($paginated_users))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
