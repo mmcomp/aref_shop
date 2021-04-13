@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupGatesController;
