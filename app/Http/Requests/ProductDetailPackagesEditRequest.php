@@ -28,14 +28,12 @@ class ProductDetailPackagesEditRequest extends FormRequest
     {
         return [
             'products_id' => [
-                'required',
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
             'child_products_id' => [
-                'required',
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
