@@ -13,5 +13,10 @@ class CategoryThree extends Model
      *
      * @var array
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['name','category_twos_id'];
+
+    public function category_two()
+    {
+        return $this->hasOne('App\Models\CategoryTwo', 'id', 'category_twos_id');
+    }
 }

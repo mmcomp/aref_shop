@@ -42,6 +42,7 @@ class CategoryThreesController extends Controller
 
         $category_one = CategoryThree::create([
             'name' => $request->name,
+            'category_twos_id' => $request->category_twos_id
         ]);
         return (new CategoryThreesResource($category_one))->additional([
             'error' => null,
