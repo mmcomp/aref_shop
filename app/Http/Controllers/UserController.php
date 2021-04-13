@@ -6,7 +6,6 @@ use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
-use App\Http\Requests\UserSearchRequest;
 use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
@@ -14,6 +13,7 @@ use App\Models\User;
 use App\Utils\UploadImage;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Log;
 
 class UserController extends Controller
@@ -214,19 +214,19 @@ class UserController extends Controller
      /**
      * Search users according to name,last_name,phone
      *
-     * @param  \App\Http\Requests\UserSearchRequest  $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function search(UserSearchRequest $request)
+    public function search(Request $request)
     {
         
-        $phone = $request->email;
-        $fullName = trim($request->first_name.' '.$request->last_name);
+        $phone = request()->email;
+        $fullName = trim(request()->first_name.' '.request()->last_name);
         $users_builder = User::select('id','email','first_name','last_name',DB::raw('CONCAT(first_name, " ", last_Name)'))
                                ->where('is_deleted',false)
                                ->where('email','like','%'.$phone.'%')
                                ->where(DB::raw('CONCAT(first_name, " ", last_Name)'),'like','%'.$fullName.'%');
-        if($request->per_page == "all"){
+       if($request->per_page == "all"){
             $users = $users_builder->get();
         } else {
             $users = $users_builder->paginate(env('PAGE_COUNT'));
