@@ -53,12 +53,6 @@ class ProductEditRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'category_fours_id' => [
-                'integer',
-                Rule::exists('category_fours', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
             'main_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'second_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'published' => 'integer',
