@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserBulkDeleteRequest;
+use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserSetAvatarRequest;
