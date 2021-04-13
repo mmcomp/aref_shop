@@ -59,8 +59,8 @@ class ProductCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'main_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'second_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'main_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'second_image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'published' => 'required|integer',
             'type' => 'required|string|in:normal,download,chairs,video',
         ];
