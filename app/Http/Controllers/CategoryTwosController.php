@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CategoryTwo;
 use App\Http\Requests\CategoryTwosCreateRequest;
 use App\Http\Requests\CategoryTwosEditRequest;
 use App\Http\Resources\CategoryTwosCollection;
 use App\Http\Resources\CategoryTwosResource;
-use Illuminate\Http\Request;
+use App\Models\CategoryTwo;
 use Exception;
+use Illuminate\Http\Request;
 use Log;
 
 class CategoryTwosController extends Controller
@@ -20,8 +20,13 @@ class CategoryTwosController extends Controller
      */
     public function index()
     {
-        
-        $category_twos = CategoryTwo::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+
+        $per_page = request()->get('per_page');
+        if ($per_page == "all") {
+            $category_twos = CategoryTwo::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $category_twos = CategoryTwo::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new CategoryTwosCollection($category_twos))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -35,7 +40,7 @@ class CategoryTwosController extends Controller
      */
     public function store(CategoryTwosCreateRequest $request)
     {
-        
+
         $category_two = CategoryTwo::create([
             'name' => $request->name,
         ]);
@@ -52,7 +57,7 @@ class CategoryTwosController extends Controller
      */
     public function show($id)
     {
-        
+
         $category_two = CategoryTwo::where('is_deleted', false)->find($id);
         if ($category_two != null) {
             return (new CategoryTwosResource($category_two))->additional([
@@ -73,7 +78,7 @@ class CategoryTwosController extends Controller
      */
     public function update(CategoryTwosEditRequest $request, $id)
     {
-        
+
         $category_two = CategoryTwo::where('is_deleted', false)->find($id);
         if ($category_two != null) {
             $category_two->update($request->all());
@@ -94,7 +99,7 @@ class CategoryTwosController extends Controller
      */
     public function destroy($id)
     {
-        
+
         $category_two = CategoryTwo::find($id);
         if ($category_two != null) {
             $category_two->is_deleted = 1;

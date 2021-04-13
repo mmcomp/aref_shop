@@ -20,7 +20,12 @@ class ProductDetailChairsController extends Controller
     public function index()
     {
 
-        $product_detail_chairs = ProductDetailChair::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+        $per_page = request()->get('per_page');
+        if ($per_page == "all") {
+            $product_detail_chairs = ProductDetailChair::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $product_detail_chairs = ProductDetailChair::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new ProductDetailChairsCollection($product_detail_chairs))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

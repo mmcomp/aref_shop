@@ -20,7 +20,12 @@ class CategoryOnesController extends Controller
     public function index()
     {
 
-        $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        $per_page = request()->get('per_page');
+        if ($per_page == "all") {
+            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new CategoryOnesCollection($category_ones))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -93,7 +98,7 @@ class CategoryOnesController extends Controller
      */
     public function destroy($id)
     {
-        $category_one = CategoryOnes::where('is_deleted',false)->find($id);
+        $category_one = CategoryOnes::where('is_deleted', false)->find($id);
 
         if ($category_one != null) {
             $category_one->is_deleted = 1;
