@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CityCreateRequest;
+use App\Http\Requests\CityIndexRequest;
 use App\Http\Requests\CityUpdateRequest;
 use App\Http\Resources\CityCollection;
 use App\Http\Resources\CityResource;
@@ -15,17 +16,22 @@ class CityController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\CityIndexRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(CityIndexRequest $request)
     {
-      
-        $per_page = request()->get('per_page');
-        if ($per_page == "all") {
-            $cities = City::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        $sort = "id";
+        $type = "desc";
+        if ($request->get('type') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $type = $request->get('type');
+        }
+        if ($request->get('per_page') == "all") {
+            $cities = City::where('is_deleted', false)->orderBy($sort, $type)->get();
+
         } else {
-            $cities = City::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $cities = City::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new CityCollection($cities))->additional([
             'error' => null,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProvinceCreateRequest;
 use App\Http\Requests\ProvinceEditRequest;
+use App\Http\Requests\ProvinceIndexRequest;
 use App\Http\Resources\ProvinceCollection;
 use App\Http\Resources\ProvinceResource;
 use App\Models\Province;
@@ -16,16 +17,22 @@ class ProvinceController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  App\Http\Requests\ProvinceIndexRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(ProvinceIndexRequest $request)
     {
-        
-        $per_page = request()->get('per_page');
-        if ($per_page == "all") {
-            $provinces = Province::where('is_deleted', false)->orderBy('id', 'desc')->get();
+
+        $sort = "id";
+        $type = "desc";
+        if ($request->get('type') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $type = $request->get('type');
+        }
+        if ($request->get('per_page') == "all") {
+            $provinces = Province::where('is_deleted', false)->orderBy($sort, $type)->get();
         } else {
-            $provinces = Province::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $provinces = Province::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new ProvinceCollection($provinces))->additional([
             'error' => null,
