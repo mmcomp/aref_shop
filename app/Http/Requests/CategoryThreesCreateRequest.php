@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class CategoryThreesCreateRequest extends FormRequest
 {
@@ -27,6 +28,13 @@ class CategoryThreesCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:255',
+            'category_twos_id' => [
+                'required',
+                'integer',
+                Rule::exists('category_twos','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                })
+            ]
         ];
     }
      /**

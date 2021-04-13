@@ -43,6 +43,7 @@ class CategoryTwosController extends Controller
 
         $category_two = CategoryTwo::create([
             'name' => $request->name,
+            'category_ones_id' => $request->category_ones_id
         ]);
         return (new CategoryTwosResource($category_two))->additional([
             'error' => null,

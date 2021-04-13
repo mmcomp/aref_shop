@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class CategoryTwosEditRequest extends FormRequest
 {
@@ -27,6 +28,12 @@ class CategoryTwosEditRequest extends FormRequest
     {
         return [
             'name' => 'string|min:3|max:255',
+            'category_ones_id' => [
+                'integer',
+                Rule::exists('category_ones','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ]
         ];
     }
      /**
