@@ -21,7 +21,12 @@ class CityController extends Controller
     public function index()
     {
 
-        $cities = City::where('is_deleted', false)->orderBy('id','desc')->paginate(env('PAGE_COUNT'));
+        $per_page = request()->get('per_page');
+        if ($per_page == "all") {
+            $cities = City::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $cities = City::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new CityCollection($cities))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
