@@ -39,7 +39,7 @@ class ProductController extends Controller
      * @param  \App\Http\Requests\ProductCreateRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(ProductCreateRequest $request)
+    public function store(ProductCreateRequest $request)
     {
 
         $product = Product::create($request->except(['main_image_path', 'main_image_thumb_path', 'second_image_path']));
@@ -78,7 +78,7 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getProduct($id)
+    public function show($id)
     {
 
         $product = Product::where('is_deleted', false)->find($id);
@@ -99,7 +99,7 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit($id, ProductEditRequest $request)
+    public function update($id, ProductEditRequest $request)
     {
 
         $product = Product::where('is_deleted', false)->find($id);
@@ -180,7 +180,7 @@ class ProductController extends Controller
                 Log::info('fail in ProductController/destroy' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController/destroy',
+                        'error' => 'fail in ProductController/destroy'.json_encode($e),
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([

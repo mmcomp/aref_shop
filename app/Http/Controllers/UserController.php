@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
@@ -25,7 +24,6 @@ class UserController extends Controller
      */
     public function index(UserIndexRequest $request)
     {
-
         $sort = "id";
         $type = "desc";
         if ($request->get('type') != null && $request->get('sort') != null) {
@@ -34,6 +32,7 @@ class UserController extends Controller
         }
         if ($request->get('per_page') == "all") {
             $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->get();
+
         } else {
             $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
@@ -47,7 +46,7 @@ class UserController extends Controller
      * @param  id $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getUser($id)
+    public function show($id)
     {
 
         $user = User::where('is_deleted', false)->find($id);
@@ -68,7 +67,7 @@ class UserController extends Controller
      * @param App\Http\Requests\UserCreateRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(UserCreateRequest $request)
+    public function store(UserCreateRequest $request)
     {
 
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
@@ -84,7 +83,7 @@ class UserController extends Controller
      * @param  App\Http\Requests\UserEditRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function edit(UserEditRequest $request)
+    public function update(UserEditRequest $request)
     {
 
         $user = User::where('id', $request->id)->first();
@@ -108,9 +107,15 @@ class UserController extends Controller
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info('fails in UserController/edit ' . json_encode($e));
-                return (new UserResource(null))->additional([
-                    'error' => 'User updating failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User updating failed! ' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User updating failed!',
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new UserResource(null))->additional([
@@ -139,9 +144,15 @@ class UserController extends Controller
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fails in UserController/destroy ' . json_encode($e));
-                return (new UserResource(null))->additional([
-                    'error' => 'User deleting failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User deleting failed!' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new UserResource(null))->additional([
+                        'error' => 'User deleting failed!',
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new UserResource(null))->additional([

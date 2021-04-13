@@ -136,9 +136,16 @@ class ProvinceController extends Controller
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProvinceController/destory', json_encode($e));
-                return (new ProvinceResource(null))->additional([
-                    'error' => 'Province deleting failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new ProvinceResource(null))->additional([
+                        'error' => 'Province deleting failed' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new ProvinceResource(null))->additional([
+                        'error' => 'Province deleting failed!',
+                    ])->response()->setStatusCode(500);
+                }
+
             }
         }
         return (new ProvinceResource(null))->additional([

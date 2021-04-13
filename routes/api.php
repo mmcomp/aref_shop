@@ -53,9 +53,9 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [UserController::class, 'index']);
-    Route::post('/add', [UserController::class, 'create']);
-    Route::get('/get/{id}', [UserController::class, 'getUser']);
-    Route::put('/edit', [UserController::class, 'edit']);
+    Route::post('/add', [UserController::class, 'store']);
+    Route::get('/get/{id}',[UserController::class, 'show']);
+    Route::put('/edit', [UserController::class, 'update']);
     Route::delete('/delete/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
@@ -66,9 +66,9 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/getProduct/{id}', [ProductController::class, 'getProduct']);
-    Route::post('/add', [ProductController::class, 'create']);
-    Route::post('/edit/{id}', [ProductController::class, 'edit']);
+    Route::get('/getProduct/{id}',[ProductController::class,'show']);
+    Route::post('/add', [ProductController::class, 'store']);
+    Route::post('/edit/{id}', [ProductController::class, 'update']);
     Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
 });
 Route::group([
@@ -77,9 +77,9 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductDetailChairsController::class, 'index']);
-    Route::post('/add', [ProductDetailChairsController::class, 'create']);
-    Route::get('/get-product-detail-chairs/{id}', [ProductDetailChairsController::class, 'getProductDetailChair']);
-    Route::put('/edit/{id}', [ProductDetailChairsController::class, 'edit']);
+    Route::post('/add', [ProductDetailChairsController::class, 'store']);
+    Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'show']);
+    Route::put('/edit/{id}', [ProductDetailChairsController::class, 'update']);
     Route::delete('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
 });
 Route::group([
@@ -142,9 +142,9 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [CityController::class, 'index']);
-    Route::post('/add', [CityController::class, 'create']);
-    Route::get('/getCity/{id}', [CityController::class, 'getCity']);
-    Route::put('/edit/{id}', [CityController::class, 'edit']);
+    Route::post('/add', [CityController::class, 'store']);
+    Route::get('/getCity/{id}',[CityController::class, 'show']);
+    Route::put('/edit/{id}', [CityController::class, 'update']);
     Route::delete('/delete/{id}', [CityController::class, 'destroy']);
 });
 Route::group([

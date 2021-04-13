@@ -37,7 +37,7 @@ class ProductDetailChairsController extends Controller
      * @param  App\Http\Requests\ProductDetailChairsCreateRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function create(ProductDetailChairsCreateRequest $request)
+    public function store(ProductDetailChairsCreateRequest $request)
     {
 
         $product_detail_chair = ProductDetailChair::create($request->all());
@@ -52,7 +52,7 @@ class ProductDetailChairsController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getProductDetailChair($id)
+    public function show($id)
     {
 
         $product_detail_chair = ProductDetailChair::where('is_deleted', false)->find($id);
@@ -74,7 +74,7 @@ class ProductDetailChairsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id,ProductDetailChairsEditRequest $request)
+    public function update($id,ProductDetailChairsEditRequest $request)
     {
         $product_detail_chair = ProductDetailChair::where('is_deleted',false)->find($id);
         if ($product_detail_chair != null) {
@@ -108,7 +108,7 @@ class ProductDetailChairsController extends Controller
                 Log::info('failed in ProductDetailChairsController/destory', json_encode($e));
                 if(env('APP_ENV') == 'development'){
                     return (new ProductDetailChairsResource(null))->additional([
-                        'error' => 'failed in ProductDetailChairsController/destory', json_encode($e)
+                        'error' => 'failed in ProductDetailChairsController/destory '.json_encode($e)
                     ])->response()->setStatusCode(500);
                 } else if(env('APP_ENV') == 'production'){
                     return (new ProductDetailChairsResource(null))->additional([
