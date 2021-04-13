@@ -20,7 +20,7 @@ class CityController extends Controller
      */
     public function index()
     {
-
+      
         $per_page = request()->get('per_page');
         if ($per_page == "all") {
             $cities = City::where('is_deleted', false)->orderBy('id', 'desc')->get();
@@ -67,7 +67,7 @@ class CityController extends Controller
             'provinces_id' => $request->provinces_id,
         ]);
         return (new CityResource($city))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -81,11 +81,11 @@ class CityController extends Controller
     public function update(CityUpdateRequest $request, $id)
     {
 
-        $city = City::where('is_deleted',false)->find($id);
+        $city = City::where('is_deleted', false)->find($id);
         if ($city != null) {
             $city->update($request->all());
             return (new CityResource(null))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CityResource(null))->additional([
@@ -102,7 +102,7 @@ class CityController extends Controller
     public function destroy($id)
     {
 
-        $city = City::where('is_deleted',false)->find($id);
+        $city = City::where('is_deleted', false)->find($id);
         if ($city != null) {
             $city->is_deleted = 1;
             try {
@@ -112,9 +112,15 @@ class CityController extends Controller
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CityController/destory', json_encode($e));
-                return (new CityResource(null))->additional([
-                    'error' => 'City deleting failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new CityResource(null))->additional([
+                        'error' => 'City deleting failed! ' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new CityResource(null))->additional([
+                        'error' => 'City deleting failed!',
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
         return (new CityResource(null))->additional([

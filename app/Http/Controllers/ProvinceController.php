@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProvinceCreateRequest;
 use App\Http\Requests\ProvinceEditRequest;
-use App\Http\Resources\ProvinceResource;
 use App\Http\Resources\ProvinceCollection;
+use App\Http\Resources\ProvinceResource;
 use App\Models\Province;
 use Exception;
 use Log;
 
 class ProvinceController extends Controller
 {
-     
+
     /**
      * Display a listing of the resource.
      *
@@ -31,7 +31,7 @@ class ProvinceController extends Controller
             'error' => null,
         ])->response()->setStatusCode(200);
     }
-     /**
+    /**
      * get cities of a province(input = province_id)
      *
      * @param int $id
@@ -39,12 +39,12 @@ class ProvinceController extends Controller
      */
     public function getCitiesOfAProvince($id)
     {
-        
-        $province = Province::where('is_deleted',false)->find($id);
-        if($province != null ){
+
+        $province = Province::where('is_deleted', false)->find($id);
+        if ($province != null) {
             return (new ProvinceCollection($province->cities))->additional([
                 'error' => null,
-            ])->response()->setStatusCode(200);  
+            ])->response()->setStatusCode(200);
         }
         return (new ProvinceResource($province))->additional([
             'error' => "Province not found!",
@@ -59,12 +59,12 @@ class ProvinceController extends Controller
      */
     public function store(ProvinceCreateRequest $request)
     {
-        
+
         $province = Province::create([
             'name' => $request->name,
         ]);
         return (new ProvinceResource($province))->additional([
-            'error' => null
+            'error' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -97,12 +97,12 @@ class ProvinceController extends Controller
      */
     public function update(ProvinceEditRequest $request, $id)
     {
-        
-        $province = Province::where('is_deleted',false)->find($id);
+
+        $province = Province::where('is_deleted', false)->find($id);
         if ($province != null) {
             $province->update($request->all());
             return (new ProvinceResource(null))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProvinceResource(null))->additional([
@@ -118,8 +118,8 @@ class ProvinceController extends Controller
      */
     public function destroy($id)
     {
-        
-        $province = Province::where('is_deleted',false)->find($id);
+
+        $province = Province::where('is_deleted', false)->find($id);
         if ($province != null) {
             $province->is_deleted = 1;
             try {
@@ -129,9 +129,16 @@ class ProvinceController extends Controller
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProvinceController/destory', json_encode($e));
-                return (new ProvinceResource(null))->additional([
-                    'error' => 'Province deleting failed!',
-                ])->response()->setStatusCode(500);
+                if (env('APP_ENV') == 'development') {
+                    return (new ProvinceResource(null))->additional([
+                        'error' => 'Province deleting failed' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new ProvinceResource(null))->additional([
+                        'error' => 'Province deleting failed!',
+                    ])->response()->setStatusCode(500);
+                }
+
             }
         }
         return (new ProvinceResource(null))->additional([

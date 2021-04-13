@@ -180,7 +180,7 @@ class ProductController extends Controller
                 Log::info('fail in ProductController/destroy' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController/destroy',
+                        'error' => 'fail in ProductController/destroy'.json_encode($e),
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
