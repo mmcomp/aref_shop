@@ -27,9 +27,8 @@ class CityUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
+            'name' => 'string|min:3|max:255',
             'provinces_id' => [
-                'required',
                 'integer',
                 Rule::exists('provinces','id')->where(function ($query) {
                     return $query->where('is_deleted', false);

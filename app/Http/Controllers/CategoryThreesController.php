@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CategoryThree;
-use App\Http\Resources\CategoryThreesCollection;
-use App\Http\Resources\CategoryThreesResource;
 use App\Http\Requests\CategoryThreesCreateRequest;
 use App\Http\Requests\CategoryThreesEditRequest;
-use Log;
+use App\Http\Resources\CategoryThreesCollection;
+use App\Http\Resources\CategoryThreesResource;
+use App\Models\CategoryThree;
 use Exception;
+use Log;
 
 class CategoryThreesController extends Controller
 {
@@ -19,8 +19,13 @@ class CategoryThreesController extends Controller
      */
     public function index()
     {
-        
-        $category_threes = CategoryThree::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+
+        $per_page = request()->get('per_page');
+        if ($per_page == "all") {
+            $category_threes = CategoryThree::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        } else {
+            $category_threes = CategoryThree::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+        }
         return (new CategoryThreesCollection($category_threes))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -34,7 +39,7 @@ class CategoryThreesController extends Controller
      */
     public function store(CategoryThreesCreateRequest $request)
     {
-        
+
         $category_one = CategoryThree::create([
             'name' => $request->name,
         ]);
@@ -51,7 +56,7 @@ class CategoryThreesController extends Controller
      */
     public function show($id)
     {
-        
+
         $category_three = CategoryThree::where('is_deleted', false)->find($id);
         if ($category_three != null) {
             return (new CategoryThreesResource($category_three))->additional([
@@ -72,7 +77,7 @@ class CategoryThreesController extends Controller
      */
     public function update(CategoryThreesEditRequest $request, $id)
     {
-        
+
         $category_three = CategoryThree::where('is_deleted', false)->find($id);
         if ($category_three != null) {
             $category_three->update($request->all());
@@ -93,8 +98,8 @@ class CategoryThreesController extends Controller
      */
     public function destroy($id)
     {
-        
-        $category_three = CategoryThree::where('is_deleted',false)->find($id);
+
+        $category_three = CategoryThree::where('is_deleted', false)->find($id);
         if ($category_three != null) {
             $category_three->is_deleted = 1;
             try {
