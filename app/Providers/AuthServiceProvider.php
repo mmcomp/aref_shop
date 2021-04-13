@@ -6,6 +6,7 @@ use App\Models\GroupGate;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 class AuthServiceProvider extends ServiceProvider
 {
     /**
@@ -26,14 +27,16 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        $group_gates = GroupGate::where('is_deleted', false)->get();
-        foreach ($group_gates as $group_gate) {
-            $key = $group_gate->key;
-            Gate::define($key, function (User $user) use ($key) {
-                $group = $user->group()->first();
-                $count_gates = $group->gates()->where('key', $key)->count();
-                return $count_gates > 0; 
-            });
+        if (Schema::hasTable('group_gates')) {
+            $group_gates = GroupGate::where('is_deleted', false)->get();
+            foreach ($group_gates as $group_gate) {
+                $key = $group_gate->key;
+                Gate::define($key, function (User $user) use ($key) {
+                    $group = $user->group()->first();
+                    $count_gates = $group->gates()->where('key', $key)->count();
+                    return $count_gates > 0;
+                });
+            }
         }
     }
 }
