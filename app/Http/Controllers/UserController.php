@@ -220,8 +220,8 @@ class UserController extends Controller
     public function search(Request $request)
     {
         
-        $phone = request()->email;
-        $fullName = trim(request()->first_name.' '.request()->last_name);
+        $phone = trim(request()->email);
+        $fullName = trim(request()->name);
         $users_builder = User::select('id','email','first_name','last_name',DB::raw('CONCAT(first_name, " ", last_Name)'))
                                ->where('is_deleted',false)
                                ->where('email','like','%'.$phone.'%')
