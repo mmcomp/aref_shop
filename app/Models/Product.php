@@ -24,7 +24,6 @@ class Product extends Model
        'category_ones_id',
        'category_twos_id',
        'category_threes_id',
-       'category_fours_id',
        'main_image_path',
        'main_image_thumb_path',
        'second_image_path',
