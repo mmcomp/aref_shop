@@ -27,7 +27,6 @@ class ProductResource extends JsonResource
                 'category_one' => $this->category_ones,
                 'category_two' => $this->category_twos,
                 'category_three' => $this->category_threes,
-                'category_four' => $this->category_fours,
                 'main_image_path' => $this->main_image_path,
                 'main_image_thumb_path' => $this->main_image_thumb_path,
                 'second_image_path' => $this->second_image_path,
