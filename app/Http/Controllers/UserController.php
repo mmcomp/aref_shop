@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserBulkDeleteRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
+use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Utils\UploadImage;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Log;
 
@@ -170,15 +171,17 @@ class UserController extends Controller
      */
     public function setAvatar(UserSetAvatarRequest $request, $id)
     {
+
         $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $upload_image = new UploadImage;
+            $upload_image->imageNullablility($user->avatar_path);
             $user->avatar_path = $upload_image->getImage($request->file('avatar_path'), 'public/uploads/avatars');
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
                     'error' => null,
-                ])->response()->setStatusCode(200);
+                ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving image set avater in UserController " . json_encode($e));
                 if (env('APP_ENV') == "development") {
@@ -195,6 +198,40 @@ class UserController extends Controller
         return (new UserResource(null))->additional([
             'error' => 'User not found!',
         ])->response()->setStatusCode(404);
+    }
+    /* Delete user avatar
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteAvatar($id)
+    {
+
+        $user = User::where('is_deleted', false)->find($id);
+        if ($user != null) {
+            $avatar = str_replace("storage", "public", $user->avatar_path);
+            $user->avatar_path = null;
+            if (Storage::exists($avatar)) {
+                Storage::delete($avatar);
+                try {
+                    $user->save();
+                    return (new UserResource(null))->additional([
+                        'error' => null,
+                    ])->response()->setStatusCode(204);
+                } catch (Exception $e) {
+                    Log::info("fails in saving image delete avater in UserController " . json_encode($e));
+                    if (env('APP_ENV') == "development") {
+                        return (new UserResource(null))->additional([
+                            'error' => "fails in saving image delete avater in UserController " . json_encode($e),
+                        ])->response()->setStatusCode(500);
+                    } elseif (env('APP_ENV') == "production") {
+                        return (new UserResource(null))->additional([
+                            'error' => "fails in saving image delete avater in UserController ",
+                        ])->response()->setStatusCode(500);
+                    }
+                }
+            }
+        }
     }
     /**
      * Remove some specified resources from storage.

@@ -57,6 +57,7 @@ Route::group([
     Route::put('/edit', [UserController::class, 'update']);
     Route::delete('/delete/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
+    Route::delete('/delete-avatar/{id}',[UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
     Route::post('/search',[UserController::class, 'search']);
 });
@@ -70,6 +71,10 @@ Route::group([
     Route::post('/add', [ProductController::class, 'store']);
     Route::post('/edit/{id}', [ProductController::class, 'update']);
     Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
+    Route::post('/set-main-image/{id}',[ProductController::class, 'setMainImage']);
+    Route::post('/set-second-image/{id}',[ProductController::class, 'setSecondImage']);
+    Route::delete('/delete-main-image/{id}',[ProductController::class, 'deleteMainImage']);
+    Route::delete('/delete-second-image/{id}',[ProductController::class, 'deleteSecondImage']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailChair'],
