@@ -58,6 +58,7 @@ Route::group([
     Route::delete('/delete/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
+    Route::post('/search',[UserController::class, 'search']);
 });
 Route::group([
     'middleware' => ['auth:api','can:product'],
