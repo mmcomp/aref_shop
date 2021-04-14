@@ -10,6 +10,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Utils\UploadImage;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Log;
 
@@ -306,5 +307,41 @@ class ProductController extends Controller
         return (new ProductResource(null))->additional([
             'error' => 'Product not found!',
         ])->response()->setStatusCode(404);
+    }
+    /**
+     * Search products according to name,type,published_at
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+
+        $name = trim($request->name);
+        $type = trim($request->type);
+        $published = trim($request->published);
+        $products_builder = Product::where('is_deleted', false)
+            ->where(function ($query) use ($name) {
+                if ($name != null) {
+                    $query->where('name', 'like', '%' . $name . '%');
+                }
+            })->where(function ($query) use ($type) {
+            if ($type != null) {
+                $query->where('type', 'like', '%' . $type . '%');
+            }
+        })->where(function ($query) use ($published) {
+            if ($published != null) {
+                $query->where('published', $published);
+            }
+        });
+        if ($request->per_page == "all") {
+            $products = $products_builder->get();
+        } else {
+            $products = $products_builder->paginate(env('PAGE_COUNT'));
+        }
+        return (new ProductCollection($products))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(200);
+
     }
 }
