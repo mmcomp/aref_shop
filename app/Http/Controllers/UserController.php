@@ -174,12 +174,13 @@ class UserController extends Controller
         $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $upload_image = new UploadImage;
+            $upload_image->imageNullablility($user->avatar_path);
             $user->avatar_path = $upload_image->getImage($request->file('avatar_path'), 'public/uploads/avatars');
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
                     'error' => null,
-                ])->response()->setStatusCode(200);
+                ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving image set avater in UserController " . json_encode($e));
                 if (env('APP_ENV') == "development") {
@@ -208,12 +209,12 @@ class UserController extends Controller
         $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
             $avatar = str_replace("storage", "public", $user->avatar_path);
+            $user->avatar_path = null;
             if (Storage::exists($avatar)) {
                 Storage::delete($avatar);
-                $user->avatar_path = null;
                 try {
                     $user->save();
-                    return (new UserResource($user))->additional([
+                    return (new UserResource(null))->additional([
                         'error' => null,
                     ])->response()->setStatusCode(204);
                 } catch (Exception $e) {

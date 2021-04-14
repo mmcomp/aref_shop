@@ -153,17 +153,19 @@ class ProductController extends Controller
     {
 
         $product = Product::where('is_deleted', false)->find($id);
-        if($product != null){
+        if ($product != null) {
             $upload_image = new UploadImage;
             if ($request->file('main_image_path')) {
+                $upload_image->imageNullablility($product->main_image_path);
+                $upload_image->imageNullablility($product->main_image_thumb_path);
                 $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "public/uploads", "main");
                 $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
             }
             try {
                 $product->save();
-                return (new ProductResource($product))->additional([
+                return (new ProductResource(null))->additional([
                     'error' => null,
-                ])->response()->setStatusCode(200);
+                ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving main image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
@@ -175,7 +177,7 @@ class ProductController extends Controller
                         'error' => "fails in saving main image",
                     ])->response()->setStatusCode(500);
                 }
-    
+
             }
         }
         return (new ProductResource(null))->additional([
@@ -196,18 +198,18 @@ class ProductController extends Controller
             if ($product->main_image_path != null) {
                 $main_image_path = str_replace("storage", "public", $product->main_image_path);
                 $main_image_thumb_path = str_replace("storage", "public", $product->main_image_thumb_path);
+                $product->main_image_path = null;
+                $product->main_image_thumb_path = null;
                 if (Storage::exists($main_image_path)) {
                     Storage::delete($main_image_path);
                     Storage::delete($main_image_thumb_path);
-                    $product->main_image_path = null;
-                    $product->main_image_thumb_path = null;
                 }
             }
             try {
                 $product->save();
-                return (new ProductResource($product))->additional([
+                return (new ProductResource(null))->additional([
                     'error' => null,
-                ])->response()->setStatusCode(200);
+                ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fail in ProductController delete main image' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
@@ -223,7 +225,7 @@ class ProductController extends Controller
         }
         return (new ProductResource(null))->additional([
             'error' => 'Product not found!',
-        ])->response()->setStatusCode(404); 
+        ])->response()->setStatusCode(404);
     }
     /**
      * Set second image for product
@@ -236,16 +238,17 @@ class ProductController extends Controller
     {
 
         $product = Product::where('is_deleted', false)->find($id);
-        if($product != null){
+        if ($product != null) {
             $upload_image = new UploadImage;
             if ($request->file('second_image_path')) {
+                $upload_image->imageNullablility($product->second_image_path);
                 $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
             }
             try {
                 $product->save();
-                return (new ProductResource($product))->additional([
+                return (new ProductResource(null))->additional([
                     'error' => null,
-                ])->response()->setStatusCode(200);
+                ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
@@ -257,12 +260,12 @@ class ProductController extends Controller
                         'error' => "fails in saving main image",
                     ])->response()->setStatusCode(500);
                 }
-    
+
             }
         }
         return (new ProductResource(null))->additional([
             'error' => 'Product not found!',
-        ])->response()->setStatusCode(404); 
+        ])->response()->setStatusCode(404);
     }
     /**
      * Delete second image for product
@@ -277,16 +280,16 @@ class ProductController extends Controller
         if ($product != null) {
             if ($product->second_image_path != null) {
                 $second_image_path = str_replace("storage", "public", $product->second_image_path);
+                $product->second_image_path = null;
                 if (Storage::exists($second_image_path)) {
                     Storage::delete($second_image_path);
-                    $product->second_image_path = null;
                 }
             }
             try {
                 $product->save();
-                return (new ProductResource($product))->additional([
+                return (new ProductResource(null))->additional([
                     'error' => null,
-                ])->response()->setStatusCode(200);
+                ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fail in ProductController delete second image' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
@@ -302,6 +305,6 @@ class ProductController extends Controller
         }
         return (new ProductResource(null))->additional([
             'error' => 'Product not found!',
-        ])->response()->setStatusCode(404); 
+        ])->response()->setStatusCode(404);
     }
 }
