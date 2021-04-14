@@ -12,9 +12,9 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Utils\UploadImage;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Request;
 use Log;
 
 class UserController extends Controller
@@ -248,7 +248,7 @@ class UserController extends Controller
             'error' => null,
         ])->response()->setStatusCode(204);
     }
-     /**
+    /**
      * Search users according to name,last_name,phone
      *
      * @param  \Illuminate\Http\Request  $request
@@ -256,14 +256,21 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        
+
         $phone = trim(request()->email);
         $fullName = trim(request()->name);
-        $users_builder = User::select('id','email','first_name','last_name',DB::raw('CONCAT(first_name, " ", last_Name)'))
-                               ->where('is_deleted',false)
-                               ->where('email','like','%'.$phone.'%')
-                               ->where(DB::raw('CONCAT(first_name, " ", last_Name)'),'like','%'.$fullName.'%');
-       if($request->per_page == "all"){
+        $users_builder = User::select('id', 'email', 'first_name', 'last_name', DB::raw('CONCAT(first_name, " ", last_Name)'))
+            ->where('is_deleted', false)
+            ->where(function ($query) use ($phone) {
+                if ($phone != null) {
+                    $query->where('email', 'like', '%' . $phone . '%');
+                }
+            })->where(function ($query) use ($fullName) {
+            if ($fullName != null) {
+                $query->where(DB::raw('CONCAT(first_name, " ", last_Name)'), 'like', '%' . $fullName . '%');
+            }
+        });
+        if ($request->per_page == "all") {
             $users = $users_builder->get();
         } else {
             $users = $users_builder->paginate(env('PAGE_COUNT'));
