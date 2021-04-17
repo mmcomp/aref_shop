@@ -48,6 +48,9 @@ class ProductController extends Controller
         try {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $product->save();
+            return (new ProductResource($product))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(201);
         } catch (Exception $e) {
             Log::info("fails in create a new product" . json_encode($e));
             if (env('APP_ENV') == 'development') {
@@ -59,11 +62,7 @@ class ProductController extends Controller
                     'error' => "fails in create a new product",
                 ])->response()->setStatusCode(500);
             }
-
         }
-        return (new ProductResource($product))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(201);
     }
 
     /**
