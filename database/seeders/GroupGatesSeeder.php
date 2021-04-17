@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class GroupGatesSeeder extends Seeder
 {
@@ -16,12 +17,14 @@ class GroupGatesSeeder extends Seeder
     {
 
         $arr = ['city', 'group', 'product', 'productDetailChair', 'productDetailDownload', 'productDetailPackage', 'productDetailVideo',
-            'province', 'user', 'category-one', 'category-two', 'category-three', 'group_gate'];
+            'province', 'user', 'category-one', 'category-two', 'category-three', 'group_gate','coupon'];
         for ($i = 0; $i < count($arr) ; $i++) {
             DB::table('group_gates')->insert([
                 'groups_id' => 1,
                 'users_id' => 1,
                 'key' => $arr[$i],
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
         }
     }

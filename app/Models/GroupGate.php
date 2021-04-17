@@ -9,7 +9,6 @@ class GroupGate extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
         'groups_id',
         'users_id',

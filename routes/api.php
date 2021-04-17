@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
+use App\Http\Controllers\CouponController;
 
 /*
 |--------------------------------------------------------------------------
@@ -175,7 +176,7 @@ Route::group([
     Route::delete('/delete/{id}', [GroupController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api','can:category-two'],
     'prefix' => 'category-twos'
 ], function ($router) {
     Route::get('/', [CategoryTwosController::class, 'index']);
@@ -185,7 +186,7 @@ Route::group([
     Route::delete('/delete/{id}', [CategoryTwosController::class, 'destroy']);
 });    
 Route::group([
-    'middleware' => 'auth:api',
+    'middleware' => ['auth:api', 'can:category-three'],
     'prefix' => 'category-threes'
 ], function ($router) {
     Route::get('/', [CategoryThreesController::class, 'index']);
@@ -193,5 +194,14 @@ Route::group([
     Route::get('/show/{id}', [CategoryThreesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryThreesController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryThreesController::class, 'destroy']);
-
+}); 
+Route::group([
+    'middleware' => ['auth:api', 'can:coupon'],
+    'prefix' => 'coupons'
+], function ($router) {
+    Route::get('/', [CouponController::class, 'index']);
+    Route::post('/add', [CouponController::class, 'store']);
+    Route::get('/show/{id}', [CouponController::class, 'show']);
+    Route::put('/edit/{id}', [CouponController::class, 'update']);
+    Route::delete('/delete/{id}', [CouponController::class, 'destroy']);
 }); 
