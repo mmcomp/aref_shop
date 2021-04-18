@@ -28,7 +28,7 @@ class CouponCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:255',
-            'description' => 'required|string|min:3|max:1000',
+            'description' => 'nullable|string|min:3|max:1000',
             'amount' => 'required|integer',
             'type' => 'required|in:percent,amount',
             'expired_at' => 'nullable|date',
