@@ -120,6 +120,7 @@ Route::group([
     Route::get('/show/{id}', [CategoryOnesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
+    Route::get('/get-subset/{id}',[CategoryOnesController::class, 'GetSubsetOfCategoryOne']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailVideo'],
@@ -184,6 +185,8 @@ Route::group([
     Route::get('/show/{id}', [CategoryTwosController::class, 'show']);
     Route::put('/edit/{id}', [CategoryTwosController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryTwosController::class, 'destroy']);
+    Route::get('/get-subset/{id}',[CategoryTwosController::class, 'GetSubsetOfCategoryTwo']);
+
 });    
 Route::group([
     'middleware' => ['auth:api', 'can:category-three'],
