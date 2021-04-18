@@ -16,7 +16,7 @@ class CategoryTwosController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -36,7 +36,7 @@ class CategoryTwosController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\CategoryTwosCreateRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(CategoryTwosCreateRequest $request)
     {
@@ -54,7 +54,7 @@ class CategoryTwosController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -75,7 +75,7 @@ class CategoryTwosController extends Controller
      *
      * @param  \App\Http\Requests\CategoryTwosEditRequest  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(CategoryTwosEditRequest $request, $id)
     {
@@ -96,7 +96,7 @@ class CategoryTwosController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {

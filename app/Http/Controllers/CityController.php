@@ -82,7 +82,7 @@ class CityController extends Controller
      *
      * @param  App\Http\Requests\CityUpdateRequest  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(CityUpdateRequest $request, $id)
     {
@@ -103,7 +103,7 @@ class CityController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
