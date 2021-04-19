@@ -15,7 +15,7 @@ class MakeDescriptionsNullableProductsTable extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('short_description')->nullable()->change();
-            $table->string('long_description')->nullable()->change();
+            $table->text('long_description')->nullable()->change();
         });
     }
 
@@ -28,7 +28,7 @@ class MakeDescriptionsNullableProductsTable extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('short_description')->nullable(false)->change();
-            $table->string('long_description')->nullable(false)->change();
+            $table->text('long_description')->nullable(false)->change();
         });
     }
 }
