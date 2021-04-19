@@ -15,7 +15,7 @@ class ProductDetailVideosController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -35,7 +35,7 @@ class ProductDetailVideosController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\ProductDetailVideosCreateRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(ProductDetailVideosCreateRequest $request)
     {
@@ -50,7 +50,7 @@ class ProductDetailVideosController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -71,7 +71,7 @@ class ProductDetailVideosController extends Controller
      *
      * @param  \App\Http\Requests\ProductDetailVideosEditRequest $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(ProductDetailVideosEditRequest $request, $id)
     {
@@ -92,7 +92,7 @@ class ProductDetailVideosController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {

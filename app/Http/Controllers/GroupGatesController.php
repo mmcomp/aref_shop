@@ -16,7 +16,7 @@ class GroupGatesController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -31,7 +31,7 @@ class GroupGatesController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\GroupGateCreateRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(GroupGateCreateRequest $request)
     {
@@ -50,7 +50,7 @@ class GroupGatesController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -71,7 +71,7 @@ class GroupGatesController extends Controller
      *
      * @param  App\Http\Requests\GroupGateEditRequest  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(GroupGateEditRequest $request, $id)
     {
@@ -93,7 +93,7 @@ class GroupGatesController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {

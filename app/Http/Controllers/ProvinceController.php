@@ -18,7 +18,7 @@ class ProvinceController extends Controller
      * Display a listing of the resource.
      *
      * @param  App\Http\Requests\ProvinceIndexRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(ProvinceIndexRequest $request)
     {
@@ -62,7 +62,7 @@ class ProvinceController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  App\Http\Requests\ProvinceCreateRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(ProvinceCreateRequest $request)
     {
@@ -79,7 +79,7 @@ class ProvinceController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
@@ -100,7 +100,7 @@ class ProvinceController extends Controller
      *
      * @param  App\Http\Requests\ProvinceEditRequest  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(ProvinceEditRequest $request, $id)
     {
@@ -121,7 +121,7 @@ class ProvinceController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
