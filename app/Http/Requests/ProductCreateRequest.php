@@ -29,25 +29,28 @@ class ProductCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:255',
-            'short_description' => 'required|string|max:1500',
-            'long_description' => 'required|string|max:2000',
+            'short_description' => 'nullable|string|max:1500',
+            'long_description' => 'nullable|string|max:2000',
             'price' => 'required|integer',
             'sale_price' => 'nullable|integer|lte:price',
-            'sale_expire' => 'date',
+            'sale_expire' => 'nullable|date',
             'video_props' => 'nullable|string|max:1000',
             'category_ones_id' => [
+                'required',
                 'integer',
                 Rule::exists('category_ones', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
             'category_twos_id' => [
+                'nullable',
                 'integer',
                 Rule::exists('category_twos', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
             'category_threes_id' => [
+                'nullable',
                 'integer',
                 Rule::exists('category_threes', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
