@@ -127,4 +127,24 @@ class CategoryTwosController extends Controller
             'error' => 'CategoryTwos not found!',
         ])->response()->setStatusCode(404);
     }
+    /**
+     * Get subset of categoryTwo
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function GetSubsetOfCategoryTwo($id)
+    {
+
+        $category_two = CategoryTwo::where('is_deleted', false)->find($id);
+        if ($category_two != null) {
+            return (new CategoryTwosCollection($category_two->categoryThrees))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new CategoryTwosResource(null))->additional([
+            'error' => "CategoryTwo not found!"
+        ])->response()->setStatusCode(404);
+
+    }
 }

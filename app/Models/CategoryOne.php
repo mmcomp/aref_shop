@@ -10,4 +10,9 @@ class CategoryOne extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+
+    public function categoryTwos()
+    {
+        return $this->hasMany('App\Models\CategoryTwo', 'category_ones_id', 'id')->where('is_deleted', false);
+    }
 }
