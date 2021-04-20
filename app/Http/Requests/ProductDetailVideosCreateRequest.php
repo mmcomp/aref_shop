@@ -27,17 +27,6 @@ class ProductDetailVideosCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
-            'start_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'teacher_users_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
             'products_id' => [
                 'required',
                 'integer',
@@ -46,9 +35,13 @@ class ProductDetailVideosCreateRequest extends FormRequest
                 }),
             ],
             'price' => 'required|integer',
-            'video_session_type' => 'required|in:online,offline',
-            'video_link' => 'required|url',
-            'is_hidden' => 'boolean'
+            'video_sessions_id' => [
+                'required',
+                'integer',
+                Rule::exists('video_sessions', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ]
         ];
     }
      /**

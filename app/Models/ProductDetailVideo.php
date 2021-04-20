@@ -10,16 +10,9 @@ class ProductDetailVideo extends Model
     use HasFactory;
     
     protected $fillable = [
-      'name',
-      'start_date',
-      'start_time',
-      'end_time',
-      'teacher_users_id',
       'products_id',
       'price',
-      'video_session_type',
-      'video_link',
-      'is_hidden'     
+      'video_sessions_id',
     ];
 
     public function product()
@@ -27,8 +20,9 @@ class ProductDetailVideo extends Model
         return $this->belongsTo('App\Models\Product', 'products_id', 'id');
     }
 
-    public function teacher()
+    public function videoSession()
     {
-        return $this->belongsTo('App\Models\User','users_id','id');
+        return $this->belongsTo('App\Models\VideoSession', 'video_sessions_id', 'id');
     }
+
 }

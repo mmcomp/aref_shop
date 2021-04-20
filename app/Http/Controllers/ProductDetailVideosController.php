@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductDetailVideoIndexRequest;
 use App\Http\Requests\ProductDetailVideosCreateRequest;
 use App\Http\Requests\ProductDetailVideosEditRequest;
 use App\Http\Resources\ProductDetailVideosCollection;
@@ -15,16 +16,23 @@ class ProductDetailVideosController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  \App\Http\Requests\ProductDetailVideoIndexRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(ProductDetailVideoIndexRequest $request)
     {
 
-        $per_page = request()->get('per_page');
-        if ($per_page == "all") {
-            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy('id', 'desc')->get();
+        $sort = "id";
+        $type = "desc";
+        if ($request->get('type') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $type = $request->get('type');
+        }
+        if ($request->get('per_page') == "all") {
+            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->get();
+
         } else {
-            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailVideosCollection($product_detail_videos))->additional([
             'error' => null,
