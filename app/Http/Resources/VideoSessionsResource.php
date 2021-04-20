@@ -17,7 +17,6 @@ class VideoSessionsResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'name' => $this->name,
                 'start_date' => $this->start_date,
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,

@@ -27,7 +27,6 @@ class VideoSessionEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|min:3|max:255',
             'start_date' => 'date',
             'start_time' => 'date_format:H:i',
             'end_time' => 'date_format:H:i|after:start_time',
