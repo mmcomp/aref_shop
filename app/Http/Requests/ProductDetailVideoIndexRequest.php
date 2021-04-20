@@ -3,11 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ProductDetailVideosEditRequest extends FormRequest
+class ProductDetailVideoIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,22 +26,12 @@ class ProductDetailVideosEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'products_id' => [
-                'integer',
-                Rule::exists('products', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
-            'price' => 'integer',
-            'video_sessions_id' => [
-                'integer',
-                Rule::exists('video_sessions', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ]
+            'sort' => 'required_with:type|in:id,products_id,price,video_sessions_id',
+            'type' => 'required_with:sort|in:asc,desc',
+            'per_page' => 'string|max:255',
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator
