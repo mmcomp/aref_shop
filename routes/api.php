@@ -17,6 +17,7 @@ use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\VideoSessionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -207,4 +208,14 @@ Route::group([
     Route::get('/show/{id}', [CouponController::class, 'show']);
     Route::put('/edit/{id}', [CouponController::class, 'update']);
     Route::delete('/delete/{id}', [CouponController::class, 'destroy']);
+}); 
+Route::group([
+    'middleware' => ['auth:api', 'can:video-session'],
+    'prefix' => 'video-sessions'
+], function ($router) {
+    Route::get('/', [VideoSessionsController::class, 'index']);
+    Route::post('/add', [VideoSessionsController::class, 'store']);
+    Route::get('/show/{id}', [VideoSessionsController::class, 'show']);
+    Route::put('/edit/{id}', [VideoSessionsController::class, 'update']);
+    Route::delete('/delete/{id}', [VideoSessionsController::class, 'destroy']);
 }); 
