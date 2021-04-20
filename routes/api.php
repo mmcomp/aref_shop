@@ -218,4 +218,5 @@ Route::group([
     Route::get('/show/{id}', [VideoSessionsController::class, 'show']);
     Route::put('/edit/{id}', [VideoSessionsController::class, 'update']);
     Route::delete('/delete/{id}', [VideoSessionsController::class, 'destroy']);
+    Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
 }); 
