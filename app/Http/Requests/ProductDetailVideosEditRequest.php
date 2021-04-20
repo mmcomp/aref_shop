@@ -27,6 +27,7 @@ class ProductDetailVideosEditRequest extends FormRequest
     public function rules()
     {
         return [
+            'name' => 'string|min:3|max:255',
             'products_id' => [
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {

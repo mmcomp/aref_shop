@@ -26,7 +26,7 @@ class ProductDetailVideoIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'sort' => 'required_with:type|in:id,products_id,price,video_sessions_id',
+            'sort' => 'required_with:type|in:id,name,products_id,price,video_sessions_id',
             'type' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
         ];

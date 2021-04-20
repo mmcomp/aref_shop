@@ -10,6 +10,7 @@ class ProductDetailVideo extends Model
     use HasFactory;
     
     protected $fillable = [
+      'name', 
       'products_id',
       'price',
       'video_sessions_id',
