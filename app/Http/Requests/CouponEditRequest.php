@@ -28,7 +28,7 @@ class CouponEditRequest extends FormRequest
     {
         return [
             'name' => 'string|min:3|max:255',
-            'description' => 'string|min:3|max:1000',
+            'description' => 'nullable|string|min:3|max:1000',
             'amount' => 'integer',
             'type' => 'in:percent,amount',
             'expired_at' => 'nullable|date',
