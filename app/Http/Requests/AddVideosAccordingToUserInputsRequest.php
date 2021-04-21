@@ -28,7 +28,7 @@ class AddVideosAccordingToUserInputsRequest extends FormRequest
     {
         return [
             'days' => 'required|array',
-            'days.*' => 'required|string|max:255|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday',
+            'days.*' => 'required|string|max:255|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday',
             'from_date' => 'required|date',
             'to_date' => 'required|date|after:from_date',
             'from_time' => 'required|date_format:H:i',
