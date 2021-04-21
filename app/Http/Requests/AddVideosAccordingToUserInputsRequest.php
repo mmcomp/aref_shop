@@ -3,11 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
-class VideoSessionEditRequest extends FormRequest
+class AddVideosAccordingToUserInputsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,23 +27,23 @@ class VideoSessionEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'start_date' => 'date',
-            'start_time' => 'date_format:H:i',
-            'end_time' => 'date_format:H:i|after:start_time',
-            'teacher_users_id' => [
-                'nullable',
+            'days' => 'required|array',
+            'days.*' => 'required|string|max:255|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after:from_date',
+            'from_time' => 'required|date_format:H:i',
+            'to_time' => 'required|date_format:H:i|after:from_time',
+            'per_price' => 'required|integer',
+            'products_id' => [
+                'required',
                 'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
+                Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
-                })
+                }),
             ],
-            'price' => 'integer',
-            'video_session_type' => 'in:online,offline',
-            'video_link' => 'nullable|url',
-            'is_hidden' => 'boolean'
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

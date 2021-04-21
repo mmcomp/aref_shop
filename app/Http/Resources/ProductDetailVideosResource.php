@@ -17,6 +17,7 @@ class ProductDetailVideosResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
+                'name' => $this->name,
                 'product' => $this->product,
                 'price' => $this->price,
                 'video_sessions_id' => $this->videoSession,

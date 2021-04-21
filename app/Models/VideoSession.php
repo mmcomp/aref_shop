@@ -10,7 +10,6 @@ class VideoSession extends Model
     use HasFactory;
 
     protected $fillable = [
-       "name",
        "start_date",
        "start_time",
        "end_time",
