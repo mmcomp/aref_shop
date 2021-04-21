@@ -43,5 +43,9 @@ class Product extends Model
     {
         return $this->hasOne('App\Models\CategoryThree', 'id', 'category_threes_id');
     }
+    public function product_detail_videos()
+    {
+        return $this->hasMany('App\Models\ProductDetailVideo', 'products_id', 'id');
+    }
 
 }

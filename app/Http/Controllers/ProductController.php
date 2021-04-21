@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListOfVideosOfAProductRequest;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductEditRequest;
 use App\Http\Requests\ProductImageRequest;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductVideoCollection;
+use App\Http\Resources\ProductVideoResource;
 use App\Models\Product;
+use App\Models\VideoSession;
 use App\Utils\UploadImage;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Log;
+use Exception;
+
 
 class ProductController extends Controller
 {
@@ -342,5 +350,47 @@ class ProductController extends Controller
             'error' => null,
         ])->response()->setStatusCode(200);
 
+    }
+    /**
+     * paginate function for array
+     *
+     * @param array $items
+     * @param integer $perPage
+     * @param  $page
+     * @param array $options
+     * @return void
+     */
+    public function paginate(array $items, $perPage = 5, $page = null, $options = [])
+    {
+
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+    /**
+     * list videos of a product
+     *
+     * @param  int  $id
+     * @param  \App\Http\Requests\ListOfVideosOfAProductRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ListOfVideosOfAProduct($id)
+    {
+
+        $per_page = request()->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);
+        $videoSessions = [];
+        if ($product != null) {
+            foreach ($product->product_detail_videos as $detail_video) {
+                $videoSessions[] = $detail_video->videoSession;
+            }
+            $videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions,env('PAGE_COUNT'));
+            return (new ProductVideoCollection($videoSessionItems))->additional([
+                'error' => null
+            ])->response()->setStatusCode(200);
+        }
+        return (new ProductVideoResource(null))->additional([
+            'error' => "Product not found!",
+        ])->response()->setStatusCode(404);
     }
 }
