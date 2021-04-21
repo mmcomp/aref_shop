@@ -384,8 +384,8 @@ class ProductController extends Controller
             foreach ($product->product_detail_videos as $detail_video) {
                 $videoSessions[] = $detail_video->videoSession;
             }
-            $videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions,env('PAGE_COUNT'));
-            return (new ProductVideoCollection($videoSessionItems))->additional([
+            //$videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions,env('PAGE_COUNT'));
+            return (new ProductVideoCollection($videoSessions))->additional([
                 'error' => null
             ])->response()->setStatusCode(200);
         }
