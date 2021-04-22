@@ -18,10 +18,6 @@ class ProductVideoCollection extends ResourceCollection
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    // public function toArray($request)
-    // {
-    //     return $this->collection;
-    // }
     public function toArray($request){
         return $this->collection->map(function (ProductVideoResource $resource) use ($request) {
             return $resource->foo($this->foo)->toArray($request);

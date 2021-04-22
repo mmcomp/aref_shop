@@ -13,14 +13,13 @@ use App\Http\Resources\ProductVideoResource;
 use App\Models\Product;
 use App\Models\VideoSession;
 use App\Utils\UploadImage;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Log;
 use Exception;
-
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Storage;
+use Log;
 
 class ProductController extends Controller
 {
@@ -388,13 +387,18 @@ class ProductController extends Controller
             }
             $numArray = [];
             $i = 1;
-            foreach($ids as $id) {
-              $numArray[$id] = $i;
-              $i++;
-            }      
-            $videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions,env('PAGE_COUNT'));
+            foreach ($ids as $id) {
+                $v = VideoSession::where('is_deleted', false)->find($id);
+                if ($v->product_detail_video->extraordinary) {
+                    $numArray[$id] = 0;
+                } else {
+                    $numArray[$id] = $i;
+                }
+                $i = $numArray[$id] ? $i + 1 : $i;
+            }
+            $videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions, env('PAGE_COUNT'));
             return ((new ProductVideoCollection($videoSessionItems))->foo($numArray))->additional([
-                'error' => null
+                'error' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductVideoResource(null))->additional([
