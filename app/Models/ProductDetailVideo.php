@@ -14,6 +14,7 @@ class ProductDetailVideo extends Model
       'products_id',
       'price',
       'video_sessions_id',
+      'extraordinary'
     ];
 
     public function product()
