@@ -21,6 +21,6 @@ class ProductVideoCollection extends ResourceCollection
     public function toArray($request){
         return $this->collection->map(function (ProductVideoResource $resource) use ($request) {
             return $resource->foo($this->foo)->toArray($request);
-        })->all();
+        })->filter()->all();
     }
 }
