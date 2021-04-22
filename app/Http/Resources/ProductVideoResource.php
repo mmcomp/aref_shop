@@ -7,6 +7,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductVideoResource extends JsonResource
 {
+    protected $value;
+
+    public function foo($value){
+        $this->foo = $value;
+        return $this;
+    }
     /**
      * Transform the resource into an array.
      *
@@ -17,7 +23,7 @@ class ProductVideoResource extends JsonResource
     {
         if($this->resource != null){
             $number = new Number2Word;
-            $numToWord = $number->numberToWords($this->id);
+            $numToWord = $number->numberToWords($this->foo[$this->id]);
             $num = strpos($numToWord,"سه") !== false ? str_replace("سه", "سو", $numToWord).'م' : $numToWord.'م';
             return [
                 'id' => $this->id,
