@@ -52,8 +52,9 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Forbidden.'], 403);
         } else if($exception instanceof NotFoundHttpException) {
             return response()->json(['error' => 'Not Found.'], 404);
-        } else if($exception instanceof QueryException) {
-            return response()->json(['error' => 'Server Error.'], 500);
-        }
+        } 
+        // else if($exception instanceof QueryException) {
+        //     return response()->json(['error' => 'Server Error.'], 500);
+        // }
     }
 }
