@@ -21,6 +21,7 @@ class ProductDetailVideosResource extends JsonResource
                 'product' => $this->product,
                 'price' => $this->price,
                 'video_sessions_id' => $this->videoSession,
+                'extraordinary' => $this->extraordinary,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
             ];
