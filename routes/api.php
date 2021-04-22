@@ -78,6 +78,7 @@ Route::group([
     Route::delete('/delete-main-image/{id}',[ProductController::class, 'deleteMainImage']);
     Route::delete('/delete-second-image/{id}',[ProductController::class, 'deleteSecondImage']);
     Route::post('/search',[ProductController::class, 'search']);
+    Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailChair'],
