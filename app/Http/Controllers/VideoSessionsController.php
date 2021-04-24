@@ -6,6 +6,7 @@ use App\Http\Requests\AddVideosAccordingToUserInputsRequest;
 use App\Http\Requests\VideoSessionCreateRequest;
 use App\Http\Requests\VideoSessionEditRequest;
 use App\Http\Requests\VideoSessionIndexRequest;
+use App\Http\Requests\InsertSingleSessionRequest;
 use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
 use App\Models\VideoSession;
@@ -170,6 +171,33 @@ class VideoSessionsController extends Controller
                 ]);
             }
         }
+        return (new VideoSessionsResource(null))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(201);
+    }
+    /**
+     * Insert single session into video_sessions_table & product_detail_videos_table
+     *
+     * @param  \App\Http\Requests\InsertSingleSessionRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function InsertSingleVideoSession(InsertSingleSessionRequest $request) 
+    {
+        
+        $v = VideoSession::create([
+           'start_date' => $request->input('date'),
+           'start_time' => $request->input('from_time'),
+           'end_time' => $request->input('to_time'),
+           'price' => $request->input('price'),
+           'video_session_type' => 'offline',
+        ]);
+        ProductDetailVideo::create([
+            "price" => $request->input("price"),
+            "products_id" => $request->input("products_id"),
+            "video_sessions_id" => $v->id,
+            "name" => $request->input('name'),
+            "extraordinary" => $request->input('extraordinary')
+        ]);
         return (new VideoSessionsResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
