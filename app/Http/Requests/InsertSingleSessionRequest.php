@@ -31,7 +31,7 @@ class InsertSingleSessionRequest extends FormRequest
             'from_time' => 'required|date_format:H:i',
             'to_time' => 'required|date_format:H:i|after:from_time',
             'price' => 'required|integer',
-            'name' => 'nullable|string|min:3|max:255',
+            'name' => 'required_if:extraordinary,1|nullable|string|min:3|max:255',
             'products_id' => [
                 'required',
                 'integer',
