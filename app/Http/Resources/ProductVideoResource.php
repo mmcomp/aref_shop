@@ -23,7 +23,7 @@ class ProductVideoResource extends JsonResource
     {
         if($this->resource != null){
             $number = new Number2Word;
-            $numToWord = $number->numberToWords($this->foo[$this->id]);
+            $numToWord = $this->foo[$this->id] ? $number->numberToWords($this->foo[$this->id]) : $this->product_detail_video_name;
             $num = strpos($numToWord,"سه") !== false ? str_replace("سه", "سو", $numToWord).'م' : $numToWord.'م';
             return [
                 'id' => $this->id,
