@@ -17,7 +17,6 @@ class VideoSession extends Model
        "price",
        "video_session_type",
        "video_link",
-       "is_hidden"
     ];
 
     public function teacher()

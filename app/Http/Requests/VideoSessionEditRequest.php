@@ -39,8 +39,7 @@ class VideoSessionEditRequest extends FormRequest
             ],
             'price' => 'integer',
             'video_session_type' => 'in:online,offline',
-            'video_link' => 'nullable|url',
-            'is_hidden' => 'boolean'
+            'video_link' => 'nullable|url'
         ];
     }
      /**

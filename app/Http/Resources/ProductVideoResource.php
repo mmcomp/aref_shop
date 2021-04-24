@@ -31,13 +31,13 @@ class ProductVideoResource extends JsonResource
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
                 'teacher'  => $this->teacher,
-                'name' => $this->product_detail_video->name == null ? $num : $this->product_detail_video->name,
-                'price' => $this->product_detail_video->price == null ? $this->price : $this->product_detail_video->price,
-                'product' => $this->product_detail_video->product,
+                'name' => ($this->product_detail_video && $this->product_detail_video->name == null) ? $num : ($this->product_detail_video ? $this->product_detail_video->name : ''),
+                'price' => ($this->product_detail_video && $this->product_detail_video->price == null) ? $this->price : ($this->product_detail_video ? $this->product_detail_video->price : 0),
+                'product' => ($this->product_detail_video) ? $this->product_detail_video->product : null,
                 'video_session_type' => $this->video_session_type,
                 'video_link' => $this->video_link,
-                'extraordinary' => $this->product_detail_video ? $this->product_detail_video->extraordinary : null,
-                'is_hidden' => $this->is_hidden,
+                'extraordinary' => ($this->product_detail_video) ? $this->product_detail_video->extraordinary : 0,
+                'is_hidden' => ($this->product_detail_video) ? $this->product_detail_video->is_hidden : 0,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
