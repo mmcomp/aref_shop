@@ -40,7 +40,8 @@ class ProductDetailVideosEditRequest extends FormRequest
                 Rule::exists('video_sessions', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
-            ]
+            ],
+            'extraordinary' => 'in:0,1'
         ];
     }
      /**
