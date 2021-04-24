@@ -7,7 +7,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class AddVideosAccordingToUserInputsRequest extends FormRequest
+class InsertSingleSessionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,13 +27,11 @@ class AddVideosAccordingToUserInputsRequest extends FormRequest
     public function rules()
     {
         return [
-            'days' => 'required|array',
-            'days.*' => 'required|string|max:255|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday',
-            'from_date' => 'required|date',
-            'to_date' => 'required|date|after:from_date',
+            'date' => 'required|date',
             'from_time' => 'required|date_format:H:i',
             'to_time' => 'required|date_format:H:i|after:from_time',
-            'per_price' => 'required|integer',
+            'price' => 'required|integer',
+            'name' => 'required_if:extraordinary,1|nullable|string|min:3|max:255',
             'products_id' => [
                 'required',
                 'integer',
@@ -41,6 +39,7 @@ class AddVideosAccordingToUserInputsRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'extraordinary' => 'required|in:0,1'
         ];
     }
     /**
