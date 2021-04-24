@@ -32,7 +32,7 @@ class ProductVideoResource extends JsonResource
             }
 
             return [
-                'id' => $this->id,
+                'id' => $this->product_detail_video ? $this->product_detail_video->id : 0,
                 'start_date' => $this->start_date,
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
