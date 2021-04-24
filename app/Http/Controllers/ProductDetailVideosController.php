@@ -11,6 +11,7 @@ use App\Http\Resources\ProductDetailVideosResource;
 use App\Models\ProductDetailVideo;
 use App\Models\VideoSession;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Log;
 
 class ProductDetailVideosController extends Controller
@@ -133,6 +134,18 @@ class ProductDetailVideosController extends Controller
         ])->response()->setStatusCode(404);
     }
     /**
+     * show error of extraordinary field
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showErrorForExtraordinary()
+    {
+
+        throw new HttpResponseException(
+            response()->json(['errors' => ['extraordinary' => 'فیلد فوق العاده رو باید یک وارد کنید']], 422)
+        );
+    }
+    /**
      * assings a video to a product
      *
      * @param  \App\Http\Requests\AssignVideoToProductRequest $request
@@ -141,16 +154,16 @@ class ProductDetailVideosController extends Controller
     public function assignVideoToProduct(AssignVideoToProductRequest $request)
     {
 
-        $videoSession = VideoSession::where('is_deleted', false)->orderby('start_date','desc')->first();
-        //TODO: check if it is between sessions or not
+        $videoSession = VideoSession::where('is_deleted', false)->orderby('start_date', 'desc')->first();
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
         ProductDetailVideo::create([
             'products_id' => $request->input('products_id'),
             'name' => $request->input('name'),
             'price' => $request->input('price'),
-            'extraordinary' => $request->input('extraordinary'),
-            'video_sessions_id' => $product_detail_video->video_sessions_id
+            'extraordinary' => ($product_detail_video->video_sessions_id < $videoSession->id && !$request->input('extraordinary')) ? $this->showErrorForExtraordinary($request->input('extraordinary')) : $request->input('extraordinary'),
+            'video_sessions_id' => $product_detail_video->video_sessions_id,
         ]);
+
         return (new ProductDetailVideosResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
