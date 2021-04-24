@@ -24,4 +24,8 @@ class VideoSession extends Model
     {
         return $this->belongsTo("App\Models\User", "teacher_users_id", "id");
     }
+    public function product_detail_video()
+    {
+        return $this->hasOne("App\Models\ProductDetailVideo", "video_sessions_id", "id");
+    }
 }
