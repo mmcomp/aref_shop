@@ -9,7 +9,8 @@ class ProductVideoResource extends JsonResource
 {
     protected $value;
 
-    public function foo($value){
+    public function foo($value)
+    {
         $this->foo = $value;
         return $this;
     }
@@ -21,16 +22,21 @@ class ProductVideoResource extends JsonResource
      */
     public function toArray($request)
     {
-        if($this->resource != null){
+        if ($this->resource != null) {
             $number = new Number2Word;
             $numToWord = $this->foo[$this->id] ? $number->numberToWords($this->foo[$this->id]) : $this->product_detail_video_name;
-            $num = strpos($numToWord,"سه") !== false ? str_replace("سه", "سو", $numToWord).'م' : $numToWord.'م';
+            if (!$this->foo[$this->id]) {
+                $num = $numToWord;
+            } else {
+                $num = strpos($numToWord, "سه") !== false ? str_replace("سه", "سو", $numToWord) . 'م' : $numToWord . 'م';
+            }
+
             return [
                 'id' => $this->id,
                 'start_date' => $this->start_date,
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
-                'teacher'  => $this->teacher,
+                'teacher' => $this->teacher,
                 'name' => $this->product_detail_video->name == null ? $num : $this->product_detail_video->name,
                 'price' => $this->product_detail_video->price == null ? $this->price : $this->product_detail_video->price,
                 'product' => $this->product_detail_video->product,
@@ -39,7 +45,7 @@ class ProductVideoResource extends JsonResource
                 'extraordinary' => $this->product_detail_video ? $this->product_detail_video->extraordinary : null,
                 'is_hidden' => $this->is_hidden,
                 'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at
+                'updated_at' => $this->updated_at,
             ];
         }
     }
