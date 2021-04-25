@@ -41,7 +41,8 @@ class ProductDetailVideosEditRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'extraordinary' => 'in:0,1'
+            'extraordinary' => 'in:0,1',
+            'is_hidden' => 'in:0,1'
         ];
     }
      /**
