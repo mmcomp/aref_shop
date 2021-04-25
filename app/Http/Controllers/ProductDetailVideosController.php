@@ -167,8 +167,8 @@ class ProductDetailVideosController extends Controller
         ->orderBy('video_sessions.start_date', 'desc')->first();
         $this->showValidationErrorMessages($product_detail_video->products_id == $request->input('products_id'), ['products_id' => 'Please enter a new product!']);
         $this->showValidationErrorMessages($foundProductDetailVideoWithThatVideoSession, ['video_sessions_id' => 'The session is already saved!']);
-        if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct) {
-            $this->showValidationErrorMessages($lastProductDetailVideoOfTheRequestedProduct->created_at > $product_detail_video->videoSession->start_date, ['extraordinary' => 'The extraordinary field should be 1']);
+        if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct->videoSession) {
+            $this->showValidationErrorMessages($lastProductDetailVideoOfTheRequestedProduct->videoSession->start_date > $product_detail_video->videoSession->start_date, ['extraordinary' => 'The extraordinary field should be 1']);
         }
         ProductDetailVideo::create([
             'products_id' => $request->input('products_id'),
