@@ -18,8 +18,8 @@ class VideoSessionsResource extends JsonResource
             return [
                 'id' => $this->id,
                 'start_date' => $this->start_date,
-                'start_time' => $this->start_time,
-                'end_time' => $this->end_time,
+                'start_time' => date('H:i', strtotime($this->start_time)),
+                'end_time' => date('H:i', strtotime($this->end_time)),
                 'teacher'  => $this->teacher,
                 'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
