@@ -133,17 +133,21 @@ class ProductDetailVideosController extends Controller
             'error' => 'ProductDetailVideo not found!',
         ])->response()->setStatusCode(404);
     }
+
     /**
-     * show error of extraordinary field
+     * show validation error messages
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Exceptions\HttpResponseException
      */
-    public function showErrorForExtraordinary()
+    public function showValidationErrorMessages($condition, $errorArray)
     {
 
-        throw new HttpResponseException(
-            response()->json(['errors' => ['extraordinary' => 'فیلد فوق العاده رو باید یک وارد کنید']], 422)
-        );
+        if ($condition) {
+            throw new HttpResponseException(
+                response()->json(['errors' => $errorArray], 422)
+            );
+        }
+
     }
     /**
      * assings a video to a product
@@ -154,13 +158,23 @@ class ProductDetailVideosController extends Controller
     public function assignVideoToProduct(AssignVideoToProductRequest $request)
     {
 
-        $videoSession = VideoSession::where('is_deleted', false)->orderby('start_date', 'desc')->first();
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
+        $foundProductDetailVideoWithThatVideoSession = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
+        $lastProductDetailVideoOfTheRequestedProduct = ProductDetailVideo::join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
+        ->where('product_detail_videos.is_deleted', false)
+        ->where('video_sessions.is_deleted', false)
+        ->where('products_id', $request->input('products_id'))
+        ->orderBy('video_sessions.start_date', 'desc')->first();
+        $this->showValidationErrorMessages($product_detail_video->products_id == $request->input('products_id'), ['products_id' => 'Please enter a new product!']);
+        $this->showValidationErrorMessages($foundProductDetailVideoWithThatVideoSession, ['video_sessions_id' => 'The session is already saved!']);
+        if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct) {
+            $this->showValidationErrorMessages($lastProductDetailVideoOfTheRequestedProduct->created_at > $product_detail_video->videoSession->start_date, ['extraordinary' => 'The extraordinary field should be 1']);
+        }
         ProductDetailVideo::create([
             'products_id' => $request->input('products_id'),
             'name' => $request->input('name'),
             'price' => $request->input('price'),
-            'extraordinary' => ($product_detail_video->video_sessions_id < $videoSession->id && !$request->input('extraordinary')) ? $this->showErrorForExtraordinary($request->input('extraordinary')) : $request->input('extraordinary'),
+            'extraordinary' => $request->input('extraordinary'),
             'video_sessions_id' => $product_detail_video->video_sessions_id,
         ]);
 

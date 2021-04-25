@@ -14,17 +14,18 @@ class ProductDetailVideo extends Model
       'products_id',
       'price',
       'video_sessions_id',
-      'extraordinary'
+      'extraordinary',
+      'is_hidden'
     ];
 
     public function product()
     {
-        return $this->belongsTo('App\Models\Product', 'products_id', 'id')->where('is_deleted', 0);
+        return $this->belongsTo('App\Models\Product', 'products_id', 'id')->where('is_deleted', false);
     }
 
     public function videoSession()
     {
-        return $this->belongsTo('App\Models\VideoSession', 'video_sessions_id', 'id')->where('is_deleted', 0);
+        return $this->belongsTo('App\Models\VideoSession', 'video_sessions_id', 'id')->where('is_deleted', false);
     }
 
 }
