@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AssignVideoToProductRequest;
 use App\Http\Requests\ProductDetailVideoIndexRequest;
 use App\Http\Requests\ProductDetailVideosCreateRequest;
 use App\Http\Requests\ProductDetailVideosEditRequest;
 use App\Http\Resources\ProductDetailVideosCollection;
 use App\Http\Resources\ProductDetailVideosResource;
 use App\Models\ProductDetailVideo;
+use App\Models\VideoSession;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Log;
 
 class ProductDetailVideosController extends Controller
@@ -105,7 +108,7 @@ class ProductDetailVideosController extends Controller
     public function destroy($id)
     {
 
-        $product_detail_video = ProductDetailVideo::where('is_deleted',false)->find($id);
+        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         if ($product_detail_video != null) {
             $product_detail_video->is_deleted = 1;
             try {
@@ -129,5 +132,54 @@ class ProductDetailVideosController extends Controller
         return (new ProductDetailVideosResource(null))->additional([
             'error' => 'ProductDetailVideo not found!',
         ])->response()->setStatusCode(404);
+    }
+
+    /**
+     * show validation error messages
+     *
+     * @return \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    public function showValidationErrorMessages($condition, $errorArray)
+    {
+
+        if ($condition) {
+            throw new HttpResponseException(
+                response()->json(['errors' => $errorArray], 422)
+            );
+        }
+
+    }
+    /**
+     * assings a video to a product
+     *
+     * @param  \App\Http\Requests\AssignVideoToProductRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function assignVideoToProduct(AssignVideoToProductRequest $request)
+    {
+
+        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
+        $foundProductDetailVideoWithThatVideoSession = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
+        $lastProductDetailVideoOfTheRequestedProduct = ProductDetailVideo::join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
+        ->where('product_detail_videos.is_deleted', false)
+        ->where('video_sessions.is_deleted', false)
+        ->where('products_id', $request->input('products_id'))
+        ->orderBy('video_sessions.start_date', 'desc')->first();
+        $this->showValidationErrorMessages($product_detail_video->products_id == $request->input('products_id'), ['products_id' => 'Please enter a new product!']);
+        $this->showValidationErrorMessages($foundProductDetailVideoWithThatVideoSession, ['video_sessions_id' => 'The session is already saved!']);
+        if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct->videoSession) {
+            $this->showValidationErrorMessages($lastProductDetailVideoOfTheRequestedProduct->videoSession->start_date > $product_detail_video->videoSession->start_date, ['extraordinary' => 'The extraordinary field should be 1']);
+        }
+        ProductDetailVideo::create([
+            'products_id' => $request->input('products_id'),
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'extraordinary' => $request->input('extraordinary'),
+            'video_sessions_id' => $product_detail_video->video_sessions_id,
+        ]);
+
+        return (new ProductDetailVideosResource(null))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(201);
     }
 }

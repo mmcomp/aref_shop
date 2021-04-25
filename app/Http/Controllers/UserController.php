@@ -243,7 +243,7 @@ class UserController extends Controller
     {
 
         $ids = $request->ids;
-        User::where('is_deleted', 0)->whereIn('id', $ids)->update(["is_deleted" => 1, "email" => DB::raw("CONCAT('_', email)")]);
+        User::where('is_deleted', false)->whereIn('id', $ids)->update(["is_deleted" => 1, "email" => DB::raw("CONCAT('_', email)")]);
         return (new UserResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(204);

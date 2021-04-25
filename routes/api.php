@@ -133,6 +133,7 @@ Route::group([
     Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
     Route::delete('/delete/{id}', [ProductDetailVideosController::class, 'destroy']);
+    Route::post('/assign-video-to-a-product',[ProductDetailVideosController::class,'assignVideoToProduct']);
 });
 Route::group([
     'middleware' => ['auth:api','can:province'],

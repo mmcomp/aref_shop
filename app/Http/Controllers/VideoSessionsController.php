@@ -183,7 +183,7 @@ class VideoSessionsController extends Controller
      */
     public function InsertSingleVideoSession(InsertSingleSessionRequest $request) 
     {
-        
+
         $v = VideoSession::create([
            'start_date' => $request->input('date'),
            'start_time' => $request->input('from_time'),
@@ -196,7 +196,8 @@ class VideoSessionsController extends Controller
             "products_id" => $request->input("products_id"),
             "video_sessions_id" => $v->id,
             "name" => $request->input('name'),
-            "extraordinary" => $request->input('extraordinary')
+            "extraordinary" => $request->input('extraordinary'),
+            "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0
         ]);
         return (new VideoSessionsResource(null))->additional([
             'error' => null,
