@@ -17,7 +17,7 @@ class GroupGatesSeeder extends Seeder
     {
 
         $arr = ['city', 'group', 'product', 'productDetailChair', 'productDetailDownload', 'productDetailPackage', 'productDetailVideo',
-            'province', 'user', 'category-one', 'category-two', 'category-three', 'group_gate','coupon', 'video-session', 'file','product-file'];
+            'province', 'user', 'category-one', 'category-two', 'category-three', 'group_gate','coupon', 'video-session', 'file','product-file','video-session-file'];
         for ($i = 0; $i < count($arr) ; $i++) {
             DB::table('group_gates')->insert([
                 'groups_id' => 1,

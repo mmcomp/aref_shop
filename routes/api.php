@@ -20,6 +20,7 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
+use App\Http\Controllers\VideoSessionFilesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -241,4 +242,11 @@ Route::group([
 ], function ($router) {
     Route::post('/add', [ProductFilesController::class, 'store']);
     Route::delete('/delete/{id}', [ProductFilesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:video-session-file'],
+    'prefix' => 'video-session-files'
+], function ($router) {
+    Route::post('/add', [VideoSessionFilesController::class, 'store']);
+    Route::delete('/delete/{id}', [VideoSessionFilesController::class, 'destroy']);
 });

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductVideoSessionFileResource extends JsonResource
+class VideoSessionFileResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,9 +20,8 @@ class ProductVideoSessionFileResource extends JsonResource
                 'name' => ($this->file) ? $this->file->name : '',
                 'description' => ($this->file) ? $this->file->description : null,
                 'user' => ($this->file) ? $this->file->user : 0,
-                'product' => $this->product,
-                'file_path' => ($this->file) ? $this->file->file_path : null,
-                //'video_session' => ($this->videoSession) ? $this->videoSession : null
+                'video_session' => $this->videoSession,
+                'file_path' => ($this->file) ? $this->file->file_path : null
             ];
         }
     }

@@ -7,7 +7,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class FileCreateRequest extends FormRequest
+class ProductFileCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,19 +31,12 @@ class FileCreateRequest extends FormRequest
             'name' => 'string|min:3|max:255',
             'description' => 'nullable|string|max:1000',
             'products_id' => [
-                'required_if:product_detail_videos_id,null',
+                'required',
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
-            ],
-            'product_detail_videos_id' => [
-                'required_if:products_id,null',
-                'integer',
-                Rule::exists('product_detail_videos', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
+            ]
         ];
     }
     /**
