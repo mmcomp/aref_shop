@@ -18,6 +18,9 @@ use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\VideoSessionsController;
+use App\Http\Controllers\FileController;
+use App\Http\Controllers\ProductFilesController;
+use App\Http\Controllers\VideoSessionFilesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -223,3 +226,27 @@ Route::group([
     Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
     Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
 }); 
+Route::group([
+    'middleware' => ['auth:api', 'can:file'],
+    'prefix' => 'file'
+], function ($router) {
+    Route::get('/', [FileController::class, 'index']);
+    Route::post('/add', [FileController::class, 'store']);
+    Route::get('/show/{id}', [FileController::class, 'show']);
+    Route::put('/edit/{id}', [FileController::class, 'update']);
+    Route::delete('/delete/{id}', [FileController::class, 'destroy']);
+}); 
+Route::group([
+    'middleware' => ['auth:api', 'can:product-file'],
+    'prefix' => 'product-files'
+], function ($router) {
+    Route::post('/add', [ProductFilesController::class, 'store']);
+    Route::delete('/delete/{id}', [ProductFilesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:video-session-file'],
+    'prefix' => 'video-session-files'
+], function ($router) {
+    Route::post('/add', [VideoSessionFilesController::class, 'store']);
+    Route::delete('/delete/{id}', [VideoSessionFilesController::class, 'destroy']);
+});
