@@ -22,28 +22,28 @@ class ProductVideoResource extends JsonResource
      */
     public function toArray($request)
     {
+
         if ($this->resource != null) {
             $number = new Number2Word;
-            $numToWord = $this->foo[$this->id] ? $number->numberToWords($this->foo[$this->id]) : $this->product_detail_video_name;
-            if (!$this->foo[$this->id]) {
+            $numToWord = $this->foo[$this->videoSession->id] ? $number->numberToWords($this->foo[$this->videoSession->id]) : $this->product_detail_video_name;
+            if (!$this->foo[$this->videoSession->id]) {
                 $num = $numToWord;
             } else {
                 $num = strpos($numToWord, "سه") !== false ? str_replace("سه", "سو", $numToWord) . 'م' : $numToWord . 'م';
             }
-
             return [
-                'id' => $this->product_detail_video ? $this->product_detail_video->id : 0,
-                'start_date' => $this->start_date,
-                'start_time' =>date('H:i', strtotime($this->start_time)),
-                'end_time' => date('H:i', strtotime($this->end_time)),
-                'teacher'  => $this->teacher,
-                'name' => ($this->product_detail_video && $this->product_detail_video->name == null) ? $num : ($this->product_detail_video ? $this->product_detail_video->name : ''),
-                'price' => ($this->product_detail_video && $this->product_detail_video->price == null) ? $this->price : ($this->product_detail_video ? $this->product_detail_video->price : 0),
-                'product' => ($this->product_detail_video) ? $this->product_detail_video->product : null,
-                'video_session_type' => $this->video_session_type,
-                'video_link' => $this->video_link,
-                'extraordinary' => ($this->product_detail_video) ? $this->product_detail_video->extraordinary : 0,
-                'is_hidden' => ($this->product_detail_video) ? $this->product_detail_video->is_hidden : 0,
+                'id' => $this->id,
+                'start_date' => $this->videoSession ? $this->videoSession->start_date : null,
+                'start_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->start_time)) : null,
+                'end_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->end_time)) : null,
+                'teacher'  => $this->videoSession ? $this->videoSession->teacher : null,
+                'name' => $this->name == null ? $num : $this->name,
+                'price' => $this->price == null ? ($this->videoSession ? $this->videoSession->price : null) : $this->price,
+                'product' => $this->product,
+                'video_session_type' => $this->videoSession ? $this->videoSession->video_session_type : null,
+                'video_link' => $this->videoSession ? $this->videoSession->video_link : null,
+                'extraordinary' => $this->extraordinary,
+                'is_hidden' => $this->is_hidden,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
             ];
