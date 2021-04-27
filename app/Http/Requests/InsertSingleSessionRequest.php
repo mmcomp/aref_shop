@@ -40,7 +40,9 @@ class InsertSingleSessionRequest extends FormRequest
                 }),
             ],
             'extraordinary' => 'required|in:0,1',
-            'is_hidden' => 'in:0,1'
+            'is_hidden' => 'in:0,1',
+            'video_link' => 'nullable|url',
+            'video_session_type' => 'nullable|in:online,offline'
         ];
     }
     /**
