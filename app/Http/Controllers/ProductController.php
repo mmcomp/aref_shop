@@ -377,24 +377,31 @@ class ProductController extends Controller
     {
 
         $per_page = request()->get('per_page');
-        $product = Product::where('is_deleted', false)->find($id);
+        $product = Product::where('is_deleted', false)->with('product_detail_videos.videoSession')->find($id);
         $videoSessions = [];
-        $ids = [];
         if ($product != null) {
-            foreach ($product->product_detail_videos as $detail_video) {
-                $videoSessions[] = $detail_video->videoSession;
-                $videoSessionIds[] = $detail_video->videoSession ? $detail_video->videoSession->id : 0;
-            }
+            // foreach ($product->product_detail_videos as $detail_video) {
+            //     $videoSessions[] = $detail_video->videoSession;
+            //     $videoSessionIds[] = $detail_video->videoSession ? $detail_video->videoSession->id : 0;
+            // }
             $numArray = [];
             $i = 1;
-            foreach ($videoSessionIds as $videoSessionId) {
-                if ($videoSessionId) {
-                    $v = VideoSession::where('is_deleted', false)->find($videoSessionId);
-                    $numArray[$videoSessionId] = $v != null && $v->product_detail_video && $v->product_detail_video->extraordinary ? 0 : $i;
-                    $i = $numArray[$videoSessionId] ? $i + 1 : $i;
-                }
+            for($indx = 0;$indx < count($product->product_detail_videos);$indx++) {
+                $v = $product->product_detail_videos[$indx]->videoSession;
+                $numArray[$v->id] = $v != null && $product->product_detail_videos[$indx]->extraordinary ? 0 : $i;
+                $i = $numArray[$v->id] ? $i + 1 : $i;
+                $videoSessions[] = $product->product_detail_videos[$indx];
             }
+            // $i = 1;
+            // foreach ($videoSessionIds as $videoSessionId) {
+            //     if ($videoSessionId) {
+            //         $v = VideoSession::where('is_deleted', false)->find($videoSessionId);
+            //         $numArray[$videoSessionId] = $v != null && $v->product_detail_video && $v->product_detail_video->extraordinary ? 0 : $i;
+            //         $i = $numArray[$videoSessionId] ? $i + 1 : $i;
+            //     }
+            // }
             $videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions, env('PAGE_COUNT'));
+            return $videoSessionItems;
             return ((new ProductVideoCollection($videoSessionItems))->foo($numArray))->additional([
                 'error' => null,
             ])->response()->setStatusCode(200);
