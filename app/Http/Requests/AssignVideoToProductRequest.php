@@ -41,7 +41,7 @@ class AssignVideoToProductRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'name' => 'required_if:extraordinary,1|string|min:3|max:255',
+            'name' => 'nullable|required_if:extraordinary,1|string|min:3|max:255',
             'price' => 'nullable|integer',
             'extraordinary' => 'required|in:0,1',
             'is_hidden' => 'nullable|in:0,1'
