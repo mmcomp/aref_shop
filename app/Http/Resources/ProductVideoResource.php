@@ -25,11 +25,14 @@ class ProductVideoResource extends JsonResource
 
         if ($this->resource != null) {
             $number = new Number2Word;
-            $numToWord = $this->foo[$this->videoSession->id] ? $number->numberToWords($this->foo[$this->videoSession->id]) : $this->product_detail_video_name;
-            if (!$this->foo[$this->videoSession->id]) {
-                $num = $numToWord;
-            } else {
-                $num = strpos($numToWord, "سه") !== false ? str_replace("سه", "سو", $numToWord) . 'م' : $numToWord . 'م';
+            $num = 0;
+            if($this->videoSession){
+                $numToWord = $this->foo[$this->videoSession->id] ? $number->numberToWords($this->foo[$this->videoSession->id]) : $this->product_detail_video_name;
+                if (!$this->foo[$this->videoSession->id]) {
+                    $num = $numToWord;
+                } else {
+                    $num = strpos($numToWord, "سه") !== false ? str_replace("سه", "سو", $numToWord) . 'م' : $numToWord . 'م';
+                }
             }
             return [
                 'id' => $this->id,
