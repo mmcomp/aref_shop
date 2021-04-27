@@ -383,15 +383,15 @@ class ProductController extends Controller
         if ($product != null) {
             foreach ($product->product_detail_videos as $detail_video) {
                 $videoSessions[] = $detail_video->videoSession;
-                $ids[] = $detail_video->videoSession ? $detail_video->videoSession->id : 0;
+                $videoSessionIds[] = $detail_video->videoSession ? $detail_video->videoSession->id : 0;
             }
             $numArray = [];
             $i = 1;
-            foreach ($ids as $id) {
-                if ($id) {
-                    $v = VideoSession::where('is_deleted', false)->find($id);
-                    $numArray[$id] = $v != null && $v->product_detail_video && $v->product_detail_video->extraordinary ? 0 : $i;
-                    $i = $numArray[$id] ? $i + 1 : $i;
+            foreach ($videoSessionIds as $videoSessionId) {
+                if ($videoSessionId) {
+                    $v = VideoSession::where('is_deleted', false)->find($videoSessionId);
+                    $numArray[$videoSessionId] = $v != null && $v->product_detail_video && $v->product_detail_video->extraordinary ? 0 : $i;
+                    $i = $numArray[$videoSessionId] ? $i + 1 : $i;
                 }
             }
             $videoSessionItems = $per_page == "all" ? $videoSessions : $this->paginate($videoSessions, env('PAGE_COUNT'));
