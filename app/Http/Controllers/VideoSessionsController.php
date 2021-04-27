@@ -189,7 +189,8 @@ class VideoSessionsController extends Controller
            'start_time' => $request->input('from_time'),
            'end_time' => $request->input('to_time'),
            'price' => $request->input('price'),
-           'video_session_type' => 'offline',
+           'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
+           'video_link' => $request->input('video_link')
         ]);
         ProductDetailVideo::create([
             "price" => $request->input("price"),
