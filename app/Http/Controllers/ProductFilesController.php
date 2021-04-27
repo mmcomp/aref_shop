@@ -51,12 +51,12 @@ class ProductFilesController extends Controller
 
         $file = FILE::find($id);
         if ($file != null) {
-            $product_file = ProductFile::where('files_id', $file->id)->first();
+            ProductFile::where('files_id', $file->id)->delete();
             $theFile = str_replace("storage", "public", $file->file_path);
             if (Storage::exists($theFile)) {
                 Storage::delete($theFile);
                 $file->delete();
-                $product_file->delete();
+                //$product_file->delete();
                 return (new ProductFileResource(null))->additional([
                     'error' => 'File successfully deleted!',
                 ])->response()->setStatusCode(204);
