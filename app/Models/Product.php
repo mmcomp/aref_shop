@@ -28,7 +28,8 @@ class Product extends Model
        'main_image_thumb_path',
        'second_image_path',
        'published',
-       'type'
+       'type',
+       'special'
     ];
 
     public function category_ones()

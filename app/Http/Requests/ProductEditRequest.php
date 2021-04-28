@@ -56,7 +56,8 @@ class ProductEditRequest extends FormRequest
                 }),
             ],
             'published' => 'integer',
-            'type' => 'string|in:normal,download,chairs,video'
+            'type' => 'string|in:normal,download,chairs,video',
+            'special' => 'in:0,1'
         ];
     }
      /**

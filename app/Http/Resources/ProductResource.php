@@ -32,6 +32,7 @@ class ProductResource extends JsonResource
                 'second_image_path' => $this->second_image_path,
                 'published' => $this->published,
                 'type' => $this->type,
+                'special' => $this->special,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

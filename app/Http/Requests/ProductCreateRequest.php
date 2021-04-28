@@ -58,6 +58,7 @@ class ProductCreateRequest extends FormRequest
             ],
             'published' => 'required|integer',
             'type' => 'required|string|in:normal,download,chairs,video',
+            'special' => 'required|in:0,1'
         ];
     }
     /**
