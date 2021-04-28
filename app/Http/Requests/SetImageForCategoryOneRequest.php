@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CategoryOnesCreateRequest extends FormRequest
+class SetImageForCategoryOneRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,7 @@ class CategoryOnesCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255'
+            'image_path' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
      /**

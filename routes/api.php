@@ -126,6 +126,8 @@ Route::group([
     Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
     Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
     Route::get('/get-subset/{id}',[CategoryOnesController::class, 'GetSubsetOfCategoryOne']);
+    Route::post('/set-image/{id}', [CategoryOnesController::class, 'setImage']);
+    Route::delete('/delete-image/{id}',[CategoryOnesController::class, 'deleteImage']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailVideo'],
