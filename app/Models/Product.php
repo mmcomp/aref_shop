@@ -28,7 +28,11 @@ class Product extends Model
        'main_image_thumb_path',
        'second_image_path',
        'published',
-       'type'
+       'type',
+       'education_system',
+       'start_date',
+       'days',
+       'hour'
     ];
 
     public function category_ones()
