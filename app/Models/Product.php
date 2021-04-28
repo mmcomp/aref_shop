@@ -45,7 +45,7 @@ class Product extends Model
     }
     public function product_detail_videos()
     {
-        return $this->hasMany('App\Models\ProductDetailVideo', 'products_id', 'id')->join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')->select("product_detail_videos.*")->orderBy('video_sessions.start_date', 'asc')->orderBy('video_sessions.start_time', 'asc');
+        return $this->hasMany('App\Models\ProductDetailVideo', 'products_id', 'id')->join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')->select("product_detail_videos.*")->where('product_detail_videos.is_deleted', false)->where('video_sessions.is_deleted', false)->orderBy('video_sessions.start_date', 'asc')->orderBy('video_sessions.start_time', 'asc');
     }
 
 }
