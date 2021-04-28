@@ -15,6 +15,7 @@ class ProductDetailVideo extends Model
       'price',
       'video_sessions_id',
       'extraordinary',
+      'single_purchase',
       'is_hidden'
     ];
 
