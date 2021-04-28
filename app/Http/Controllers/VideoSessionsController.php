@@ -200,14 +200,6 @@ class VideoSessionsController extends Controller
     public function InsertSingleVideoSession(InsertSingleSessionRequest $request) 
     {
 
-        $video_session = VideoSession::create([
-           'start_date' => $request->input('date'),
-           'start_time' => $request->input('from_time'),
-           'end_time' => $request->input('to_time'),
-           'price' => $request->input('price'),
-           'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
-           'video_link' => $request->input('video_link')
-        ]);
         $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos','video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
         ->where('product_detail_videos.is_deleted', false)
         ->where('video_sessions.is_deleted', false)
@@ -219,6 +211,14 @@ class VideoSessionsController extends Controller
                 response()->json(['errors' =>['extraordinary' => 'The extraordinary field should be 1']], 422)
             );
         }
+        $video_session = VideoSession::create([
+            'start_date' => $request->input('date'),
+            'start_time' => $request->input('from_time'),
+            'end_time' => $request->input('to_time'),
+            'price' => $request->input('price'),
+            'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
+            'video_link' => $request->input('video_link')
+         ]);
         ProductDetailVideo::create([
             "price" => $request->input("price"),
             "products_id" => $request->input("products_id"),
