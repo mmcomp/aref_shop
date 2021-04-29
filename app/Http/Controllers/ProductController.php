@@ -37,23 +37,17 @@ class ProductController extends Controller
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
-        //TODO: the code should be optimized...
+        $products = Product::where('is_deleted', false)
+            ->where(function($query) use($category_ones_id, $category_twos_id, $category_threes_id){
+                if($category_ones_id != null) $query->where('category_ones_id', $category_ones_id); 
+                if($category_twos_id != null) $query->where('category_twos_id', $category_twos_id); 
+                if($category_threes_id != null) $query->where('category_threes_id', $category_threes_id); 
+            })
+            ->orderBy('id', 'desc');
         if ($per_page == "all") {
-            $products = Product::where('is_deleted', false)
-            ->where(function($query) use($category_ones_id, $category_twos_id, $category_threes_id){
-                if($category_ones_id != null) $query->where('category_ones_id', $category_ones_id); 
-                if($category_twos_id != null) $query->where('category_twos_id', $category_twos_id); 
-                if($category_threes_id != null) $query->where('category_threes_id', $category_threes_id); 
-            })
-            ->orderBy('id', 'desc')->get();
+            $products = $products->get();
         } else {
-            $products = Product::where('is_deleted', false)
-            ->where(function($query) use($category_ones_id, $category_twos_id, $category_threes_id){
-                if($category_ones_id != null) $query->where('category_ones_id', $category_ones_id); 
-                if($category_twos_id != null) $query->where('category_twos_id', $category_twos_id); 
-                if($category_threes_id != null) $query->where('category_threes_id', $category_threes_id); 
-            })
-            ->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $products = $products->paginate(env('PAGE_COUNT'));
         }
         return (new ProductCollection($products))->additional([
             'error' => null,
