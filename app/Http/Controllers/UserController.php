@@ -257,10 +257,9 @@ class UserController extends Controller
     public function search(Request $request)
     {
 
-        $phone = trim($request->email);
-        $fullName = trim($request->name);
-        $users_builder = User::select('id', 'email', 'first_name', 'last_name', DB::raw('CONCAT(first_name, " ", last_Name)'))
-            ->where('is_deleted', false)
+        $phone = trim(request()->email);
+        $fullName = trim(request()->name);
+        $users_builder = User::where('is_deleted', false)
             ->where(function ($query) use ($phone) {
                 if ($phone != null) {
                     $query->where('email', 'like', '%' . $phone . '%');
