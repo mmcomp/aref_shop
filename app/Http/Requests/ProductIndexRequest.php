@@ -3,11 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class ProductDetailVideosCreateRequest extends FormRequest
+class ProductIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,28 +27,31 @@ class ProductDetailVideosCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
-            'products_id' => [
-                'required',
+            'per_page' => 'string|min:3|max:255',
+            'category_ones_id' => [
+                'nullable',
                 'integer',
-                Rule::exists('products', 'id')->where(function ($query) {
+                Rule::exists('category_ones', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'price' => 'required|integer',
-            'video_sessions_id' => [
-                'required',
+            'category_twos_id' => [
+                'nullable',
                 'integer',
-                Rule::exists('video_sessions', 'id')->where(function ($query) {
+                Rule::exists('category_twos', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'extraordinary' => 'required|in:0,1',
-            'single_purchase' => 'required|in:0,1',
-            'is_hidden' => 'required|in:0,1'
+            'category_threes_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('category_threes', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ]
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

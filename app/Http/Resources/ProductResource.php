@@ -33,6 +33,10 @@ class ProductResource extends JsonResource
                 'published' => $this->published,
                 'type' => $this->type,
                 'special' => $this->special,
+                'education_system' => $this->education_system,
+                'hour' => $this->hour,
+                'days' => $this->days,
+                'start_date' => $this->start_date,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

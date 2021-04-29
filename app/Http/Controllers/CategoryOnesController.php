@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryOnesCreateRequest;
 use App\Http\Requests\CategoryOnesEditRequest;
+use App\Http\Requests\SetImageForCategoryOneRequest;
 use App\Http\Resources\CategoryOnesCollection;
 use App\Http\Resources\CategoryOnesResource;
+use Illuminate\Support\Facades\Storage;
+use App\Utils\UploadImage;
 use App\Models\CategoryOne;
 use Exception;
 use Log;
@@ -144,6 +147,76 @@ class CategoryOnesController extends Controller
             'error' => "CategoryOne not found!",
         ])->response()->setStatusCode(404);
 
+    }
+    /** Set image for category-one
+     *
+     * @param int $id
+     * @param \App\Http\Requests\SetImageForCategoryOneRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function setImage(SetImageForCategoryOneRequest $request, $id)
+    {
+
+        $category_one = CategoryOne::where('is_deleted', false)->find($id);
+        if ($category_one != null) {
+            $upload_image = new UploadImage;
+            $upload_image->imageNullablility($category_one->image_path);
+            $category_one->image_path = $upload_image->getImage($request->file('image_path'), 'public/uploads/categoryOneImages');
+            try {
+                $category_one->save();
+                return (new CategoryOnesResource(null))->additional([
+                    'error' => null,
+                ])->response()->setStatusCode(201);
+            } catch (Exception $e) {
+                Log::info("fails in saving image set image in CategoryOnesController " . json_encode($e));
+                if (env('APP_ENV') == "development") {
+                    return (new CategoryOnesResource(null))->additional([
+                        'error' => "fails in saving image set image in CategoryOnesController " . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } elseif (env('APP_ENV') == "production") {
+                    return (new CategoryOnesResource(null))->additional([
+                        'error' => "fails in saving image set image in CategoryOnesController ",
+                    ])->response()->setStatusCode(500);
+                }
+            }
+        }
+        return (new CategoryOnesResource(null))->additional([
+            'error' => 'CategoryOne not found!',
+        ])->response()->setStatusCode(404);
+    }
+    /**  Delete image of category-one
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteImage($id)
+    {
+
+        $category_one = CategoryOne::where('is_deleted', false)->find($id);
+        if ($category_one != null) {
+            $image = str_replace("storage", "public", $category_one->image_path);
+            $category_one->image_path = null;
+            if (Storage::exists($image)) {
+                Storage::delete($image);
+                try {
+                    $category_one->save();
+                    return (new CategoryOnesResource(null))->additional([
+                        'error' => null,
+                    ])->response()->setStatusCode(204);
+                } catch (Exception $e) {
+                    Log::info("fails in deleting image in CategoryOnesController/deleteImage " . json_encode($e));
+                    if (env('APP_ENV') == "development") {
+                        return (new CategoryOnesResource(null))->additional([
+                            'error' => "fails in deleting image in CategoryOnesController/deleteImage " . json_encode($e),
+                        ])->response()->setStatusCode(500);
+                    } elseif (env('APP_ENV') == "production") {
+                        return (new CategoryOnesResource(null))->additional([
+                            'error' => "fails in deleting image in CategoryOnesController/deleteImage ",
+                        ])->response()->setStatusCode(500);
+                    }
+                }
+            }
+        }
     }
 
 }

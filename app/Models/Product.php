@@ -30,6 +30,10 @@ class Product extends Model
        'published',
        'type',
        'special'
+       'education_system',
+       'start_date',
+       'days',
+       'hour'
     ];
 
     public function category_ones()

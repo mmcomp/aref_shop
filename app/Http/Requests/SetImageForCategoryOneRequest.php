@@ -3,11 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ProductDetailVideosCreateRequest extends FormRequest
+class SetImageForCategoryOneRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,25 +26,7 @@ class ProductDetailVideosCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
-            'products_id' => [
-                'required',
-                'integer',
-                Rule::exists('products', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
-            'price' => 'required|integer',
-            'video_sessions_id' => [
-                'required',
-                'integer',
-                Rule::exists('video_sessions', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
-            'extraordinary' => 'required|in:0,1',
-            'single_purchase' => 'required|in:0,1',
-            'is_hidden' => 'required|in:0,1'
+            'image_path' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
      /**
