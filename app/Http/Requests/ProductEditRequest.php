@@ -56,7 +56,11 @@ class ProductEditRequest extends FormRequest
                 }),
             ],
             'published' => 'integer',
-            'type' => 'string|in:normal,download,chairs,video'
+            'type' => 'string|in:normal,download,chairs,video',
+            'education_system' => 'nullable|string|min:3|max:255',
+            'hour' => 'nullable|string|min:3|max:255',
+            'days' => 'nullable|string|min:3|max:255',
+            'start_date' => 'nullable|string|min:3|max:255'
         ];
     }
      /**

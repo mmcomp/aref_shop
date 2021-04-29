@@ -385,10 +385,10 @@ class ProductController extends Controller
      * @param  \App\Http\Requests\ListOfVideosOfAProductRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ListOfVideosOfAProduct($id)
+    public function ListOfVideosOfAProduct(ListOfVideosOfAProductRequest $request,$id)
     {
 
-        $per_page = request()->get('per_page');
+        $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('product_detail_videos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
