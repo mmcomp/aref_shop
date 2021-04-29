@@ -29,4 +29,5 @@ class ProductDetailVideo extends Model
         return $this->belongsTo('App\Models\VideoSession', 'video_sessions_id', 'id')->where('is_deleted', false);
     }
 
+
 }
