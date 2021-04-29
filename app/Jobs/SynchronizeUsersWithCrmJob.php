@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 
+use function GuzzleHttp\json_decode;
 
 class SynchronizeUsersWithCrmJob implements ShouldQueue
 {
@@ -33,8 +34,13 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
     public function handle()
     {
         //TODO: do the job here
-        $response = Http::post('http://localhost:8000/api/students', [
-           
-        ]);   
+        $tmp = [
+            "students" => [
+                "phone" => "09153255597"
+            ]
+        ];
+        $res = json_encode($tmp);
+        $response = Http::post('http://localhost:8000/api/students', $res);
+        return $response;
     }
 }
