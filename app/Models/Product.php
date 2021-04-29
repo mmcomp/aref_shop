@@ -29,7 +29,7 @@ class Product extends Model
        'second_image_path',
        'published',
        'type',
-       'special'
+       'special',
        'education_system',
        'start_date',
        'days',
