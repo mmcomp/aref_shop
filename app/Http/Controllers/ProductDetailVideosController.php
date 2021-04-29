@@ -176,6 +176,7 @@ class ProductDetailVideosController extends Controller
             'price' => $request->input('price'),
             'extraordinary' => $request->input('extraordinary'),
             'is_hidden' => $request->input('is_hidden') ? $request->input('is_hidden') : 0,
+            'single_purchase' => $request->input('single_purchase'),
             'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $this->showValidationErrorMessages(!$product_detail_video->videoSession,['video_session' => 'The product_detail_videos videoSession is not valid!'])
         ]);
 

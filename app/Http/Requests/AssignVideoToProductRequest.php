@@ -44,6 +44,7 @@ class AssignVideoToProductRequest extends FormRequest
             'name' => 'nullable|required_if:extraordinary,1|string|min:3|max:255',
             'price' => 'nullable|integer',
             'extraordinary' => 'required|in:0,1',
+            'single_purchase' => 'required|in:0,1',
             'is_hidden' => 'nullable|in:0,1'
         ];
     }

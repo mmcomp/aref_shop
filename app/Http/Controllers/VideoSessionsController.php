@@ -224,6 +224,7 @@ class VideoSessionsController extends Controller
             "products_id" => $request->input("products_id"),
             "video_sessions_id" => $video_session->id,
             "name" => $request->input('name'),
+            "single_purchase" => $request->input('single_purchase'),
             "extraordinary" => $request->input('extraordinary'),
             "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0
         ]);

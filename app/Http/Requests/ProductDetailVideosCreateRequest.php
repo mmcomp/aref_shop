@@ -44,6 +44,7 @@ class ProductDetailVideosCreateRequest extends FormRequest
                 }),
             ],
             'extraordinary' => 'required|in:0,1',
+            'single_purchase' => 'required|in:0,1',
             'is_hidden' => 'required|in:0,1'
         ];
     }
