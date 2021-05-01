@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\CategoryTwosResource;
 
 class CategoryThreesResource extends JsonResource
 {
@@ -18,7 +19,7 @@ class CategoryThreesResource extends JsonResource
             return [
                 'id' => $this->id,
                 'name' => $this->name,
-                'category_twos' => $this->category_two,
+                'category_two' => new CategoryTwosResource($this->category_two),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

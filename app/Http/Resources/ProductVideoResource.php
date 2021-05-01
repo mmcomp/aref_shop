@@ -42,7 +42,7 @@ class ProductVideoResource extends JsonResource
                 'teacher'  => $this->videoSession ? $this->videoSession->teacher : null,
                 'name' => $this->name == null ? $num : $this->name,
                 'price' => $this->price == null ? ($this->videoSession ? $this->videoSession->price : null) : $this->price,
-                'product' => $this->product,
+                'product' => new ProductResource($this->product),
                 'video_session_type' => $this->videoSession ? $this->videoSession->video_session_type : null,
                 'video_link' => $this->videoSession ? $this->videoSession->video_link : null,
                 'extraordinary' => $this->extraordinary,
