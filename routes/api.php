@@ -254,16 +254,16 @@ Route::group([
     Route::post('/add', [VideoSessionFilesController::class, 'store']);
     Route::delete('/delete/{id}', [VideoSessionFilesController::class, 'destroy']);
 });
-Route::get('/testJob', function () {
+Route::post('/testJob', function () {
     $job = (new SynchronizeUsersWithCrmJob())->delay(Carbon::now()->addSecond(10));
-    //dd($job);
     dispatch($job);
-    return "Email is sent properly";
+    // return "Email is sent properly";
 });
 Route::get('/test',function(){
     $tmp = [
         "students" => [
-            "phone" => "123"
+            ["phone" => "123"],
+            ["phone" => "234"]
         ]
     ];
     $res = json_encode($tmp);

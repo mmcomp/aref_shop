@@ -33,14 +33,14 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
      */
     public function handle()
     {
-        //TODO: do the job here
+
         $tmp = [
             "students" => [
-                "phone" => "09153255597"
+                ["phone" => "09153139388"],
+                ["phone" => "09153255597"]
             ]
         ];
         $res = json_encode($tmp);
-        $response = Http::post('http://localhost:8000/api/students', $res);
-        return $response;
+        $response = Http::post('http://localhost:8001/api/students', $res);
     }
 }
