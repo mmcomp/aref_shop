@@ -17,7 +17,7 @@ class CategoryTwo extends Model
 
     public function category_one()
     {
-        return $this->hasOne('App\Models\CategoryOne', 'id', 'category_ones_id');
+        return $this->hasOne('App\Models\CategoryOne', 'id', 'category_ones_id')->where('is_deleted', false);
     }
     public function categoryThrees()
     {
