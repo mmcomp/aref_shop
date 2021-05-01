@@ -19,8 +19,8 @@ class ProductFileResource extends JsonResource
                 'id' => ($this->file) ? $this->file->id : null,
                 'name' => ($this->file) ? $this->file->name : '',
                 'description' => ($this->file) ? $this->file->description : null,
-                'user' => ($this->file) ? $this->file->user : 0,
-                'product' => $this->product,
+                'user' => ($this->file) ? new UserResource($this->file->user) : 0,
+                'product' => new ProductResource($this->product),
                 'file_path' => ($this->file) ? $this->file->file_path : null
             ];
         }

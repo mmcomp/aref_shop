@@ -10,21 +10,21 @@ class VideoSession extends Model
     use HasFactory;
 
     protected $fillable = [
-       "start_date",
-       "start_time",
-       "end_time",
-       "teacher_users_id",
-       "price",
-       "video_session_type",
-       "video_link",
+        "start_date",
+        "start_time",
+        "end_time",
+        "teacher_users_id",
+        "price",
+        "video_session_type",
+        "video_link",
     ];
 
     public function teacher()
     {
         return $this->belongsTo("App\Models\User", "teacher_users_id", "id");
     }
-    // public function product_detail_video()
-    // {
-    //     return $this->hasOne("App\Models\ProductDetailVideo", "video_sessions_id", "id");
-    // }
+    public function video_session_files()
+    {
+        return $this->hasMany("App\Models\VideoSessionFile", "video_sessions_id", "id");
+    }
 }

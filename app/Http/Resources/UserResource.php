@@ -23,13 +23,13 @@ class UserResource extends JsonResource
                 'first_name' => $this->first_name,
                 'last_name' => $this->last_name,
                 'avatar_path' => $this->avatar_path,
-                'referrer_user' => $this->referreruser,
+                'referrer_user' => new UserResource($this->referreruser),
                 'address' => $this->address,
                 'postall' => $this->postall,
-                'city' => $this->city,
+                'city' => new CityResource($this->city),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-                'group' => $this->group,
+                'group' => new GroupResource($this->group),
             ];
         }
     }

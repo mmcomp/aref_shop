@@ -20,7 +20,7 @@ class VideoSessionsResource extends JsonResource
                 'start_date' => $this->start_date,
                 'start_time' => date('H:i', strtotime($this->start_time)),
                 'end_time' => date('H:i', strtotime($this->end_time)),
-                'teacher'  => $this->teacher,
+                'teacher'  => new UserResource($this->teacher),
                 'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
                 'video_link' => $this->video_link,

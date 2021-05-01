@@ -166,6 +166,7 @@ class VideoSessionsController extends Controller
                     "is_hidden" => 0
                 ]);
                 ProductDetailVideo::create([
+                    "single_purchase" => $request->input('single_purchase') ? $request->input('single_purchase') : 0,
                     "price" => $request->input("per_price"),
                     "products_id" => $request->input("products_id"),
                     "video_sessions_id" => $v->id

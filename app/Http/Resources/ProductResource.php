@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\FileResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
@@ -14,7 +15,13 @@ class ProductResource extends JsonResource
      */
     public function toArray($request)
     {
+        $files = [];
         if($this->resource != null){
+            if($this->product_files){
+                foreach($this->product_files as $file){
+                    $files[] = new FileResource($file->file);
+                }
+            }
             return [
                 'id' => $this->id,
                 'name' => $this->name,
@@ -24,12 +31,13 @@ class ProductResource extends JsonResource
                 'sale_price' => $this->sale_price,
                 'sale_expire' => $this->sale_expire,
                 'video_props' => $this->video_props,
-                'category_one' => $this->category_ones,
-                'category_two' => $this->category_twos,
-                'category_three' => $this->category_threes,
+                'category_one' => new CategoryOnesResource($this->category_ones),
+                'category_two' => new CategoryTwosResource($this->category_twos),
+                'category_three' => new CategoryThreesResource($this->category_threes),
                 'main_image_path' => $this->main_image_path,
                 'main_image_thumb_path' => $this->main_image_thumb_path,
                 'second_image_path' => $this->second_image_path,
+                'files' => $files,
                 'published' => $this->published,
                 'type' => $this->type,
                 'special' => $this->special,

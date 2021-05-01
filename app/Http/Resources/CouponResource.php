@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\ProductResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CouponResource extends JsonResource
@@ -22,7 +23,7 @@ class CouponResource extends JsonResource
                 'amount' => $this->amount,
                 'type' => $this->type,
                 'expired_at' => $this->expired_at,
-                'product' => $this->product, 
+                'product' => new ProductResource($this->product), 
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
