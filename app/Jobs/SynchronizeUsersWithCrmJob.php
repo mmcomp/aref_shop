@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 use function GuzzleHttp\json_decode;
 
@@ -16,14 +17,15 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private $request;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Request $request)
     {
-        //
+        $this->request = $request->all();
     }
 
     /**
@@ -33,7 +35,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
      */
     public function handle()
     {
-
+ 
         $tmp = [
             "students" => [
                 ["phone" => "09153139388"],
@@ -41,6 +43,10 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
             ]
         ];
         $res = json_encode($tmp);
-        $response = Http::post('http://localhost:8001/api/students', $res);
+        $response = Http::post('http://localhost:8001/api/students', 
+          //['json' => $tmp]
+          ['json' => $this->request] 
+        );
+        //echo $response->getStatusCode();
     }
 }
