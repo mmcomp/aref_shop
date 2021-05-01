@@ -16,12 +16,12 @@ class ProductResource extends JsonResource
     public function toArray($request)
     {
         $files = [];
-        if($this->product_files){
-            foreach($this->product_files as $file){
-                $files[] = new FileResource($file->file);
-            }
-        }
         if($this->resource != null){
+            if($this->product_files){
+                foreach($this->product_files as $file){
+                    $files[] = new FileResource($file->file);
+                }
+            }
             return [
                 'id' => $this->id,
                 'name' => $this->name,
