@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\VideoSessionsResource;
+use App\Http\Resources\FileCollection;
 use App\Http\Resources\FileResource;
 
 class ProductDetailVideosResource extends JsonResource
