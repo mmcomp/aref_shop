@@ -41,6 +41,7 @@ class AddVideosAccordingToUserInputsRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'single_purchase' => 'nullable|in:0,1'
         ];
     }
     /**
