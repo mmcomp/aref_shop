@@ -19,7 +19,7 @@ class VideoSessionFileResource extends JsonResource
                 'id' => ($this->file) ? $this->file->id : null,
                 'name' => ($this->file) ? $this->file->name : '',
                 'description' => ($this->file) ? $this->file->description : null,
-                'user' => ($this->file) ? $this->file->user : 0,
+                'user' => ($this->file) ? new UserResource($this->file->user) : 0,
                 'video_session' => new VideoSessionsResource($this->videoSession),
                 'file_path' => ($this->file) ? $this->file->file_path : null
             ];

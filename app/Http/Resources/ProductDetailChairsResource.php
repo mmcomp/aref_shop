@@ -17,7 +17,7 @@ class ProductDetailChairsResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'product' => $this->product,
+                'product' => new ProductResource($this->product),
                 'start' => $this->start,
                 'end' => $this->end,
                 'price' => $this->price,

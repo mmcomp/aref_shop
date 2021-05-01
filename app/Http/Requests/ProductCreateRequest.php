@@ -58,7 +58,7 @@ class ProductCreateRequest extends FormRequest
             ],
             'published' => 'required|integer',
             'type' => 'required|string|in:normal,download,chairs,video',
-            'special' => 'required|in:0,1'
+            'special' => 'required|in:0,1',
             'education_system' => 'nullable|string|min:3|max:255',
             'hour' => 'nullable|string|min:3|max:255',
             'days' => 'nullable|string|min:3|max:255',

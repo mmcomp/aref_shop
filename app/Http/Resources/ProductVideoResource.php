@@ -39,7 +39,7 @@ class ProductVideoResource extends JsonResource
                 'start_date' => $this->videoSession ? $this->videoSession->start_date : null,
                 'start_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->start_time)) : null,
                 'end_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->end_time)) : null,
-                'teacher'  => $this->videoSession ? $this->videoSession->teacher : null,
+                'teacher'  => $this->videoSession ? new UserResource($this->videoSession->teacher) : null,
                 'name' => $this->name == null ? $num : $this->name,
                 'price' => $this->price == null ? ($this->videoSession ? $this->videoSession->price : null) : $this->price,
                 'product' => new ProductResource($this->product),
