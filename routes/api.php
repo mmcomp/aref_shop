@@ -21,11 +21,6 @@ use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\VideoSessionFilesController;
-use Illuminate\Support\Facades\Http;
-use App\Jobs\SynchronizeUsersWithCrmJob;
-use App\Models\UserSync;
-// use Log;
-use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------

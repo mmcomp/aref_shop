@@ -107,7 +107,7 @@ class AuthController extends Controller
 
         $userData = json_decode($smsValidation->user_info, true);
         $user = User::create($userData);
-        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(5));
+        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
 
         $token = auth('api')->login($user);
         return $this->createNewToken($token);

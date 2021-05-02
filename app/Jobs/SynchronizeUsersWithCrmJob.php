@@ -34,17 +34,14 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
      */
     public function handle()
     {
-
-        Log::info("Job Started");
         try {
-            $response = Http::post(env('CRM_URL'), [
+            $response = Http::post(env('CRM_ADD_STUDENT_URL'), [
                 "students" => [
                     0 => [
                         "phone" => $this->user->email,
                     ],
                 ],
             ]);
-            Log::info($response->body() . '_' . $response->getStatusCode());
             if ($response->getStatusCode() == 200) {
                 UserSync::create([
                     "users_id" => $this->user->id,
@@ -53,11 +50,11 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
                 ]);
             }
         } catch (Exception $e) {
-            Log::info("crm ran into a problem!" . json_encode($e));
+            Log::info("CRM ran into a problem!" . json_encode($e->getMessage()));
             UserSync::create([
                 "users_id" => $this->user->id,
                 "status" => "failed",
-                "error_message" => json_encode($e),
+                "error_message" => json_encode($e->getMessage()),
             ]);
         }
     }

@@ -78,7 +78,7 @@ class UserController extends Controller
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
 
         $user = User::create($userData);
-        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(5));
+        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
         return (new UserResource($user))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);

@@ -63,7 +63,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\User','id','referrer_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
     }
-
+    public function usersyncs()
+    {
+        return $this->hasMany('App\Models\UserSync', 'users_id', 'id');
+    }
     public function menus()
     {
         $groupMenus = $this->group()->first()->menus()->with('menu')->get();
