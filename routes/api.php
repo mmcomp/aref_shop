@@ -23,6 +23,8 @@ use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\VideoSessionFilesController;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\SynchronizeUsersWithCrmJob;
+use App\Models\UserSync;
+// use Log;
 use Carbon\Carbon;
 
 /*
@@ -254,19 +256,4 @@ Route::group([
 ], function ($router) {
     Route::post('/add', [VideoSessionFilesController::class, 'store']);
     Route::delete('/delete/{id}', [VideoSessionFilesController::class, 'destroy']);
-});
-Route::post('/testJob', function (Request $request) {
-    // $job = (new SynchronizeUsersWithCrmJob($request))->delay(Carbon::now()->addSecond(5));
-    // dispatch($job);
-    // return "successfully done!";
-    $tmp = [
-        "students" => [
-            ['phone' => "09123456576"],
-            ["phone" => "09153255597"]
-        ]
-    ];
-    //dd($request->input('students'));
-    $res = json_encode($tmp);
-    $response = Http::post('http://localhost:8001/api/students');
-    var_dump($response->body());
 });

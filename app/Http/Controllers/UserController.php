@@ -15,6 +15,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\SynchronizeUsersWithCrmJob;
+use Carbon\Carbon;
 use Log;
 
 class UserController extends Controller
@@ -74,7 +76,9 @@ class UserController extends Controller
     {
 
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
+
         $user = User::create($userData);
+        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(5));
         return (new UserResource($user))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
