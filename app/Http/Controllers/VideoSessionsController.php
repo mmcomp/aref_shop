@@ -7,6 +7,7 @@ use App\Http\Requests\VideoSessionCreateRequest;
 use App\Http\Requests\VideoSessionEditRequest;
 use App\Http\Requests\VideoSessionIndexRequest;
 use App\Http\Requests\InsertSingleSessionRequest;
+use App\Http\Requests\EditSingleSessionRequest;
 use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -229,6 +230,56 @@ class VideoSessionsController extends Controller
             "extraordinary" => $request->input('extraordinary'),
             "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0
         ]);
+        return (new VideoSessionsResource(null))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(201);
+    }
+     /**
+     * Edit single session into video_sessions_table & product_detail_videos_table
+     *
+     * @param  \App\Http\Requests\EditSingleSessionRequest  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function EditSingleVideoSession(int $id, EditSingleSessionRequest $request) 
+    {
+
+        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos','video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
+        ->where('product_detail_videos.is_deleted', false)
+        ->where('video_sessions.is_deleted', false)
+        ->where('products_id', $request->input('products_id'))
+        ->where('video_sessions.start_date', '>', $request->input('date'))
+        ->orderBy('video_sessions.start_date', 'desc')->first();
+        if($lastVideoSessionOfThatProduct && !$request->input('extraordinary')) {
+            throw new HttpResponseException(
+                response()->json(['errors' =>['extraordinary' => 'The extraordinary field should be 1']], 422)
+            );
+        }
+        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
+        if($product_detail_video->videoSession){
+            $product_detail_video->update([
+                "price" => $request->input("price"),
+                "products_id" => $request->input("products_id"),
+                "name" => $request->input('name'),
+                "single_purchase" => $request->input('single_purchase'),
+                "extraordinary" => $request->input('extraordinary'),
+                "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0
+            ]);
+            $video_sesssion = VideoSession::where('is_deleted', false)->find($product_detail_video->video_sessions_id);
+            $video_sesssion->update([
+                'start_date' => $request->input('date'),
+                'start_time' => $request->input('from_time'),
+                'end_time' => $request->input('to_time'),
+                'price' => $request->input('price'),
+                'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
+                'video_link' => $request->input('video_link')
+             ]);
+        } else {
+            throw new HttpResponseException(
+                response()->json(['errors' =>['extraordinary' => 'No video Session is saved for the product']], 422)
+            );
+        }
+        
         return (new VideoSessionsResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
