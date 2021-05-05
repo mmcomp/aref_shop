@@ -251,5 +251,6 @@ Route::group([
     'prefix' => 'video-session-files'
 ], function ($router) {
     Route::post('/add', [VideoSessionFilesController::class, 'store']);
+    Route::post('/add-new-by-getting-file-info', [VideoSessionFilesController::class, 'createNewVideoSessionFile']);
     Route::delete('/delete/{id}', [VideoSessionFilesController::class, 'destroy']);
 });

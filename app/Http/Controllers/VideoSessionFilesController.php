@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VideoSessionFileCreateRequest;
+use App\Http\Requests\CreateNewVideoSessionFileByGettingFileInfo;
 use App\Http\Resources\VideoSessionFileResource;
 use App\Models\File;
 use App\Models\ProductDetailVideo;
@@ -74,7 +75,6 @@ class VideoSessionFilesController extends Controller
             if (Storage::exists($theFile)) {
                 Storage::delete($theFile);
                 $file->delete();
-                //$video_session_file->delete();
                 return (new VideoSessionFileResource(null))->additional([
                     'error' => 'File successfully deleted!',
                 ])->response()->setStatusCode(204);
@@ -83,5 +83,34 @@ class VideoSessionFilesController extends Controller
         return (new VideoSessionFileResource(null))->additional([
             'error' => 'File not found!',
         ])->response()->setStatusCode(404);
+    }
+     /**
+     * add a new record to VideoSessionFiles table by getting files_id and product_detail_videos_id 
+     *
+     * @param  int  $id
+     * @param  \App\Http\Requests\CreateNewVideoSessionFileByGettingFileInfo $request
+     * @return \Illuminate\Http\Response
+     */
+    public function createNewVideoSessionFile(CreateNewVideoSessionFileByGettingFileInfo $request)
+    {
+ 
+        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
+        if($product_detail_video->videoSession){
+            $videoSessionId = $product_detail_video->video_sessions_id;
+            $found = VideoSessionFile::where('video_sessions_id', $videoSessionId)->where('files_id', $request->input('files_id'))->first();
+            if(!$found){
+                $video_session_file = VideoSessionFile::create([
+                    'video_sessions_id' => $videoSessionId,
+                    'files_id' => $request->input('files_id'),
+                    'users_id' => Auth::user()->id
+                 ]);
+                 return (new VideoSessionFileResource($video_session_file))->additional([
+                     'error' => null,
+                 ])->response()->setStatusCode(201);
+            } 
+            $this->raiseError($found,'This record is already saved!');
+           
+        } 
+        $this->raiseError(!$product_detail_video->videoSession, ['videoSession' => 'There is no video session for the product_detail_video']);
     }
 }
