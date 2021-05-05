@@ -246,18 +246,6 @@ class VideoSessionsController extends Controller
 
         $fiveDaysAfterTheDate = [];
         $fiveDaysBeforeTheDate = [];
-        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
-            ->where('product_detail_videos.is_deleted', false)
-            ->where('video_sessions.is_deleted', false)
-            ->where('products_id', $request->input('products_id'))
-            ->where('video_sessions.start_date', '>', $request->input('date'))
-            ->orderBy('video_sessions.start_date', 'desc')->first();
-        if ($lastVideoSessionOfThatProduct && !$request->input('extraordinary')) {
-            throw new HttpResponseException(
-                response()->json(['errors' => ['extraordinary' => 'The extraordinary field should be 1']], 422)
-            );
-        }
-
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         if ($product_detail_video->videoSession) {
             $date = $request->input("date");
