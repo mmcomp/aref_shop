@@ -227,6 +227,7 @@ Route::group([
     Route::delete('/delete/{id}', [VideoSessionsController::class, 'destroy']);
     Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
     Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
+    Route::put('/edit-one-video/{id}',[VideoSessionsController::class, 'EditSingleVideoSession']);
 }); 
 Route::group([
     'middleware' => ['auth:api', 'can:file'],
