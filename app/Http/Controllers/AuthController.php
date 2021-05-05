@@ -11,6 +11,8 @@ use App\Http\Resources\UserResource;
 use App\Models\SmsValidation;
 use App\Models\User;
 use App\Utils\Sms;
+use App\Jobs\SynchronizeUsersWithCrmJob;
+use Carbon\Carbon;
 use Exception;
 
 class AuthController extends Controller
@@ -105,6 +107,7 @@ class AuthController extends Controller
 
         $userData = json_decode($smsValidation->user_info, true);
         $user = User::create($userData);
+        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
 
         $token = auth('api')->login($user);
         return $this->createNewToken($token);
