@@ -19,7 +19,9 @@ class ProductResource extends JsonResource
         if($this->resource != null){
             if($this->product_files){
                 foreach($this->product_files as $file){
-                    $files[] = new FileResource($file->file);
+                   if($file->file != null){
+                        $files[] = new FileResource($file->file);
+                   }
                 }
             }
             return [
