@@ -9,23 +9,13 @@ use App\Models\File;
 use App\Models\ProductDetailVideo;
 use App\Models\ProductFile;
 use App\Models\VideoSessionFile;
+use App\Utils\RaiseError;
 use App\Utils\UploadImage;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class VideoSessionFilesController extends Controller
 {
-
-    public function raiseError($condition, $errorMessage)
-    {
-
-        if ($condition) {
-            throw new HttpResponseException(
-                response()->json(['error' => $errorMessage], 422)
-            );
-        }
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -37,6 +27,7 @@ class VideoSessionFilesController extends Controller
     {
 
         $upload_image = new UploadImage;
+        $raiseError = new RaiseError;
         $file = File::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
@@ -45,12 +36,12 @@ class VideoSessionFilesController extends Controller
         ]);
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
         ProductFile::updateOrCreate([
-            'products_id' => $product_detail_video->product ? $product_detail_video->products_id : $this->raiseError(!$product_detail_video->product, 'The product of this product_detail_videos_id is not valid!'),
+            'products_id' => $product_detail_video->product ? $product_detail_video->products_id : $raiseError->ValidationError(!$product_detail_video->product, ['products_id' => 'The product of this product_detail_videos_id is not valid!']),
             'users_id' => Auth::user()->id,
             'files_id' => $file->id,
         ]);
         $video_session_file = VideoSessionFile::updateOrCreate([
-            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id : $this->raiseError(!$product_detail_video->videoSession, 'The videoSession of this product_detail_videos_id is not valid!'),
+            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id : $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' =>'The videoSession of this product_detail_videos_id is not valid!']),
             'users_id' => Auth::user()->id,
             'files_id' => $file->id,
         ]);
@@ -94,6 +85,7 @@ class VideoSessionFilesController extends Controller
     public function createNewVideoSessionFile(CreateNewVideoSessionFileByGettingFileInfo $request)
     {
  
+        $raiseError = new RaiseError;
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
         if($product_detail_video->videoSession){
             $videoSessionId = $product_detail_video->video_sessions_id;
@@ -108,9 +100,9 @@ class VideoSessionFilesController extends Controller
                      'error' => null,
                  ])->response()->setStatusCode(201);
             } 
-            $this->raiseError($found,'This record is already saved!');
+            $raiseError->ValidationError($found,['exists' => 'This record is already saved!']);
            
         } 
-        $this->raiseError(!$product_detail_video->videoSession, ['videoSession' => 'There is no video session for the product_detail_video']);
+        $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => 'There is no video session for the product_detail_video']);
     }
 }

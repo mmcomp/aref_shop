@@ -10,9 +10,9 @@ use App\Http\Requests\InsertSingleSessionRequest;
 use App\Http\Requests\EditSingleSessionRequest;
 use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
+use App\Utils\RaiseError;
 use Exception;
 use Log;
 
@@ -178,21 +178,6 @@ class VideoSessionsController extends Controller
             'error' => null,
         ])->response()->setStatusCode(201);
     }
-     /**
-     * show validation error messages
-     *
-     * @return \Illuminate\Http\Exceptions\HttpResponseException
-     */
-    public function showValidationErrorMessages($condition, $errorArray)
-    {
-
-        if ($condition) {
-            throw new HttpResponseException(
-                response()->json(['errors' => $errorArray], 422)
-            );
-        }
-
-    }
     /**
      * Insert single session into video_sessions_table & product_detail_videos_table
      *
@@ -202,17 +187,14 @@ class VideoSessionsController extends Controller
     public function InsertSingleVideoSession(InsertSingleSessionRequest $request) 
     {
 
+        $raiseError = new RaiseError;
         $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos','video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
         ->where('product_detail_videos.is_deleted', false)
         ->where('video_sessions.is_deleted', false)
         ->where('products_id', $request->input('products_id'))
         ->where('video_sessions.start_date', '>', $request->input('date'))
         ->orderBy('video_sessions.start_date', 'desc')->first();
-        if($lastVideoSessionOfThatProduct && !$request->input('extraordinary')) {
-            throw new HttpResponseException(
-                response()->json(['errors' =>['extraordinary' => 'The extraordinary field should be 1']], 422)
-            );
-        }
+        $raiseError->validationError($lastVideoSessionOfThatProduct && !$request->input('extraordinary'), ['extraordinary' => 'The extraordinary field should be 1']);
         $video_session = VideoSession::create([
             'start_date' => $request->input('date'),
             'start_time' => $request->input('from_time'),
@@ -244,6 +226,7 @@ class VideoSessionsController extends Controller
     public function EditSingleVideoSession(int $id, EditSingleSessionRequest $request) 
     {
 
+        $raiseError = new RaiseError;
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         if($product_detail_video->videoSession){
             $product_detail_video->update([
@@ -263,11 +246,8 @@ class VideoSessionsController extends Controller
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
                 'video_link' => $request->input('video_link')
              ]);
-        } else {
-            throw new HttpResponseException(
-                response()->json(['errors' =>['extraordinary' => 'No video Session is saved for the product']], 422)
-            );
-        }
+        } 
+        $raiseError->ValidationError(!$product_detail_video->videoSession,['extraordinary' => 'No video Session is saved for the product'] );
         
         return (new VideoSessionsResource(null))->additional([
             'error' => null,
