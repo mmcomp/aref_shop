@@ -246,27 +246,15 @@ class VideoSessionsController extends Controller
 
         $fiveDaysAfterTheDate = [];
         $fiveDaysBeforeTheDate = [];
-        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
-            ->where('product_detail_videos.is_deleted', false)
-            ->where('video_sessions.is_deleted', false)
-            ->where('products_id', $request->input('products_id'))
-            ->where('video_sessions.start_date', '>', $request->input('date'))
-            ->orderBy('video_sessions.start_date', 'desc')->first();
-        if ($lastVideoSessionOfThatProduct && !$request->input('extraordinary')) {
-            throw new HttpResponseException(
-                response()->json(['errors' => ['extraordinary' => 'The extraordinary field should be 1']], 422)
-            );
-        }
-
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         if ($product_detail_video->videoSession) {
-            $date = $request->input("date");
+            $date = strtotime($request->input("date"));
             $video_sesssion = VideoSession::where('is_deleted', false)->find($product_detail_video->video_sessions_id);
             for ($i = 1; $i <= 5; $i++) {
-                $fiveDaysAfterTheDate[$i] = date("Y-m-d", strtotime("+" . $i . "day", strtotime($video_sesssion->start_date)));
+                $fiveDaysAfterTheDate[$i] = strtotime(date("Y-m-d", strtotime("+" . $i . "day", strtotime($video_sesssion->start_date))));
             }
             for ($i = 1; $i <= 5; $i++) {
-                $fiveDaysBeforeTheDate[$i] = date("Y-m-d", strtotime("-" . $i . "day", strtotime($video_sesssion->start_date)));
+                $fiveDaysBeforeTheDate[$i] = strtotime(date("Y-m-d", strtotime("-" . $i . "day", strtotime($video_sesssion->start_date))));
             }
             if(!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate)) {
                 throw new HttpResponseException(
