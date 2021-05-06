@@ -8,7 +8,7 @@ class RaiseError {
 
         if ($condition) {
             throw new HttpResponseException(
-                response()->json(['error' => $errorMessage], 422)
+                response()->json(['errors' => $errorMessage], 422)
             );
         }
     }
