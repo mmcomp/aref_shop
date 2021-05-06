@@ -194,7 +194,7 @@ class VideoSessionsController extends Controller
         ->where('products_id', $request->input('products_id'))
         ->where('video_sessions.start_date', '>', $request->input('date'))
         ->orderBy('video_sessions.start_date', 'desc')->first();
-        $raiseError->validationError($lastVideoSessionOfThatProduct && !$request->input('extraordinary'), ['extraordinary' => 'The extraordinary field should be 1']);
+        $raiseError->validationError($lastVideoSessionOfThatProduct && !$request->input('extraordinary'), ['extraordinary' => ['The extraordinary field should be 1']]);
         $video_session = VideoSession::create([
             'start_date' => $request->input('date'),
             'start_time' => $request->input('from_time'),
@@ -247,7 +247,7 @@ class VideoSessionsController extends Controller
                 'video_link' => $request->input('video_link')
              ]);
         } 
-        $raiseError->ValidationError(!$product_detail_video->videoSession,['extraordinary' => 'No video Session is saved for the product'] );
+        $raiseError->ValidationError(!$product_detail_video->videoSession,['extraordinary' => ['No video Session is saved for the product']] );
         
         return (new VideoSessionsResource(null))->additional([
             'error' => null,

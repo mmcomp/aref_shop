@@ -8,7 +8,6 @@ use App\Models\File;
 use App\Models\ProductFile;
 use App\Utils\UploadImage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ProductFilesController extends Controller
 {
@@ -49,21 +48,12 @@ class ProductFilesController extends Controller
     public function destroy($id)
     {
 
-        $file = FILE::find($id);
-        if ($file != null) {
-            ProductFile::where('files_id', $file->id)->delete();
-            $theFile = str_replace("storage", "public", $file->file_path);
-            if (Storage::exists($theFile)) {
-                Storage::delete($theFile);
-                $file->delete();
-                //$product_file->delete();
-                return (new ProductFileResource(null))->additional([
-                    'error' => 'File successfully deleted!',
-                ])->response()->setStatusCode(204);
-            }
+        $product_file = ProductFile::find($id);
+        if ($product_file != null) {
+            $product_file->delete();
+            return (new ProductFileResource(null))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(204);
         }
-        return (new ProductFileResource(null))->additional([
-            'error' => 'File not found!',
-        ])->response()->setStatusCode(404);
     }
 }

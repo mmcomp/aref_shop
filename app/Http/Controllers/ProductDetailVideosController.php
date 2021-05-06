@@ -149,10 +149,10 @@ class ProductDetailVideosController extends Controller
         ->where('video_sessions.is_deleted', false)
         ->where('products_id', $request->input('products_id'))
         ->orderBy('video_sessions.start_date', 'desc')->first();
-        $raiseError->ValidationError($product_detail_video->products_id == $request->input('products_id'), ['products_id' => 'Please enter a new product!']);
-        $raiseError->ValidationError($foundProductDetailVideoWithThatVideoSession, ['video_sessions_id' => 'The session is already saved!']);
+        $raiseError->ValidationError($product_detail_video->products_id == $request->input('products_id'), ['products_id' => ['Please enter a new product!']]);
+        $raiseError->ValidationError($foundProductDetailVideoWithThatVideoSession, ['video_sessions_id' => ['The session is already saved!']]);
         if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct) {
-            $raiseError->ValidationError(($lastProductDetailVideoOfTheRequestedProduct->start_date > $product_detail_video->videoSession->start_date && !$request->input('extraordinary')), ['extraordinary' => 'The extraordinary field should be 1']);
+            $raiseError->ValidationError(($lastProductDetailVideoOfTheRequestedProduct->start_date > $product_detail_video->videoSession->start_date && !$request->input('extraordinary')), ['extraordinary' => ['The extraordinary field should be 1']]);
         }
         ProductDetailVideo::create([
             'products_id' => $request->input('products_id'),
@@ -161,7 +161,7 @@ class ProductDetailVideosController extends Controller
             'extraordinary' => $request->input('extraordinary'),
             'is_hidden' => $request->input('is_hidden') ? $request->input('is_hidden') : 0,
             'single_purchase' => $request->input('single_purchase'),
-            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession,['video_sessions_id' => 'The product_detail_videos videoSession is not valid!'])
+            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession,['video_sessions_id' => ['The product_detail_videos videoSession is not valid!']])
         ]);
 
         return (new ProductDetailVideosResource(null))->additional([

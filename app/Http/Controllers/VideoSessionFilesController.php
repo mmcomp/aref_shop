@@ -36,12 +36,12 @@ class VideoSessionFilesController extends Controller
         ]);
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
         ProductFile::updateOrCreate([
-            'products_id' => $product_detail_video->product ? $product_detail_video->products_id : $raiseError->ValidationError(!$product_detail_video->product, ['products_id' => 'The product of this product_detail_videos_id is not valid!']),
+            'products_id' => $product_detail_video->product ? $product_detail_video->products_id : $raiseError->ValidationError(!$product_detail_video->product, ['products_id' => ['The product of this product_detail_videos_id is not valid!']]),
             'users_id' => Auth::user()->id,
             'files_id' => $file->id,
         ]);
         $video_session_file = VideoSessionFile::updateOrCreate([
-            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id : $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' =>'The videoSession of this product_detail_videos_id is not valid!']),
+            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id : $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' =>['The videoSession of this product_detail_videos_id is not valid!']]),
             'users_id' => Auth::user()->id,
             'files_id' => $file->id,
         ]);
@@ -59,21 +59,13 @@ class VideoSessionFilesController extends Controller
     public function destroy($id)
     {
 
-        $file = FILE::find($id);
-        if ($file != null) {
-            VideoSessionFile::where('files_id', $file->id)->delete();
-            $theFile = str_replace("storage", "public", $file->file_path);
-            if (Storage::exists($theFile)) {
-                Storage::delete($theFile);
-                $file->delete();
-                return (new VideoSessionFileResource(null))->additional([
-                    'error' => 'File successfully deleted!',
-                ])->response()->setStatusCode(204);
-            }
+        $video_session_file = VideoSessionFile::find($id);
+        if ($video_session_file != null) {
+            $video_session_file->delete();
+            return (new VideoSessionFileResource(null))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(204);
         }
-        return (new VideoSessionFileResource(null))->additional([
-            'error' => 'File not found!',
-        ])->response()->setStatusCode(404);
     }
      /**
      * add a new record to VideoSessionFiles table by getting files_id and product_detail_videos_id 
@@ -100,9 +92,9 @@ class VideoSessionFilesController extends Controller
                      'error' => null,
                  ])->response()->setStatusCode(201);
             } 
-            $raiseError->ValidationError($found,['exists' => 'This record is already saved!']);
+            $raiseError->ValidationError($found,['exists' => ['This record is already saved!']]);
            
         } 
-        $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => 'There is no video session for the product_detail_video']);
+        $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => ['There is no video session for the product_detail_video']]);
     }
 }
