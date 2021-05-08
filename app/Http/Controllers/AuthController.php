@@ -168,7 +168,10 @@ class AuthController extends Controller
                 'token_type' => 'bearer',
                 'expires_in' => auth('api')->factory()->getTTL() * 60,
                 'menus' => auth('api')->getUser()->menus(),
-                'group' => auth('api')->getUser()->group
+                'group' => auth('api')->getUser()->group,
+                'first_name'  => auth('api')->getUser()->first_name,
+                'last_name' => auth('api')->getUser()->last_name,
+                'phone' => auth('api')->getUser()->email,
             ],
 
         ]);
