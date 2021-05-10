@@ -33,11 +33,11 @@ Route::group([
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
     Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
     Route::post('/verify-forget-password', [AuthController::class, 'verifyForgetPassword']);
-    Route::patch('/reset-password', [AuthController::class, 'ResetPassword']);
+    Route::patch('/change-password', [AuthController::class, 'ChangePassword']);
 });
 
 Route::group([
-    'middleware' => ['auth:api','can:product'],
+    'middleware' => ['auth:api'],
     'prefix' => 'products',
 
 ], function ($router) {
