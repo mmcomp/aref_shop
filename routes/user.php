@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryOnesController;
+use App\Http\Controllers\CategoryTwosController;
+use App\Http\Controllers\CategoryThreesController;
+use App\Http\Controllers\CouponController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,3 +47,27 @@ Route::group([
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index']);
 });
+Route::group([
+    'middleware' =>['auth:api'],
+    'prefix' => 'category-ones',
+], function ($router) {
+    Route::get('/', [CategoryOnesController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'category-twos'
+], function ($router) {
+    Route::get('/', [CategoryTwosController::class, 'index']);
+});    
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'category-threes'
+], function ($router) {
+    Route::get('/', [CategoryThreesController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'coupons'
+], function ($router) {
+    Route::get('/', [CouponController::class, 'index']);
+}); 
