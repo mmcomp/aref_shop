@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\User\AuthController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
@@ -70,4 +71,14 @@ Route::group([
     'prefix' => 'coupons'
 ], function ($router) {
     Route::get('/', [CouponController::class, 'index']);
+}); 
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'cart'
+], function ($router) {
+    Route::get('/', [CartController::class, 'index']);
+    Route::post('/add', [CartController::class, 'store']);
+    Route::get('/show/{id}', [CartController::class, 'show']);
+    Route::put('/edit/{id}', [CartController::class, 'update']);
+    Route::delete('/delete/{id}', [CartController::class, 'destroy']);
 }); 
