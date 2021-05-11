@@ -15,7 +15,7 @@ class CategoryThree extends Model
      */
     protected $fillable = ['name','category_twos_id'];
 
-    public function category_two()
+    public function categoryTwo()
     {
         return $this->hasOne('App\Models\CategoryTwo', 'id', 'category_twos_id')->where('is_deleted', false);
     }
