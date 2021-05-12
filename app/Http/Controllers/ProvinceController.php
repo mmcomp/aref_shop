@@ -23,8 +23,8 @@ class ProvinceController extends Controller
     public function index(ProvinceIndexRequest $request)
     {
 
-        $sort = "id";
-        $type = "desc";
+        $sort = "name";
+        $type = "asc";
         if ($request->get('type') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
             $type = $request->get('type');
