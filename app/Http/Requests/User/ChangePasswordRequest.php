@@ -42,7 +42,7 @@ class ChangePasswordRequest extends FormRequest
             $errors = (new ValidationException($validator))->errors();
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 400)
+                response()->json(['errors' => $errors], 422)
             );
         }
     }
