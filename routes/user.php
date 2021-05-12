@@ -48,6 +48,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index']);
+    Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
 });
 Route::group([
     'middleware' =>['auth:api'],
