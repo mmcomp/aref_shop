@@ -25,6 +25,6 @@ class Order extends Model
     }
     public function orderDetail()
     {
-        return $this->hasOne('App\Models\OrderDetail', 'id', 'orders_id');
+        return $this->hasOne('App\Models\OrderDetail', 'orders_id', 'id');
     }
 }

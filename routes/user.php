@@ -73,7 +73,7 @@ Route::group([
     Route::get('/', [CouponController::class, 'index']);
 }); 
 Route::group([
-    'middleware' => ['auth:api'],
+    'middleware' => ['auth:api', 'can:cart'],
     'prefix' => 'cart'
 ], function ($router) {
     Route::get('/', [CartController::class, 'index']);
