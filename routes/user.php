@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -88,4 +89,11 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [CityController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'users',
+
+], function ($router) {
+    Route::put('/edit', [UserController::class, 'update']);
 });
