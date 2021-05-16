@@ -20,7 +20,7 @@ class ProductDetailVideosResource extends JsonResource
        
         if ($this->resource != null) {
             if($this->videoSession){
-                foreach($this->videoSession->videoSessionFiles as $file){
+                foreach($this->videoSession->video_session_files as $file){
                     if($file->file != null) {
                         $files[] = new FileResource($file->file);
                     }

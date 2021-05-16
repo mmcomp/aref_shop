@@ -394,11 +394,11 @@ class ProductController extends Controller
         if ($product != null) {
             $numArray = [];
             $i = 1;
-            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
-                $v = $product->productDetailVideos[$indx]->videoSession;
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
+            for($indx = 0;$indx < count($product->product_detail_videos);$indx++) {
+                $v = $product->product_detail_videos[$indx]->videoSession;
+                $numArray[$v->id] = $v != null && $product->product_detail_videos[$indx]->extraordinary ? 0 : $i;
                 $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
+                $product_detail_videos[] = $product->product_detail_videos[$indx];
             }
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
             return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
