@@ -7,6 +7,7 @@ use App\Http\Resources\FileResource;
 use App\Http\Resources\CategoryOnesResource;
 use App\Http\Resources\CategoryTwosResource;
 use App\Http\Resources\CategoryThreesResource;
+use Illuminate\Support\Facades\Auth;
 
 class ProductOfUserResource extends JsonResource
 {
@@ -19,6 +20,7 @@ class ProductOfUserResource extends JsonResource
     public function toArray($request)
     {
         $files = [];
+        $arrOfBoughtProducts = [];
         if($this->resource != null){
             if($this->product_files){
                 foreach($this->product_files as $file){
@@ -27,9 +29,18 @@ class ProductOfUserResource extends JsonResource
                    }
                 }
             }
+            if($this->userProducts != null){
+                foreach($this->userProducts as $product) {
+                    if($product->user) {
+                        if($product->user->id == Auth::user()->id) {
+                            $arrOfBoughtProducts[] = new ProductOfUserResource($product);
+                        }
+                    } 
+                }
+            }
             return [
                 'id' => $this->id,
-                'buyed_before' => count($this->userProducts) ? true : false,
+                'buyed_before' => count($arrOfBoughtProducts) ? true : false,
                 'name' => $this->name,
                 'short_description' => $this->short_description,
                 'long_description' => $this->long_description,
