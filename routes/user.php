@@ -49,6 +49,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index']);
+    Route::get('/getProduct/{id}',[ProductController::class,'show']);
     Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
 });
 Route::group([
