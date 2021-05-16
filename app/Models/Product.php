@@ -36,29 +36,25 @@ class Product extends Model
        'hour'
     ];
 
-    public function categoryOnes()
+    public function category_ones()
     {
         return $this->hasOne('App\Models\CategoryOne', 'id', 'category_ones_id');
     }
-    public function categoryTwos()
+    public function category_twos()
     {
         return $this->hasOne('App\Models\CategoryTwo', 'id', 'category_twos_id');
     }
-    public function categoryThrees()
+    public function category_threes()
     {
         return $this->hasOne('App\Models\CategoryThree', 'id', 'category_threes_id');
     }
-    public function productDetailVideos()
+    public function product_detail_videos()
     {
         return $this->hasMany('App\Models\ProductDetailVideo', 'products_id', 'id')->join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')->select("product_detail_videos.*")->where('product_detail_videos.is_deleted', false)->where('video_sessions.is_deleted', false)->orderBy('video_sessions.start_date', 'asc')->orderBy('video_sessions.start_time', 'asc');
     }
-    public function productFiles()
+    public function product_files()
     {
         return $this->hasMany('App\Models\ProductFile', 'products_id', 'id');
-    }
-    public function orderDetail()
-    {
-        return $this->hasOne('App\Models\OrderDetail', 'products_id', 'id');
     }
 
 }
