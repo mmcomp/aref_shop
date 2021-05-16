@@ -56,5 +56,9 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\ProductFile', 'products_id', 'id');
     }
+    public function userProducts()
+    {
+        return $this->hasMany('App\Models\UserProduct', 'products_id', 'id');
+    }
 
 }
