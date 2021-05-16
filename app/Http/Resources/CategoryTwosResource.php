@@ -19,7 +19,7 @@ class CategoryTwosResource extends JsonResource
             return [
                 'id' => $this->id,
                 'name' => $this->name,
-                'category_one' => new CategoryOnesResource($this->categoryOne),
+                'category_one' => new CategoryOnesResource($this->category_one),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

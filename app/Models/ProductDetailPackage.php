@@ -22,7 +22,7 @@ class ProductDetailPackage extends Model
         
         return $this->belongsTo('App\Models\Product', 'products_id', 'id');
     }
-    public function childProduct()
+    public function childproduct()
     {
 
         return $this->belongsTo('App\Models\Product', 'child_products_id', 'id');
