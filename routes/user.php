@@ -7,6 +7,9 @@ use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\CityController;
+use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +50,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index']);
+    Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
 });
 Route::group([
     'middleware' =>['auth:api'],
@@ -82,3 +86,25 @@ Route::group([
     Route::put('/edit/{id}', [CartController::class, 'update']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
 }); 
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'provinces',
+
+], function ($router) {
+    Route::get('/', [ProvinceController::class, 'index']);
+    Route::get('/get-cities-of-a-province/{id}', [ProvinceController::class, 'getCitiesOfAProvince']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'cities',
+
+], function ($router) {
+    Route::get('/', [CityController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'users',
+
+], function ($router) {
+    Route::put('/edit', [UserController::class, 'update']);
+});
