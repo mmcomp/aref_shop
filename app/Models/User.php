@@ -59,13 +59,17 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\City','id','cities_id')->where('is_deleted',false);
     }
-    public function referreruser()
+    public function referrerUser()
     {
         return $this->hasOne('App\Models\User','id','referrer_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
     }
     public function usersyncs()
     {
         return $this->hasMany('App\Models\UserSync', 'users_id', 'id');
+    }
+    public function orderDetail()
+    {
+        return $this->hasOne('App\Models\OrderDetail', 'users_id', 'id');
     }
     public function menus()
     {
