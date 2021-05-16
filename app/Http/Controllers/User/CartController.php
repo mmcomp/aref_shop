@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\ProductDetailVideo;
+use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,8 +35,8 @@ class CartController extends Controller
     public function store(AddProductToCartRequest $request)
     {
 
-        $data = [];
         $user_id = Auth::user()->id;
+        $products_id = $request->input('products_id');
         $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
@@ -43,36 +44,42 @@ class CartController extends Controller
                 'status' => 'waiting',
             ]);
         }
-        $product = Product::where('is_deleted', false)->where('id', $request->input('products_id'))->first();
-        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $request->input('products_id'))->first();
-        if(!$orderDetail) {
-            $orderDetail = OrderDetail::create([
-                'orders_id' => $order->id,
-                'products_id' => $request->input('products_id'),
-                'price' => $product->price,
-                'users_id' => $user_id,
-                'number' => $request->input('number'),
-                'status' => 'waiting',
-            ]);
-        } 
-        else {
+        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $request->input('number');
             $orderDetail->save();
+        } else if (!$orderDetail) {
+            $orderDetail = OrderDetail::create([
+                'orders_id' => $order->id,
+                'products_id' => $products_id,
+                'price' => $product->price,
+                'users_id' => $user_id,
+                'number' => $product->type != 'normal' ? 1 : $request->input('number'),
+                'status' => 'waiting',
+            ]);
         }
         if ($product->type == 'video') {
-            $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->pluck('video_sessions_id');
-            $countOfUserVideoSessions = UserVideoSession::where('users_id', $user_id)->whereIn('video_sessions_id', $videoSessionIds)->count();
-            if(!$countOfUserVideoSessions) {
-                $i = 0;
-                foreach ($videoSessionIds as $id) {
-                    $data[$i]['users_id'] = $user_id;
-                    $data[$i]['video_sessions_id'] = $id;
-                    $i++;
+            $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $products_id)->pluck('video_sessions_id');
+            foreach ($videoSessionIds as $id) {
+                $found_user_video_session = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $id)->first();
+                if (!$found_user_video_session) {
+                    UserVideoSession::create([
+                        'users_id' => $user_id,
+                        'video_sessions_id' => $id,
+                    ]);
                 }
-                UserVideoSession::insert($data);
-                $orderDetail->all_videos_buy = 1;
-                $orderDetail->save();
-            } 
+            }
+            $orderDetail->all_videos_buy = 1;
+            $orderDetail->save();
+        } else {
+            $found_user_product = UserProduct::where('users_id', $user_id)->where('products_id', $products_id)->where('partial', false)->first();
+            if (!$found_user_product) {
+                UserProduct::create([
+                    'users_id' => $user_id,
+                    'products_id' => $request->input('products_id'),
+                ]);
+            }
         }
         return (new OrderResource($order))->additional([
             'error' => null,
