@@ -111,9 +111,10 @@ Route::group([
 });
 Route::group([
     'middleware' => ['auth:api', 'can:cart'],
-    'prefix' => 'users',
+    'prefix' => 'cart',
 
 ], function ($router) {
     Route::get('/index', [CartController::class, 'index']);
     Route::post('/add', [CartController::class, 'store']);
+    Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
 });
