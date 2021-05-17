@@ -23,7 +23,7 @@ class UserResource extends JsonResource
                 'first_name' => $this->first_name,
                 'last_name' => $this->last_name,
                 'avatar_path' => $this->avatar_path,
-                'referrer_user' => new UserResource($this->referreruser),
+                'referrer_user' => new UserResource($this->referrerUser),
                 'address' => $this->address,
                 'postall' => $this->postall,
                 'city' => new CityResource($this->city),

@@ -28,6 +28,8 @@ class ProductDetailVideo extends Model
     {
         return $this->belongsTo('App\Models\VideoSession', 'video_sessions_id', 'id')->where('is_deleted', false);
     }
-
-
+    public function orderVideoDetail()
+    {
+        return $this->hasOne('App\Models\OrderVideoDetail', 'product_detail_videos_id', 'id');
+    }
 }
