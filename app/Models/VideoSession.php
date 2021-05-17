@@ -27,4 +27,8 @@ class VideoSession extends Model
     {
         return $this->hasMany("App\Models\VideoSessionFile", "video_sessions_id", "id");
     }
+    public function userVideoSession()
+    {
+        return $this->hasOne("App\Models\UserVideoSession", "video_sessions_id", "id");
+    }
 }

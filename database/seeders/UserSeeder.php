@@ -15,11 +15,11 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $emails = ['09223466069', '09370972142'];
-        $first_names = ['maryam', 'user'];
-        $last_names = ['khodaparast', 'test'];
-        $groups = [1, 2];
-        for ($i = 0; $i < 2; $i++) {
+        $emails = ['09223466069', '09370972142', '09223145432'];
+        $first_names = ['maryam', 'user', 'user'];
+        $last_names = ['khodaparast', 'test', 'test1'];
+        $groups = [1, 2, 2];
+        for ($i = 0; $i < 3; $i++) {
             DB::table('users')->insert([
                 'email' => $emails[$i],
                 'first_name' => $first_names[$i],
