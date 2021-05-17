@@ -109,11 +109,3 @@ Route::group([
 ], function ($router) {
     Route::put('/edit', [UserController::class, 'update']);
 });
-Route::group([
-    'middleware' => ['auth:api', 'can:cart'],
-    'prefix' => 'users',
-
-], function ($router) {
-    Route::get('/index', [CartController::class, 'index']);
-    Route::post('/add', [CartController::class, 'store']);
-});
