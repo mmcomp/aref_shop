@@ -22,8 +22,8 @@ class ProductOfUserResource extends JsonResource
         $files = [];
         $arrOfBoughtProducts = [];
         if($this->resource != null){
-            if($this->product_files){
-                foreach($this->product_files as $file){
+            if($this->productFiles){
+                foreach($this->productFiles as $file){
                    if($file->file != null){
                         $files[] = new FileResource($file->file);
                    }
