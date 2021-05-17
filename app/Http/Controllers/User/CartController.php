@@ -98,9 +98,14 @@ class CartController extends Controller
 
         $user_id = Auth::user()->id;
         $product_ids = [];
+        $prices = [];
         $product_detail_video_ids = $request->input('product_detail_video_ids');
-        dd($product_detail_video_ids);
-        $products_id = $request->input('products_id');
+        $product_detail_video_ids = array_unique($product_detail_video_ids);
+        foreach ($product_detail_video_ids as $id) {
+            $productDetailVideo = ProductDetailVideo::where('is_deleted', false)->find($id);
+            $product_ids[] = $productDetailVideo->products_id;
+        }
+        $product_ids = array_unique($product_ids);
         $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
@@ -108,18 +113,25 @@ class CartController extends Controller
                 'status' => 'waiting',
             ]);
         }
-        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        if (!$orderDetail) {
-            $orderDetail = OrderDetail::create([
-                'orders_id' => $order->id,
-                'products_id' => $products_id,
-                'price' => $product->price,
-                'users_id' => $user_id,
-                'status' => 'waiting',
-            ]);
+        $i = 0;
+        foreach ($product_ids as $p_id) {
+            $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $p_id)->first();
+            $product = Product::where('is_deleted', false)->where('id', $p_id)->first();
+            $prices[$i] = $product->price;
+            if (!$orderDetail) {
+                $orderDetail = OrderDetail::create([
+                    'orders_id' => $order->id,
+                    'products_id' => $p_id,
+                    'price' => $prices[$i],
+                    'users_id' => $user_id,
+                    'status' => 'waiting',
+                ]);
+            }
+            $i++;
         }
-        foreach ($request->product_detail_video_ids as $id) {
+        dd('1');
+
+        foreach ($product_detail_video_ids as $id) {
             OrderVideoDetail::create([
                 'order_details_id' => $orderDetail->id,
                 'product_detail_videos_id' => $id,
