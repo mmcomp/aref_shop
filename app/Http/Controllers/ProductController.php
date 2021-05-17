@@ -92,7 +92,7 @@ class ProductController extends Controller
     public function show($id)
     {
 
-        $product = Product::where('is_deleted', false)->with('product_files.file')->find($id);
+        $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
                 'error' => null,
