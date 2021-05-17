@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ListOfVideosOfAProductRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Requests\ProductCreateRequest;
@@ -9,6 +10,7 @@ use App\Http\Requests\ProductEditRequest;
 use App\Http\Requests\ProductImageRequest;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\User\ProductOfUserCollection;
 use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
 use App\Models\Product;
@@ -48,7 +50,8 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate(env('PAGE_COUNT'));
         }
-        return (new ProductCollection($products))->additional([
+
+        return (new ProductOfUserCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
     }
@@ -390,11 +393,11 @@ class ProductController extends Controller
         if ($product != null) {
             $numArray = [];
             $i = 1;
-            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
-                $v = $product->productDetailVideos[$indx]->videoSession;
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
+            for ($indx = 0; $indx < count($product->product_detail_videos); $indx++) {
+                $v = $product->product_detail_videos[$indx]->videoSession;
+                $numArray[$v->id] = $v != null && $product->product_detail_videos[$indx]->extraordinary ? 0 : $i;
                 $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
+                $product_detail_videos[] = $product->product_detail_videos[$indx];
             }
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
             return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([

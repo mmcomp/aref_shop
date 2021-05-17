@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\CartController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\User\ProductController;
 use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
@@ -49,7 +49,7 @@ Route::group([
     'prefix' => 'products',
 
 ], function ($router) {
-    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/', [ProductController::class, 'index'])->middleware('can:product-of-user');
     Route::get('/getProduct/{id}',[ProductController::class,'show']);
     Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
 });
@@ -108,4 +108,12 @@ Route::group([
 
 ], function ($router) {
     Route::put('/edit', [UserController::class, 'update']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:cart'],
+    'prefix' => 'users',
+
+], function ($router) {
+    Route::get('/index', [CartController::class, 'index']);
+    Route::post('/add', [CartController::class, 'store']);
 });
