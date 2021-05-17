@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class GroupsSeeder extends Seeder
 {
@@ -15,17 +15,15 @@ class GroupsSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('groups')->insert([
-            'name' => 'admin',
-            'type' => 'admin',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')    
-        ]);
-        DB::table('groups')->insert([
-            'name' => 'supporter',
-            'type' => 'user',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')    
-        ]);
+        $names = ['Admin', 'Registered'];
+        $types = ['admin', 'user'];
+        for ($i = 0; $i < 2; $i++) {
+            DB::table('groups')->insert([
+                'name' => $names[$i],
+                'type' => $types[$i],
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
+        }
     }
 }
