@@ -37,7 +37,7 @@ class CartController extends Controller
 
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
-        $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
                 'users_id' => $user_id,
@@ -45,7 +45,7 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $request->input('number');
             $orderDetail->save();
@@ -117,6 +117,22 @@ class CartController extends Controller
      */
     public function destroy($id)
     {
-        //
+
+        $user_id = Auth::user()->id;
+        $product = Product::where('is_deleted', false)->find($id);
+        $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
+        if($order) {
+            $order->status = 'cancel';
+            $order->save();        
+        }
+        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $id)->first();
+        if($orderDetail) {
+            $orderDetail->status = 'cancel';
+            $orderDetail->save(); 
+        }
+        if ($product->type == 'video') {
+            
+        }
+        dd($product->type);
     }
 }
