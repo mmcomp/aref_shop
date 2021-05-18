@@ -58,28 +58,6 @@ class CartController extends Controller
                 'number' => $product->type != 'normal' ? 1 : $request->input('number')
             ]);
         }
-        if ($product->type == 'video') {
-            $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $products_id)->pluck('video_sessions_id');
-            foreach ($videoSessionIds as $id) {
-                $found_user_video_session = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $id)->first();
-                if (!$found_user_video_session) {
-                    UserVideoSession::create([
-                        'users_id' => $user_id,
-                        'video_sessions_id' => $id,
-                    ]);
-                }
-            }
-            $orderDetail->all_videos_buy = 1;
-            $orderDetail->save();
-        } else {
-            $found_user_product = UserProduct::where('users_id', $user_id)->where('products_id', $products_id)->where('partial', false)->first();
-            if (!$found_user_product) {
-                UserProduct::create([
-                    'users_id' => $user_id,
-                    'products_id' => $request->input('products_id'),
-                ]);
-            }
-        }
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
