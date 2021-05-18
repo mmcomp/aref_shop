@@ -59,7 +59,6 @@ class CartController extends Controller
                 'price' => $product->price,
                 'users_id' => $user_id,
                 'number' => $product->type != 'normal' ? 1 : $request->input('number'),
-                'status' => 'waiting',
             ]);
         }
         if ($product->type == 'video') {
@@ -115,8 +114,7 @@ class CartController extends Controller
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
                 'price' => $product->price,
-                'users_id' => $user_id,
-                'status' => 'waiting'
+                'users_id' => $user_id
             ]);
         }
         if ($product->type == 'video') {
