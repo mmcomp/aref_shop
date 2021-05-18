@@ -27,14 +27,14 @@ class AddMicroProductToCartRequest extends FormRequest
     public function rules()
     {
         return [
-            'product_detail_video_ids' => 'required|array',
-            'product_detail_video_ids.*' => [
+            'products_id' => [
                 'required',
                 'integer',
-                Rule::exists('product_detail_videos', 'id')->where(function ($query) {
+                Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 })
-            ]
+            ],
+            'product_details_id' => 'nullable|integer'
         ];
     }
      /**

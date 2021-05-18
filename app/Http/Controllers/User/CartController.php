@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
+use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -96,48 +97,59 @@ class CartController extends Controller
     public function StoreMicroProduct(AddMicroProductToCartRequest $request)
     {
 
+        $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
-        $product_ids = [];
-        $prices = [];
-        $product_detail_video_ids = $request->input('product_detail_video_ids');
-        $product_detail_video_ids = array_unique($product_detail_video_ids);
-        foreach ($product_detail_video_ids as $id) {
-            $productDetailVideo = ProductDetailVideo::where('is_deleted', false)->find($id);
-            $product_ids[] = $productDetailVideo->products_id;
-        }
-        $product_ids = array_unique($product_ids);
+        $products_id = $request->input('products_id');
+        $product_details_id = $request->input('product_details_id');
         $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
                 'users_id' => $user_id,
-                'status' => 'waiting',
+                'status' => 'waiting'
             ]);
         }
-        $i = 0;
-        foreach ($product_ids as $p_id) {
-            $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $p_id)->first();
-            $product = Product::where('is_deleted', false)->where('id', $p_id)->first();
-            $prices[$i] = $product->price;
-            if (!$orderDetail) {
-                $orderDetail = OrderDetail::create([
-                    'orders_id' => $order->id,
-                    'products_id' => $p_id,
-                    'price' => $prices[$i],
-                    'users_id' => $user_id,
-                    'status' => 'waiting',
+        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        if (!$orderDetail) {
+            $orderDetail = OrderDetail::create([
+                'orders_id' => $order->id,
+                'products_id' => $products_id,
+                'price' => $product->price,
+                'users_id' => $user_id,
+                'status' => 'waiting'
+            ]);
+        }
+        if ($product->type == 'video') {
+            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
+            $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
+            $found_order_video_detail = OrderVideoDetail::where('is_deleted', false)->where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
+            if(!$found_order_video_detail) {
+                OrderVideoDetail::create([
+                    'order_details_id' => $orderDetail->id,
+                    'product_details_videos_id' => $product_details_id,
+                    'price' => $product->price
                 ]);
             }
-            $i++;
+            $found_user_video_session = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
+            if (!$found_user_video_session) {
+                UserVideoSession::create([
+                    'users_id' => $user_id,
+                    'video_sessions_id' => $product_detail_video->video_sessions_id
+                ]);
+            }
+        } else {
+            $found_user_product = UserProduct::where('users_id', $user_id)->where('products_id', $products_id)->where('partial', false)->first();
+            if (!$found_user_product) {
+                UserProduct::create([
+                    'users_id' => $user_id,
+                    'products_id' => $products_id,
+                    'partial' => false
+                ]);
+            }
         }
-        dd('1');
-
-        foreach ($product_detail_video_ids as $id) {
-            OrderVideoDetail::create([
-                'order_details_id' => $orderDetail->id,
-                'product_detail_videos_id' => $id,
-                'price' => 22
-            ]);
-        }
+        return (new OrderResource($order))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(201);
     }
 
     /**

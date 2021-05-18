@@ -83,6 +83,7 @@ Route::group([
 ], function ($router) {
     Route::get('/', [CartController::class, 'index']);
     Route::post('/add', [CartController::class, 'store']);
+    Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
     Route::get('/show/{id}', [CartController::class, 'show']);
     Route::put('/edit/{id}', [CartController::class, 'update']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
@@ -108,13 +109,4 @@ Route::group([
 
 ], function ($router) {
     Route::put('/edit', [UserController::class, 'update']);
-});
-Route::group([
-    'middleware' => ['auth:api', 'can:cart'],
-    'prefix' => 'cart',
-
-], function ($router) {
-    Route::get('/index', [CartController::class, 'index']);
-    Route::post('/add', [CartController::class, 'store']);
-    Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
 });
