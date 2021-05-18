@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
+use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -119,20 +120,14 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $product = Product::where('is_deleted', false)->find($id);
-        $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
-        if($order) {
-            $order->status = 'cancel';
-            $order->save();        
-        }
-        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $id)->first();
-        if($orderDetail) {
-            $orderDetail->status = 'cancel';
-            $orderDetail->save(); 
-        }
-        if ($product->type == 'video') {
-            
-        }
-        dd($product->type);
+        $raiseError = new RaiseError;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->where('users_id', $user_id)->first();
+        $raiseError->ValidationError(!$order, ['orders_id' => ['The order does not exist']]);
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $id)->where('users_id', $user_id)->first();
+        $raiseError->ValidationError($orderDetail == null, ['order_details_id' => ['The order detail does not exist']]);
+        $orderDetail->delete();
+        return (new OrderResource(null))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(204);
     }
 }
