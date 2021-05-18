@@ -101,7 +101,7 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
         $product_details_id = $request->input('product_details_id');
-        $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
                 'users_id' => $user_id,
@@ -109,7 +109,7 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
@@ -122,7 +122,7 @@ class CartController extends Controller
         if ($product->type == 'video') {
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
-            $found_order_video_detail = OrderVideoDetail::where('is_deleted', false)->where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
             if(!$found_order_video_detail) {
                 OrderVideoDetail::create([
                     'order_details_id' => $orderDetail->id,
