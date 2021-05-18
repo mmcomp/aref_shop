@@ -128,22 +128,6 @@ class CartController extends Controller
                     'price' => $product->price
                 ]);
             }
-            $found_user_video_session = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
-            if (!$found_user_video_session) {
-                UserVideoSession::create([
-                    'users_id' => $user_id,
-                    'video_sessions_id' => $product_detail_video->video_sessions_id
-                ]);
-            }
-        } else {
-            $found_user_product = UserProduct::where('users_id', $user_id)->where('products_id', $products_id)->where('partial', false)->first();
-            if (!$found_user_product) {
-                UserProduct::create([
-                    'users_id' => $user_id,
-                    'products_id' => $products_id,
-                    'partial' => false
-                ]);
-            }
         }
         return (new OrderResource($order))->additional([
             'error' => null,
