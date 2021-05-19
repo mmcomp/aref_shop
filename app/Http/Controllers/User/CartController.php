@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\AddProductToCartRequest;
+use App\Http\Requests\User\DeleteProductFromCartRequest;
 use App\Http\Resources\User\OrderResource;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -113,19 +114,15 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \App\Http\Requests\User\DeleteProductFromCartRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, DeleteProductFromCartRequest $request)
     {
 
         $user_id = Auth::user()->id;
-        $raiseError = new RaiseError;
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->where('users_id', $user_id)->first();
-        $raiseError->ValidationError(!$order, ['orders_id' => ['The order does not exist']]);
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $id)->where('users_id', $user_id)->first();
-        $raiseError->ValidationError($orderDetail == null, ['order_details_id' => ['The order detail does not exist']]);
-        $orderDetail->delete();
+        OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
         return (new OrderResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(204);
