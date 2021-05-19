@@ -167,18 +167,12 @@ class CartController extends Controller
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
         $orderDetail = OrderDetail::find($id);
         $product = Product::where('is_deleted', false)->find($orderDetail->products_id);
         $raiseError->ValidationError($product == null , ['products_id' => ['The product does not exist']]);
         if($product->type == 'video') {
-           $found = OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->first();        
-           $raiseError->ValidationError(!$found , ['product_details_videos_id' => ['The orderVideoDetail not found!']]);
-           OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
-           $found->delete();
-        } else {
-            OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+           OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();        
         }
         return (new OrderResource(null))->additional([
             'error' => null,
