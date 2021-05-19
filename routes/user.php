@@ -6,7 +6,6 @@ use App\Http\Controllers\User\ProductController;
 use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
-use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
