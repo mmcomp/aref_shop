@@ -6,6 +6,7 @@ use App\Http\Controllers\User\ProductController;
 use App\Http\Controllers\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
@@ -83,10 +84,11 @@ Route::group([
 ], function ($router) {
     Route::get('/', [CartController::class, 'index']);
     Route::post('/add', [CartController::class, 'store']);
+    Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
     Route::get('/show/{id}', [CartController::class, 'show']);
     Route::put('/edit/{id}', [CartController::class, 'update']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
-}); 
+});
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'provinces',
