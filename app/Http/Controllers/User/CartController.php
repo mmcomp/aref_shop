@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\AddProductToCartRequest;
+use App\Http\Requests\User\DeleteProductFromCartRequest;
 use App\Http\Requests\User\AddMicroProductToCartRequest;
 use App\Http\Resources\User\OrderResource;
 use App\Models\Order;
@@ -149,11 +150,17 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \App\Http\Requests\User\DeleteProductFromCartRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, DeleteProductFromCartRequest $request)
     {
-        //
+
+        $user_id = Auth::user()->id;
+        OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+        return (new OrderResource(null))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(204);
     }
 }
