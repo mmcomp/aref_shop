@@ -22,4 +22,8 @@ class Coupon extends Model
     {
         return $this->belongsTo('App\Models\Product', 'products_id', 'id');
     }
+    public function orderDetail()
+    {
+        return $this->hasOne('App\Models\OrderDetail', 'coupons_id', 'id');
+    }
 }

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ListOfVideosOfAProductRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Requests\ProductCreateRequest;
@@ -9,8 +10,9 @@ use App\Http\Requests\ProductEditRequest;
 use App\Http\Requests\ProductImageRequest;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
-use App\Http\Resources\ProductVideoCollection;
-use App\Http\Resources\ProductVideoResource;
+use App\Http\Resources\User\ProductOfUserCollection;
+use App\Http\Resources\User\ProductVideoCollection;
+use App\Http\Resources\User\ProductVideoResource;
 use App\Models\Product;
 use App\Utils\UploadImage;
 use Exception;
@@ -48,7 +50,8 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate(env('PAGE_COUNT'));
         }
-        return (new ProductCollection($products))->additional([
+
+        return (new ProductOfUserCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
     }
@@ -390,7 +393,7 @@ class ProductController extends Controller
         if ($product != null) {
             $numArray = [];
             $i = 1;
-            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
+            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
                 $v = $product->productDetailVideos[$indx]->videoSession;
                 $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
                 $i = $numArray[$v->id] ? $i + 1 : $i;

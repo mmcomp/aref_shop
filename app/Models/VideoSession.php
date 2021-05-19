@@ -23,8 +23,12 @@ class VideoSession extends Model
     {
         return $this->belongsTo("App\Models\User", "teacher_users_id", "id");
     }
-    public function video_session_files()
+    public function videoSessionFiles()
     {
         return $this->hasMany("App\Models\VideoSessionFile", "video_sessions_id", "id");
+    }
+    public function userVideoSession()
+    {
+        return $this->hasOne("App\Models\UserVideoSession", "video_sessions_id", "id");
     }
 }

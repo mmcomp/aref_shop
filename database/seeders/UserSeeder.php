@@ -15,25 +15,21 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'email' => '09223466069',
-            'first_name' => 'maryam',
-            'last_name' => 'khodaparast',
-            'groups_id' => 1,
-            'pass_txt' => '123456',
-            'password' => bcrypt('123456'),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')    
-        ]);
-        DB::table('users')->insert([
-            'email' => '09370972142',
-            'first_name' => 'user',
-            'last_name' => 'test',
-            'groups_id' => 2,
-            'pass_txt' => '123456',
-            'password' => bcrypt('123456'),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')    
-        ]);
+        $emails = ['09223466069', '09370972142', '09223145432'];
+        $first_names = ['maryam', 'user', 'user'];
+        $last_names = ['khodaparast', 'test', 'test1'];
+        $groups = [1, 2, 2];
+        for ($i = 0; $i < 3; $i++) {
+            DB::table('users')->insert([
+                'email' => $emails[$i],
+                'first_name' => $first_names[$i],
+                'last_name' => $last_names[$i],
+                'groups_id' => $groups[$i],
+                'pass_txt' => '123456',
+                'password' => bcrypt('123456'),
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+            ]);
+        }
     }
 }
