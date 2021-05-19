@@ -4,9 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\AddProductToCartRequest;
+use App\Http\Requests\User\AddMicroProductToCartRequest;
 use App\Http\Resources\User\OrderResource;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\OrderVideoDetail;
 use App\Models\Product;
 use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
@@ -63,6 +65,56 @@ class CartController extends Controller
                     'price' => $product->price,
                     'users_id' => $user_id,
                     'number' => $product->type != 'normal' ? 1 : $request->input('number')
+                ]);
+            }
+        }
+        return (new OrderResource($order))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(201);
+    }
+    /**
+     * add a microProduct to the cart
+     *
+     * @param  \App\Http\Requests\User\AddMicroProductToCartRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function StoreMicroProduct(AddMicroProductToCartRequest $request)
+    {
+
+        $raiseError = new RaiseError;
+        $user_id = Auth::user()->id;
+        $products_id = $request->input('products_id');
+        $product_details_id = $request->input('product_details_id');
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        if (!$order) {
+            $order = Order::create([
+                'users_id' => $user_id,
+                'status' => 'waiting'
+            ]);
+        }
+        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        if ($orderDetail && $orderDetail->all_videos_buy) {
+            return (new OrderResource(null))->additional([
+                'error' => 'already added!',
+            ])->response()->setStatusCode(406);
+        } else {
+            $orderDetail = OrderDetail::create([
+                'orders_id' => $order->id,
+                'products_id' => $products_id,
+                'price' => $product->price,
+                'users_id' => $user_id
+            ]);
+        }
+        if ($product->type == 'video') {
+            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
+            $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
+            if (!$found_order_video_detail) {
+                OrderVideoDetail::create([
+                    'order_details_id' => $orderDetail->id,
+                    'product_details_videos_id' => $product_details_id,
+                    'price' => $product_detail_video->price
                 ]);
             }
         }

@@ -15,7 +15,7 @@ class OrderVideoDetail extends Model
      */
     protected $fillable = [
         'order_details_id', 
-        'product_detail_videos_id',
+        'product_details_videos_id',
         'price'
     ];
     public function orderDetail()

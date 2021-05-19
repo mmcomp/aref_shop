@@ -84,6 +84,7 @@ Route::group([
 ], function ($router) {
     Route::get('/', [CartController::class, 'index']);
     Route::post('/add', [CartController::class, 'store']);
+    Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
     Route::get('/show/{id}', [CartController::class, 'show']);
     Route::put('/edit/{id}', [CartController::class, 'update']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
