@@ -87,6 +87,7 @@ Route::group([
     Route::get('/show/{id}', [CartController::class, 'show']);
     Route::put('/edit/{id}', [CartController::class, 'update']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
+    Route::delete('/delete-micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
 });
 Route::group([
     'middleware' => ['auth:api'],
