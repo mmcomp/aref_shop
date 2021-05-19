@@ -49,7 +49,7 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->where('users_id', $user_id)->first();
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $number;
             $orderDetail->save();
@@ -87,7 +87,7 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->where('users_id', $user_id)->first();
         if(!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
