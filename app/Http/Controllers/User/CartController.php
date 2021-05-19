@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
+use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,9 +36,10 @@ class CartController extends Controller
     public function store(AddProductToCartRequest $request)
     {
 
+        $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
-        $order = Order::where('is_deleted', false)->where('users_id', $user_id)->where('status', 'waiting')->first();
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
                 'users_id' => $user_id,
@@ -45,18 +47,24 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('is_deleted', false)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
-            $orderDetail->number += $request->input('number');
-            $orderDetail->save();
+            $raiseError->ValidationError(($request->input('number') == null || $request->input('number') <= 0), ['number' => ['Add a valid number if product type is normal!']]);
+            if ($request->input('number') > 0) {
+                $orderDetail->number += $request->input('number');
+                $orderDetail->save();
+            }
         } else if (!$orderDetail) {
-            $orderDetail = OrderDetail::create([
-                'orders_id' => $order->id,
-                'products_id' => $products_id,
-                'price' => $product->price,
-                'users_id' => $user_id,
-                'number' => $product->type != 'normal' ? 1 : $request->input('number')
-            ]);
+            $raiseError->ValidationError(($request->input('number') == null || $request->input('number') <= 0), ['number' => ['Add a valid number if product type is normal!']]);
+            if($request->input('number') > 0) {
+                $orderDetail = OrderDetail::create([
+                    'orders_id' => $order->id,
+                    'products_id' => $products_id,
+                    'price' => $product->price,
+                    'users_id' => $user_id,
+                    'number' => $product->type != 'normal' ? 1 : $request->input('number')
+                ]);
+            }
         }
         return (new OrderResource($order))->additional([
             'error' => null,
