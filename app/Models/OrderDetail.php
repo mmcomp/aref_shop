@@ -30,7 +30,7 @@ class OrderDetail extends Model
     }
     public function product()
     {
-        return $this->hasOne('App\Models\Product', 'id', 'products_id');
+        return $this->hasOne('App\Models\Product', 'id', 'products_id')->where('is_deleted', false);
     }
     public function coupon()
     {
