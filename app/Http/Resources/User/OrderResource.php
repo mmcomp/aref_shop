@@ -2,9 +2,8 @@
 
 namespace App\Http\Resources\User;
 
-use App\Http\Resources\CouponResource;
-use App\Http\Resources\ProductResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\User\OrderDetailCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
@@ -24,12 +23,7 @@ class OrderResource extends JsonResource
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
-                'product' => $this->orderDetail ? new ProductResource($this->orderDetail->product) : null,
-                'price' => $this->orderDetail ? $this->orderDetail->price : null,
-                'coupon' => $this->orderDetail ? new CouponResource($this->orderDetail->coupon) : null,
-                'all_videos_buy' => $this->orderDetail ? $this->orderDetail->all_videos_buy : null,
-                'order_detail_status' => $this->orderDetail ? $this->orderDetail->status : null,
-                'number' => $this->orderDetail ? $this->orderDetail->number : null
+                'orderDetail' => new OrderDetailCollection($this->orderDetail)
             ];
         }
     }
