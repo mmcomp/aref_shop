@@ -150,8 +150,19 @@ class CartController extends Controller
     public function destroy($id, DeleteProductFromCartRequest $request)
     {
 
+        $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
-        OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+        $orderDetail = OrderDetail::where('id', $id)->where('users_id', $user_id)->first();
+        $product = Product::where('is_deleted', false)->find($orderDetail->products_id);
+        $raiseError->ValidationError($product == null, ['products_id' => ['The product does not exist']]);
+        if ($product->type == 'video') {
+            OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+            if (!$orderDetail->all_videos_buy) {
+                OrderVideoDetail::where('order_details_id', $id)->delete();
+            }
+        } else {
+            OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+        }
         return (new OrderResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(204);
@@ -172,7 +183,7 @@ class CartController extends Controller
         $orderDetail = OrderDetail::find($id);
         $product = Product::where('is_deleted', false)->find($orderDetail->products_id);
         $raiseError->ValidationError($product == null, ['products_id' => ['The product does not exist']]);
-        $raiseError->ValidationError($product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought product '. $product->name .' therefore you can not remove a subproduct of it']]);
+        $raiseError->ValidationError($product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought ' . $product->name . ' therefore you can not remove a subproduct of it']]);
         if ($product->type == 'video' && !$orderDetail->all_videos_buy) {
             OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();
             $found = OrderVideoDetail::where('order_details_id', $id)->count();
