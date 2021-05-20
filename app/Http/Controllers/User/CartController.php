@@ -88,14 +88,14 @@ class CartController extends Controller
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->where('users_id', $user_id)->first();
-        if(!$orderDetail) {
+        if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
                 'price' => $product->price,
                 'users_id' => $user_id
             ]);
-        } else if($orderDetail && $orderDetail->all_videos_buy) {
+        } else if ($orderDetail && $orderDetail->all_videos_buy) {
             return (new OrderResource(null))->additional([
                 'error' => 'already added!',
             ])->response()->setStatusCode(406);
@@ -167,12 +167,16 @@ class CartController extends Controller
     {
 
         $raiseError = new RaiseError;
+        $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
         $orderDetail = OrderDetail::find($id);
         $product = Product::where('is_deleted', false)->find($orderDetail->products_id);
-        $raiseError->ValidationError($product == null , ['products_id' => ['The product does not exist']]);
-        if($product->type == 'video') {
-           OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();        
+        $raiseError->ValidationError($product == null, ['products_id' => ['The product does not exist']]);
+        $raiseError->ValidationError($product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought product '. $product->name .' therefore you can not remove a subproduct of it']]);
+        if ($product->type == 'video' && !$orderDetail->all_videos_buy) {
+            OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();
+            $found = OrderVideoDetail::where('order_details_id', $id)->count();
+            if (!$found) OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
         }
         return (new OrderResource(null))->additional([
             'error' => null,
