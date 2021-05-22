@@ -51,7 +51,7 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->where('users_id', $user_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $number;
             $orderDetail->save();
@@ -89,7 +89,7 @@ class CartController extends Controller
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->where('users_id', $user_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
@@ -184,9 +184,11 @@ class CartController extends Controller
     public function destroy($id, DeleteProductFromCartRequest $request)
     {
 
+        $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
-        $orderDetail = OrderDetail::where('id', $id)->where('users_id', $user_id)->first();
-        OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+        $orderDetail = OrderDetail::where('id', $id)->first();
+        $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
+        OrderDetail::where('id', $id)->delete();
         if ($orderDetail->product->type == 'video') {
             if (!$orderDetail->all_videos_buy) {
                 OrderVideoDetail::where('order_details_id', $id)->delete();
@@ -210,11 +212,12 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
         $orderDetail = OrderDetail::find($id);
+        $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
         $raiseError->ValidationError($orderDetail->product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought ' . $orderDetail->product->name . ' therefore you can not remove a subproduct of it']]);
         if ($orderDetail->product->type == 'video' && !$orderDetail->all_videos_buy) {
             OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();
             $found = OrderVideoDetail::where('order_details_id', $id)->count();
-            if (!$found) OrderDetail::where('id', $id)->where('users_id', $user_id)->delete();
+            if (!$found) OrderDetail::where('id', $id)->delete();
         }
         return (new OrderResource(null))->additional([
             'error' => null,

@@ -5,8 +5,6 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth;
 
 class DeleteMicroProductFromCartRequest extends FormRequest
 {
@@ -31,9 +29,7 @@ class DeleteMicroProductFromCartRequest extends FormRequest
             'id' => [
                 'required',
                 'integer',
-                Rule::exists('order_details', 'id')->where(function ($query) {
-                    return $query->where('users_id', Auth::user()->id);
-                }),
+                'exists:order_details,id'
             ],
             'product_details_id' => 'required|integer'
         ];
