@@ -3,7 +3,11 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Illuminate\Auth\AuthenticationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Database\QueryException;
+use Exception;
 
 class Handler extends ExceptionHandler
 {
@@ -25,7 +29,7 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-
+   
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -33,8 +37,24 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function(Exception $e, $request) {
+            return $this->handleException($request, $e);
         });
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return response()->json(['error' => 'Unauthenticated.'], 401);
+    } 
+    public function handleException($request, Exception $exception)
+    {
+        if($exception instanceof AccessDeniedHttpException) {
+            return response()->json(['error' => 'Forbidden.'], 403);
+        } else if($exception instanceof NotFoundHttpException) {
+            return response()->json(['error' => 'Not Found.'], 404);
+        } 
+        // else if($exception instanceof QueryException) {
+        //     return response()->json(['error' => 'Server Error.'], 500);
+        // }
     }
 }

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
@@ -17,27 +19,90 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'avatar_path',
+        'referrer_users_id',
+        'pass_txt',
+        'address',
+        'postall',
+        'cities_id',
+        'groups_id'
     ];
 
     /**
-     * The attributes that should be hidden for arrays.
+     * Get the identifier that will be stored in the subject claim of the JWT.
      *
-     * @var array
+     * @return mixed
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    public function getJWTIdentifier() {
+        return $this->getKey();
+    }
 
     /**
-     * The attributes that should be cast to native types.
+     * Return a key value array, containing any custom claims to be added to the JWT.
      *
-     * @var array
+     * @return array
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function getJWTCustomClaims() {
+        return [];
+    }
+
+    public function group()
+    {
+        return $this->hasOne('App\Models\Group', 'id', 'groups_id')->where('is_deleted',false);
+    }
+
+    public function city()
+    {
+        return $this->hasOne('App\Models\City','id','cities_id')->where('is_deleted',false);
+    }
+    public function referrerUser()
+    {
+        return $this->hasOne('App\Models\User','id','referrer_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
+    }
+    public function usersyncs()
+    {
+        return $this->hasMany('App\Models\UserSync', 'users_id', 'id');
+    }
+    public function orderDetail()
+    {
+        return $this->hasOne('App\Models\OrderDetail', 'users_id', 'id');
+    }
+    public function menus()
+    {
+        $groupMenus = $this->group()->first()->menus()->with('menu')->get();
+        $menus = [];
+        $menuIndex = [];
+        foreach ($groupMenus as $groupMenu) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id==null) {
+                $menuIndex[$groupMenu->menu->id] = count($menus);
+                $groupMenu->menu->elements = [];
+                unset($groupMenu->menu->created_at);
+                unset($groupMenu->menu->updated_at);
+                unset($groupMenu->menu->parent_id);
+                $menus[] = $groupMenu->menu;
+            }
+        }
+        foreach ($groupMenus as $groupMenu) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id!=null) {
+                $parent_id = $groupMenu->menu->parent_id;
+                if (!isset($menuIndex[$parent_id])) {
+                    $menuIndex[$parent_id] = count($menus);
+                    $parent = $groupMenu->menu->parent()->first();
+                    $parent->elements = [];
+                    $menus[] = $parent;
+                }
+                $elements = $menus[$menuIndex[$parent_id]]->elements;
+                unset($groupMenu->menu->created_at);
+                unset($groupMenu->menu->updated_at);
+                unset($groupMenu->menu->parent_id);
+                array_push($elements, $groupMenu->menu);
+                $menus[$menuIndex[$parent_id]]->elements = $elements;
+            }
+        }
+        return $menus;
+    }
 }
