@@ -16,13 +16,15 @@ use App\Models\ProductDetailVideo;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Log;
+use Exception;
 
 class CartController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -120,12 +122,16 @@ class CartController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function getWholeCart()
     {
-        //
+
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->first();
+        return (new OrderResource($order))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(200);
     }
 
     /**
@@ -133,19 +139,47 @@ class CartController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
-        //
     }
 
+    /**
+     * destroy whole cart
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroyWholeCart()
+    {
+
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->first();
+        $order->status = 'cancel';
+        try {
+            $order->save();
+            return (new OrderResource(null))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(204);
+        } catch (Exception $e) {
+            Log::info('failed in User/CartController/destoryWholeCart', json_encode($e));
+            if (env('APP_ENV') == 'development') {
+                return (new OrderResource(null))->additional([
+                    'error' => 'destroying Whole Cart failed!' . json_encode($e),
+                ])->response()->setStatusCode(500);
+            } else if (env('APP_ENV') == 'production') {
+                return (new OrderResource(null))->additional([
+                    'error' => 'destroying Whole Cart failed!',
+                ])->response()->setStatusCode(500);
+            }
+        }
+    }
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Http\Requests\User\DeleteProductFromCartRequest  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id, DeleteProductFromCartRequest $request)
     {
@@ -167,7 +201,7 @@ class CartController extends Controller
      *
      * @param  \App\Http\Requests\User\DeleteProductFromCartRequest  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyMicroProduct($id, DeleteMicroProductFromCartRequest $request)
     {
