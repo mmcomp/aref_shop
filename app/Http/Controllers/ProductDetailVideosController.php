@@ -9,6 +9,8 @@ use App\Http\Requests\ProductDetailVideosEditRequest;
 use App\Http\Resources\ProductDetailVideosCollection;
 use App\Http\Resources\ProductDetailVideosResource;
 use App\Models\ProductDetailVideo;
+use App\Models\UserVideoSession;
+use App\Models\Order;
 use App\Utils\RaiseError;
 use Exception;
 use Log;
@@ -32,7 +34,6 @@ class ProductDetailVideosController extends Controller
         }
         if ($request->get('per_page') == "all") {
             $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->get();
-
         } else {
             $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
@@ -50,10 +51,30 @@ class ProductDetailVideosController extends Controller
     public function store(ProductDetailVideosCreateRequest $request)
     {
 
-        $product_detail_video = ProductDetailVideo::create($request->all());
-        return (new ProductDetailVideosResource($product_detail_video))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(201);
+        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $request->input('video_sessions_id'))->first();
+        if (!$found_product_detail_video) {
+            $product_detail_video = ProductDetailVideo::create($request->all());
+            $completed_orders = Order::where('status', 'ok')->get();
+            foreach ($completed_orders as $order) {
+                foreach ($order->orderDetail as $orderDetail) {
+                    if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
+                        $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $request->input('video_sessions_id'))->first();
+                        if (!$found_user_video_session) {
+                            UserVideoSession::create([
+                                'video_sessions_id' => $request->input('video_sessions_id'),
+                                'users_id' => $order->users_id
+                            ]);
+                        }
+                    }
+                }
+            }
+            return (new ProductDetailVideosResource($product_detail_video))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(201);
+        }
+        return (new ProductDetailVideosResource(null))->additional([
+            'error' => 'The ProductDetailVideo is already recorded!',
+        ])->response()->setStatusCode(406);
     }
 
     /**
@@ -87,11 +108,31 @@ class ProductDetailVideosController extends Controller
     {
 
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
+        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $request->input('video_sessions_id'))->first();
         if ($product_detail_video != null) {
-            $product_detail_video->update($request->all());
+            if(!$found_product_detail_video) {
+                $product_detail_video->update($request->all());
+                $completed_orders = Order::where('status', 'ok')->get();
+                foreach ($completed_orders as $order) {
+                    foreach ($order->orderDetail as $orderDetail) {
+                        if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
+                            $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $request->input('video_sessions_id'))->first();
+                            if (!$found_user_video_session) {
+                                UserVideoSession::create([
+                                    'video_sessions_id' => $request->input('video_sessions_id'),
+                                    'users_id' => $order->users_id
+                                ]);
+                            }
+                        }
+                    }
+                }
+                return (new ProductDetailVideosResource(null))->additional([
+                    'error' => null,
+                ])->response()->setStatusCode(200);
+            } 
             return (new ProductDetailVideosResource(null))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(200);
+                'error' => 'The ProductDetailVideo is already recorded!',
+            ])->response()->setStatusCode(406);
         }
         return (new ProductDetailVideosResource(null))->additional([
             'error' => 'ProductDetailVideo not found!',
@@ -145,10 +186,10 @@ class ProductDetailVideosController extends Controller
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
         $foundProductDetailVideoWithThatVideoSession = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
         $lastProductDetailVideoOfTheRequestedProduct = ProductDetailVideo::join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
-        ->where('product_detail_videos.is_deleted', false)
-        ->where('video_sessions.is_deleted', false)
-        ->where('products_id', $request->input('products_id'))
-        ->orderBy('video_sessions.start_date', 'desc')->first();
+            ->where('product_detail_videos.is_deleted', false)
+            ->where('video_sessions.is_deleted', false)
+            ->where('products_id', $request->input('products_id'))
+            ->orderBy('video_sessions.start_date', 'desc')->first();
         $raiseError->ValidationError($product_detail_video->products_id == $request->input('products_id'), ['products_id' => ['Please enter a new product!']]);
         $raiseError->ValidationError($foundProductDetailVideoWithThatVideoSession, ['video_sessions_id' => ['The session is already saved!']]);
         if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct) {
@@ -161,7 +202,7 @@ class ProductDetailVideosController extends Controller
             'extraordinary' => $request->input('extraordinary'),
             'is_hidden' => $request->input('is_hidden') ? $request->input('is_hidden') : 0,
             'single_purchase' => $request->input('single_purchase'),
-            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession,['video_sessions_id' => ['The product_detail_videos videoSession is not valid!']])
+            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => ['The product_detail_videos videoSession is not valid!']])
         ]);
 
         return (new ProductDetailVideosResource(null))->additional([
