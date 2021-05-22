@@ -13,6 +13,7 @@ use App\Http\Resources\VideoSessionsResource;
 use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
 use App\Utils\RaiseError;
+use App\Utils\UpdatePreviousByers;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Log;
@@ -36,7 +37,6 @@ class VideoSessionsController extends Controller
         }
         if ($request->get('per_page') == "all") {
             $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->get();
-
         } else {
             $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
@@ -175,9 +175,20 @@ class VideoSessionsController extends Controller
                 ]);
             }
         }
+        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $request->input('video_sessions_id'))->first();
+        $updatePreviousBuyers = new UpdatePreviousByers;
+        $output = $updatePreviousBuyers->create($found_product_detail_video, $request);
+        if ($output[0]) {
+            return (new VideoSessionsResource(null))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(201);
+        }
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(201);
+            'error' => 'The ProductDetailVideo is already recorded!',
+        ])->response()->setStatusCode(406);
+        // return (new VideoSessionsResource(null))->additional([
+        //     'error' => null,
+        // ])->response()->setStatusCode(201);
     }
     /**
      * Insert single session into video_sessions_table & product_detail_videos_table
@@ -189,13 +200,14 @@ class VideoSessionsController extends Controller
     {
 
         $raiseError = new RaiseError;
-        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos','video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
-        ->where('product_detail_videos.is_deleted', false)
-        ->where('video_sessions.is_deleted', false)
-        ->where('products_id', $request->input('products_id'))
-        ->where('video_sessions.start_date', '>', $request->input('date'))
-        ->orderBy('video_sessions.start_date', 'desc')->first();
+        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
+            ->where('product_detail_videos.is_deleted', false)
+            ->where('video_sessions.is_deleted', false)
+            ->where('products_id', $request->input('products_id'))
+            ->where('video_sessions.start_date', '>', $request->input('date'))
+            ->orderBy('video_sessions.start_date', 'desc')->first();
         $raiseError->validationError($lastVideoSessionOfThatProduct && !$request->input('extraordinary'), ['extraordinary' => ['The extraordinary field should be 1']]);
+
         $video_session = VideoSession::create([
             'start_date' => $request->input('date'),
             'start_time' => $request->input('from_time'),
@@ -204,18 +216,30 @@ class VideoSessionsController extends Controller
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
         ]);
-        ProductDetailVideo::create([
-            "price" => $request->input("price"),
-            "products_id" => $request->input("products_id"),
-            "video_sessions_id" => $video_session->id,
-            "name" => $request->input('name'),
-            "single_purchase" => $request->input('single_purchase'),
-            "extraordinary" => $request->input('extraordinary'),
-            "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0,
-        ]);
+        // $product_detail_video = ProductDetailVideo::create([
+        //     "price" => $request->input("price"),
+        //     "products_id" => $request->input("products_id"),
+        //     "video_sessions_id" => $video_session->id,
+        //     "name" => $request->input('name'),
+        //     "single_purchase" => $request->input('single_purchase'),
+        //     "extraordinary" => $request->input('extraordinary'),
+        //     "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0,
+        // ]);
+        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $video_session->id)->first();
+        $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
+        $updatePreviousBuyers = new UpdatePreviousByers;
+        $output = $updatePreviousBuyers->create(false, $request, $video_session->id);
+        if ($output[0]) {
+            return (new VideoSessionsResource(null))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(201);
+        }
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(201);
+            'error' => 'The ProductDetailVideo is already recorded!',
+        ])->response()->setStatusCode(406);
+        // return (new VideoSessionsResource(null))->additional([
+        //     'error' => null,
+        // ])->response()->setStatusCode(201);
     }
     /**
      * Edit single session into video_sessions_table & product_detail_videos_table
@@ -232,6 +256,7 @@ class VideoSessionsController extends Controller
         $fiveDaysBeforeTheDate = [];
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         if ($product_detail_video->videoSession) {
+            $updatePreviousBuyers = new UpdatePreviousByers;
             $date = strtotime($request->input("date"));
             $video_sesssion = VideoSession::where('is_deleted', false)->find($product_detail_video->video_sessions_id);
             for ($i = 1; $i <= 5; $i++) {
@@ -240,10 +265,10 @@ class VideoSessionsController extends Controller
             for ($i = 1; $i <= 5; $i++) {
                 $fiveDaysBeforeTheDate[$i] = strtotime(date("Y-m-d", strtotime("-" . $i . "day", strtotime($video_sesssion->start_date))));
             }
-            if(!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate)) {
+            if (!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate)) {
                 throw new HttpResponseException(
                     response()->json(['errors' => ['start_date' => 'You can change start_date just 5 days after or 5 days before!']], 422)
-                ); 
+                );
             }
             $product_detail_video->update([
                 "price" => $request->input("price"),
@@ -260,11 +285,21 @@ class VideoSessionsController extends Controller
                 'price' => $request->input('price'),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
                 'video_link' => $request->input('video_link')
-             ]);
-        } 
-        $raiseError->ValidationError(!$product_detail_video->videoSession,['extraordinary' => ['No video Session is saved for the product']] );
-        return (new VideoSessionsResource(null))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(201);
+            ]);
+            $raiseError->ValidationError(!$product_detail_video->videoSession, ['extraordinary' => ['No video Session is saved for the product']]);
+            $sw = $updatePreviousBuyers->update($request, $product_detail_video, $video_sesssion->id);
+            if ($sw) {
+                return (new VideoSessionsResource(null))->additional([
+                    'error' => null,
+                ])->response()->setStatusCode(201);
+            }
+            return (new VideoSessionsResource(null))->additional([
+                'error' => 'ProductDetailVideo not found!',
+            ])->response()->setStatusCode(404);
+        }
+
+        // return (new VideoSessionsResource(null))->additional([
+        //     'error' => null,
+        // ])->response()->setStatusCode(201);
     }
 }
