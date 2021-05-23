@@ -15,11 +15,7 @@ class UpdatePreviousByers
         $sw = 0;
         $product_detail_video = null;
         if (!$found) {
-            if($request->input('video_sessions_id') == null) {
-                $product_detail_video = ProductDetailVideo::create(array_merge($request->all(), ['video_sessions_id' => $video_sessions_id]));
-            } else {
-                $product_detail_video = ProductDetailVideo::create($request->all());
-            }
+            $product_detail_video = $request->input('video_sessions_id') == null ? ProductDetailVideo::create(array_merge($request->all(), ['video_sessions_id' => $video_sessions_id])):ProductDetailVideo::create($request->all()); 
             $completed_orders = Order::where('status', 'ok')->get();
             $data = [];
             foreach ($completed_orders as $order) {
@@ -48,17 +44,13 @@ class UpdatePreviousByers
 
         $sw = 0;
         $v_id = $request->input('video_sessions_id') == null ? $video_sessions_id : $request->input('video_sessions_id');
-        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $request->input('video_sessions_id'))->first();
+        $video_sessions_ids = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->pluck('video_sessions_id')->toArray();
         $raiseError = new RaiseError;
         if ($product_detail_video != null) {
-            $raiseError->ValidationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
-            if (!$found_product_detail_video) {
-                if ($product_detail_video->video_sessions_id != $v_id) {
-                    UserVideoSession::where('video_sessions_id', $v_id)->delete();
-                }
-                $product_detail_video->update($request->all());
-                $sw = 1;
-            }
+            $raiseError->ValidationError(in_array($v_id, $video_sessions_ids), ['product_detail_video' => ['The product_detail_video is already recorded!']]);
+            UserVideoSession::where('video_sessions_id', $product_detail_video->video_sessions_id)->delete();
+            $product_detail_video->update($request->all());
+            $sw = 1;
         }
         return $sw;
     }

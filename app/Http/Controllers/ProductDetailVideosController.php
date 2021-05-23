@@ -97,7 +97,7 @@ class ProductDetailVideosController extends Controller
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         $updatePreviousBuyers = new UpdatePreviousByers;
         $sw = $updatePreviousBuyers->update($request, $product_detail_video);
-        if ($sw ) {
+        if ($sw) {
             return (new ProductDetailVideosResource(null))->additional([
                 'error' => null,
             ])->response()->setStatusCode(200);
@@ -164,15 +164,17 @@ class ProductDetailVideosController extends Controller
         if ($product_detail_video->videoSession && $lastProductDetailVideoOfTheRequestedProduct) {
             $raiseError->ValidationError(($lastProductDetailVideoOfTheRequestedProduct->start_date > $product_detail_video->videoSession->start_date && !$request->input('extraordinary')), ['extraordinary' => ['The extraordinary field should be 1']]);
         }
-        $updatePreviousBuyers = new UpdatePreviousByers;
-        $output = $updatePreviousBuyers->create(false, $request, $product_detail_video->video_sessions_id);
-        if ($output[0]) {
-            return (new ProductDetailVideosResource(null))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(201);
-        }
+        ProductDetailVideo::create([
+            'products_id' => $request->input('products_id'),
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'extraordinary' => $request->input('extraordinary'),
+            'is_hidden' => $request->input('is_hidden') ? $request->input('is_hidden') : 0,
+            'single_purchase' => $request->input('single_purchase'),
+            'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => ['The product_detail_videos videoSession is not valid!']])
+        ]);
         return (new ProductDetailVideosResource(null))->additional([
-            'error' => 'The ProductDetailVideo is already recorded!',
-        ])->response()->setStatusCode(406);
+            'error' => null,
+        ])->response()->setStatusCode(201);
     }
 }
