@@ -84,8 +84,8 @@ Route::group([
     Route::get('/', [CartController::class, 'index']);
     Route::post('/add', [CartController::class, 'store']);
     Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
-    Route::get('/getWholeCart', [CartController::class, 'getWholeCart']);
-    Route::delete('/destroyWholeCart', [CartController::class, 'destroyWholeCart']);
+    Route::get('/get-whole-cart', [CartController::class, 'getWholeCart']);
+    Route::delete('/destroy-whole-cart', [CartController::class, 'destroyWholeCart']);
     Route::put('/edit/{id}', [CartController::class, 'update']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
     Route::delete('/delete-micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
