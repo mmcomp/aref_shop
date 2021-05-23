@@ -59,7 +59,7 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->price,
+                'price' => $product->sale_price,
                 'users_id' => $user_id,
                 'all_videos_buy' => 1,
                 'number' => $product->type != 'normal' ? 1 : $number
@@ -95,7 +95,7 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->price,
+                'price' => $product->sale_price,
                 'users_id' => $user_id
             ]);
         } else if ($orderDetail && $orderDetail->all_videos_buy) {
