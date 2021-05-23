@@ -134,33 +134,39 @@ class CartController extends Controller
         $coupon = Coupon::find($request->input('coupons_id'));
         $products_id = $coupon->products_id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any orders yet!']]);
-        $orderDetail = OrderDetail::where('users_id', $user_id)->where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
-        $orderDetail->coupons_id = $request->input('coupons_id');
-        if ($coupon->type == 'amount') {
-            $orderDetail->price = $orderDetail->price > $coupon->amount ? ($orderDetail->price - $coupon->amount) : $raiseError->ValidationError(1, ['amount' => ['The amount should be less than the price']]);
-        } else if ($coupon->type == 'percent') {
-            $orderDetail->price = $orderDetail->price - (($coupon->amount / 100) * $orderDetail->price);
-        }
-        $orderDetail->coupons_amount = $coupon->amount;
-        try {
-            $orderDetail->save();
-            return (new OrderResource(null))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(200);
-        } catch (Exception $e) {
-            Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
-            if (env('APP_ENV') == 'development') {
+        if ($orderDetail->all_videos_buy) {
+            $orderDetail->coupons_id = $request->input('coupons_id');
+            if ($coupon->type == 'amount') {
+                $raiseError->ValidationError($coupon->amount >= $orderDetail->price, ['amount' => ['The coupon amount('. $coupon->amount .')should be less than the price('. $orderDetail->price . ')']]);
+                $orderDetail->price = $orderDetail->price > $coupon->amount ? ($orderDetail->price - $coupon->amount) : $raiseError->ValidationError(1, ['amount' => ['The amount should be less than the price('. $orderDetail->price . ')']]);
+            } else if ($coupon->type == 'percent') {
+                $orderDetail->price = $orderDetail->price - (($coupon->amount / 100) * $orderDetail->price);
+            }
+            $orderDetail->coupons_amount = $coupon->amount;
+            try {
+                $orderDetail->save();
                 return (new OrderResource(null))->additional([
-                    'error' => "fails in addCouponToTheCart in User/CartController" . json_encode($e),
-                ])->response()->setStatusCode(500);
-            } else if (env('APP_ENV') == 'production') {
-                return (new OrderResource(null))->additional([
-                    'error' => "fails in addCouponToTheCart in User/CartController",
-                ])->response()->setStatusCode(500);
+                    'error' => null,
+                ])->response()->setStatusCode(200);
+            } catch (Exception $e) {
+                Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
+                if (env('APP_ENV') == 'development') {
+                    return (new OrderResource(null))->additional([
+                        'error' => "fails in addCouponToTheCart in User/CartController" . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new OrderResource(null))->additional([
+                        'error' => "fails in addCouponToTheCart in User/CartController",
+                    ])->response()->setStatusCode(500);
+                }
             }
         }
+        return (new OrderResource(null))->additional([
+            "error" => "Coupon can be used when you didn't buy all video_sessions of a product!"
+        ])->response()->setStatusCode(406); 
     }
 
     /**
