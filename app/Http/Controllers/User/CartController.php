@@ -141,7 +141,7 @@ class CartController extends Controller
             $orderDetail->coupons_id = $request->input('coupons_id');
             if ($coupon->type == 'amount') {
                 $raiseError->ValidationError($coupon->amount >= $orderDetail->price, ['amount' => ['The coupon amount('. $coupon->amount .')should be less than the price('. $orderDetail->price . ')']]);
-                $orderDetail->price = $orderDetail->price > $coupon->amount ? ($orderDetail->price - $coupon->amount) : $raiseError->ValidationError(1, ['amount' => ['The amount should be less than the price('. $orderDetail->price . ')']]);
+                $orderDetail->price = $orderDetail->price - $coupon->amount;
             } else if ($coupon->type == 'percent') {
                 $orderDetail->price = $orderDetail->price - (($coupon->amount / 100) * $orderDetail->price);
             }
