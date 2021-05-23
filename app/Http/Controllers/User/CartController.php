@@ -61,6 +61,7 @@ class CartController extends Controller
                 'products_id' => $products_id,
                 'price' => $product->price,
                 'users_id' => $user_id,
+                'all_videos_buy' => 1,
                 'number' => $product->type != 'normal' ? 1 : $number
             ]);
         }
