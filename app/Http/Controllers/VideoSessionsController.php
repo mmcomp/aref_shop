@@ -234,15 +234,10 @@ class VideoSessionsController extends Controller
         $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $video_session->id)->first();
         $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
         $updatePreviousBuyers = new UpdatePreviousByers;
-        $output = $updatePreviousBuyers->create(false, $request, $video_session->id);
-        if ($output[0]) {
-            return (new VideoSessionsResource(null))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(201);
-        }
+        $updatePreviousBuyers->create(false, $request, $video_session->id);
         return (new VideoSessionsResource(null))->additional([
-            'error' => 'The ProductDetailVideo is already recorded!',
-        ])->response()->setStatusCode(406);
+            'error' => null,
+        ])->response()->setStatusCode(201);
     }
     /**
      * Edit single session into video_sessions_table & product_detail_videos_table

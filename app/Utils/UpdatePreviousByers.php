@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use Carbon\Carbon;
+use Log;
 
 class UpdatePreviousByers
 {
@@ -36,7 +37,8 @@ class UpdatePreviousByers
             UserVideoSession::insert($data);
             $sw = 1;
         }
-        return [$sw, $product_detail_video];
+        if(!$sw) Log::info('fails in Utils/UpdatePreviousByers/create');
+        return $product_detail_video;
     }
 
     public function update($request, $product_detail_video, $video_sessions_id = 0)
@@ -52,6 +54,6 @@ class UpdatePreviousByers
             $product_detail_video->update($request->all());
             $sw = 1;
         }
-        return $sw;
+        if(!$sw) Log::info('fails in Utils/UpdatePreviousByers/update');
     }
 }

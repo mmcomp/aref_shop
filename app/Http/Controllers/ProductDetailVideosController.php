@@ -54,14 +54,9 @@ class ProductDetailVideosController extends Controller
         $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $request->input('video_sessions_id'))->first();
         $updatePreviousBuyers = new UpdatePreviousByers;
         $output = $updatePreviousBuyers->create($found_product_detail_video, $request);
-        if ($output[0]) {
-            return (new ProductDetailVideosResource($output[1]))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(201);
-        }
-        return (new ProductDetailVideosResource(null))->additional([
-            'error' => 'The ProductDetailVideo is already recorded!',
-        ])->response()->setStatusCode(406);
+        return (new ProductDetailVideosResource($output))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -96,15 +91,15 @@ class ProductDetailVideosController extends Controller
 
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         $updatePreviousBuyers = new UpdatePreviousByers;
-        $sw = $updatePreviousBuyers->update($request, $product_detail_video);
-        if ($sw) {
+        $updatePreviousBuyers->update($request, $product_detail_video);
+        if ($product_detail_video == null) {
             return (new ProductDetailVideosResource(null))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(200);
+                'error' => 'ProductDetailVideo not found!',
+            ])->response()->setStatusCode(404);
         }
         return (new ProductDetailVideosResource(null))->additional([
-            'error' => 'ProductDetailVideo not found!',
-        ])->response()->setStatusCode(404);
+            'error' => null,
+        ])->response()->setStatusCode(200);
     }
 
     /**
