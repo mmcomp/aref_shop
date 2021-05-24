@@ -390,6 +390,7 @@ class ProductController extends Controller
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
+        
         if ($product != null) {
             $numArray = [];
             $i = 1;
