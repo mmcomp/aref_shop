@@ -65,7 +65,7 @@ class CartController extends Controller
                 'all_videos_buy' => 1,
                 'number' => $product->type != 'normal' ? 1 : $number,
                 'total_price' => DB::raw('number * price'),
-                'total_price_with_coupon' => 0
+                'total_price_with_coupon' => DB::raw('number * price')
             ]);
         }
         return (new OrderResource($order))->additional([
@@ -102,7 +102,7 @@ class CartController extends Controller
                 'users_id' => $user_id,
                 'number' => 1,
                 'total_price' => DB::raw('number * price'),
-                'total_price_with_coupon' => 0
+                'total_price_with_coupon' => DB::raw('number * price')
             ]);
         } else if ($orderDetail && $orderDetail->all_videos_buy) {
             return (new OrderResource(null))->additional([
@@ -120,7 +120,7 @@ class CartController extends Controller
                     'price' => $product_detail_video->price,
                     'number' => 1,
                     'total_price' => DB::raw('number * price'),
-                    'total_price_with_coupon' => 0
+                    'total_price_with_coupon' => DB::raw('number * price')
                 ]);
             }
         }
