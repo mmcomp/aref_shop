@@ -24,6 +24,6 @@ class OrderVideoDetail extends Model
     }
     public function productDetailVideo()
     {
-        return $this->belongsTo('App\Models\ProductDetailVideo', 'product_detail_videos_id', 'id');
+        return $this->belongsTo('App\Models\ProductDetailVideo', 'product_details_videos_id', 'id');
     }
 }

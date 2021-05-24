@@ -22,7 +22,9 @@ class OrderDetail extends Model
         'users_id',
         'all_videos_buy',
         'status',
-        'number'
+        'number',
+        'total_price',
+        'total_price_with_coupon'
     ];
     public function order()
     {
