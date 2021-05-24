@@ -42,6 +42,7 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
+        $sum = 0;
         $number = $request->input('number', 1);
         $products_id = $request->input('products_id');
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
@@ -55,6 +56,8 @@ class CartController extends Controller
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $number;
+            $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
+            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
             $orderDetail->save();
         } else if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
@@ -68,6 +71,13 @@ class CartController extends Controller
                 'total_price_with_coupon' => DB::raw('number * price')
             ]);
         }
+        $orderDetailPricesArray = OrderDetail::where('orders_id', $order->id)->pluck('total_price_with_coupon')->toArray();
+        foreach ($orderDetailPricesArray as $price) {
+            $sum += $price;
+        }
+        $order->amount = $sum;
+        $order->save();
+
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
@@ -82,6 +92,8 @@ class CartController extends Controller
     {
 
         $raiseError = new RaiseError;
+        $sumOfOrderDetailPrices = 0;
+        $sumOfOrderVideoDetailPrices = 0;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
         $product_details_id = $request->input('product_details_id');
@@ -98,7 +110,7 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->sale_price,
+                'price' => $product->type == 'normal' ? $product->sale_price : 0,
                 'users_id' => $user_id,
                 'number' => 1,
                 'total_price' => DB::raw('number * price'),
@@ -112,18 +124,31 @@ class CartController extends Controller
         if ($product->type == 'video') {
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
-            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->first();
+
             if (!$found_order_video_detail) {
                 OrderVideoDetail::create([
                     'order_details_id' => $orderDetail->id,
                     'product_details_videos_id' => $product_details_id,
                     'price' => $product_detail_video->price,
-                    'number' => 1,
-                    'total_price' => DB::raw('number * price'),
-                    'total_price_with_coupon' => DB::raw('number * price')
+                    'number' => 1
                 ]);
             }
+            $orderVideoDetailPricesArray = OrderVideoDetail::where('order_details_id', $orderDetail->id)->pluck('price')->toArray();
+            foreach ($orderVideoDetailPricesArray as $price) {
+                $sumOfOrderVideoDetailPrices += $price;
+            }
+            $orderDetail->total_price = $sumOfOrderVideoDetailPrices;
+            $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
+            $orderDetail->price = $orderDetail->total_price_with_coupon;
+            $orderDetail->save();
         }
+        $orderDetailPricesArray = OrderDetail::where('orders_id', $order->id)->pluck('total_price_with_coupon')->toArray();
+        foreach ($orderDetailPricesArray as $price) {
+            $sumOfOrderDetailPrices += $price;
+        }
+        $order->amount = $sumOfOrderDetailPrices;
+        $order->save();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
