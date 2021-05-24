@@ -21,9 +21,12 @@ class OrderResource extends JsonResource
         if ($this->resource != null) {
             $items = [];
             foreach($this->orderDetail as $item) {
-                if($item->orderVideoDetail) {
-                  $items[] = $item->orderVideoDetail;
+                if($item->orderVideoDetails) {
+                  foreach($item->orderVideoDetails as $orderVideoDetail) {
+                    $items[] = $orderVideoDetail;
+                  }  
                 } 
+                
              }
             return [
                 'id' => $this->id,

@@ -124,7 +124,7 @@ class CartController extends Controller
         if ($product->type == 'video') {
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
-            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->first();
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
 
             if (!$found_order_video_detail) {
                 OrderVideoDetail::create([
