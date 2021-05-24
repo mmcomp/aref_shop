@@ -23,7 +23,7 @@ class VideoSessionsResource extends JsonResource
                 'teacher'  => new UserResource($this->teacher),
                 'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
-                'video_link' => $this->video_link,
+                //'video_link' => $this->video_link,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

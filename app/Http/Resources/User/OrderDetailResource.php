@@ -19,9 +19,14 @@ class OrderDetailResource extends JsonResource
     public function toArray($request)
     {
         if ($this->resource != null) {
+            $items = [];
+            foreach ($this->orderVideoDetails as $item) {                
+                $items[] = $item;
+            }
             return [
                 'id' => $this->id,
                 'product' => new ProductForOrderDetailResource($this->product),
+                'productDetails' => new OrderVideoDetailCollection($items),
                 'price' => $this->price,
                 'coupon' => new CouponResource($this->coupon),
                 'user' => new UserResource($this->user),
