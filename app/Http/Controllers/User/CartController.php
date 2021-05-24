@@ -164,11 +164,7 @@ class CartController extends Controller
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
         if ($orderDetail->coupons_id && $orderDetail->coupons_amount != null) {
             $orderDetail->coupons_id = 0;
-            if ($coupon->type == 'amount') {
-                $orderDetail->price = $orderDetail->price + $coupon->amount;
-            } else if ($coupon->type == 'percent') {
-                $orderDetail->price = $orderDetail->price + (($coupon->amount / 100) * $orderDetail->price);
-            }
+            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
             $orderDetail->coupons_amount = null;
             try {
                 $orderDetail->save();
