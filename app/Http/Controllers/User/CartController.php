@@ -18,6 +18,7 @@ use App\Models\Coupon;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Log;
 use Exception;
 
@@ -61,9 +62,12 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->price,
+                'price' => $product->sale_price,
                 'users_id' => $user_id,
-                'number' => $product->type != 'normal' ? 1 : $number
+                'all_videos_buy' => 1,
+                'number' => $product->type != 'normal' ? 1 : $number,
+                'total_price' => DB::raw('number * price'),
+                'total_price_with_coupon' => DB::raw('number * price')
             ]);
         }
         return (new OrderResource($order))->additional([
@@ -96,8 +100,11 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->price,
-                'users_id' => $user_id
+                'price' => $product->sale_price,
+                'users_id' => $user_id,
+                'number' => 1,
+                'total_price' => DB::raw('number * price'),
+                'total_price_with_coupon' => DB::raw('number * price')
             ]);
         } else if ($orderDetail && $orderDetail->all_videos_buy) {
             return (new OrderResource(null))->additional([
@@ -112,7 +119,10 @@ class CartController extends Controller
                 OrderVideoDetail::create([
                     'order_details_id' => $orderDetail->id,
                     'product_details_videos_id' => $product_details_id,
-                    'price' => $product_detail_video->price
+                    'price' => $product_detail_video->price,
+                    'number' => 1,
+                    'total_price' => DB::raw('number * price'),
+                    'total_price_with_coupon' => DB::raw('number * price')
                 ]);
             }
         }

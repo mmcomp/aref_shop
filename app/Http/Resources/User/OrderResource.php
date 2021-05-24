@@ -4,6 +4,7 @@ namespace App\Http\Resources\User;
 
 use App\Http\Resources\UserResource;
 use App\Http\Resources\User\OrderDetailCollection;
+use App\Http\Resources\User\OrderVideoDetailCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
@@ -14,16 +15,24 @@ class OrderResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+   
     public function toArray($request)
     {
         if ($this->resource != null) {
+            $items = [];
+            foreach($this->orderDetail as $item) {
+                if($item->orderVideoDetail) {
+                  $items[] = $item->orderVideoDetail;
+                } 
+             }
             return [
                 'id' => $this->id,
                 'user' => new UserResource($this->user),
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
-                'orderDetail' => new OrderDetailCollection($this->orderDetail)
+                'orderDetail' => new OrderDetailCollection($this->orderDetail),
+                'orderVideoDetail' => new OrderVideoDetailCollection($items)
             ];
         }
     }
