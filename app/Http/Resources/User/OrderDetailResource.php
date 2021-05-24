@@ -6,6 +6,7 @@ use App\Http\Resources\CouponResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\User\ProductForOrderDetailResource;
 
 class OrderDetailResource extends JsonResource
 {
@@ -20,7 +21,8 @@ class OrderDetailResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                'product' => new ProductResource($this->product),
+                'product' => new ProductForOrderDetailResource($this->product),
+                'productDetails' =>  ,
                 'price' => $this->price,
                 'coupon' => new CouponResource($this->coupon),
                 'user' => new UserResource($this->user),
