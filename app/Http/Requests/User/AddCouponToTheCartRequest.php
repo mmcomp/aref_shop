@@ -27,14 +27,13 @@ class AddCouponToTheCartRequest extends FormRequest
     public function rules()
     {
         return [
-            'products_id' => [
+            'coupons_id' => [
                 'required',
                 'integer',
-                Rule::exists('products', 'id')->where(function ($query) {
+                Rule::exists('coupons', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
-                }),
-            ],
-            'number' => 'nullable|integer'
+                })
+            ]
         ];
     }
      /**
