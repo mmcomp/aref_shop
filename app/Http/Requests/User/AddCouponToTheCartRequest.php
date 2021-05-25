@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
-use App\Rules\betweenTwoValuesIfCondition;
 
-class CouponCreateRequest extends FormRequest
+class AddCouponToTheCartRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,18 +27,13 @@ class CouponCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
-            'description' => 'nullable|string|min:3|max:1000',
-            'amount' =>['required','integer','gt:0', new betweenTwoValuesIfCondition],
-            'type' => 'required|in:percent,amount',
-            'expired_at' => 'nullable|date',
-            'products_id' => [
+            'coupons_id' => [
                 'required',
                 'integer',
-                Rule::exists('products','id')->where(function ($query) {
+                Rule::exists('coupons', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 })
-            ],
+            ]
         ];
     }
      /**
@@ -54,7 +48,7 @@ class CouponCreateRequest extends FormRequest
             $errors = (new ValidationException($validator))->errors();
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 422)
+                response()->json(['errors' => $errors], 400)
             );
         }
     }
