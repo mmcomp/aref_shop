@@ -42,7 +42,6 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $sum = 0;
         $number = $request->input('number', 1);
         $products_id = $request->input('products_id');
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
@@ -71,11 +70,8 @@ class CartController extends Controller
                 'total_price_with_coupon' => DB::raw('number * price')
             ]);
         }
-        $orderDetailPricesArray = OrderDetail::where('orders_id', $order->id)->pluck('total_price_with_coupon')->toArray();
-        foreach ($orderDetailPricesArray as $price) {
-            $sum += $price;
-        }
-        $order->amount = $sum;
+        $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->amount = $orderDetailPricesArraySum;
         $order->save();
 
         return (new OrderResource($order))->additional([
@@ -92,8 +88,6 @@ class CartController extends Controller
     {
 
         $raiseError = new RaiseError;
-        $sumOfOrderDetailPrices = 0;
-        $sumOfOrderVideoDetailPrices = 0;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
         $product_details_id = $request->input('product_details_id');
@@ -134,19 +128,13 @@ class CartController extends Controller
                     'number' => 1
                 ]);
             }
-            $orderVideoDetailPricesArray = OrderVideoDetail::where('order_details_id', $orderDetail->id)->pluck('price')->toArray();
-            foreach ($orderVideoDetailPricesArray as $price) {
-                $sumOfOrderVideoDetailPrices += $price;
-            }
+            $sumOfOrderVideoDetailPrices = OrderVideoDetail::where('order_details_id', $orderDetail->id)->sum('price');
             $orderDetail->total_price = $sumOfOrderVideoDetailPrices;
             $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
             $orderDetail->price = $orderDetail->total_price_with_coupon;
             $orderDetail->save();
         }
-        $orderDetailPricesArray = OrderDetail::where('orders_id', $order->id)->pluck('total_price_with_coupon')->toArray();
-        foreach ($orderDetailPricesArray as $price) {
-            $sumOfOrderDetailPrices += $price;
-        }
+        $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $sumOfOrderDetailPrices;
         $order->save();
         return (new OrderResource($order))->additional([
