@@ -136,6 +136,7 @@ class CartController extends Controller
      * @param  \App\Http\Requests\User\AddCouponToTheCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
+    
     public function addCouponToTheCart(AddCouponToTheCartRequest $request)
     {
 
