@@ -3,24 +3,24 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\AddCouponToTheCartRequest;
 use App\Http\Requests\User\AddProductToCartRequest;
 use App\Http\Requests\User\DeleteProductFromCartRequest;
 use App\Http\Requests\User\DeleteMicroProductFromCartRequest;
 use App\Http\Requests\User\AddMicroProductToCartRequest;
+use App\Http\Requests\User\DeleteCouponFromCartRequest;
 use App\Http\Resources\User\OrderResource;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
 use App\Models\Product;
-use App\Models\Coupon;
 use App\Models\ProductDetailVideo;
+use App\Models\Coupon;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Exception;
 use Log;
+use Exception;
 
 class CartController extends Controller
 {
@@ -57,8 +57,6 @@ class CartController extends Controller
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $number;
-            $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
-            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
             $orderDetail->save();
         } else if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
@@ -72,10 +70,6 @@ class CartController extends Controller
                 'total_price_with_coupon' => DB::raw('number * price')
             ]);
         }
-        $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
-        $order->amount = $orderDetailPricesArraySum;
-        $order->save();
-
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
@@ -106,7 +100,7 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->type == 'normal' ? $product->sale_price : 0,
+                'price' => $product->sale_price,
                 'users_id' => $user_id,
                 'number' => 1,
                 'total_price' => DB::raw('number * price'),
@@ -120,36 +114,44 @@ class CartController extends Controller
         if ($product->type == 'video') {
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
-            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
-
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
             if (!$found_order_video_detail) {
                 OrderVideoDetail::create([
                     'order_details_id' => $orderDetail->id,
                     'product_details_videos_id' => $product_details_id,
                     'price' => $product_detail_video->price,
-                    'number' => 1
+                    'number' => 1,
+                    'total_price' => DB::raw('number * price'),
+                    'total_price_with_coupon' => DB::raw('number * price')
                 ]);
             }
-            $sumOfOrderVideoDetailPrices = OrderVideoDetail::where('order_details_id', $orderDetail->id)->sum('price');
-            $orderDetail->total_price = $sumOfOrderVideoDetailPrices;
-            $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
-            $orderDetail->price = $orderDetail->total_price_with_coupon;
-            $orderDetail->save();
         }
-        $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
-        $order->amount = $sumOfOrderDetailPrices;
-        $order->save();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
     }
+
     /**
-     * add coupon to the cart
+     * Display the specified resource.
      *
-     * @param  \App\Http\Requests\User\AddCouponToTheCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addCouponToTheCart(AddCouponToTheCartRequest $request)
+    public function getWholeCart()
+    {
+
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->first();
+        return (new OrderResource($order))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(200);
+    }
+    /**
+     * Delete coupon from the cart
+     *
+     * @param  \App\Http\Requests\User\DeleteCouponFromCartRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
     {
 
         $raiseError = new RaiseError;
@@ -160,18 +162,11 @@ class CartController extends Controller
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
-        if ($orderDetail->all_videos_buy) {
-            $orderDetail->coupons_id = $request->input('coupons_id');
-            if ($coupon->type == 'amount') {
-                $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount('. $coupon->amount .')should be less than the total_price('. $orderDetail->total_price . ')']]);
-                $orderDetail->total_price_with_coupon = $orderDetail->total_price - $coupon->amount;
-                $orderDetail->coupons_type = 'amount';
-            } else if ($coupon->type == 'percent') {
-                $orderDetail->total_price_with_coupon = $orderDetail->total_price - (($coupon->amount / 100) * $orderDetail->total_price);
-                $orderDetail->coupons_type = 'percent';
-            }
-            
-            $orderDetail->coupons_amount = $coupon->amount;
+        if ($orderDetail->coupons_id && $orderDetail->coupons_amount != null) {
+            $orderDetail->coupons_id = 0;
+            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
+            $orderDetail->coupons_amount = null;
+            $orderDetail->coupons_type = "";
             try {
                 $orderDetail->save();
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
@@ -192,24 +187,6 @@ class CartController extends Controller
                 }
             }
         }
-        return (new OrderResource(null))->additional([
-            "error" => "Coupon can not be used when you didn't buy all of a product!"
-        ])->response()->setStatusCode(406); 
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getWholeCart()
-    {
-
-        $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->first();
-        return (new OrderResource($order))->additional([
-            'error' => null,
-        ])->response()->setStatusCode(200);
     }
 
     /**

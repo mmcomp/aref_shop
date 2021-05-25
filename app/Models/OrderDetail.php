@@ -19,7 +19,6 @@ class OrderDetail extends Model
         'price',
         'coupons_id',
         'coupons_amount',
-        'coupons_type',
         'users_id',
         'all_videos_buy',
         'status',
@@ -43,12 +42,12 @@ class OrderDetail extends Model
     {
         return $this->belongsTo('App\Models\User', 'users_id', 'id');
     }
-    public function orderVideoDetails()
+    public function orderVideoDetail()
     {
-        return $this->hasMany('App\Models\OrderVideoDetail', 'order_details_id', 'id');
+        return $this->hasOne('App\Models\OrderVideoDetail', 'order_details_id', 'id');
     }
-    public function orderChairDetails()
+    public function orderChairDetail()
     {
-        return $this->hasMany('App\Models\OrderChairDetail', 'order_details_id', 'id');
+        return $this->hasOne('App\Models\OrderChairDetail', 'order_details_id', 'id');
     }
 }
