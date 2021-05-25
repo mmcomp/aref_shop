@@ -131,7 +131,15 @@ class CartController extends Controller
                     'total_price_with_coupon' => DB::raw('number * price')
                 ]);
             }
+            $sumOfOrderVideoDetailPrices = OrderVideoDetail::where('order_details_id', $orderDetail->id)->sum('price');
+            $orderDetail->total_price = $sumOfOrderVideoDetailPrices;
+            $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
+            $orderDetail->price = $orderDetail->total_price_with_coupon;
+            $orderDetail->save();
         }
+        $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->amount = $sumOfOrderDetailPrices;
+        $order->save();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
