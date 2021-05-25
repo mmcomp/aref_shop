@@ -73,7 +73,6 @@ class CartController extends Controller
         $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $orderDetailPricesArraySum;
         $order->save();
-
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
