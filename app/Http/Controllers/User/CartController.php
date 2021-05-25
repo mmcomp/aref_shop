@@ -152,12 +152,17 @@ class CartController extends Controller
             if ($coupon->type == 'amount') {
                 $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount('. $coupon->amount .')should be less than the total_price('. $orderDetail->total_price . ')']]);
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - $coupon->amount;
+                $orderDetail->coupons_type = 'amount';
             } else if ($coupon->type == 'percent') {
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - (($coupon->amount / 100) * $orderDetail->total_price);
+                $orderDetail->coupons_type = 'percent';
             }
+            
             $orderDetail->coupons_amount = $coupon->amount;
             try {
                 $orderDetail->save();
+                $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+                $order->save();
                 return (new OrderResource(null))->additional([
                     'error' => null,
                 ])->response()->setStatusCode(200);
@@ -175,7 +180,7 @@ class CartController extends Controller
             }
         }
         return (new OrderResource(null))->additional([
-            "error" => "Coupon can be used when you didn't buy all video_sessions of a product!"
+            "error" => "Coupon can not be used when you didn't buy all of a product!"
         ])->response()->setStatusCode(406); 
     }
 
