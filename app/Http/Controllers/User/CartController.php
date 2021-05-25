@@ -155,10 +155,44 @@ class CartController extends Controller
 
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
-        //$order->x = "sjkdfk";
-        if($order) {
-            $arr = $order->orderDetails;
+        $orderVideoDetails = [];
+        $productDetailVideoIds = [];
+        $videoSessionIds = [];
+        $i = 1;
+        $numArray = [];
+        $lastNumArray = [];
+        $products_id = 0;
+        if ($order) {
+            foreach ($order->orderDetails as $orderDetail) {
+                if ($orderDetail->product->type == 'video') {
+                    $products_id = $orderDetail->products_id;
+                    $orderVideoDetails[] = $orderDetail->orderVideoDetails;
+                }
+            }
+            $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
+                $v = $product->productDetailVideos[$indx]->videoSession;
+                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
+                $i = $numArray[$v->id] ? $i + 1 : $i;
+            }
+            if ($orderVideoDetails) {
+                for($i = 0; $i < count($orderVideoDetails[0]); $i++) {
+                    $productDetailVideoIds[$i] = $orderVideoDetails[0][$i]["product_details_videos_id"];
+                }
+                foreach($productDetailVideoIds as $item) {
+                    $videoSessionIds[] = ProductDetailVideo::where('id', $item)->first()->video_sessions_id;
+                }
+                foreach($numArray as $index => $item) {
+                    foreach($videoSessionIds as $video_session_id) {
+                        if($index == $video_session_id) {
+                            $lastNumArray[$video_session_id] = $item; 
+                        }
+                    }
+                }
+            }
         }
+        $order->numArray = $lastNumArray;
+        //dd($order->numArray);       
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -169,11 +203,11 @@ class CartController extends Controller
      * @param  \App\Http\Requests\User\AddCouponToTheCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    
+
     public function addCouponToTheCart(AddCouponToTheCartRequest $request)
     {
-      
-      $raiseError = new RaiseError;
+
+        $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $coupon = Coupon::find($request->input('coupons_id'));
         $products_id = $coupon->products_id;
@@ -184,14 +218,14 @@ class CartController extends Controller
         if ($orderDetail->all_videos_buy) {
             $orderDetail->coupons_id = $request->input('coupons_id');
             if ($coupon->type == 'amount') {
-                $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount('. $coupon->amount .')should be less than the total_price('. $orderDetail->total_price . ')']]);
+                $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount(' . $coupon->amount . ')should be less than the total_price(' . $orderDetail->total_price . ')']]);
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - $coupon->amount;
                 $orderDetail->coupons_type = 'amount';
             } else if ($coupon->type == 'percent') {
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - (($coupon->amount / 100) * $orderDetail->total_price);
                 $orderDetail->coupons_type = 'percent';
             }
-            
+
             $orderDetail->coupons_amount = $coupon->amount;
             try {
                 $orderDetail->save();
@@ -215,9 +249,7 @@ class CartController extends Controller
         }
         return (new OrderResource(null))->additional([
             "error" => "Coupon can not be used when you didn't buy all of a product!"
-        ])->response()->setStatusCode(406); 
-      
-      
+        ])->response()->setStatusCode(406);
     }
     public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
     {

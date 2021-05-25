@@ -18,6 +18,7 @@ class OrderResource extends JsonResource
 
     public function toArray($request)
     {
+        dd($this->numArray);
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
@@ -25,7 +26,8 @@ class OrderResource extends JsonResource
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
-                'orderDetail' => new OrderDetailCollection($this->orderDetails)
+                'orderDetail' => new OrderDetailCollection($this->orderDetails),
+                'numArray' => $this->numArray
             ];
         }
     }
