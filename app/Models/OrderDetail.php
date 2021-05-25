@@ -19,7 +19,6 @@ class OrderDetail extends Model
         'price',
         'coupons_id',
         'coupons_amount',
-        'coupons_type',
         'users_id',
         'all_videos_buy',
         'status',

@@ -7,7 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class AddCouponToTheCartRequest extends FormRequest
+class DeleteCouponFromCartRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -36,7 +36,7 @@ class AddCouponToTheCartRequest extends FormRequest
             ]
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

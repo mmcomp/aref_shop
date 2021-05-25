@@ -31,8 +31,8 @@ class ProductCreateRequest extends FormRequest
             'name' => 'required|string|min:3|max:255',
             'short_description' => 'nullable|string|max:1500',
             'long_description' => 'nullable|string|max:2000',
-            'price' => 'required|integer|gt:0',
-            'sale_price' => 'nullable|integer|lte:price|gt:0',
+            'price' => 'required|integer',
+            'sale_price' => 'nullable|integer|lte:price',
             'sale_expire' => 'nullable|date',
             'video_props' => 'nullable|string|max:1000',
             'category_ones_id' => [
