@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
-use App\Rules\betweenTwoValuesIfCondition;
 
 class CouponCreateRequest extends FormRequest
 {
@@ -30,7 +29,7 @@ class CouponCreateRequest extends FormRequest
         return [
             'name' => 'required|string|min:3|max:255',
             'description' => 'nullable|string|min:3|max:1000',
-            'amount' =>['required','integer','gt:0', new betweenTwoValuesIfCondition],
+            'amount' => 'required|integer',
             'type' => 'required|in:percent,amount',
             'expired_at' => 'nullable|date',
             'products_id' => [
