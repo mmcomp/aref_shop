@@ -138,7 +138,11 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->first();
+        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
+        //$order->x = "sjkdfk";
+        if($order) {
+            $arr = $order->orderDetails;
+        }
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);

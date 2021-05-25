@@ -23,7 +23,7 @@ class Order extends Model
     {
         return $this->belongsTo('App\Models\User','users_id', 'id');
     }
-    public function orderDetail()
+    public function orderDetails()
     {
         return $this->hasMany('App\Models\OrderDetail', 'orders_id', 'id');
     }
