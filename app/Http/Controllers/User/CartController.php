@@ -57,6 +57,8 @@ class CartController extends Controller
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $number;
+            $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
+            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
             $orderDetail->save();
         } else if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
@@ -70,6 +72,10 @@ class CartController extends Controller
                 'total_price_with_coupon' => DB::raw('number * price')
             ]);
         }
+        $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->amount = $orderDetailPricesArraySum;
+        $order->save();
+
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
@@ -100,7 +106,7 @@ class CartController extends Controller
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
-                'price' => $product->sale_price,
+                'price' => $product->type == 'normal' ? $product->sale_price : 0,
                 'users_id' => $user_id,
                 'number' => 1,
                 'total_price' => DB::raw('number * price'),
@@ -114,18 +120,25 @@ class CartController extends Controller
         if ($product->type == 'video') {
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
-            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
+
             if (!$found_order_video_detail) {
                 OrderVideoDetail::create([
                     'order_details_id' => $orderDetail->id,
                     'product_details_videos_id' => $product_details_id,
                     'price' => $product_detail_video->price,
-                    'number' => 1,
-                    'total_price' => DB::raw('number * price'),
-                    'total_price_with_coupon' => DB::raw('number * price')
+                    'number' => 1
                 ]);
             }
+            $sumOfOrderVideoDetailPrices = OrderVideoDetail::where('order_details_id', $orderDetail->id)->sum('price');
+            $orderDetail->total_price = $sumOfOrderVideoDetailPrices;
+            $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
+            $orderDetail->price = $orderDetail->total_price_with_coupon;
+            $orderDetail->save();
         }
+        $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->amount = $sumOfOrderDetailPrices;
+        $order->save();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(201);
