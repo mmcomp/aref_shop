@@ -114,7 +114,7 @@ class CartController extends Controller
             ]);
         } else if ($orderDetail && $orderDetail->all_videos_buy) {
             return (new OrderResource(null))->additional([
-                'error' => 'already added!',
+                'errors' => ['added_before' => ['already added!']],
             ])->response()->setStatusCode(406);
         }
         if ($product->type == 'video') {
