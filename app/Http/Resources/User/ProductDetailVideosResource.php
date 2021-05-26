@@ -15,19 +15,10 @@ class ProductDetailVideosResource extends JsonResource
      */
     public function toArray($request)
     {
-        $files = [];
        
         if ($this->resource != null) {
             return [
-                'id' => $this->id,
-                'name' => $this->name,
-                'price' => $this->price,
-                'video_session' => new VideoSessionsResource($this->videoSession),
-                'extraordinary' => $this->extraordinary,
-                'is_hidden' => $this->is_hidden,
-                'single_purchase' => $this->single_purchase,
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at,
+                'id' => $this->id
             ];
         }
     }

@@ -155,44 +155,6 @@ class CartController extends Controller
 
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
-        $orderVideoDetails = [];
-        $productDetailVideoIds = [];
-        $videoSessionIds = [];
-        $i = 1;
-        $numArray = [];
-        $lastNumArray = [];
-        $products_id = 0;
-        if ($order) {
-            foreach ($order->orderDetails as $orderDetail) {
-                if ($orderDetail->product->type == 'video') {
-                    $products_id = $orderDetail->products_id;
-                    $orderVideoDetails[] = $orderDetail->orderVideoDetails;
-                }
-            }
-            $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
-                $v = $product->productDetailVideos[$indx]->videoSession;
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
-                $i = $numArray[$v->id] ? $i + 1 : $i;
-            }
-            if ($orderVideoDetails) {
-                for($i = 0; $i < count($orderVideoDetails[0]); $i++) {
-                    $productDetailVideoIds[$i] = $orderVideoDetails[0][$i]["product_details_videos_id"];
-                }
-                foreach($productDetailVideoIds as $item) {
-                    $videoSessionIds[] = ProductDetailVideo::where('id', $item)->first()->video_sessions_id;
-                }
-                foreach($numArray as $index => $item) {
-                    foreach($videoSessionIds as $video_session_id) {
-                        if($index == $video_session_id) {
-                            $lastNumArray[$video_session_id] = $item; 
-                        }
-                    }
-                }
-            }
-        }
-        $order->numArray = $lastNumArray;
-        //dd($order->numArray);       
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
