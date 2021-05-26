@@ -237,14 +237,14 @@ class CartController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
-                Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
+                Log::info("fails in deleteCouponToTheCart in User/CartController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
-                        'error' => "fails in addCouponToTheCart in User/CartController" . json_encode($e),
+                        'error' => "fails in deleteCouponToTheCart in User/CartController" . json_encode($e),
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new OrderResource(null))->additional([
-                        'error' => "fails in addCouponToTheCart in User/CartController",
+                        'error' => "fails in deleteCouponToTheCart in User/CartController",
                     ])->response()->setStatusCode(500);
                 }
             }
