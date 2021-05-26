@@ -192,6 +192,9 @@ class CartController extends Controller
             try {
                 $orderDetail->save();
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+                if(!$orderDetail->total_price_with_coupon){
+                    $order->status = "ok";
+                }
                 $order->save();
                 return (new OrderResource(null))->additional([
                     'error' => null,
