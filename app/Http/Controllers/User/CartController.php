@@ -120,7 +120,7 @@ class CartController extends Controller
         if ($product->type == 'video') {
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
-            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->where('price', $product->price)->first();
+            $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
             if (!$found_order_video_detail) {
                 OrderVideoDetail::create([
                     'order_details_id' => $orderDetail->id,
@@ -154,7 +154,7 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->first();
+        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -165,11 +165,11 @@ class CartController extends Controller
      * @param  \App\Http\Requests\User\AddCouponToTheCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    
+
     public function addCouponToTheCart(AddCouponToTheCartRequest $request)
     {
-      
-      $raiseError = new RaiseError;
+
+        $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $coupon = Coupon::find($request->input('coupons_id'));
         $products_id = $coupon->products_id;
@@ -180,14 +180,14 @@ class CartController extends Controller
         if ($orderDetail->all_videos_buy) {
             $orderDetail->coupons_id = $request->input('coupons_id');
             if ($coupon->type == 'amount') {
-                $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount('. $coupon->amount .')should be less than the total_price('. $orderDetail->total_price . ')']]);
+                $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount(' . $coupon->amount . ')should be less than the total_price(' . $orderDetail->total_price . ')']]);
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - $coupon->amount;
                 $orderDetail->coupons_type = 'amount';
             } else if ($coupon->type == 'percent') {
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - (($coupon->amount / 100) * $orderDetail->total_price);
                 $orderDetail->coupons_type = 'percent';
             }
-            
+
             $orderDetail->coupons_amount = $coupon->amount;
             try {
                 $orderDetail->save();
@@ -211,9 +211,7 @@ class CartController extends Controller
         }
         return (new OrderResource(null))->additional([
             "error" => "Coupon can not be used when you didn't buy all of a product!"
-        ])->response()->setStatusCode(406); 
-      
-      
+        ])->response()->setStatusCode(406);
     }
     public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
     {
