@@ -15,6 +15,8 @@ use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
 use App\Models\Product;
 use App\Models\ProductDetailVideo;
+use App\Models\UserProduct;
+use App\Models\UserVideoSession;
 use App\Models\Coupon;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
@@ -339,5 +341,68 @@ class CartController extends Controller
         return (new OrderResource(null))->additional([
             'error' => null,
         ])->response()->setStatusCode(204);
+    }
+    /**
+     * insert into user_video_sessions and user_products when buying is completed
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function completeInsertAfterBuying($order)
+    {
+
+        $user = 0;
+        $product = null;
+        $data = [];
+        foreach ($order->orderDetails as $orderDetail) {
+            $product = $orderDetail->products_id;
+            $user = $order->users_id; 
+            $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
+            if (!$found_user_product) {
+                $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user,'products_id' => $product,'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user,'products_id' => $product,'partial' => 0]);
+            }
+            if ($orderDetail->product->type == 'video') {
+                if ($orderDetail->all_videos_buy) {
+                    $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
+                } else {
+                    if ($orderDetail->orderVideoDetails) {
+                        foreach ($orderDetail->orderVideoDetails as $orderVideoDetail) {
+                            $videoSessionIds[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
+                        }
+                    }
+                }
+                foreach ($videoSessionIds as $videoSessionId) {
+                    $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
+                    if (!$found_user_video_session) {
+                        $data[] = [
+                            "video_sessions_id" => $videoSessionId,
+                            "users_id" => $user
+                        ];
+                    }
+                }
+            }
+        }
+        UserVideoSession::insert($data);
+    }
+    /**
+     * complete buying
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function completeBuying()
+    {
+
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        if ($order && !$order->amount) {
+            $order->status = "ok";
+            $order->save();
+            $this->completeInsertAfterBuying($order);
+            return (new OrderResource(null))->additional([
+                'error' => null,
+            ])->response()->setStatusCode(201);
+        }
+        // else {
+        //     //TODO:: go to Bank portal for paying
+        // }
     }
 }
