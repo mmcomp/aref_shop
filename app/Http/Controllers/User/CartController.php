@@ -337,6 +337,8 @@ class CartController extends Controller
         $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
         $raiseError->ValidationError($orderDetail->product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought ' . $orderDetail->product->name . ' therefore you can not remove a subproduct of it']]);
         if ($orderDetail->product->type == 'video' && !$orderDetail->all_videos_buy) {
+            $order_video_details = OrderVideoDetail::where('order_details_id', $id)->pluck('product_details_videos_id')->toArray();
+            $raiseError->ValidationError(!in_array($product_details_id, $order_video_details), ['product_details_id' => ['The product_details_id is not valid!']]);
             OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();
             $found = OrderVideoDetail::where('order_details_id', $id)->count();
             if (!$found) OrderDetail::where('id', $id)->delete();
