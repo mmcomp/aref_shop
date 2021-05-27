@@ -32,6 +32,8 @@ class OrderDetailResource extends JsonResource
                 'user' => new UserResource($this->user),
                 'all_videos_buy' => $this->all_videos_buy,
                 'number' => $this->number,
+                'total_price' => $this->total_price,
+                'total_price_with_coupon' => $this->total_price_with_coupon,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
