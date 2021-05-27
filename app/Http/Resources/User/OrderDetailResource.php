@@ -5,7 +5,6 @@ namespace App\Http\Resources\User;
 use App\Http\Resources\CouponResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\UserResource;
-use App\Http\Resources\ProductResource;
 use App\Http\Resources\User\ProductForOrderDetailResource;
 
 class OrderDetailResource extends JsonResource
