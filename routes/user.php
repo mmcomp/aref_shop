@@ -90,6 +90,7 @@ Route::group([
     Route::put('/delete-coupon-from-cart', [CartController::class, 'deleteCouponFromCart']);
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
     Route::delete('/delete-micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
+    Route::get('/complete-buying',[CartController::class, 'completeBuying']);
 });
 Route::group([
     'middleware' => ['auth:api'],
