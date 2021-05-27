@@ -306,6 +306,7 @@ class CartController extends Controller
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $orderDetail = OrderDetail::where('id', $id)->first();
+        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
         $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
         OrderDetail::where('id', $id)->delete();
         if ($orderDetail->product->type == 'video') {
@@ -313,9 +314,10 @@ class CartController extends Controller
                 OrderVideoDetail::where('order_details_id', $id)->delete();
             }
         }
-        return (new OrderResource(null))->additional([
+        $order = Order::where('id', $orderDetail->orders_id)->first();
+        return (new OrderResource($order))->additional([
             'error' => null,
-        ])->response()->setStatusCode(204);
+        ])->response()->setStatusCode(200);
     }
     /**
      * Remove the specified resource from storage.
@@ -331,6 +333,7 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
         $orderDetail = OrderDetail::find($id);
+        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
         $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
         $raiseError->ValidationError($orderDetail->product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought ' . $orderDetail->product->name . ' therefore you can not remove a subproduct of it']]);
         if ($orderDetail->product->type == 'video' && !$orderDetail->all_videos_buy) {
@@ -338,9 +341,9 @@ class CartController extends Controller
             $found = OrderVideoDetail::where('order_details_id', $id)->count();
             if (!$found) OrderDetail::where('id', $id)->delete();
         }
-        return (new OrderResource(null))->additional([
+        return (new OrderResource($order))->additional([
             'error' => null,
-        ])->response()->setStatusCode(204);
+        ])->response()->setStatusCode(200);
     }
     /**
      * insert into user_video_sessions and user_products when buying is completed
