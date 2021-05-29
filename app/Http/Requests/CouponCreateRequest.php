@@ -27,7 +27,7 @@ class CouponCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:3|max:255',
+            'name' => 'required|string|min:3|max:255|unique:coupons',
             'description' => 'nullable|string|min:3|max:1000',
             'amount' => 'required|integer',
             'type' => 'required|in:percent,amount',

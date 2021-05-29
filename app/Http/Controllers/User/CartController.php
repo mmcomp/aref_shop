@@ -173,14 +173,14 @@ class CartController extends Controller
 
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
-        $coupon = Coupon::find($request->input('coupons_id'));
+        $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
         $products_id = $coupon->products_id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
         if ($orderDetail->all_videos_buy) {
-            $orderDetail->coupons_id = $request->input('coupons_id');
+            $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
                 $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount(' . $coupon->amount . ')should be less than the total_price(' . $orderDetail->total_price . ')']]);
                 $orderDetail->total_price_with_coupon = $orderDetail->total_price - $coupon->amount;
@@ -220,7 +220,7 @@ class CartController extends Controller
 
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
-        $coupon = Coupon::find($request->input('coupons_id'));
+        $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
         $products_id = $coupon->products_id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
