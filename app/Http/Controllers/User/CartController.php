@@ -212,7 +212,7 @@ class CartController extends Controller
             }
         }
         return (new OrderResource(null))->additional([
-            "error" => "Coupon can not be used when you didn't buy all of a product!"
+            "errors" => ["all_videos_buy" => ["Coupon can not be used when you didn't buy all of a product!"]]
         ])->response()->setStatusCode(406);
     }
     public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
@@ -275,6 +275,9 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->first();
         $order->status = 'cancel';
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->get()->toArray();
+        //$orderDetail->delete();
+        //OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
         try {
             $order->save();
             return (new OrderResource(null))->additional([
@@ -343,10 +346,14 @@ class CartController extends Controller
             $raiseError->ValidationError(!in_array($product_details_id, $order_video_details), ['product_details_id' => ['The product_details_id is not valid!']]);
             OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();
             $found = OrderVideoDetail::where('order_details_id', $id)->count();
-            if (!$found) OrderDetail::where('id', $id)->delete();
+            if (!$found) {
+                OrderDetail::where('id', $id)->delete();
+                $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
+            }
         }
         $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->save();
+        return $order;
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
