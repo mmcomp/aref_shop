@@ -27,7 +27,7 @@ class CouponEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|min:3|max:255|unique:coupons',
+            'name' => 'string|min:3|max:255',
             'description' => 'nullable|string|min:3|max:1000',
             'amount' => 'integer',
             'type' => 'in:percent,amount',
