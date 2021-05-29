@@ -275,9 +275,11 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->first();
         $order->status = 'cancel';
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->get()->toArray();
-        //$orderDetail->delete();
-        //OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->get();
+        foreach($order->orderDetails as $orderDetail) {
+            OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
+        }
+        $orderDetail::where('orders_id', $order->id)->delete();
         try {
             $order->save();
             return (new OrderResource(null))->additional([
