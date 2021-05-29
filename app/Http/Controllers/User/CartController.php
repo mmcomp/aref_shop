@@ -419,12 +419,6 @@ class CartController extends Controller
         if ($order && !$order->amount) {
             $order->status = "ok";
             $order->save();
-            if($order->orderDetails) {
-                foreach($order->orderDetails as $item) {
-                    $item->where('orders_id', $order->id)->delete();
-                    OrderVideoDetail::where('order_details_id', $item->id)->delete();
-                }
-            }
             $this->completeInsertAfterBuying($order);
             return (new OrderResource(null))->additional([
                 'error' => null,
