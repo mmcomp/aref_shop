@@ -63,6 +63,11 @@ class CartController extends Controller
             $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
             $orderDetail->total_price_with_coupon = $orderDetail->total_price;
             $orderDetail->save();
+        } else if($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy){
+            $orderDetail->all_videos_buy = 1;
+            OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
+            $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+            $orderDetail->save();
         } else if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
