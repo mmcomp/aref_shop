@@ -315,6 +315,8 @@ class CartController extends Controller
             }
         }
         $order = Order::where('id', $orderDetail->orders_id)->first();
+        $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->save();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -343,6 +345,8 @@ class CartController extends Controller
             $found = OrderVideoDetail::where('order_details_id', $id)->count();
             if (!$found) OrderDetail::where('id', $id)->delete();
         }
+        $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->save();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
