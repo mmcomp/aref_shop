@@ -161,7 +161,7 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
+        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails')->first();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
