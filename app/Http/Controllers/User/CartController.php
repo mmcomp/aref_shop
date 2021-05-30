@@ -18,10 +18,12 @@ use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use App\Models\Coupon;
+use App\Models\UserCoupon;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Log;
 use Exception;
 
@@ -63,7 +65,7 @@ class CartController extends Controller
             $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
             $orderDetail->total_price_with_coupon = $orderDetail->total_price;
             $orderDetail->save();
-        } else if($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy){
+        } else if ($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy) {
             $orderDetail->all_videos_buy = 1;
             OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
             $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
@@ -184,12 +186,18 @@ class CartController extends Controller
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
+        $user_coupon = UserCoupon::where('users_id', $user_id)->where('coupons_id', $coupon->id)->first();
+        if ($user_coupon) {
+            return (new OrderResource(null))->additional([
+                'errors' => ["already applied" => ["The discount code has already been applied."]],
+            ])->response()->setStatusCode(406);
+        } else if($coupon->expired_at < Carbon::now()->format('Y-m-d') ) {
+            return (new OrderResource(null))->additional([
+                'errors' => ["expired" => ["The discount code has been expired"]],
+            ])->response()->setStatusCode(406);
+        }
         if ($orderDetail->all_videos_buy) {
-            if($orderDetail->coupons_id) {
-                return (new OrderResource(null))->additional([
-                    'errors' => ["already applied" => ["The discount code has already been applied."]],
-                ])->response()->setStatusCode(406); 
-            }
+            
             $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
                 $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount(' . $coupon->amount . ')should be less than the total_price(' . $orderDetail->total_price . ')']]);
@@ -205,6 +213,10 @@ class CartController extends Controller
                 $orderDetail->save();
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
                 $order->save();
+                UserCoupon::create([
+                    'users_id' => $user_id,
+                    'coupons_id' => $coupon->id
+                ]);
                 return (new OrderResource($order))->additional([
                     'error' => null,
                 ])->response()->setStatusCode(200);
@@ -285,8 +297,8 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $order->status = 'cancel';
-        if($order->orderDetails) {
-            foreach($order->orderDetails as $item) {
+        if ($order->orderDetails) {
+            foreach ($order->orderDetails as $item) {
                 $item->where('orders_id', $order->id)->delete();
                 OrderVideoDetail::where('order_details_id', $item->id)->delete();
             }
@@ -383,10 +395,10 @@ class CartController extends Controller
         $data = [];
         foreach ($order->orderDetails as $orderDetail) {
             $product = $orderDetail->products_id;
-            $user = $order->users_id; 
+            $user = $order->users_id;
             $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
             if (!$found_user_product) {
-                $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user,'products_id' => $product,'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user,'products_id' => $product,'partial' => 0]);
+                $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
             }
             if ($orderDetail->product->type == 'video') {
                 if ($orderDetail->all_videos_buy) {
