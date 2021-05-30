@@ -200,7 +200,7 @@ class CartController extends Controller
                 $orderDetail->save();
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
                 $order->save();
-                return (new OrderResource(null))->additional([
+                return (new OrderResource($order))->additional([
                     'error' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
