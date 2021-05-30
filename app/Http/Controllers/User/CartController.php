@@ -185,6 +185,11 @@ class CartController extends Controller
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
         if ($orderDetail->all_videos_buy) {
+            if($orderDetail->coupons_id) {
+                return (new OrderResource(null))->additional([
+                    'errors' => ["already applied" => ["The discount code has already been applied."]],
+                ])->response()->setStatusCode(406); 
+            }
             $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
                 $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount(' . $coupon->amount . ')should be less than the total_price(' . $orderDetail->total_price . ')']]);
