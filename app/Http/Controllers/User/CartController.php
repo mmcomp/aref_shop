@@ -191,7 +191,7 @@ class CartController extends Controller
             return (new OrderResource(null))->additional([
                 'errors' => ["already applied" => ["The discount code has already been applied."]],
             ])->response()->setStatusCode(406);
-        } else if($coupon->expired_at < Carbon::now()->format('Y-m-d') ) {
+        } else if($coupon->expired_at != null && $coupon->expired_at < Carbon::now()->format('Y-m-d') ) {
             return (new OrderResource(null))->additional([
                 'errors' => ["expired" => ["The discount code has been expired"]],
             ])->response()->setStatusCode(406);
