@@ -240,7 +240,7 @@ class CartController extends Controller
                 $orderDetail->save();
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
                 $order->save();
-                return (new OrderResource(null))->additional([
+                return (new OrderResource($order))->additional([
                     'error' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
@@ -288,7 +288,7 @@ class CartController extends Controller
         }
         try {
             $order->save();
-            return (new OrderResource(null))->additional([
+            return (new OrderResource($order))->additional([
                 'error' => null,
             ])->response()->setStatusCode(204);
         } catch (Exception $e) {
@@ -420,7 +420,7 @@ class CartController extends Controller
             $order->status = "ok";
             $order->save();
             $this->completeInsertAfterBuying($order);
-            return (new OrderResource(null))->additional([
+            return (new OrderResource($order))->additional([
                 'error' => null,
             ])->response()->setStatusCode(201);
         }
