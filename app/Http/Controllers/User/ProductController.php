@@ -394,7 +394,7 @@ class ProductController extends Controller
             $numArray = [];
             $i = 1;
             for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
-                $v = $product->productDetailVideos[$indx]->videoSession;
+                $v = $product->productDetailVideos[$indx];
                 $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
                 $i = $numArray[$v->id] ? $i + 1 : $i;
                 $product_detail_videos[] = $product->productDetailVideos[$indx];
