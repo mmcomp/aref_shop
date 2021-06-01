@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeAvatarPathToBeNullableUsersTable extends Migration
+class CreateCategoryOnesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class ChangeAvatarPathToBeNullableUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('avatar_path')->nullable()->change();
+        Schema::create('category_ones', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 255);
+            $table->boolean('is_deleted')->unsigned()->default(0);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class ChangeAvatarPathToBeNullableUsersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('avatar_path')->nullable(false)->change();
-        });
+        Schema::dropIfExists('category_ones');
     }
 }

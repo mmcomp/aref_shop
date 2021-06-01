@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeMenusTableAddParentId extends Migration
+class CreateCategoryThreesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class ChangeMenusTableAddParentId extends Migration
      */
     public function up()
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->integer("parent_id")->nullable();
+        Schema::create('category_threes', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 255);
+            $table->boolean('is_deleted')->unsigned()->default(0);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class ChangeMenusTableAddParentId extends Migration
      */
     public function down()
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->dropColumn("parent_id");
-        });
+        Schema::dropIfExists('category_threes');
     }
 }
