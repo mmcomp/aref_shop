@@ -10,6 +10,7 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -114,4 +115,11 @@ Route::group([
 
 ], function ($router) {
     Route::put('/edit', [UserController::class, 'update']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:payment'],
+    'prefix' => 'payment'
+], function ($router) {
+    Route::get('/', [PaymentController::class, 'bpPayRequest']);
+    // Route::post('/add', [PaymentController::class, 'store']);
 });
