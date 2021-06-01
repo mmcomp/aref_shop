@@ -262,7 +262,7 @@ class VideoSessionsController extends Controller
             for ($i = 1; $i <= 5; $i++) {
                 $fiveDaysBeforeTheDate[$i] = strtotime(date("Y-m-d", strtotime("-" . $i . "day", strtotime($video_sesssion->start_date))));
             }
-            if (!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate)) {
+            if (!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate) && $request->input('date') != $video_sesssion->start_date) {
                 throw new HttpResponseException(
                     response()->json(['errors' => ['start_date' => 'You can change start_date just 5 days after or 5 days before!']], 422)
                 );
