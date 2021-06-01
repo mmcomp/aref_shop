@@ -30,8 +30,8 @@ class ProductVideoResource extends JsonResource
             $num = 0;
             $bought = false;
             if ($this->videoSession) {
-                $numToWord = $this->foo[$this->videoSession->id] ? $number->numberToWords($this->foo[$this->videoSession->id]) : $this->product_detail_video_name;
-                if (!$this->foo[$this->videoSession->id]) {
+                $numToWord = $this->foo[$this->id] ? $number->numberToWords($this->foo[$this->id]) : $this->product_detail_video_name;
+                if (!$this->foo[$this->id]) {
                     $num = $numToWord;
                 } else {
                     $num = strpos($numToWord, "سه") !== false ? str_replace("سه", "سو", $numToWord) . 'م' : $numToWord . 'م';
