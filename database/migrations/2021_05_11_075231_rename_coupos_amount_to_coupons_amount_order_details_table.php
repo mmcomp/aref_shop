@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProvincesTable extends Migration
+class RenameCouposAmountToCouponsAmountOrderDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateProvincesTable extends Migration
      */
     public function up()
     {
-        Schema::create('provinces', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 255);
-            
-            $table->timestamps();
+        Schema::table('order_details', function (Blueprint $table) {
+            $table->renameColumn('coupos_amount', 'coupons_amount');
         });
     }
 
@@ -28,6 +25,8 @@ class CreateProvincesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('provinces');
+        Schema::table('order_details', function (Blueprint $table) {
+            $table->renameColumn('coupons_amount', 'coupos_amount');
+        });
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCategoryTwosTable extends Migration
+class ChangeProductsRemoveCategoryFoursId extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateCategoryTwosTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_twos', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 255);
-            $table->boolean('is_deleted')->unsigned()->default(0);
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn("category_fours_id");
         });
     }
 
@@ -28,6 +25,8 @@ class CreateCategoryTwosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('category_twos');
+        Schema::table('products', function (Blueprint $table) {
+            //
+        });
     }
 }

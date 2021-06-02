@@ -5,15 +5,13 @@ namespace Database\Seeders;
 use Database\Seeders\GroupGatesSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\GroupsSeeder;
-use Database\Seeders\CitiesSeeder;
-use Database\Seeders\ProvinceSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    protected $toTruncate = ['group_gates', 'users', 'groups', 'menus', 'group_menus', 'cities', 'provinces'];
+    protected $toTruncate = ['group_gates', 'users', 'groups', 'menus', 'group_menus'];
 
     /**
      * Seed the application's database.
@@ -33,8 +31,8 @@ class DatabaseSeeder extends Seeder
         $this->call(GroupsSeeder::class);
         $this->call(GroupMenusSeeder::class);
         $this->call(MenusSeeder::class);
-        $this->call(CitiesSeeder::class);
-        $this->call(ProvinceSeeder::class);
+
+
         Model::reguard();
     }
 }
