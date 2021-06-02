@@ -118,8 +118,9 @@ Route::group([
 });
 Route::group([
     'middleware' => ['auth:api', 'can:payment'],
-    'prefix' => 'payment'
+    'prefix' => 'payments'
 ], function ($router) {
-    Route::get('/', [PaymentController::class, 'bpPayRequest']);
+    Route::get('/bp-pay-request', [PaymentController::class, 'pay']);
+    
     // Route::post('/add', [PaymentController::class, 'store']);
 });
