@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\User\PaymentResource;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Temp;
 use App\Utils\RaiseError;
 use Exception;
 use SoapClient;
@@ -61,8 +62,8 @@ class PaymentController extends Controller
             try {
                 $soapClient = new SoapClient(env('MELLAT_WSDL'));
                 $res = $soapClient->bpPayrequest($data);
-                //$payment->sale_reference_id = $res; 
-                //$payment->save();                  
+                $payment->pay_output = json_encode($res); 
+                $payment->save();                  
                 $res = explode(',', $res->return);
                 if ($res[0] == "0") {
                     $payment->res_code = 0;
@@ -93,6 +94,12 @@ class PaymentController extends Controller
         return (new PaymentResource(null))->additional([
             'errors' => ["order" => ["There is not any waiting order for the loggedIn user!"]]
         ])->response()->setStatusCode(406);
+    }
+
+    public function mellat()
+    {
+        
+
     }
 
     /**

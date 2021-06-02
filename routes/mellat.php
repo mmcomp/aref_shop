@@ -17,6 +17,6 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'mellat'
 ], function ($router) {
-    Route::get('/', [PaymentController::class, 'pay']);
+    Route::get('/', [PaymentController::class, 'mellat']);
     
 });
