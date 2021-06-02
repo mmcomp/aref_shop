@@ -15,10 +15,6 @@ class AlterSmsValidationChangeMobileTypeAddId extends Migration
     {
         Schema::table('sms_validations', function (Blueprint $table) {
             $table->string('mobile')->unique()->change();
-            $table->dropPrimary();
-        });
-        Schema::table('sms_validations', function (Blueprint $table) {
-            $table->increments('id')->first();
         });
     }
 
@@ -30,7 +26,6 @@ class AlterSmsValidationChangeMobileTypeAddId extends Migration
     public function down()
     {
         Schema::table('sms_validations', function (Blueprint $table) {
-            //
         });
     }
 }
