@@ -14,7 +14,7 @@ use Log;
 interface Mellat
 {
     public static function pay(Object $order): JsonResponse;
-    public static function verify();
+    public static function verify(Object $order);
     public static function settle(Object $order);
 }
 class MellatPayment implements Mellat
@@ -29,14 +29,12 @@ class MellatPayment implements Mellat
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
-        //if ($order) {
-        $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $user_id)->where('res_code', null)->first();
+        $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', null)->first();
         $raiseError->ValidationError($payment, ['payment' => ['processing']]);
         if (!$payment) {
             $payment = Payment::create([
                 'orders_id' => $order->id,
-                'users_id' => $user_id,
+                'users_id' => $order->users_id,
                 'price' => $order->amount * 10
             ]);
         }
@@ -95,71 +93,58 @@ class MellatPayment implements Mellat
                 ])->response()->setStatusCode(500);
             }
         }
-        //}
-        // return (new PaymentResource(null))->additional([
-        //     'errors' => ["order" => ["There is not any waiting order for the loggedIn user!"]]
-        // ])->response()->setStatusCode(406);
     }
     /**
      * confirm a payment transaction
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public static function verify()
+    public static function verify(Object $order)
     {
 
-        //$raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
-        $order = Order::where('status', 'waiting')->where('users_id', $user_id)->first();
-        if ($order) {
-            $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $user_id)->where('res_code', 0)->where('status', '!=', 'error')->first();
-            //$raiseError->ValidationError($payment, ['payment' => ['processing']]);
-            if ($payment) {
-                $terminalId = env('MELLAT_TERMINAL_ID');
-                $userName = env('MELLAT_USER_NAME');
-                $userPassword = env('MELLAT_USER_PASSWORD');
-                $orderId = $payment->id . '_' . time();;
-                //$verifySaleOrderId = $orderId;
-                //$verifySaleReferenceId = 5142510;
+        $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', 0)->where('status', '=', 'pay')->first();
+        if ($payment) {
+            $terminalId = env('MELLAT_TERMINAL_ID');
+            $userName = env('MELLAT_USER_NAME');
+            $userPassword = env('MELLAT_USER_PASSWORD');
+            $orderId = $payment->id . '_' . time();;
 
-                $data = array(
-                    'terminalId' => $terminalId,
-                    'userName' => $userName,
-                    'userPassword' => $userPassword,
-                    'orderId' => $orderId,
-                    'saleOrderId' => $orderId,
-                    'saleReferenceId' => $order->ref_id
-                );
+            $data = array(
+                'terminalId' => $terminalId,
+                'userName' => $userName,
+                'userPassword' => $userPassword,
+                'orderId' => $orderId,
+                'saleOrderId' => $orderId,
+                'saleReferenceId' => $order->ref_id
+            );
 
-                // Call the SOAP method
-                try {
-                    $soapClient = new SoapClient(env('MELLAT_WSDL'));
-                    $res = $soapClient->bpVerifyrequest($data);
-                    //dd($res);
-                    $payment->sale_order_id = $orderId;
-                    $payment->sale_reference_id = $order->ref_id;
-                    $payment->status = "verify";
-                    $payment->save();
-                    // $result = $client->__soapCall("bpVerifyRequest", [$data]);
-                    // $out = $result->return;
-                } catch (Exception $e) {
-                    $payment->status = "error";
-                    $payment->save();
-                    Log::info('fails in MellatPayment/verify ' . json_encode($e));
-                    if (env('APP_ENV') == 'development') {
-                        return (new PaymentResource(null))->additional([
-                            'error' => 'fails in MellatPayment/verify ' . json_encode($e),
-                        ])->response()->setStatusCode(500);
-                    } else if (env('APP_ENV') == 'production') {
-                        return (new PaymentResource(null))->additional([
-                            'error' => 'fails in MellatPayment/verify',
-                        ])->response()->setStatusCode(500);
-                    }
+            // Call the SOAP method
+            try {
+                $soapClient = new SoapClient(env('MELLAT_WSDL'));
+                $res = $soapClient->bpVerifyrequest($data);
+                $payment->sale_order_id = $orderId;
+                $payment->sale_reference_id = $order->ref_id;
+                $payment->status = "verify";
+                $payment->save();
+            } catch (Exception $e) {
+                $payment->status = "error";
+                $payment->save();
+                Log::info('fails in MellatPayment/verify ' . json_encode($e));
+                if (env('APP_ENV') == 'development') {
+                    return (new PaymentResource(null))->additional([
+                        'error' => 'fails in MellatPayment/verify ' . json_encode($e),
+                    ])->response()->setStatusCode(500);
+                } else if (env('APP_ENV') == 'production') {
+                    return (new PaymentResource(null))->additional([
+                        'error' => 'fails in MellatPayment/verify',
+                    ])->response()->setStatusCode(500);
                 }
             }
         }
+        return (new PaymentResource(null))->additional([
+            'errors' => ["payment" => ["There is not any successful payment"]],
+        ])->response()->setStatusCode(406);
 
-        //return $out;
     }
     /**
      * deposit request
@@ -169,43 +154,42 @@ class MellatPayment implements Mellat
     public static function settle(Object $order)
     {
 
-        // $out = FALSE;
-        // $terminalId = env('MELLAT_TERMINAL_ID');;
-        // $userName = env('MELLAT_USER_NAME');
-        // $userPassword = env('MELLAT_USER_PASSWORD');;
-        // $orderId = $reserve_id;
-        // $settleSaleOrderId = $reserve_id;
-        // $settleSaleReferenceId = $refId;
+        $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', 0)->where('status', '=', 'verify')->first();
+        $terminalId = env('MELLAT_TERMINAL_ID');;
+        $userName = env('MELLAT_USER_NAME');
+        $userPassword = env('MELLAT_USER_PASSWORD');;
+        //$orderId = $reserve_id;
+        //$settleSaleOrderId = $reserve_id;
+        //$settleSaleReferenceId = $refId;
 
-        // $data = array(
-        //     'terminalId' => $terminalId,
-        //     'userName' => $userName,
-        //     'userPassword' => $userPassword,
-        //     'orderId' => $orderId,
-        //     'saleOrderId' => $settleSaleOrderId,
-        //     'saleReferenceId' => $settleSaleReferenceId
-        // );
+        $data = array(
+            'terminalId' => $terminalId,
+            'userName' => $userName,
+            'userPassword' => $userPassword,
+            //'orderId' => $orderId,
+            //'saleOrderId' => $settleSaleOrderId,
+            //'saleReferenceId' => $settleSaleReferenceId
+        );
 
-        // // Call the SOAP method
-        // //$result = $client->call('bpSettleRequest', $parameters, $namespace);
-        // try {
-        //     $soapClient = new SoapClient(env('MELLAT_WSDL'));
-        //     $res = $soapClient->bpSettlerequest($data);
-        //     //dd($res);
-        // } catch (Exception $e) {
-        //     $payment->status = "error";
-        //     $payment->save();
-        //     Log::info('fails in MellatPayment/settle ' . json_encode($e));
-        //     if (env('APP_ENV') == 'development') {
-        //         return (new PaymentResource(null))->additional([
-        //             'error' => 'fails in MellatPayment/settle ' . json_encode($e),
-        //         ])->response()->setStatusCode(500);
-        //     } else if (env('APP_ENV') == 'production') {
-        //         return (new PaymentResource(null))->additional([
-        //             'error' => 'fails in MellatPayment/settle',
-        //         ])->response()->setStatusCode(500);
-        //     }
-        // }
-        // return $out;
+        // Call the SOAP method
+        //$result = $client->call('bpSettleRequest', $parameters, $namespace);
+        try {
+            $soapClient = new SoapClient(env('MELLAT_WSDL'));
+            $res = $soapClient->bpSettlerequest($data);
+            //dd($res);
+        } catch (Exception $e) {
+            $payment->status = "error";
+            $payment->save();
+            Log::info('fails in MellatPayment/settle ' . json_encode($e));
+            if (env('APP_ENV') == 'development') {
+                return (new PaymentResource(null))->additional([
+                    'error' => 'fails in MellatPayment/settle ' . json_encode($e),
+                ])->response()->setStatusCode(500);
+            } else if (env('APP_ENV') == 'production') {
+                return (new PaymentResource(null))->additional([
+                    'error' => 'fails in MellatPayment/settle',
+                ])->response()->setStatusCode(500);
+            }
+        }
     }
 }
