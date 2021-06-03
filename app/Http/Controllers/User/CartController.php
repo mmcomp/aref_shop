@@ -11,6 +11,7 @@ use App\Http\Requests\User\AddMicroProductToCartRequest;
 use App\Http\Requests\User\DeleteCouponFromCartRequest;
 use App\Http\Resources\User\OrderResource;
 use App\Models\Order;
+use App\Models\Temp;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
 use App\Models\Product;
@@ -19,6 +20,7 @@ use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use App\Models\Coupon;
 use App\Models\UserCoupon;
+use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -191,13 +193,13 @@ class CartController extends Controller
             return (new OrderResource(null))->additional([
                 'errors' => ["already applied" => ["The discount code has already been applied."]],
             ])->response()->setStatusCode(406);
-        } else if($coupon->expired_at != null && $coupon->expired_at < Carbon::now()->format('Y-m-d') ) {
+        } else if ($coupon->expired_at != null && $coupon->expired_at < Carbon::now()->format('Y-m-d')) {
             return (new OrderResource(null))->additional([
                 'errors' => ["expired" => ["The discount code has been expired"]],
             ])->response()->setStatusCode(406);
         }
         if ($orderDetail->all_videos_buy) {
-            
+
             $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
                 $raiseError->ValidationError($coupon->amount >= $orderDetail->total_price, ['amount' => ['The coupon amount(' . $coupon->amount . ')should be less than the total_price(' . $orderDetail->total_price . ')']]);
@@ -433,16 +435,33 @@ class CartController extends Controller
 
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        if ($order && !$order->amount) {
-            $order->status = "ok";
-            $order->save();
-            $this->completeInsertAfterBuying($order);
-            return (new OrderResource($order))->additional([
-                'error' => null,
-            ])->response()->setStatusCode(201);
+        if ($order) {
+            if (!$order->amount) {
+                $order->status = "ok";
+                $order->save();
+                $this->completeInsertAfterBuying($order);
+                return (new OrderResource($order))->additional([
+                    'error' => null,
+                ])->response()->setStatusCode(201);
+            } else {
+                $payoutput = MellatPayment::pay($order);
+                //dd($payoutput);
+            }
         }
-        // else {
-        //     //TODO:: go to Bank portal for paying
-        // }
+    }
+    /**
+     * mellat
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function mellatBank(Request $request)
+    {
+        
+        Temp::create([
+           'output' => json_encode($request->all()),
+           'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+           'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
     }
 }

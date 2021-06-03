@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AlterSmsValidationChangeMobileTypeAddId extends Migration
+class CreateTempsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AlterSmsValidationChangeMobileTypeAddId extends Migration
      */
     public function up()
     {
-        Schema::table('sms_validations', function (Blueprint $table) {
-            $table->string('mobile')->unique()->change();
+        Schema::create('temps', function (Blueprint $table) {
+            Schema::dropIfExists('temp');
+            $table->id();
+            $table->text('output');
+            $table->timestamps();
         });
     }
 
@@ -25,7 +28,6 @@ class AlterSmsValidationChangeMobileTypeAddId extends Migration
      */
     public function down()
     {
-        Schema::table('sms_validations', function (Blueprint $table) {
-        });
+        Schema::dropIfExists('temps');
     }
 }

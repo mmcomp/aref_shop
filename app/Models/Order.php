@@ -27,4 +27,8 @@ class Order extends Model
     {
         return $this->hasMany('App\Models\OrderDetail', 'orders_id', 'id');
     }
+    public function payments()
+    {
+        return $this->hasMany('App\Models\Payment', 'orders_id', 'id');
+    }
 }

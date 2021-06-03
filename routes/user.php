@@ -10,6 +10,7 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +28,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth',
@@ -92,6 +92,7 @@ Route::group([
     Route::delete('/delete/{id}', [CartController::class, 'destroy']);
     Route::delete('/delete-micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
     Route::get('/complete-buying',[CartController::class, 'completeBuying']);
+    Route::post('/mellat', [CartController::class, 'mellatBank']);
 });
 Route::group([
     'middleware' => ['auth:api'],
@@ -114,4 +115,12 @@ Route::group([
 
 ], function ($router) {
     Route::put('/edit', [UserController::class, 'update']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:payment'],
+    'prefix' => 'payments'
+], function ($router) {
+    Route::get('/bp-pay-request', [PaymentController::class, 'pay']);
+    
+    // Route::post('/add', [PaymentController::class, 'store']);
 });

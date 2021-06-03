@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AlterSmsValidationChangeMobileTypeAddId extends Migration
+class AddStatusToPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AlterSmsValidationChangeMobileTypeAddId extends Migration
      */
     public function up()
     {
-        Schema::table('sms_validations', function (Blueprint $table) {
-            $table->string('mobile')->unique()->change();
+        Schema::table('payments', function (Blueprint $table) {
+            $table->enum('status', ['pay', 'verify', 'settle','Inquiry','reserval', 'error'])->after('bank_returned');
         });
     }
 
@@ -25,7 +25,8 @@ class AlterSmsValidationChangeMobileTypeAddId extends Migration
      */
     public function down()
     {
-        Schema::table('sms_validations', function (Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table) {
+            $table->dropColumn('status');
         });
     }
 }
