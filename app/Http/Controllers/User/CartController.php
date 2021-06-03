@@ -11,6 +11,7 @@ use App\Http\Requests\User\AddMicroProductToCartRequest;
 use App\Http\Requests\User\DeleteCouponFromCartRequest;
 use App\Http\Resources\User\OrderResource;
 use App\Models\Order;
+use App\Models\Temp;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
 use App\Models\Product;
@@ -447,5 +448,20 @@ class CartController extends Controller
                 //dd($payoutput);
             }
         }
+    }
+    /**
+     * mellat
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function mellatBank(Request $request)
+    {
+        
+        Temp::create([
+           'output' => json_encode($request->all()),
+           'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+           'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
     }
 }
