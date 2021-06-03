@@ -27,7 +27,7 @@ class CouponEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|min:3|max:255',
+            'name' => 'string|min:3|max:255|unique:coupons,name,'. $this->id,
             'description' => 'nullable|string|min:3|max:1000',
             'amount' => 'integer',
             'type' => 'in:percent,amount',
