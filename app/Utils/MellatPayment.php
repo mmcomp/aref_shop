@@ -35,7 +35,7 @@ class MellatPayment implements IPayment
         $terminalId = env('MELLAT_TERMINAL_ID');
         $userName = env('MELLAT_USER_NAME');
         $userPassword = env('MELLAT_USER_PASSWORD');
-        $orderId = $payment->id . '_' . time();
+        $orderId = $payment->id.time();
         $amount = $order->amount;
         $localDate = date("Ymd");
         $localTime = date("His");
