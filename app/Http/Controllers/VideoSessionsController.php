@@ -184,7 +184,7 @@ class VideoSessionsController extends Controller
         $completed_orders = Order::where('status', 'ok')->get();
         $data = [];
         foreach ($completed_orders as $order) {
-            foreach ($order->orderDetail as $orderDetail) {
+            foreach ($order->orderDetails as $orderDetail) {
                 if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
                     foreach ($video_session_ids as $vs_id) {
                         $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $vs_id)->first();
@@ -262,7 +262,7 @@ class VideoSessionsController extends Controller
             for ($i = 1; $i <= 5; $i++) {
                 $fiveDaysBeforeTheDate[$i] = strtotime(date("Y-m-d", strtotime("-" . $i . "day", strtotime($video_sesssion->start_date))));
             }
-            if (!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate)) {
+            if (!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate) && $request->input('date') != $video_sesssion->start_date) {
                 throw new HttpResponseException(
                     response()->json(['errors' => ['start_date' => 'You can change start_date just 5 days after or 5 days before!']], 422)
                 );

@@ -30,7 +30,7 @@ class ProductEditRequest extends FormRequest
         return [
             'name' => 'string|min:3|max:255',
             'short_description' => 'nullable|string|max:1500',
-            'long_description' => 'nullable|string|max:2000',
+            'long_description' => 'nullable|string',
             'price' => 'integer',
             'sale_price' => 'nullable|integer|lte:price',
             'sale_expire' => 'nullable|date',
