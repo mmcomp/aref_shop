@@ -117,7 +117,7 @@ Route::group([
     Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' =>['auth:api','can:category-one'],
+    'middleware' =>['auth:api','can:category-one','currentDateTime'],
     'prefix' => 'category-ones',
 ], function ($router) {
     Route::get('/', [CategoryOnesController::class, 'index']);
