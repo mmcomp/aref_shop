@@ -5,17 +5,13 @@ namespace App\Utils;
 use App\Http\Resources\User\PaymentResource;
 use Illuminate\Http\JsonResponse;
 use App\Models\Payment;
+use App\Utils\Interfaces\IPayment;
 use SoapClient;
 use Exception;
 use Log;
 
-interface Mellat
-{
-    public static function pay(Object $order): JsonResponse;
-    public static function verify(Object $order);
-    public static function settle(Object $order);
-}
-class MellatPayment implements Mellat
+
+class MellatPayment implements IPayment
 {
 
     /**
@@ -146,10 +142,12 @@ class MellatPayment implements Mellat
                     ])->response()->setStatusCode(500);
                 }
             }
+        } else {
+            return (new PaymentResource(null))->additional([
+                'errors' => ["payment" => ["There is not any successful payment"]],
+            ])->response()->setStatusCode(406);
         }
-        return (new PaymentResource(null))->additional([
-            'errors' => ["payment" => ["There is not any successful payment"]],
-        ])->response()->setStatusCode(406);
+       
     }
     /**
      * deposit request
