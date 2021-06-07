@@ -106,7 +106,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:productDetailPackage'],
+    'middleware' => ['auth:api','can:productDetailPackage','currentDateTime'],
     'prefix' => 'product-detail-packages',
 
 ], function ($router) {

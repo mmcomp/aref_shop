@@ -24,12 +24,12 @@ class AddCurrentDateTimeInResponse
         //Check if the response is JSON
         if (json_last_error() == JSON_ERROR_NONE) {
 
-            $response->setContent(array_merge(
+            $response->setContent(json_encode(array_merge(
                 $content,
                 [
                     'currentDateTime' => Carbon::now()->format('Y-m-d H:i:s')
                 ]
-            ));
+            )));
         }
 
         return $response;
