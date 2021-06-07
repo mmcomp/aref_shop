@@ -106,7 +106,7 @@ Route::group([
     Route::delete('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:productDetailPackage','currentDateTime'],
+    'middleware' => ['auth:api','can:productDetailPackage'],
     'prefix' => 'product-detail-packages',
 
 ], function ($router) {
@@ -117,7 +117,7 @@ Route::group([
     Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' =>['auth:api','can:category-one','currentDateTime'],
+    'middleware' =>['auth:api','can:category-one'],
     'prefix' => 'category-ones',
 ], function ($router) {
     Route::get('/', [CategoryOnesController::class, 'index']);
