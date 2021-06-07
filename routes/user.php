@@ -89,8 +89,8 @@ Route::group(['middleware' => 'user'], function(){
         Route::put('/edit/{id}', [CartController::class, 'update']);
         Route::put('/add-coupon', [CartController::class, 'addCouponToTheCart']);
         Route::put('/delete-coupon-from-cart', [CartController::class, 'deleteCouponFromCart']);
-        Route::delete('/delete/{id}', [CartController::class, 'destroy']);
-        Route::delete('/delete-micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
+        Route::delete('/{id}', [CartController::class, 'destroy']);
+        Route::delete('/micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
