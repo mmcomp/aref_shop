@@ -29,13 +29,14 @@ class MellatPayment implements IPayment
             $payment = Payment::create([
                 'orders_id' => $order->id,
                 'users_id' => $order->users_id,
-                'price' => $order->amount * 10
+                'price' => $order->amount * 10,
+                'bank_orders_id' => time()
             ]);
         }
         $terminalId = env('MELLAT_TERMINAL_ID');
         $userName = env('MELLAT_USER_NAME');
         $userPassword = env('MELLAT_USER_PASSWORD');
-        $orderId = $payment->id . '_' . time();
+        $orderId = $payment->bank_orders_id;
         $amount = $order->amount;
         $localDate = date("Ymd");
         $localTime = date("His");
