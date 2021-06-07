@@ -17,7 +17,8 @@ class Payment extends Model
       'ref_id',
       'res_code',
       'sale_order_id',
-      'sale_reference_id'
+      'sale_reference_id',
+      'bank_orders_id'
     ];
 
     public function user()
