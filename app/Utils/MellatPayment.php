@@ -59,6 +59,8 @@ class MellatPayment implements IPayment
             $res = $soapClient->bpPayrequest($data);
             $payment->pay_output = $res->return;
             $payment->save();
+            $order->status = "processing";
+            $order->save();
             $resultArray = explode(',', $res->return);
             if ($resultArray[0] == "0") {
                 $payment->res_code = 0;
@@ -76,6 +78,7 @@ class MellatPayment implements IPayment
                     'errors' => ["bank_error" => [$resultArray[0]]],
                 ])->response()->setStatusCode(406);
             }
+            
         } catch (Exception $e) {
             Log::info('fails in MellatPayment/pay ' . json_encode($e));
             if (env('APP_ENV') == 'development') {
