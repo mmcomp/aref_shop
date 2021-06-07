@@ -444,7 +444,7 @@ class CartController extends Controller
                     'error' => null,
                 ])->response()->setStatusCode(201);
             } else {
-                $payoutput = MellatPayment::pay($order);
+                return MellatPayment::pay($order);
                 //dd($payoutput);
             }
         }
