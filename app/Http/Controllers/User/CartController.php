@@ -462,6 +462,7 @@ class CartController extends Controller
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
+        $sw = 0;
         $SaleOrderId = $request->input('SaleOrderId');
         $ResCode = $request->input('ResCode');
         $RefId = $request->input('RefId');
@@ -493,6 +494,7 @@ class CartController extends Controller
                             $payment->status = "settle_error";
                             $order->status = "waiting";
                         } else {
+                            $sw = 1;
                             $payment->status = "success";
                             $order->status = "ok";
                             $this->completeInsertAfterBuying($order);  
@@ -501,7 +503,7 @@ class CartController extends Controller
                 }
                 $payment->save();
                 $order->save();
-                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL').'/'.$order->id);
+                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL').'/'.$order->id.'/'.$sw);
             }
             Log::info('order not exists');
             return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
