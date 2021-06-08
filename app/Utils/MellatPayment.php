@@ -126,6 +126,12 @@ class MellatPayment implements IPayment
                     "payment" => $payment,
                     "errors" => null
                 ];
+            } else {
+                Log::info('Error in verify function with code ' . $res->return);
+                return [
+                    "payment" => $payment,
+                    "errors" => $res->return
+                ]; 
             }
         } catch (Exception $e) {
             Log::info('fails in MellatPayment/verify ' . json_encode($e));
@@ -174,6 +180,12 @@ class MellatPayment implements IPayment
                     "payment" => $payment,
                     "errors" => null
                 ];
+            } else {
+                Log::info('Error in settle function with code ' . $res->return);
+                return [
+                    "payment" => $payment,
+                    "errors" => $res->return
+                ]; 
             }
         } catch (Exception $e) {
             Log::info('fails in MellatPayment/settle ' . json_encode($e));

@@ -473,6 +473,7 @@ class CartController extends Controller
                 $payment->bank_returned = json_encode($request->all());
                 $payment->res_code = $ResCode;
                 $payment->ref_id = $RefId;
+                $payment->save();
                 if ($ResCode) {
                     $payment->status = "error";
                     $order->status = "waiting";
