@@ -11,6 +11,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -93,6 +94,12 @@ Route::group(['middleware' => 'user'], function(){
         Route::delete('/micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
         Route::get('/get-info-of-an-order/{id}',[CartController::class, 'getInfoOfAnOrder']);
+    });
+    Route::group([
+        'middleware' => ['auth:api'],
+        'prefix' => 'order'
+    ], function ($router) {
+        Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
