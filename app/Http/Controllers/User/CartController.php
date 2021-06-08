@@ -476,7 +476,7 @@ class CartController extends Controller
                     $payment->status = "error";
                     $order->status = "waiting";
                 } else {
-                    $verify_output = MellatPayment::verify($order);
+                    $verify_output = MellatPayment::verify($order, $payment);
                     $verify_error = json_decode($verify_output)->errors;
                     $FinalAmount = $request->input('FinalAmount');
                     if ($FinalAmount != $order->amount * 10) {
@@ -487,7 +487,7 @@ class CartController extends Controller
                         $payment->status = "verify_error";
                         $order->status = "waiting";
                     } else {
-                        $settle_output = MellatPayment::settle($order);
+                        $settle_output = MellatPayment::settle($order, $payment);
                         $settle_error = json_decode($settle_output)->errors;
                         if ($settle_error) {
                             $payment->status = "settle_error";
