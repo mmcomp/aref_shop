@@ -78,7 +78,6 @@ class MellatPayment implements IPayment
                     'errors' => ["bank_error" => [$resultArray[0]]],
                 ])->response()->setStatusCode(406);
             }
-            
         } catch (Exception $e) {
             Log::info('fails in MellatPayment/pay ' . json_encode($e));
             if (env('APP_ENV') == 'development') {
@@ -120,39 +119,27 @@ class MellatPayment implements IPayment
                 $soapClient = new SoapClient(env('MELLAT_WSDL'));
                 $res = $soapClient->bpVerifyrequest($data);
                 if ($res->return == 43 || $res->return == 0) {
-                    $payment->sale_order_id = $orderId;
-                    $payment->sale_reference_id = $payment->ref_id;
-                    $payment->bank_returned = json_encode([
-                       "res_code" => $payment->res_code,
-                       "ref_id" => $payment->ref_id,
-                       "sale_order_id" => $orderId,
-                       "sale_reference_id" => $payment->res_code
-                    ]);
-                    $payment->save();
+                    // $payment->sale_order_id = $orderId;
+                    // $payment->sale_reference_id = $payment->ref_id;
+                    // $payment->bank_returned = json_encode([
+                    //    "res_code" => $payment->res_code,
+                    //    "ref_id" => $payment->ref_id,
+                    //    "sale_order_id" => $orderId,
+                    //    "sale_reference_id" => $payment->res_code
+                    // ]);
+                    // $payment->save();
                     return (new PaymentResource($payment))->additional([
                         'errors' => null,
                     ])->response()->setStatusCode(200);
                 }
             } catch (Exception $e) {
-                // $payment->status = "error";
-                // $payment->save();
                 Log::info('fails in MellatPayment/verify ' . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new PaymentResource(null))->additional([
-                        'errors' => 'fails in MellatPayment/verify ' . json_encode($e),
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new PaymentResource(null))->additional([
-                        'errors' => 'fails in MellatPayment/verify',
-                    ])->response()->setStatusCode(500);
-                }
             }
         } else {
             return (new PaymentResource(null))->additional([
                 'errors' => ["payment" => ["There is not any successful payment"]],
             ])->response()->setStatusCode(406);
         }
-       
     }
     /**
      * deposit request
@@ -163,44 +150,42 @@ class MellatPayment implements IPayment
     {
 
         $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', 0)->first();
-        $terminalId = env('MELLAT_TERMINAL_ID');;
-        $userName = env('MELLAT_USER_NAME');
-        $userPassword = env('MELLAT_USER_PASSWORD');;
-        $orderId = $payment->bank_orders_id;
-        $settleSaleReferenceId = $payment->ref_id;
-
-        $data = array(
-            'terminalId' => $terminalId,
-            'userName' => $userName,
-            'userPassword' => $userPassword,
-            'orderId' => $orderId,
-            'saleOrderId' => $orderId,
-            'saleReferenceId' => $settleSaleReferenceId
-        );
-
-        // Call the SOAP method
-        try {
-            $soapClient = new SoapClient(env('MELLAT_WSDL'));
-            $res = $soapClient->bpSettlerequest($data);
-            $payment->sale_order_id = $orderId;
-            $payment->sale_reference_id = $payment->ref_id;
-            $payment->save();
-            return (new PaymentResource($payment))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
-        } catch (Exception $e) {
-            // $payment->status = "error";
-            // $payment->save();
-            Log::info('fails in MellatPayment/settle ' . json_encode($e));
-            if (env('APP_ENV') == 'development') {
-                return (new PaymentResource(null))->additional([
-                    'errors' => 'fails in MellatPayment/settle ' . json_encode($e),
-                ])->response()->setStatusCode(500);
-            } else if (env('APP_ENV') == 'production') {
-                return (new PaymentResource(null))->additional([
-                    'errors' => 'fails in MellatPayment/settle',
-                ])->response()->setStatusCode(500);
+        if($payment) {
+            $terminalId = env('MELLAT_TERMINAL_ID');;
+            $userName = env('MELLAT_USER_NAME');
+            $userPassword = env('MELLAT_USER_PASSWORD');;
+            $orderId = $payment->bank_orders_id;
+            $settleSaleReferenceId = $payment->ref_id;
+    
+            $data = array(
+                'terminalId' => $terminalId,
+                'userName' => $userName,
+                'userPassword' => $userPassword,
+                'orderId' => $orderId,
+                'saleOrderId' => $orderId,
+                'saleReferenceId' => $settleSaleReferenceId
+            );
+    
+            // Call the SOAP method
+            try {
+                $soapClient = new SoapClient(env('MELLAT_WSDL'));
+                $res = $soapClient->bpSettlerequest($data);
+                // $payment->sale_order_id = $orderId;
+                // $payment->sale_reference_id = $payment->ref_id;
+                // $payment->save();
+                if ($res->return == 0 || $res->return == 45) {
+                    return (new PaymentResource($payment))->additional([
+                        'errors' => null,
+                    ])->response()->setStatusCode(200);
+                }
+            } catch (Exception $e) {
+                Log::info('fails in MellatPayment/settle ' . json_encode($e));
             }
+        } else {
+            return (new PaymentResource(null))->additional([
+                'errors' => ["payment" => ["There is not any successful payment"]],
+            ])->response()->setStatusCode(406);
         }
+        
     }
 }
