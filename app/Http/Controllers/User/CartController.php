@@ -457,19 +457,19 @@ class CartController extends Controller
     public function mellatBank(Request $request)
     {
 
-        $temp = Temp::create([
+        Temp::create([
             'output' => json_encode($request->all()),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
-        $SaleOrderId = json_decode($temp->output)->SaleOrderId;
-        $ResCode = json_decode($temp->output)->ResCode;
-        $RefId = json_decode($temp->output)->RefId;
+        $SaleOrderId = $request->input('SaleOrderId');
+        $ResCode = $request->input('ResCode');
+        $RefId = $request->input('RefId');
         $payment = Payment::where('is_deleted', false)->where('bank_orders_id', $SaleOrderId)->first();
         if ($payment) {
             $order = Order::where('status', 'processing')->find($payment->orders_id);
             if ($order) {
-                $payment->bank_returned = $temp->output;
+                $payment->bank_returned = json_encode($request->all());
                 $payment->res_code = $ResCode;
                 $payment->ref_id = $RefId;
                 if ($ResCode) {
@@ -478,7 +478,7 @@ class CartController extends Controller
                 } else {
                     $verify_output = MellatPayment::verify($order);
                     $verify_error = json_decode($verify_output)->errors;
-                    $FinalAmount = json_decode($temp->output)->FinalAmount;
+                    $FinalAmount = $request->input('FinalAmount');
                     if ($FinalAmount != $order->amount * 10) {
                         $payment->status = "amount_error";
                         $order->status = "cancel";
