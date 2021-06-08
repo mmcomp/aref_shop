@@ -474,24 +474,24 @@ class CartController extends Controller
                 $payment->ref_id = $RefId;
                 if ($ResCode) {
                     $payment->status = "error";
-                    $order->status = "cancel";
+                    $order->status = "waiting";
                 } else {
                     $verify_output = MellatPayment::verify($order);
                     $verify_error = json_decode($verify_output)->errors;
                     $FinalAmount = $request->input('FinalAmount');
                     if ($FinalAmount != $order->amount * 10) {
                         $payment->status = "amount_error";
-                        $order->status = "cancel";
+                        $order->status = "waiting";
                     }
                     if ($verify_error) {
                         $payment->status = "verify_error";
-                        $order->status = "cancel";
+                        $order->status = "waiting";
                     } else {
                         $settle_output = MellatPayment::settle($order);
                         $settle_error = json_decode($settle_output)->errors;
                         if ($settle_error) {
                             $payment->status = "settle_error";
-                            $order->status = "cancel";
+                            $order->status = "waiting";
                         } else {
                             $payment->status = "success";
                             $order->status = "ok";
@@ -501,7 +501,7 @@ class CartController extends Controller
                 }
                 $payment->save();
                 $order->save();
-                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
+                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL').'/'.$order->id);
             }
             return (new OrderResource(null))->additional([
                 'errors' => ["order" => ["order not exists!"]],
