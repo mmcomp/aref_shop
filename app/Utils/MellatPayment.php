@@ -122,20 +122,23 @@ class MellatPayment implements IPayment
             $soapClient = new SoapClient(env('MELLAT_WSDL'));
             $res = $soapClient->bpVerifyrequest($data);
             if ($res->return == 43 || $res->return == 0) {
-                return (new PaymentResource($payment))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(200);
+                return [
+                    "payment" => $payment,
+                    "errors" => null
+                ];
             }
         } catch (Exception $e) {
             Log::info('fails in MellatPayment/verify ' . json_encode($e));
             if (env('APP_ENV') == 'development') {
-                return (new PaymentResource(null))->additional([
-                    'errors' => 'fails in MellatPayment/verify' . json_encode($e),
-                ])->response()->setStatusCode(500);
+                return [
+                    "payment" => $payment,
+                    "errors" => 'fails in MellatPayment/verify' . json_encode($e)
+                ];
             } else if (env('APP_ENV') == 'production') {
-                return (new PaymentResource(null))->additional([
-                    'errors' => 'fails in MellatPayment/verify',
-                ])->response()->setStatusCode(500);
+                return [
+                    "payment" => $payment,
+                    "errors" => 'fails in MellatPayment/verify'
+                ];
             }
         }
     }
@@ -167,20 +170,23 @@ class MellatPayment implements IPayment
             $soapClient = new SoapClient(env('MELLAT_WSDL'));
             $res = $soapClient->bpSettlerequest($data);
             if ($res->return == 0 || $res->return == 45) {
-                return (new PaymentResource($payment))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(200);
+                return [
+                    "payment" => $payment,
+                    "errors" => null
+                ];
             }
         } catch (Exception $e) {
             Log::info('fails in MellatPayment/settle ' . json_encode($e));
             if (env('APP_ENV') == 'development') {
-                return (new PaymentResource(null))->additional([
-                    'errors' => 'fails in MellatPayment/settle' . json_encode($e),
-                ])->response()->setStatusCode(500);
+                return [
+                    "payment" => 'fails in MellatPayment/settle' . json_encode($e),
+                    "errors" => null
+                ];
             } else if (env('APP_ENV') == 'production') {
-                return (new PaymentResource(null))->additional([
-                    'errors' => 'fails in MellatPayment/settle',
-                ])->response()->setStatusCode(500);
+                return [
+                    "payment" => 'fails in MellatPayment/settle',
+                    "errors" => null
+                ];
             }
         }
     }

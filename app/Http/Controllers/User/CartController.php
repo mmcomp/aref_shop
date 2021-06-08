@@ -477,7 +477,7 @@ class CartController extends Controller
                     $order->status = "waiting";
                 } else {
                     $verify_output = MellatPayment::verify($order, $payment);
-                    $verify_error = json_decode($verify_output)->errors;
+                    $verify_error = $verify_output["errors"];
                     if ($verify_error != null) {
                         $payment->status = "verify_error";
                         $order->status = "waiting";
@@ -488,7 +488,7 @@ class CartController extends Controller
                             $order->status = "waiting";
                         }
                         $settle_output = MellatPayment::settle($order, $payment);
-                        $settle_error = json_decode($settle_output)->errors;
+                        $settle_error = $settle_output["errors"];
                         if ($settle_error != null) {
                             $payment->status = "settle_error";
                             $order->status = "waiting";
