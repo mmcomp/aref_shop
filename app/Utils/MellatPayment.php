@@ -179,13 +179,13 @@ class MellatPayment implements IPayment
             Log::info('fails in MellatPayment/settle ' . json_encode($e));
             if (env('APP_ENV') == 'development') {
                 return [
-                    "payment" => 'fails in MellatPayment/settle' . json_encode($e),
-                    "errors" => null
+                    "payment" => $payment,
+                    "errors" => 'fails in MellatPayment/settle' . json_encode($e),
                 ];
             } else if (env('APP_ENV') == 'production') {
                 return [
-                    "payment" => 'fails in MellatPayment/settle',
-                    "errors" => null
+                    "payment" => $payment,
+                    "errors" => 'fails in MellatPayment/settle'
                 ];
             }
         }
