@@ -478,18 +478,18 @@ class CartController extends Controller
                 } else {
                     $verify_output = MellatPayment::verify($order, $payment);
                     $verify_error = json_decode($verify_output)->errors;
-                    $FinalAmount = $request->input('FinalAmount');
-                    if ($FinalAmount != $order->amount * 10) {
-                        $payment->status = "amount_error";
-                        $order->status = "waiting";
-                    }
-                    if ($verify_error) {
+                    if ($verify_error != null) {
                         $payment->status = "verify_error";
                         $order->status = "waiting";
                     } else {
+                        $FinalAmount = $request->input('FinalAmount');
+                        if ($FinalAmount != $order->amount * 10) {
+                            $payment->status = "amount_error";
+                            $order->status = "waiting";
+                        }
                         $settle_output = MellatPayment::settle($order, $payment);
                         $settle_error = json_decode($settle_output)->errors;
-                        if ($settle_error) {
+                        if ($settle_error != null) {
                             $payment->status = "settle_error";
                             $order->status = "waiting";
                         } else {
@@ -503,12 +503,10 @@ class CartController extends Controller
                 $order->save();
                 return redirect(env('APP_URL') . env('BANK_REDIRECT_URL').'/'.$order->id);
             }
-            return (new OrderResource(null))->additional([
-                'errors' => ["order" => ["order not exists!"]],
-            ])->response()->setStatusCode(406);
+            Log::info('order not exists');
+            return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
         }
-        return (new OrderResource(null))->additional([
-            'errors' => ["payment" => ["payment not exists!"]],
-        ])->response()->setStatusCode(406);
+        Log::info('payment not exists');
+        return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
     }
 }
