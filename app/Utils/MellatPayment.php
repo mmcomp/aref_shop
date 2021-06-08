@@ -114,7 +114,7 @@ class MellatPayment implements IPayment
             'userPassword' => $userPassword,
             'orderId' => $orderId,
             'saleOrderId' => $orderId,
-            'saleReferenceId' => $payment->ref_id
+            'saleReferenceId' => $payment->sale_reference_id
         );
 
         // Call the SOAP method
@@ -160,7 +160,7 @@ class MellatPayment implements IPayment
         $userName = env('MELLAT_USER_NAME');
         $userPassword = env('MELLAT_USER_PASSWORD');;
         $orderId = $payment->bank_orders_id;
-        $settleSaleReferenceId = $payment->ref_id;
+        $settleSaleReferenceId = $payment->sale_reference_id;
 
         $data = array(
             'terminalId' => $terminalId,

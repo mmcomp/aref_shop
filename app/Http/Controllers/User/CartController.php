@@ -473,11 +473,13 @@ class CartController extends Controller
                 $payment->bank_returned = json_encode($request->all());
                 $payment->res_code = $ResCode;
                 $payment->ref_id = $RefId;
-                $payment->save();
                 if ($ResCode) {
                     $payment->status = "error";
                     $order->status = "waiting";
                 } else {
+                    $payment->sale_reference_id = $request->input("SaleReferenceId");
+                    $payment->sale_order_id = $request->input('SaleOrderId');
+                    $payment->save();
                     $verify_output = MellatPayment::verify($order, $payment);
                     $verify_error = $verify_output["errors"];
                     if ($verify_error != null) {
