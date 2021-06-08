@@ -92,6 +92,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::delete('/{id}', [CartController::class, 'destroy']);
         Route::delete('/micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
+        Route::get('/get-info-of-an-order/{id}',[CartController::class, 'getInfoOfAnOrder']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
