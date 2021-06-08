@@ -20,6 +20,7 @@ use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use App\Models\Coupon;
 use App\Models\UserCoupon;
+use App\Models\Payment;
 use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
@@ -445,7 +446,6 @@ class CartController extends Controller
                 ])->response()->setStatusCode(201);
             } else {
                 return MellatPayment::pay($order);
-                //dd($payoutput);
             }
         }
     }
@@ -456,12 +456,59 @@ class CartController extends Controller
      */
     public function mellatBank(Request $request)
     {
-        
-        Temp::create([
-           'output' => json_encode($request->all()),
-           'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-           'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
 
+        $temp = Temp::create([
+            'output' => json_encode($request->all()),
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        $SaleOrderId = json_decode($temp->output)->SaleOrderId;
+        $ResCode = json_decode($temp->output)->ResCode;
+        $RefId = json_decode($temp->output)->RefId;
+        $payment = Payment::where('is_deleted', false)->where('bank_orders_id', $SaleOrderId)->first();
+        if ($payment) {
+            $order = Order::where('status', 'processing')->find($payment->orders_id);
+            if ($order) {
+                $payment->bank_returned = $temp->output;
+                $payment->res_code = $ResCode;
+                $payment->ref_id = $RefId;
+                if ($ResCode) {
+                    $payment->status = "error";
+                    $order->status = "cancel";
+                } else {
+                    $verify_output = MellatPayment::verify($order);
+                    $verify_error = json_decode($verify_output)->errors;
+                    $FinalAmount = json_decode($temp->output)->FinalAmount;
+                    if ($FinalAmount != $order->amount * 10) {
+                        $payment->status = "amount_error";
+                        $order->status = "cancel";
+                    }
+                    if ($verify_error) {
+                        $payment->status = "verify_error";
+                        $order->status = "cancel";
+                    } else {
+                        $settle_output = MellatPayment::settle($order);
+                        $settle_error = json_decode($settle_output)->errors;
+                        if ($settle_error) {
+                            $payment->status = "settle_error";
+                            $order->status = "cancel";
+                        } else {
+                            $payment->status = "success";
+                            $order->status = "ok";
+                            $this->completeInsertAfterBuying($order);  
+                        }
+                    }
+                }
+                $payment->save();
+                $order->save();
+                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
+            }
+            return (new OrderResource(null))->additional([
+                'errors' => ["order" => ["order not exists!"]],
+            ])->response()->setStatusCode(406);
+        }
+        return (new OrderResource(null))->additional([
+            'errors' => ["payment" => ["payment not exists!"]],
+        ])->response()->setStatusCode(406);
     }
 }

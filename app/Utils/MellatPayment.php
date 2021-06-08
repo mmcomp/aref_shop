@@ -105,8 +105,7 @@ class MellatPayment implements IPayment
             $terminalId = env('MELLAT_TERMINAL_ID');
             $userName = env('MELLAT_USER_NAME');
             $userPassword = env('MELLAT_USER_PASSWORD');
-            $orderId = $payment->id . '_' . time();
-
+            $orderId = $payment->bank_orders_id;
             $data = array(
                 'terminalId' => $terminalId,
                 'userName' => $userName,
@@ -129,20 +128,22 @@ class MellatPayment implements IPayment
                        "sale_order_id" => $orderId,
                        "sale_reference_id" => $payment->res_code
                     ]);
-                    $payment->status = "verify";
                     $payment->save();
+                    return (new PaymentResource($payment))->additional([
+                        'errors' => null,
+                    ])->response()->setStatusCode(200);
                 }
             } catch (Exception $e) {
-                $payment->status = "error";
-                $payment->save();
+                // $payment->status = "error";
+                // $payment->save();
                 Log::info('fails in MellatPayment/verify ' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new PaymentResource(null))->additional([
-                        'error' => 'fails in MellatPayment/verify ' . json_encode($e),
+                        'errors' => 'fails in MellatPayment/verify ' . json_encode($e),
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new PaymentResource(null))->additional([
-                        'error' => 'fails in MellatPayment/verify',
+                        'errors' => 'fails in MellatPayment/verify',
                     ])->response()->setStatusCode(500);
                 }
             }
@@ -161,11 +162,11 @@ class MellatPayment implements IPayment
     public static function settle(Object $order)
     {
 
-        $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', 0)->where('status', '=', 'verify')->first();
+        $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', 0)->first();
         $terminalId = env('MELLAT_TERMINAL_ID');;
         $userName = env('MELLAT_USER_NAME');
         $userPassword = env('MELLAT_USER_PASSWORD');;
-        $orderId = $payment->id . '_' . time();
+        $orderId = $payment->bank_orders_id;
         $settleSaleReferenceId = $payment->ref_id;
 
         $data = array(
@@ -183,20 +184,21 @@ class MellatPayment implements IPayment
             $res = $soapClient->bpSettlerequest($data);
             $payment->sale_order_id = $orderId;
             $payment->sale_reference_id = $payment->ref_id;
-            $payment->status = "settle";
             $payment->save();
-            //dd($res);
+            return (new PaymentResource($payment))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
         } catch (Exception $e) {
-            $payment->status = "error";
-            $payment->save();
+            // $payment->status = "error";
+            // $payment->save();
             Log::info('fails in MellatPayment/settle ' . json_encode($e));
             if (env('APP_ENV') == 'development') {
                 return (new PaymentResource(null))->additional([
-                    'error' => 'fails in MellatPayment/settle ' . json_encode($e),
+                    'errors' => 'fails in MellatPayment/settle ' . json_encode($e),
                 ])->response()->setStatusCode(500);
             } else if (env('APP_ENV') == 'production') {
                 return (new PaymentResource(null))->additional([
-                    'error' => 'fails in MellatPayment/settle',
+                    'errors' => 'fails in MellatPayment/settle',
                 ])->response()->setStatusCode(500);
             }
         }
