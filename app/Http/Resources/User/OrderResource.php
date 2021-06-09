@@ -4,7 +4,6 @@ namespace App\Http\Resources\User;
 
 use App\Http\Resources\UserResource;
 use App\Http\Resources\User\OrderDetailCollection;
-use App\Http\Resources\User\OrderVideoDetailCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
@@ -25,7 +24,8 @@ class OrderResource extends JsonResource
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
-                'orderDetail' => (new OrderDetailCollection($this->orderDetails)),
+                'orderDetails' => (new OrderDetailCollection($this->orderDetails)),
+                'payments' => (new PaymentCollection($this->payments))
             ];
         }
     }
