@@ -25,7 +25,9 @@ class OrderResource extends JsonResource
                 'comment' => $this->comment,
                 'order_status' => $this->status,
                 'orderDetail' => (new OrderDetailCollection($this->orderDetails)),
-                'payments' => (new PaymentCollection($this->payments))
+                'payments' => (new PaymentCollection($this->payments)),
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
             ];
         }
     }
