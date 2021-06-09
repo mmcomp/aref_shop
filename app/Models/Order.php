@@ -29,6 +29,6 @@ class Order extends Model
     }
     public function payments()
     {
-        return $this->hasMany('App\Models\Payment', 'orders_id', 'id');
+        return $this->hasMany('App\Models\Payment', 'orders_id', 'id')->where('is_deleted', false)->where('status', 'success');
     }
 }
