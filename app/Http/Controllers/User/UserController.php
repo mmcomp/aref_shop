@@ -35,23 +35,23 @@ class UserController extends Controller
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info('fails in User/UserController/edit ' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new UserResource(null))->additional([
-                        'error' => 'User updating failed! ' . json_encode($e),
+                        'errors' => ['fail' => ['User updating failed! ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new UserResource(null))->additional([
-                        'error' => 'User updating failed!',
+                        'errors' => ['fail' => ['User updating failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new UserResource(null))->additional([
-            'error' => 'User not found!',
+            'errors' => ['user' => ['User not found!']],
         ])->response()->setStatusCode(404);
     }
 }

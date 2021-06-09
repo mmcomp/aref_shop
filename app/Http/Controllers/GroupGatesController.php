@@ -23,7 +23,7 @@ class GroupGatesController extends Controller
         
         $group_gates = GroupGate::where('is_deleted',false)->get();
         return (new GroupGateCollection($group_gates))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -42,7 +42,7 @@ class GroupGatesController extends Controller
             'users_id' => Auth::user()->id
         ]);
         return (new GroupGateResource($group_gate))->additional([
-            'error' => null
+            'errors' => null
         ])->response()->setStatusCode(201);
     }
 
@@ -58,11 +58,11 @@ class GroupGatesController extends Controller
         $group_gate = GroupGate::where('is_deleted',false)->find($id);
         if ($group_gate != null) {
             return (new GroupGateResource($group_gate))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new GroupGateResource($group_gate))->additional([
-            'error' => 'Gate not found!',
+            'errors' => ['group_gate' => ['GroupGate not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -81,11 +81,11 @@ class GroupGatesController extends Controller
             $group_gate->users_id = Auth::user()->id;
             $group_gate->update($request->all());
             return (new GroupGateResource(null))->additional([
-                'error' => null
+                'errors' => null
             ])->response()->setStatusCode(200);
         }
         return (new GroupGateResource(null))->additional([
-            'error' => 'GroupGate not found!',
+            'errors' => ['group_gate' => ['GroupGate not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -104,24 +104,24 @@ class GroupGatesController extends Controller
             try {
                 $group_gate->save();
                 return (new GroupGateResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in GroupGatesController/destory', json_encode($e));
                 if (env('APP_ENV') == "development") {
                     return (new GroupGateResource(null))->additional([
-                        'error' => 'GroupGates deleting failed!'. json_encode($e),
+                        'errors' => ['fail' => ['GroupGates deleting failed!'. json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } elseif (env('APP_ENV') == "production") {
                     return (new GroupGateResource(null))->additional([
-                        'error' => 'GroupGates deleting failed!',
+                        'errors' => ['fail' => ['GroupGates deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
                
             }
         }
         return (new GroupGateResource(null))->additional([
-            'error' => 'Gate not found!',
+            'errors' => ['group_gate' => ['GroupGate not found!']],
         ])->response()->setStatusCode(404);
     }
 }

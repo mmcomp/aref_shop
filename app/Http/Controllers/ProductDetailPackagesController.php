@@ -27,7 +27,7 @@ class ProductDetailPackagesController extends Controller
             $product_detail_packages = ProductDetailPackage::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailPackagesCollection($product_detail_packages))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -42,7 +42,7 @@ class ProductDetailPackagesController extends Controller
 
         $product_detail_package = ProductDetailPackage::create($request->all());
         return (new ProductDetailPackagesResource($product_detail_package))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -58,11 +58,11 @@ class ProductDetailPackagesController extends Controller
         $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
         if ($product_detail_package != null) {
             return (new ProductDetailPackagesResource($product_detail_package))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailPackagesResource($product_detail_package))->additional([
-            'error' => 'ProductDetailPackage not found!',
+            'errors' => ['product_detail_package' => ['ProductDetailPackage not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -80,11 +80,11 @@ class ProductDetailPackagesController extends Controller
         if ($product_detail_package != null) {
             $product_detail_package->update($request->all());
             return (new ProductDetailPackagesResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailPackagesResource(null))->additional([
-            'error' => 'ProductDetailPackages not found!',
+            'errors' => ['product_detail_package' => ['ProductDetailPackage not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -103,24 +103,24 @@ class ProductDetailPackagesController extends Controller
             try {
                 $product_detail_package->save();
                 return (new ProductDetailPackagesResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProductDetailPackagesController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailPackagesResource(null))->additional([
-                        'error' => 'failed in ProductDetailPackagesController/destory ' . json_encode($e),
+                        'errors' => ['fail' => ['failed in ProductDetailPackagesController/destory ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductDetailPackagesResource(null))->additional([
-                        'error' => 'failed in ProductDetailPackagesController/destory',
+                        'errors' => ['fail' => ['failed in ProductDetailPackagesController/destory']],
                     ])->response()->setStatusCode(500);
                 }
 
             }
         }
         return (new ProductDetailPackagesResource(null))->additional([
-            'error' => 'ProductDetailPackages not found!',
+            'errors' => ['product_detail_package' => ['ProductDetailPackage not found!']],
         ])->response()->setStatusCode(404);
     }
 }

@@ -28,7 +28,7 @@ class ProductDetailDownloadsController extends Controller
             $product_detail_downloads = ProductDetailDownload::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailDownloadsCollection($product_detail_downloads))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -50,16 +50,16 @@ class ProductDetailDownloadsController extends Controller
             Log::info("fails in saving file " . json_encode($e));
             if (env('APP_ENV') == 'development') {
                 return (new ProductDetailDownloadsResource(null))->additional([
-                    'error' => "fails in saving file" . json_encode($e),
+                    'errors' => ["fail" => ["fails in saving file" . json_encode($e)]],
                 ])->response()->setStatusCode(500);
             } else if (env('APP_ENV') == 'production') {
                 return (new ProductDetailDownloadsResource(null))->additional([
-                    'error' => "fails in saving image",
+                    'errors' => ["fail" => ["fails in saving image"]],
                 ])->response()->setStatusCode(500);
             }
         }
         return (new ProductDetailDownloadsResource($product_detail_downloads))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -75,11 +75,11 @@ class ProductDetailDownloadsController extends Controller
         $product_detail_download = ProductDetailDownload::where('is_deleted', false)->find($id);
         if ($product_detail_download != null) {
             return (new ProductDetailDownloadsResource($product_detail_download))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailDownloadsResource($product_detail_download))->additional([
-            'error' => 'ProductDetailDownload not found!',
+            'errors' => ['product_detail_download' => ['ProductDetailDownload not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -97,11 +97,11 @@ class ProductDetailDownloadsController extends Controller
         if ($product_detail_download != null) {
             $product_detail_download->update($request->all());
             return (new ProductDetailDownloadsResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailDownloadsResource(null))->additional([
-            'error' => 'ProductDetailDownloads not found!',
+            'errors' => ['product_detail_download' => ['ProductDetailDownload not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -120,23 +120,23 @@ class ProductDetailDownloadsController extends Controller
             try {
                 $product_detail_download->save();
                 return (new ProductDetailDownloadsResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProductDetailDownloadsController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailDownloadsResource(null))->additional([
-                        'error' => 'failed in ProductDetailDownloadsController/destory '.json_encode($e)
+                        'errors' => ['fail' => ['failed in ProductDetailDownloadsController/destory '.json_encode($e)]]
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductDetailDownloadsResource(null))->additional([
-                        'error' => 'failed in ProductDetailDownloadsController/destory'
+                        'errors' => ['fail' => ['failed in ProductDetailDownloadsController/destory']]
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductDetailDownloadsResource(null))->additional([
-            'error' => 'ProductDetailDownloads not found!',
+            'errors' => ['product_detail_download' => ['ProductDetailDownload not found!']],
         ])->response()->setStatusCode(404);
     }
 }
