@@ -95,12 +95,6 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
         Route::get('/get-info-of-an-order/{id}',[CartController::class, 'getInfoOfAnOrder']);
     });
-    Route::group([
-        'middleware' => ['auth:api'],
-        'prefix' => 'order'
-    ], function ($router) {
-        Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
-    });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
         'middleware' => ['auth:api'],
