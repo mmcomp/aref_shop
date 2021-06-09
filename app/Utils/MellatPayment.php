@@ -104,6 +104,7 @@ class MellatPayment implements IPayment
     public static function verify(Order $order, Payment $payment)
     {
 
+        Log::info('Verifying');
         $terminalId = env('MELLAT_TERMINAL_ID');
         $userName = env('MELLAT_USER_NAME');
         $userPassword = env('MELLAT_USER_PASSWORD');
@@ -156,6 +157,7 @@ class MellatPayment implements IPayment
     public static function settle(Order $order, Payment $payment)
     {
 
+        Log::info('Settling');
         $terminalId = env('MELLAT_TERMINAL_ID');;
         $userName = env('MELLAT_USER_NAME');
         $userPassword = env('MELLAT_USER_PASSWORD');;
