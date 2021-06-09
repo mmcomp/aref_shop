@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\OrderResource;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 
 class OrderController extends Controller
@@ -18,7 +19,8 @@ class OrderController extends Controller
     public function getInfoOfAnOrder(int $id)
     {
         
-        $order = Order::find($id);
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->find($id);
         if($order != null) {
             return (new OrderResource($order))->additional([
                 'error' => null,
