@@ -3,7 +3,7 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\VideoSessionsResource;
+use App\Http\Resources\User\VideoSessionsResource;
 
 class ProductDetailVideosResource extends JsonResource
 {
@@ -18,7 +18,8 @@ class ProductDetailVideosResource extends JsonResource
        
         if ($this->resource != null) {
             return [
-                'id' => $this->id
+                'id' => $this->id,
+                'videoSession' => new VideoSessionsResource($this->videoSession)
             ];
         }
     }

@@ -11,6 +11,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -130,6 +131,12 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/bp-pay-request', [PaymentController::class, 'pay']);
         
         // Route::post('/add', [PaymentController::class, 'store']);
+    });
+    Route::group([
+        'middleware' => ['auth:api','can:product-detail-video-of-user'],
+        'prefix' => 'product-detail-videos',
+    ], function ($router) {
+        Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
     });
     
 });
