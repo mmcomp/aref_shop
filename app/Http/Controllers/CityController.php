@@ -34,7 +34,7 @@ class CityController extends Controller
             $cities = City::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new CityCollection($cities))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -50,11 +50,11 @@ class CityController extends Controller
         $city = City::where('is_deleted', false)->find($id);
         if ($city != null) {
             return (new CityResource($city))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CityResource($city))->additional([
-            'error' => 'City not found!',
+            'errors' => ['city' => ['City not found!']],
         ])->response()->setStatusCode(404);
 
     }

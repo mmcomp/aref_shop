@@ -27,24 +27,24 @@ class AuthController extends BaseAuthController
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info('fails in User/AuthController/changePassword ' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new UserResource(null))->additional([
-                        'error' => 'fails in User/AuthController/changePassword  ' . json_encode($e),
+                        'errors' => ['fail' => ['fails in User/AuthController/changePassword  ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new UserResource(null))->additional([
-                        'error' => 'fails in User/AuthController/changePassword ',
+                        'errors' => ['fail' => ['fails in User/AuthController/changePassword ']],
                     ])->response()->setStatusCode(500);
                 }
             }
 
         }
         return (new UserResource(null))->additional([
-            'error' => 'You Entered your current password wrong',
+            'errors' => ['password' => ['You Entered your current password wrong']],
         ])->response()->setStatusCode(406);
     }
 }
