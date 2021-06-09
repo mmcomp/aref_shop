@@ -38,7 +38,7 @@ class ProductDetailVideosController extends Controller
             $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailVideosCollection($product_detail_videos))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -55,7 +55,7 @@ class ProductDetailVideosController extends Controller
         $updatePreviousBuyers = new UpdatePreviousByers;
         $output = $updatePreviousBuyers->create($found_product_detail_video, $request);
         return (new ProductDetailVideosResource($output))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -71,11 +71,11 @@ class ProductDetailVideosController extends Controller
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         if ($product_detail_video != null) {
             return (new ProductDetailVideosResource($product_detail_video))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailVideosResource($product_detail_video))->additional([
-            'error' => 'ProductDetailVideo not found!',
+            'errors' => ['product_detail_video' => ['ProductDetailVideo not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -94,11 +94,11 @@ class ProductDetailVideosController extends Controller
         $updatePreviousBuyers->update($request, $product_detail_video);
         if ($product_detail_video == null) {
             return (new ProductDetailVideosResource(null))->additional([
-                'error' => 'ProductDetailVideo not found!',
+                'errors' => ['product_detail_video' => ['ProductDetailVideo not found!']],
             ])->response()->setStatusCode(404);
         }
         return (new ProductDetailVideosResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -118,23 +118,23 @@ class ProductDetailVideosController extends Controller
                 $product_detail_video->save();
                 UserVideoSession::where('video_sessions_id', $product_detail_video->video_sessions_id)->delete();
                 return (new ProductDetailVideosResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProductDetailVideosController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailVideosResource(null))->additional([
-                        'error' => 'productDetailVideos deleting failed!' . json_encode($e),
+                        'errors' => ['fail' => ['productDetailVideos deleting failed!' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductDetailVideosResource(null))->additional([
-                        'error' => 'productDetailVideos deleting failed!',
+                        'errors' => ['fail' => ['productDetailVideos deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductDetailVideosResource(null))->additional([
-            'error' => 'ProductDetailVideo not found!',
+            'errors' => ['product_detail_video' => ['ProductDetailVideo not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -169,7 +169,7 @@ class ProductDetailVideosController extends Controller
             'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => ['The product_detail_videos videoSession is not valid!']])
         ]);
         return (new ProductDetailVideosResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 }

@@ -35,7 +35,7 @@ class ProvinceController extends Controller
             $provinces = Province::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new ProvinceCollection($provinces))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
     /**
@@ -50,11 +50,11 @@ class ProvinceController extends Controller
         $province = Province::where('is_deleted', false)->find($id);
         if ($province != null) {
             return (new ProvinceCollection($province->cities))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProvinceResource($province))->additional([
-            'error' => "Province not found!",
+            'errors' => ["province" => ["Province not found!"]],
         ])->response()->setStatusCode(404);
     }
 
@@ -71,7 +71,7 @@ class ProvinceController extends Controller
             'name' => $request->name,
         ]);
         return (new ProvinceResource($province))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -87,11 +87,11 @@ class ProvinceController extends Controller
         $province = Province::where('is_deleted', false)->find($id);
         if ($province != null) {
             return (new ProvinceResource($province))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProvinceResource($province))->additional([
-            'error' => 'Province not found!',
+            'errors' => ['province' => ['Province not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -109,11 +109,11 @@ class ProvinceController extends Controller
         if ($province != null) {
             $province->update($request->all());
             return (new ProvinceResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProvinceResource(null))->additional([
-            'error' => 'Province not found!',
+            'errors' => ['province' => ['Province not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -132,24 +132,24 @@ class ProvinceController extends Controller
             try {
                 $province->save();
                 return (new ProvinceResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProvinceController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProvinceResource(null))->additional([
-                        'error' => 'Province deleting failed' . json_encode($e),
+                        'errors' => ["fail" => ['Province deleting failed' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProvinceResource(null))->additional([
-                        'error' => 'Province deleting failed!',
+                        'errors' => ["fail" => ['Province deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
 
             }
         }
         return (new ProvinceResource(null))->additional([
-            'error' => 'Province not found!',
+            'errors' => ['province' => ['Province not found!']],
         ])->response()->setStatusCode(404);
     }
 }

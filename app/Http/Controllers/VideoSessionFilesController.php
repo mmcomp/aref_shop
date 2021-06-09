@@ -46,7 +46,7 @@ class VideoSessionFilesController extends Controller
             'files_id' => $file->id,
         ]);
         return (new VideoSessionFileResource($video_session_file))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -63,7 +63,7 @@ class VideoSessionFilesController extends Controller
         if ($video_session_file != null) {
             $video_session_file->delete();
             return (new VideoSessionFileResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(204);
         }
     }
@@ -89,7 +89,7 @@ class VideoSessionFilesController extends Controller
                     'users_id' => Auth::user()->id
                  ]);
                  return (new VideoSessionFileResource($video_session_file))->additional([
-                     'error' => null,
+                     'errors' => null,
                  ])->response()->setStatusCode(201);
             } 
             $raiseError->ValidationError($found,['exists' => ['This record is already saved!']]);

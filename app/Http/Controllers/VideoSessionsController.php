@@ -44,7 +44,7 @@ class VideoSessionsController extends Controller
             $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new VideoSessionsCollection($videoSessions))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -59,7 +59,7 @@ class VideoSessionsController extends Controller
 
         $video_session = VideoSession::create($request->all());
         return (new VideoSessionsResource($video_session))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -75,11 +75,11 @@ class VideoSessionsController extends Controller
         $video_session = VideoSession::where('is_deleted', false)->find($id);
         if ($video_session != null) {
             return (new VideoSessionsResource($video_session))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new VideoSessionsResource($video_session))->additional([
-            'error' => 'VideoSession not found!',
+            'errors' => ['video_session' => ['VideoSession not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -97,11 +97,11 @@ class VideoSessionsController extends Controller
         if ($video_session != null) {
             $video_session->update($request->all());
             return (new VideoSessionsResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new VideoSessionsResource(null))->additional([
-            'error' => 'VideoSession not found!',
+            'errors' => ['video_session' => ['VideoSession not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -121,23 +121,23 @@ class VideoSessionsController extends Controller
                 $video_session->save();
                 UserVideoSession::where('video_sessions_id', $id)->delete();
                 return (new VideoSessionsResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in VideoSessionsController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new VideoSessionsResource(null))->additional([
-                        'error' => 'VideoSession deleting failed! ' . json_encode($e),
+                        'errors' => ["fail" => ['VideoSession deleting failed! ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new VideoSessionsResource(null))->additional([
-                        'error' => 'VideoSession deleting failed!',
+                        'errors' => ['fail' => ['VideoSession deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new VideoSessionsResource(null))->additional([
-            'error' => 'VideoSession not found!',
+            'errors' => ['video_session' => ['VideoSession not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -202,7 +202,7 @@ class VideoSessionsController extends Controller
         }
         UserVideoSession::insert($data);
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
     /**
@@ -236,7 +236,7 @@ class VideoSessionsController extends Controller
         $updatePreviousBuyers = new UpdatePreviousByers;
         $updatePreviousBuyers->create(false, $request, $video_session->id);
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
     /**
@@ -286,7 +286,7 @@ class VideoSessionsController extends Controller
         }
         $raiseError->ValidationError(!$product_detail_video->videoSession, ['extraordinary' => ['No video Session is saved for the product']]);
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 }
