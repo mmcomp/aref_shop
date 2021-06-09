@@ -12,6 +12,7 @@ use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductDetailVideosController;
+use App\Http\Controllers\User\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -90,11 +91,17 @@ Route::group(['middleware' => 'user'], function(){
         Route::put('/edit/{id}', [CartController::class, 'update']);
         Route::put('/add-coupon', [CartController::class, 'addCouponToTheCart']);
         Route::put('/delete-coupon-from-cart', [CartController::class, 'deleteCouponFromCart']);
-        Route::delete('/delete/{id}', [CartController::class, 'destroy']);
-        Route::delete('/delete-micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
+        Route::delete('/{id}', [CartController::class, 'destroy']);
+        Route::delete('/micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
-        Route::post('/mellat', [CartController::class, 'mellatBank']);
     });
+    Route::group([
+        'middleware' => ['auth:api'],
+        'prefix' => 'order'
+    ], function ($router) {
+        Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
+    });
+    Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'provinces',
