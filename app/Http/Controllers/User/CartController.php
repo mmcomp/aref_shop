@@ -450,7 +450,7 @@ class CartController extends Controller
         }
     }
     /**
-     * mellat
+     * return from mellat bank
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -511,4 +511,6 @@ class CartController extends Controller
         Log::info('payment not exists');
         return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
     }
+    
+
 }
