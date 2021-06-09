@@ -24,7 +24,7 @@ class OrderController extends Controller
         if($order != null) {
             if($order->users_id != $user_id) {
                 return (new OrderResource(null))->additional([
-                    'errors' => ['auth_error' => ['Authentication failed!']],
+                    'errors' => ['auth_error' => ['The order does not belong to you!']],
                 ])->response()->setStatusCode(406);
             }
             return (new OrderResource($order))->additional([
