@@ -20,8 +20,13 @@ class OrderController extends Controller
     {
         
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->find($id);
+        $order = Order::find($id);
         if($order != null) {
+            if($order->users_id != $user_id) {
+                return (new OrderResource(null))->additional([
+                    'errors' => ['auth_error' => ['The order does not belong to you!']],
+                ])->response()->setStatusCode(406);
+            }
             return (new OrderResource($order))->additional([
                 'error' => null,
             ])->response()->setStatusCode(200);
