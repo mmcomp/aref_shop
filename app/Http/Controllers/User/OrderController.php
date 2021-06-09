@@ -29,7 +29,7 @@ class OrderController extends Controller
                 ])->response()->setStatusCode(406);
             }
             return (new OrderResource($order))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new OrderResource(null))->additional([

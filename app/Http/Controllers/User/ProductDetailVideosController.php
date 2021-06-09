@@ -25,11 +25,11 @@ class ProductDetailVideosController extends Controller
             $price = $product_detail_video->price != null ? $product_detail_video->price : $product_detail_video->videoSession->price;
             $checkPriceAndUserVideoSession = (!$price || $found_user_videoSession);
             return ((new ProductDetailVideosResourceForShow($product_detail_video))->check($checkPriceAndUserVideoSession))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailVideosResourceForShow(null))->additional([
-            'error' => 'ProductDetailVideo not found!',
+            'errors' => ['productDetailVideo' => ['ProductDetailVideo not found!']],
         ])->response()->setStatusCode(404);
     }
 }

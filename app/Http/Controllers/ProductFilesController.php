@@ -34,7 +34,7 @@ class ProductFilesController extends Controller
             'files_id' => $file->id,
         ]);
         return (new ProductFileResource($product_file))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
 
     }
@@ -52,7 +52,7 @@ class ProductFilesController extends Controller
         if ($product_file != null) {
             $product_file->delete();
             return (new ProductFileResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(204);
         }
     }

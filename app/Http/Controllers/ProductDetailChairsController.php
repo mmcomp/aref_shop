@@ -27,7 +27,7 @@ class ProductDetailChairsController extends Controller
             $product_detail_chairs = ProductDetailChair::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailChairsCollection($product_detail_chairs))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -42,7 +42,7 @@ class ProductDetailChairsController extends Controller
 
         $product_detail_chair = ProductDetailChair::create($request->all());
         return (new ProductDetailChairsResource($product_detail_chair))->additional([
-            'error' => null
+            'errors' => null
         ])->response()->setStatusCode(201);
     }
 
@@ -58,11 +58,11 @@ class ProductDetailChairsController extends Controller
         $product_detail_chair = ProductDetailChair::where('is_deleted', false)->find($id);
         if ($product_detail_chair != null) {
             return (new ProductDetailChairsResource($product_detail_chair))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailChairsResource($product_detail_chair))->additional([
-            'error' => 'ProductDetailChair not found!',
+            'errors' => ['product_detail_chair' => ['ProductDetailChair not found!']],
         ])->response()->setStatusCode(404);
 
     }
@@ -80,11 +80,11 @@ class ProductDetailChairsController extends Controller
         if ($product_detail_chair != null) {
             $product_detail_chair->update($request->all());
             return (new ProductDetailChairsResource(null))->additional([
-                'error' => null
+                'errors' => null
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailChairsResource(null))->additional([
-            'error' => 'ProductDetailChairs not found!',
+            'errors' => ['product_detail_chair' => ['ProductDetailChair not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -102,23 +102,23 @@ class ProductDetailChairsController extends Controller
             try {
                 $product_detail_chair->save();
                 return (new ProductDetailChairsResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProductDetailChairsController/destory', json_encode($e));
                 if(env('APP_ENV') == 'development'){
                     return (new ProductDetailChairsResource(null))->additional([
-                        'error' => 'failed in ProductDetailChairsController/destory '.json_encode($e)
+                        'errors' => ["fail" => ['failed in ProductDetailChairsController/destory '.json_encode($e)]]
                     ])->response()->setStatusCode(500);
                 } else if(env('APP_ENV') == 'production'){
                     return (new ProductDetailChairsResource(null))->additional([
-                        'error' => 'failed in ProductDetailChairsController/destory'
+                        'errors' => ["fail" => ['failed in ProductDetailChairsController/destory']]
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductDetailChairsResource(null))->additional([
-            'error' => 'ProductDetailChairs not found!',
+            'errors' => ['product_detail_chair' => ['ProductDetailChair not found!']],
         ])->response()->setStatusCode(404);
     }
 }

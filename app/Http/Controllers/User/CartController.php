@@ -89,7 +89,7 @@ class CartController extends Controller
         $order->amount = $orderDetailPricesArraySum;
         $order->save();
         return (new OrderResource($order))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
     /**
@@ -153,7 +153,7 @@ class CartController extends Controller
         $order->amount = $sumOfOrderDetailPrices;
         $order->save();
         return (new OrderResource($order))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -168,7 +168,7 @@ class CartController extends Controller
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails')->first();
         return (new OrderResource($order))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
     /**
@@ -221,17 +221,17 @@ class CartController extends Controller
                     'coupons_id' => $coupon->id
                 ]);
                 return (new OrderResource($order))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
-                        'error' => "fails in addCouponToTheCart in User/CartController" . json_encode($e),
+                        'errors' =>["fail" => ["fails in addCouponToTheCart in User/CartController" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new OrderResource(null))->additional([
-                        'error' => "fails in addCouponToTheCart in User/CartController",
+                        'errors' =>["fail" => ["fails in addCouponToTheCart in User/CartController"]],
                     ])->response()->setStatusCode(500);
                 }
             }
@@ -261,17 +261,17 @@ class CartController extends Controller
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
                 $order->save();
                 return (new OrderResource($order))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info("fails in deleteCouponToTheCart in User/CartController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
-                        'error' => "fails in deleteCouponToTheCart in User/CartController" . json_encode($e),
+                        'errors' => ["fail" => ["fails in deleteCouponToTheCart in User/CartController" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new OrderResource(null))->additional([
-                        'error' => "fails in deleteCouponToTheCart in User/CartController",
+                        'errors' => ["fail" => ["fails in deleteCouponToTheCart in User/CartController"]],
                     ])->response()->setStatusCode(500);
                 }
             }
@@ -309,17 +309,17 @@ class CartController extends Controller
         try {
             $order->save();
             return (new OrderResource($order))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(204);
         } catch (Exception $e) {
             Log::info('failed in User/CartController/destoryWholeCart', json_encode($e));
             if (env('APP_ENV') == 'development') {
                 return (new OrderResource(null))->additional([
-                    'error' => 'destroying Whole Cart failed!' . json_encode($e),
+                    'errors' => ["fail" => 'destroying Whole Cart failed!' . json_encode($e)],
                 ])->response()->setStatusCode(500);
             } else if (env('APP_ENV') == 'production') {
                 return (new OrderResource(null))->additional([
-                    'error' => 'destroying Whole Cart failed!',
+                    'errors' => ['fail' => ['destroying Whole Cart failed!']],
                 ])->response()->setStatusCode(500);
             }
         }
@@ -349,7 +349,7 @@ class CartController extends Controller
         $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->save();
         return (new OrderResource($order))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
     /**
@@ -382,7 +382,7 @@ class CartController extends Controller
         $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->save();
         return (new OrderResource($order))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
     /**
@@ -442,7 +442,7 @@ class CartController extends Controller
                 $order->save();
                 $this->completeInsertAfterBuying($order);
                 return (new OrderResource($order))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(201);
             } else {
                 return MellatPayment::pay($order);

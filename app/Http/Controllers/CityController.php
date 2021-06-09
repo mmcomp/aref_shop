@@ -34,7 +34,7 @@ class CityController extends Controller
             $cities = City::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new CityCollection($cities))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -50,11 +50,11 @@ class CityController extends Controller
         $city = City::where('is_deleted', false)->find($id);
         if ($city != null) {
             return (new CityResource($city))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CityResource($city))->additional([
-            'error' => 'City not found!',
+            'errors' => ['city' => ['City not found!']],
         ])->response()->setStatusCode(404);
 
     }
@@ -73,7 +73,7 @@ class CityController extends Controller
             'provinces_id' => $request->provinces_id,
         ]);
         return (new CityResource($city))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -91,11 +91,11 @@ class CityController extends Controller
         if ($city != null) {
             $city->update($request->all());
             return (new CityResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CityResource(null))->additional([
-            'error' => 'City not found!',
+            'errors' => ['city' => ['City not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -114,23 +114,23 @@ class CityController extends Controller
             try {
                 $city->save();
                 return (new CityResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CityController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CityResource(null))->additional([
-                        'error' => 'City deleting failed! ' . json_encode($e),
+                        'errors' => ['fail' => ['City deleting failed! ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new CityResource(null))->additional([
-                        'error' => 'City deleting failed!',
+                        'errors' => ['fail' => ['City deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new CityResource(null))->additional([
-            'error' => 'City not found!',
+            'errors' => ['city' => ['City not found!']],
         ])->response()->setStatusCode(404);
     }
 }

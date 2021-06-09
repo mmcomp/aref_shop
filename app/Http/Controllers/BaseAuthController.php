@@ -40,7 +40,7 @@ class BaseAuthController extends Controller
         if (!$token = auth('api')->attempt($validated)) {
 
             return (new UserResource(null))->additional([
-                'error' => 'Unauthorized',
+                'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
 
@@ -84,7 +84,7 @@ class BaseAuthController extends Controller
         $sms = new Sms;
         $sms->sendCode($userData["email"], $code);
         return (new UserResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
 
     }
@@ -100,7 +100,7 @@ class BaseAuthController extends Controller
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
             return (new UserResource(null))->additional([
-                'error' => 'OTP is incorrect!',
+                'errors' => ['OTP' => ['OTP is incorrect!']],
             ])->response()->setStatusCode(406);
         }
 
@@ -124,7 +124,7 @@ class BaseAuthController extends Controller
         auth('api')->logout();
 
         return (new UserResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
 
     }
@@ -148,7 +148,7 @@ class BaseAuthController extends Controller
     {
 
         return (new UserResource(auth('api')->user()))->additional([
-            'error' => null,
+            'errors' => null,
         ]);
 
     }
@@ -163,7 +163,7 @@ class BaseAuthController extends Controller
     protected function createNewToken($token)
     {
         return response()->json([
-            'error' => null,
+            'errors' => null,
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -207,7 +207,7 @@ class BaseAuthController extends Controller
             $sms->sendCode($userData["email"], $code);
         }
         return (new UserResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
 
     }
@@ -223,7 +223,7 @@ class BaseAuthController extends Controller
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
             return (new UserResource(null))->additional([
-                'error' => 'OTP is incorrect!',
+                'errors' => ['OTP' => ['OTP is incorrect!']],
             ])->response()->setStatusCode(406);
         }
         $smsValidation->delete();
@@ -234,23 +234,23 @@ class BaseAuthController extends Controller
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info('fails in AuthController/verifyForgetPassword ' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new UserResource(null))->additional([
-                        'error' => 'fails in AuthController/verifyForgetPassword ' . json_encode($e),
+                        'errors' => ['fail' => ['fails in AuthController/verifyForgetPassword ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new UserResource(null))->additional([
-                        'error' => 'fails in AuthController/verifyForgetPassword',
+                        'errors' => ['fail' => ['fails in AuthController/verifyForgetPassword']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new UserResource(null))->additional([
-            'error' => 'User not found!',
+            'errors' => ['user' => ['User not found!']],
         ])->response()->setStatusCode(404);
     }
 }
