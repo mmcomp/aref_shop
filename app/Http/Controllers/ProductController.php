@@ -12,6 +12,8 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
 use App\Models\Product;
+use App\Models\ProductDetailPackage;
+use App\Models\OrderDetail;
 use App\Utils\UploadImage;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -114,10 +116,23 @@ class ProductController extends Controller
     {
 
         $product = Product::where('is_deleted', false)->find($id);
+        $sw = 0;
+        $ids = [];
+        $allIds = [];
         if ($product != null) {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
-            $product->update($request->except('sale_price'));
-
+            $orderDetails = OrderDetail::get();
+            foreach($orderDetails as $orderDetail) {
+                if($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                   $ids[] = $orderDetail->product->id; 
+                }
+            }
+            $child_product_ids = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $ids)->pluck('child_products_id')->toArray();
+            $allIds = array_merge($ids, $child_product_ids);
+            if(in_array($id, $allIds)){
+                $sw = 1;
+            } 
+            !$sw ? $product->update($request->except('sale_price')) : $product->update($request->except('sale_price', 'type'));
             return (new ProductResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
