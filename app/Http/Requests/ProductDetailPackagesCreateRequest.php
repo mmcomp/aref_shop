@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use App\Rules\isPackage;
+use App\Rules\isNotPackage;
 
 class ProductDetailPackagesCreateRequest extends FormRequest
 {
@@ -33,6 +35,8 @@ class ProductDetailPackagesCreateRequest extends FormRequest
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
+                new isPackage
+                
             ],
             'child_products_id' => [
                 'required',
@@ -40,7 +44,9 @@ class ProductDetailPackagesCreateRequest extends FormRequest
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
-            ]
+                new isNotPackage
+            ], 
+            'price' => 'required|integer'
         ];
     }
      /**
