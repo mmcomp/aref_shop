@@ -32,16 +32,16 @@ class ProductDetailPackagesEditRequest extends FormRequest
             'products_id' => [
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
+                    return $query->where('is_deleted', false)->where('type', 'package');
                 }),
-                new isPackage
+                //new isPackage
             ],
             'child_products_id' => [
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
+                    return $query->where('is_deleted', false)->where('type', '!=', 'package');
                 }),
-                new isNotPackage
+                //new isNotPackage
             ],
             'price' => 'required|integer'
         ];
