@@ -74,7 +74,7 @@ Route::group([
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/getProduct/{id}',[ProductController::class,'show']);
     Route::post('/add', [ProductController::class, 'store']);
-    Route::post('/edit/{id}', [ProductController::class, 'update']);
+    Route::put('/edit/{id}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'destroy']);
     Route::post('/set-main-image/{id}',[ProductController::class, 'setMainImage']);
     Route::post('/set-second-image/{id}',[ProductController::class, 'setSecondImage']);
@@ -113,7 +113,7 @@ Route::group([
     Route::get('/', [ProductDetailPackagesController::class, 'index']);
     Route::post('/add', [ProductDetailPackagesController::class, 'store']);
     Route::get('/show/{id}', [ProductDetailPackagesController::class, 'show']);
-    Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
+    Route::put('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
     Route::delete('/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([

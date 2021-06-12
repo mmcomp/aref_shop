@@ -56,7 +56,7 @@ class ProductEditRequest extends FormRequest
                 }),
             ],
             'published' => 'integer',
-            'type' => 'string|in:normal,download,chairs,video',
+            'type' => 'string|in:normal,download,chairs,video,package',
             'special' => 'in:0,1',
             'education_system' => 'nullable|string|min:3|max:255',
             'hour' => 'nullable|string|min:3|max:255',

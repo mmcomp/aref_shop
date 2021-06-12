@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\isNotPackage;
+use App\Rules\isPackage;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -30,15 +32,18 @@ class ProductDetailPackagesEditRequest extends FormRequest
             'products_id' => [
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
+                    return $query->where('is_deleted', false)->where('type', 'package');
                 }),
+                //new isPackage
             ],
             'child_products_id' => [
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
+                    return $query->where('is_deleted', false)->where('type', '!=', 'package');
                 }),
-            ]
+                //new isNotPackage
+            ],
+            'price' => 'required|integer'
         ];
     }
      /**

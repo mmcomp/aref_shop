@@ -7,6 +7,8 @@ use App\Http\Requests\ProductDetailPackagesEditRequest;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Http\Resources\ProductDetailPackagesResource;
 use App\Models\ProductDetailPackage;
+use App\Models\OrderDetail;
+use App\Utils\RaiseError;
 use Exception;
 use Log;
 
@@ -77,8 +79,20 @@ class ProductDetailPackagesController extends Controller
     {
 
         $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
+        $raiseError = new RaiseError;
         if ($product_detail_package != null) {
-            $product_detail_package->update($request->all());
+            $products_id = $product_detail_package->products_id;
+            $orderDetails = OrderDetail::get();
+            foreach($orderDetails as $orderDetail) {
+                if($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                   $ids[] = $orderDetail->product->id; 
+                }
+            }
+            $raiseError->ValidationError(in_array($products_id, $ids), ['product_detail_package' => ['You should not change this relation!']]);
+            if(!in_array($products_id, $ids)){
+                $product_detail_package->update($request->all());
+            } 
+
             return (new ProductDetailPackagesResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
