@@ -14,6 +14,7 @@ use App\Http\Resources\ProductVideoResource;
 use App\Models\Product;
 use App\Models\ProductDetailPackage;
 use App\Models\OrderDetail;
+use App\Utils\RaiseError;
 use App\Utils\UploadImage;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -116,23 +117,27 @@ class ProductController extends Controller
     {
 
         $product = Product::where('is_deleted', false)->find($id);
+        $raiseError = new RaiseError;
         $sw = 0;
         $ids = [];
         $allIds = [];
         if ($product != null) {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $orderDetails = OrderDetail::get();
-            foreach($orderDetails as $orderDetail) {
-                if($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
-                   $ids[] = $orderDetail->product->id; 
+            foreach ($orderDetails as $orderDetail) {
+                if ($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                    $ids[] = $orderDetail->product->id;
                 }
             }
             $child_product_ids = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $ids)->pluck('child_products_id')->toArray();
             $allIds = array_merge($ids, $child_product_ids);
-            if(in_array($id, $allIds)){
-                $sw = 1;
-            } 
-            !$sw ? $product->update($request->except('sale_price')) : $product->update($request->except('sale_price', 'type'));
+            $sw = in_array($id, $allIds) ? 1 : 0;
+            $raiseError->ValidationError($sw && $product->type != $request->input('type'), ['type' => ['You should not change the type of product!']]);
+            if ($sw && $product->type == $request->input('type')) {
+                $product->update($request->except('sale_price', 'type'));
+            } else if (!$sw) {
+                $product->update($request->except('sale_price'));
+            }
             return (new ProductResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
@@ -203,7 +208,7 @@ class ProductController extends Controller
                 Log::info("fails in saving main image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'errors' =>["fail" => [ "fails in saving main image" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
@@ -405,7 +410,7 @@ class ProductController extends Controller
         if ($product != null) {
             $numArray = [];
             $i = 1;
-            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
+            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
                 $v = $product->productDetailVideos[$indx];
                 $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
                 $i = $numArray[$v->id] ? $i + 1 : $i;
