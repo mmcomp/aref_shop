@@ -21,6 +21,9 @@ use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\VideoSessionFilesController;
+use App\Listeners\WordPressPasswordUpdate;
+use Illuminate\Support\Facades\Hash;
+use MikeMcLin\WpPassword\WpPassword;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +36,17 @@ use App\Http\Controllers\VideoSessionFilesController;
 |
  */
 
+Route::get('/test', function(){
+    //$this->check('$P$BviuKMjMZBHERv0ktN782FallJpoYT.', \App\Models\User::where('email', "root@aref-group.ir")->first()->password ?? 'not found');
+    if (Hash::needsRehash('$P$BviuKMjMZBHERv0ktN782FallJpoYT.')) 
+    {
+        $newHashedValue = (new \Illuminate\Hashing\BcryptHasher)->make($value,[]);
+        \Illuminate\Support\Facades\DB::update('UPDATE users SET `password` = "' . $newHashedValue . '" WHERE `password` = "' . '$P$BviuKMjMZBHERv0ktN782FallJpoYT.' . '"');
+        $hashedValue = $newHashedValue;
+    }
+    // event(new WordPressPasswordUpdate);
+    return "sos";
+});
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

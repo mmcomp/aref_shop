@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    protected $toTruncate = ['group_gates', 'users', 'groups', 'menus', 'group_menus', 'cities', 'provinces'];
+    protected $toTruncate = ['group_gates', 'groups', 'menus', 'group_menus', 'cities', 'provinces'];
 
     /**
      * Seed the application's database.
@@ -29,7 +29,6 @@ class DatabaseSeeder extends Seeder
             DB::table($table)->truncate();
         }
         $this->call(GroupGatesSeeder::class);
-        $this->call(UserSeeder::class);
         $this->call(GroupsSeeder::class);
         $this->call(GroupMenusSeeder::class);
         $this->call(MenusSeeder::class);

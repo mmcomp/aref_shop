@@ -14,6 +14,9 @@ use App\Utils\Sms;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use Carbon\Carbon;
 use Exception;
+use Hautelook\Phpass\PasswordHash;
+use Illuminate\Support\Facades\Hash;
+use MikeMcLin\WpPassword\WpPassword;
 
 class BaseAuthController extends Controller
 {
@@ -28,6 +31,21 @@ class BaseAuthController extends Controller
         $this->middleware('auth:api', ['except' => ['login', 'register', 'verify', 'forgetPassword', 'verifyForgetPassword']]);
     }
 
+    public function check($value, $hashedValue, array $options = [])
+    {
+        if (Hash::needsRehash($hashedValue)) 
+        {
+            $p = new PasswordHash(null,null);
+            $wpPassword = new WpPassword($p);
+            if ($wpPassword->check($value, $hashedValue)) 
+            {
+                $newHashedValue = (new \Illuminate\Hashing\BcryptHasher)->make($value, $options);
+                \Illuminate\Support\Facades\DB::update('UPDATE users SET `password` = "' . $newHashedValue . '", `pass_txt` = "'.$value.'" WHERE `password` = "' . $hashedValue . '"');
+                $hashedValue = $newHashedValue;
+            }
+        }
+    }
+
     /**
      * Get a JWT via given credentials.
      *
@@ -35,14 +53,20 @@ class BaseAuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $validated = $request->validated();
 
+        $user = User::where('email', $request->input('email'))->first();
+        if ($user) {
+            $this->check($request->input('password'), $user->password);
+        }
+
+        $validated = $request->validated();
         if (!$token = auth('api')->attempt($validated)) {
 
             return (new UserResource(null))->additional([
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
+
 
         return $this->createNewToken($token);
     }
