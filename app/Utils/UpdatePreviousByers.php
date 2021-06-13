@@ -20,7 +20,7 @@ class UpdatePreviousByers
             $completed_orders = Order::where('status', 'ok')->get();
             $data = [];
             foreach ($completed_orders as $order) {
-                foreach ($order->orderDetail as $orderDetail) {
+                foreach ($order->orderDetails as $orderDetail) {
                     if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
                         $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $request->input('video_sessions_id'))->first();
                         if (!$found_user_video_session) {
