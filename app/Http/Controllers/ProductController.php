@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ListOfVideosOfAProductRequest;
+use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductEditRequest;
@@ -11,6 +11,7 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
+use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Models\Product;
 use App\Models\ProductDetailPackage;
 use App\Models\OrderDetail;
@@ -398,16 +399,18 @@ class ProductController extends Controller
      * list videos of a product
      *
      * @param  int  $id
-     * @param  \App\Http\Requests\ListOfVideosOfAProductRequest  $request
+     * @param  \App\Http\Requests\GetPerPageRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ListOfVideosOfAProduct(ListOfVideosOfAProductRequest $request, $id)
+    public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
+            $raiseError->ValidationError($product->type != 'video', ['type' => ['You should get a product with type video']]);
             $numArray = [];
             $i = 1;
             for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
@@ -422,6 +425,36 @@ class ProductController extends Controller
             ])->response()->setStatusCode(200);
         }
         return (new ProductVideoResource(null))->additional([
+            'errors' => ['product' => ['Product not found!']],
+        ])->response()->setStatusCode(404);
+    }
+    /**
+     * get packages of a product that is package
+     *
+     * @param  int  $id
+     * @param  \App\Http\Requests\GetPerPageRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ListOfPackagesOfAProduct(GetPerPageRequest $request, $id)
+    {
+
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);        
+        $product_detail_packages = [];
+        if ($product != null) {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+            $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new ProductDetailPackagesCollection(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
