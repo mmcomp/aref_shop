@@ -54,7 +54,7 @@ class Product extends Model
     }
     public function productDetailPackages()
     {
-        return $this->hasMany('App\Models\ProductDetailPackage', 'products_id', 'id');
+        return $this->hasMany('App\Models\ProductDetailPackage', 'products_id', 'id')->where('is_deleted', false);
     }
     public function productFiles()
     {
