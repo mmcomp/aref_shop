@@ -50,6 +50,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate(env('PAGE_COUNT'));
         }
+        return [];
         // dd($products);
         return (new ProductOfUserCollection($products))->additional([
             'errors' => null,
