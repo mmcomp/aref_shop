@@ -38,7 +38,7 @@ class ProductController extends Controller
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
-        $products = Product::where('is_deleted', false)
+        $products = Product::where('is_deleted', false)->with('userProducts.user')
             ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
@@ -50,7 +50,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate(env('PAGE_COUNT'));
         }
-
+        // dd($products);
         return (new ProductOfUserCollection($products))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);

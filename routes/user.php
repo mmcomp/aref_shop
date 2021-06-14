@@ -47,7 +47,7 @@ Route::group(['middleware' => 'user'], function(){
     });
     
     Route::group([
-        // 'middleware' => ['auth:api'],
+        'middleware' => ['auth:api'],
         'prefix' => 'products',
     
     ], function ($router) {
