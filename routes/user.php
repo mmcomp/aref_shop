@@ -47,11 +47,11 @@ Route::group(['middleware' => 'user'], function(){
     });
     
     Route::group([
-        'middleware' => ['auth:api'],
+        // 'middleware' => ['auth:api'],
         'prefix' => 'products',
     
     ], function ($router) {
-        Route::get('/', [ProductController::class, 'index'])->middleware('can:product-of-user');
+        Route::get('/', [ProductController::class, 'index']);//->middleware('can:product-of-user');
         Route::get('/getProduct/{id}',[ProductController::class,'show']);
         Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
     });
