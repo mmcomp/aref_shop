@@ -43,7 +43,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            \App\Http\Middleware\AddCurrentDateTimeInResponse::class
+            // \App\Http\Middleware\AddCurrentDateTimeInResponse::class
         ],
         'user' => [
             \App\Http\Middleware\AddCurrentDateTimeInResponse::class
