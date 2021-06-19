@@ -8,6 +8,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderVideoDetailResource extends JsonResource
 {
+    
+    protected $value;
+
+    public function check($value)
+    {
+        $this->check = $value;
+        return $this;
+    }
     /**
      * Transform the resource into an array.
      *
@@ -27,7 +35,7 @@ class OrderVideoDetailResource extends JsonResource
             }
             return [
                 'id' => $this->id,
-                'productDetailVideo' => new ProductDetailVideosResource($this->productDetailVideo),
+                'productDetailVideo' => (new ProductDetailVideosResource($this->productDetailVideo))->check($this->check),
                 'price' => $this->price,
                 'numName' => $num,
                 'created_at' => $this->created_at,
