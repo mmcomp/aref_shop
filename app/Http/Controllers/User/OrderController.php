@@ -50,4 +50,13 @@ class OrderController extends Controller
             'error' => null,
         ])->response()->setStatusCode(200);
     }
+    /**
+     * show student sessions from now to a week later
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showStudentSessions()
+    {
+
+    }
 }

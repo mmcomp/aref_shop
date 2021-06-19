@@ -101,6 +101,7 @@ Route::group(['middleware' => 'user'], function(){
     ], function ($router) {
         Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
         Route::get('/show-factors-of-user',[OrderController::class, 'showOrdersOfAuthUser']);
+        Route::get('/show-student-sessions',[OrderController::class, 'showStudentSessions']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
