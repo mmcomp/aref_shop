@@ -5,8 +5,11 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\OrderCollection;
 use App\Http\Resources\User\OrderResource;
+use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsResource;
+use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
+use App\Models\UserVideoSession;
 
 class OrderController extends Controller
 {
@@ -57,6 +60,21 @@ class OrderController extends Controller
      */
     public function showStudentSessions()
     {
+        
+        $user_id = Auth::user()->id;
+        $video_sessions_arr = [];
+        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->get();
+        $date = date("Y-m-d");
+        $to_date = date("Y-m-d", strtotime("+7 day", strtotime($date)));
+        foreach($user_video_sessions as $user_video_session) {
+            if($user_video_session->videoSession->start_date >= $date && $user_video_session->videoSession->start_date <= $to_date) {
+                $video_sessions_arr[] = $user_video_session->videoSession;
+            }
+        }
+        return (new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
 
     }
+    
 }
