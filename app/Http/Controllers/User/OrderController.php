@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\OrderCollection;
+use App\Http\Resources\User\OrderDetailCollection;
 use App\Http\Resources\User\OrderResource;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
@@ -49,5 +50,29 @@ class OrderController extends Controller
         return (new OrderCollection($orders))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
+    }
+     /**
+     * complete courses of authenticated user
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function completeCoursesOfAuthUser()
+    {
+
+        $user_id = Auth::user()->id;
+        $orders = Order::where('users_id', $user_id)->where('status', 'ok')->get();
+        $orderDetailsArr = [];
+        foreach($orders as $order) {
+           foreach($order->orderDetails as $orderDetail) {
+               if($orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
+                  $orderDetailsArr[] = $orderDetail;
+               }
+           }
+        }
+        return (new OrderDetailCollection($orderDetailsArr))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(200);
+        
+
     }
 }
