@@ -63,13 +63,14 @@ class OrderController extends Controller
         
         $user_id = Auth::user()->id;
         $video_sessions_arr = [];
-        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->get();
         $date = date("Y-m-d");
         $to_date = date("Y-m-d", strtotime("+7 day", strtotime($date)));
+        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($date, $to_date) {
+            $query->where('start_date', '>=', $date)->where('start_date', '<=', $to_date);
+        })->get();
+
         foreach($user_video_sessions as $user_video_session) {
-            if($user_video_session->videoSession->start_date >= $date && $user_video_session->videoSession->start_date <= $to_date) {
-                $video_sessions_arr[] = $user_video_session->videoSession;
-            }
+            $video_sessions_arr[] = $user_video_session->videoSession;
         }
         return (new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->additional([
             'errors' => null,
