@@ -7,6 +7,8 @@ use App\Http\Requests\ProductDetailPackagesEditRequest;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Http\Resources\ProductDetailPackagesResource;
 use App\Models\ProductDetailPackage;
+use App\Models\OrderDetail;
+use App\Utils\RaiseError;
 use Exception;
 use Log;
 
@@ -27,7 +29,7 @@ class ProductDetailPackagesController extends Controller
             $product_detail_packages = ProductDetailPackage::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailPackagesCollection($product_detail_packages))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -40,9 +42,12 @@ class ProductDetailPackagesController extends Controller
     public function store(ProductDetailPackagesCreateRequest $request)
     {
 
+        $raiseError = new RaiseError;
+        $found_product_detail_package = ProductDetailPackage::where("products_id", $request->input("products_id"))->where('child_products_id', $request->input('child_products_id'))->where('is_deleted', false)->first();
+        $raiseError->ValidationError($found_product_detail_package, ['repeated' => ['It is repeated!']]);
         $product_detail_package = ProductDetailPackage::create($request->all());
         return (new ProductDetailPackagesResource($product_detail_package))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -58,11 +63,11 @@ class ProductDetailPackagesController extends Controller
         $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
         if ($product_detail_package != null) {
             return (new ProductDetailPackagesResource($product_detail_package))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailPackagesResource($product_detail_package))->additional([
-            'error' => 'ProductDetailPackage not found!',
+            'errors' => ['product_detail_package' => ['ProductDetailPackage not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -77,14 +82,26 @@ class ProductDetailPackagesController extends Controller
     {
 
         $product_detail_package = ProductDetailPackage::where('is_deleted', false)->find($id);
+        $raiseError = new RaiseError;
         if ($product_detail_package != null) {
-            $product_detail_package->update($request->all());
+            $products_id = $product_detail_package->products_id;
+            $orderDetails = OrderDetail::get();
+            foreach($orderDetails as $orderDetail) {
+                if($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                   $ids[] = $orderDetail->product->id; 
+                }
+            }
+            $raiseError->ValidationError(in_array($products_id, $ids), ['product_detail_package' => ['You should not change this relation!']]);
+            if(!in_array($products_id, $ids)){
+                $product_detail_package->update($request->all());
+            } 
+
             return (new ProductDetailPackagesResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductDetailPackagesResource(null))->additional([
-            'error' => 'ProductDetailPackages not found!',
+            'errors' => ['product_detail_package' => ['ProductDetailPackage not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -103,24 +120,24 @@ class ProductDetailPackagesController extends Controller
             try {
                 $product_detail_package->save();
                 return (new ProductDetailPackagesResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in ProductDetailPackagesController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailPackagesResource(null))->additional([
-                        'error' => 'failed in ProductDetailPackagesController/destory ' . json_encode($e),
+                        'errors' => ['fail' => ['failed in ProductDetailPackagesController/destory ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductDetailPackagesResource(null))->additional([
-                        'error' => 'failed in ProductDetailPackagesController/destory',
+                        'errors' => ['fail' => ['failed in ProductDetailPackagesController/destory']],
                     ])->response()->setStatusCode(500);
                 }
 
             }
         }
         return (new ProductDetailPackagesResource(null))->additional([
-            'error' => 'ProductDetailPackages not found!',
+            'errors' => ['product_detail_package' => ['ProductDetailPackage not found!']],
         ])->response()->setStatusCode(404);
     }
 }

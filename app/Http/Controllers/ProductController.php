@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ListOfVideosOfAProductRequest;
+use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductEditRequest;
@@ -11,7 +11,11 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
+use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Models\Product;
+use App\Models\ProductDetailPackage;
+use App\Models\OrderDetail;
+use App\Utils\RaiseError;
 use App\Utils\UploadImage;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
@@ -49,7 +53,7 @@ class ProductController extends Controller
             $products = $products->paginate(env('PAGE_COUNT'));
         }
         return (new ProductCollection($products))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -67,17 +71,17 @@ class ProductController extends Controller
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $product->save();
             return (new ProductResource($product))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(201);
         } catch (Exception $e) {
             Log::info("fails in create a new product" . json_encode($e));
             if (env('APP_ENV') == 'development') {
                 return (new ProductResource(null))->additional([
-                    'error' => "fails in create a new product" . json_encode($e),
+                    'errors' => ["fail" => ["fails in create a new product" . json_encode($e)]],
                 ])->response()->setStatusCode(500);
             } else if (env('APP_ENV') == 'production') {
                 return (new ProductResource(null))->additional([
-                    'error' => "fails in create a new product",
+                    'errors' => ["fail" => ["fails in create a new product"]],
                 ])->response()->setStatusCode(500);
             }
         }
@@ -95,11 +99,11 @@ class ProductController extends Controller
         $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductResource($product))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -114,16 +118,33 @@ class ProductController extends Controller
     {
 
         $product = Product::where('is_deleted', false)->find($id);
+        $raiseError = new RaiseError;
+        $sw = 0;
+        $ids = [];
+        $allIds = [];
         if ($product != null) {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
-            $product->update($request->except('sale_price'));
-
+            $orderDetails = OrderDetail::get();
+            foreach ($orderDetails as $orderDetail) {
+                if ($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                    $ids[] = $orderDetail->product->id;
+                }
+            }
+            $child_product_ids = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $ids)->pluck('child_products_id')->toArray();
+            $allIds = array_merge($ids, $child_product_ids);
+            $sw = in_array($id, $allIds) ? 1 : 0;
+            $raiseError->ValidationError($sw && $product->type != $request->input('type'), ['type' => ['You should not change the type of product!']]);
+            if ($sw && $product->type == $request->input('type')) {
+                $product->update($request->except('sale_price', 'type'));
+            } else if (!$sw) {
+                $product->update($request->except('sale_price'));
+            }
             return (new ProductResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductResource(null))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -141,23 +162,23 @@ class ProductController extends Controller
             try {
                 $product->save();
                 return (new ProductResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fail in ProductController/destroy' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController/destroy' . json_encode($e),
+                        'errors' => ['fail' => ['fail in ProductController/destroy' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController/destroy',
+                        'errors' => ['fail' => ['fail in ProductController/destroy']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductResource(null))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -182,23 +203,23 @@ class ProductController extends Controller
             try {
                 $product->save();
                 return (new ProductResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving main image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => "fails in saving main image" . json_encode($e),
+                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'error' => "fails in saving main image",
+                        'errors' => ["fail" => ["fails in saving main image"]],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductResource(null))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -225,23 +246,23 @@ class ProductController extends Controller
             try {
                 $product->save();
                 return (new ProductResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fail in ProductController delete main image' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController delete main image' . json_encode($e),
+                        'errors' => ['fail' => ['fail in ProductController delete main image' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController destroy main image',
+                        'errors' => ['fail' => ['fail in ProductController destroy main image']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductResource(null))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -264,23 +285,23 @@ class ProductController extends Controller
             try {
                 $product->save();
                 return (new ProductResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => "fails in saving main image" . json_encode($e),
+                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'error' => "fails in saving main image",
+                        'errors' => ["fail" => ["fails in saving main image"]],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductResource(null))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -304,23 +325,23 @@ class ProductController extends Controller
             try {
                 $product->save();
                 return (new ProductResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('fail in ProductController delete second image' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController delete second image' . json_encode($e),
+                        'errors' => ['fail' => ['fail in ProductController delete second image' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'error' => 'fail in ProductController destroy second image',
+                        'errors' => ['fail' => ['fail in ProductController destroy second image']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new ProductResource(null))->additional([
-            'error' => 'Product not found!',
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -355,7 +376,7 @@ class ProductController extends Controller
             $products = $products_builder->paginate(env('PAGE_COUNT'));
         }
         return (new ProductCollection($products))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
     /**
@@ -378,31 +399,63 @@ class ProductController extends Controller
      * list videos of a product
      *
      * @param  int  $id
-     * @param  \App\Http\Requests\ListOfVideosOfAProductRequest  $request
+     * @param  \App\Http\Requests\GetPerPageRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ListOfVideosOfAProduct(ListOfVideosOfAProductRequest $request, $id)
+    public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
+            $raiseError->ValidationError($product->type != 'video', ['type' => ['You should get a product with type video']]);
             $numArray = [];
             $i = 1;
-            for($indx = 0;$indx < count($product->productDetailVideos);$indx++) {
-                $v = $product->productDetailVideos[$indx]->videoSession;
+            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
+                $v = $product->productDetailVideos[$indx];
                 $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
                 $i = $numArray[$v->id] ? $i + 1 : $i;
                 $product_detail_videos[] = $product->productDetailVideos[$indx];
             }
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
             return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new ProductVideoResource(null))->additional([
-            'error' => "Product not found!",
+            'errors' => ['product' => ['Product not found!']],
+        ])->response()->setStatusCode(404);
+    }
+    /**
+     * get packages of a product that is package
+     *
+     * @param  int  $id
+     * @param  \App\Http\Requests\GetPerPageRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ListOfPackagesOfAProduct(GetPerPageRequest $request, $id)
+    {
+
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);        
+        $product_detail_packages = [];
+        if ($product != null) {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+            $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new ProductDetailPackagesCollection(null))->additional([
+            'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
 }

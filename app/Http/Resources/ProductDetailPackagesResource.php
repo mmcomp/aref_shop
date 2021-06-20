@@ -17,8 +17,8 @@ class ProductDetailPackagesResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'products_id' => $this->product ? $this->product->name : '-',
-                'child_products_id' => $this->childproduct ? $this->childproduct->name : '-',
+                'child_product' => new ProductResource($this->childproduct),
+                'package_price' => $this->price,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

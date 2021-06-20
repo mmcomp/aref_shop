@@ -30,7 +30,7 @@ class ProductCreateRequest extends FormRequest
         return [
             'name' => 'required|string|min:3|max:255',
             'short_description' => 'nullable|string|max:1500',
-            'long_description' => 'nullable|string|max:2000',
+            'long_description' => 'nullable|string',
             'price' => 'required|integer',
             'sale_price' => 'nullable|integer|lte:price',
             'sale_expire' => 'nullable|date',
@@ -57,7 +57,7 @@ class ProductCreateRequest extends FormRequest
                 }),
             ],
             'published' => 'required|integer',
-            'type' => 'required|string|in:normal,download,chairs,video',
+            'type' => 'required|string|in:normal,download,chairs,video,package',
             'special' => 'required|in:0,1',
             'education_system' => 'nullable|string|min:3|max:255',
             'hour' => 'nullable|string|min:3|max:255',

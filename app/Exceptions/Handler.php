@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class Handler extends ExceptionHandler
@@ -44,14 +45,15 @@ class Handler extends ExceptionHandler
 
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return response()->json(['error' => 'Unauthenticated.'], 401);
+        Log::info('AuthenticationException '. $exception);
+        return response()->json(['errors' => ['authentication' => ['Unauthenticated.']]], 401);
     } 
     public function handleException($request, Exception $exception)
     {
         if($exception instanceof AccessDeniedHttpException) {
-            return response()->json(['error' => 'Forbidden.'], 403);
+            return response()->json(['errors' => ['forbidden' => ['Forbidden.']]], 403);
         } else if($exception instanceof NotFoundHttpException) {
-            return response()->json(['error' => 'Not Found.'], 404);
+            return response()->json(['errors' => ['not_found' => ['Not Found.']]], 404);
         } 
         // else if($exception instanceof QueryException) {
         //     return response()->json(['error' => 'Server Error.'], 500);

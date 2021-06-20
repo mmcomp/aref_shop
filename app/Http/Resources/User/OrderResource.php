@@ -14,6 +14,7 @@ class OrderResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+
     public function toArray($request)
     {
         if ($this->resource != null) {
@@ -23,7 +24,10 @@ class OrderResource extends JsonResource
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
-                'orderDetail' => new OrderDetailCollection($this->orderDetail)
+                'orderDetail' => (new OrderDetailCollection($this->orderDetails)),
+                'payments' => (new PaymentCollection($this->payments)),
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
             ];
         }
     }

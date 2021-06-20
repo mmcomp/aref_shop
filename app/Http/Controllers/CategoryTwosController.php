@@ -28,7 +28,7 @@ class CategoryTwosController extends Controller
             $category_twos = CategoryTwo::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new CategoryTwosCollection($category_twos))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -46,7 +46,7 @@ class CategoryTwosController extends Controller
             'category_ones_id' => $request->category_ones_id
         ]);
         return (new CategoryTwosResource($category_two))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -62,11 +62,11 @@ class CategoryTwosController extends Controller
         $category_two = CategoryTwo::where('is_deleted', false)->find($id);
         if ($category_two != null) {
             return (new CategoryTwosResource($category_two))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryTwosResource($category_two))->additional([
-            'error' => 'CategoryTwos not found!',
+            'errors' => ['category_two' => ['CategoryTwos not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -84,11 +84,11 @@ class CategoryTwosController extends Controller
         if ($category_two != null) {
             $category_two->update($request->all());
             return (new CategoryTwosResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryTwosResource(null))->additional([
-            'error' => 'CategoryTwos not found!',
+            'errors' => ['category_two' => ['CategoryTwos not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -107,24 +107,24 @@ class CategoryTwosController extends Controller
             try {
                 $category_two->save();
                 return (new CategoryTwosResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CategoryTwosController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CategoryTwosResource(null))->additional([
-                        'error' => 'CategoryTwos deleting failed!' . json_encode($e),
+                        'errors' => ['fail' => ['CategoryTwos deleting failed!' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new CategoryTwosResource(null))->additional([
-                        'error' => 'CategoryTwos deleting failed!',
+                        'errors' => ['fail' => ['CategoryTwos deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
 
             }
         }
         return (new CategoryTwosResource(null))->additional([
-            'error' => 'CategoryTwos not found!',
+            'errors' => ['category_two' => ['CategoryTwos not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -139,11 +139,11 @@ class CategoryTwosController extends Controller
         $category_two = CategoryTwo::where('is_deleted', false)->find($id);
         if ($category_two != null) {
             return (new CategoryTwosCollection($category_two->categoryThrees))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryTwosResource(null))->additional([
-            'error' => "CategoryTwo not found!"
+            'errors' => ['category_two' => ['CategoryTwos not found!']],
         ])->response()->setStatusCode(404);
 
     }

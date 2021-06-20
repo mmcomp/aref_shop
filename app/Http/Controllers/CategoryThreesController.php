@@ -27,7 +27,7 @@ class CategoryThreesController extends Controller
             $category_threes = CategoryThree::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new CategoryThreesCollection($category_threes))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -45,7 +45,7 @@ class CategoryThreesController extends Controller
             'category_twos_id' => $request->category_twos_id
         ]);
         return (new CategoryThreesResource($category_one))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -61,11 +61,11 @@ class CategoryThreesController extends Controller
         $category_three = CategoryThree::where('is_deleted', false)->find($id);
         if ($category_three != null) {
             return (new CategoryThreesResource($category_three))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryThreesResource($category_three))->additional([
-            'error' => 'CategoryThrees not found!',
+            'errors' => ['category_three' => ['CategoryThrees not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -83,11 +83,11 @@ class CategoryThreesController extends Controller
         if ($category_three != null) {
             $category_three->update($request->all());
             return (new CategoryThreesResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryThreesResource(null))->additional([
-            'error' => 'CategoryThrees not found!',
+            'errors' => ['category_three' => ['CategoryThrees not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -106,24 +106,24 @@ class CategoryThreesController extends Controller
             try {
                 $category_three->save();
                 return (new CategoryThreesResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CategoryThreesController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CategoryThreesResource(null))->additional([
-                        'error' => 'CategoryThrees deleting failed!' . json_encode($e),
+                        'errors' => ['fail' => ['CategoryThrees deleting failed!' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new CategoryThreesResource(null))->additional([
-                        'error' => 'CategoryThrees deleting failed!',
+                        'errors' => ['fail' => ['CategoryThrees deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
 
             }
         }
         return (new CategoryThreesResource(null))->additional([
-            'error' => 'CategoryThrees not found!',
+            'errors' => ['category_three' => ['CategoryThrees not found!']],
         ])->response()->setStatusCode(404);
     }
 }

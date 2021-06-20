@@ -14,6 +14,9 @@ use App\Utils\Sms;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use Carbon\Carbon;
 use Exception;
+use Hautelook\Phpass\PasswordHash;
+use Illuminate\Support\Facades\Hash;
+use MikeMcLin\WpPassword\WpPassword;
 
 class BaseAuthController extends Controller
 {
@@ -28,6 +31,21 @@ class BaseAuthController extends Controller
         $this->middleware('auth:api', ['except' => ['login', 'register', 'verify', 'forgetPassword', 'verifyForgetPassword']]);
     }
 
+    public function check($value, $hashedValue, array $options = [])
+    {
+        if (Hash::needsRehash($hashedValue)) 
+        {
+            $p = new PasswordHash(null,null);
+            $wpPassword = new WpPassword($p);
+            if ($wpPassword->check($value, $hashedValue)) 
+            {
+                $newHashedValue = (new \Illuminate\Hashing\BcryptHasher)->make($value, $options);
+                \Illuminate\Support\Facades\DB::update('UPDATE users SET `password` = "' . $newHashedValue . '", `pass_txt` = "'.$value.'" WHERE `password` = "' . $hashedValue . '"');
+                $hashedValue = $newHashedValue;
+            }
+        }
+    }
+
     /**
      * Get a JWT via given credentials.
      *
@@ -35,14 +53,20 @@ class BaseAuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $validated = $request->validated();
 
+        $user = User::where('email', $request->input('email'))->first();
+        if ($user) {
+            $this->check($request->input('password'), $user->password);
+        }
+
+        $validated = $request->validated();
         if (!$token = auth('api')->attempt($validated)) {
 
             return (new UserResource(null))->additional([
-                'error' => 'Unauthorized',
+                'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
+
 
         return $this->createNewToken($token);
     }
@@ -84,7 +108,7 @@ class BaseAuthController extends Controller
         $sms = new Sms;
         $sms->sendCode($userData["email"], $code);
         return (new UserResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
 
     }
@@ -100,7 +124,7 @@ class BaseAuthController extends Controller
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
             return (new UserResource(null))->additional([
-                'error' => 'OTP is incorrect!',
+                'errors' => ['OTP' => ['OTP is incorrect!']],
             ])->response()->setStatusCode(406);
         }
 
@@ -124,7 +148,7 @@ class BaseAuthController extends Controller
         auth('api')->logout();
 
         return (new UserResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
 
     }
@@ -148,7 +172,7 @@ class BaseAuthController extends Controller
     {
 
         return (new UserResource(auth('api')->user()))->additional([
-            'error' => null,
+            'errors' => null,
         ]);
 
     }
@@ -163,7 +187,7 @@ class BaseAuthController extends Controller
     protected function createNewToken($token)
     {
         return response()->json([
-            'error' => null,
+            'errors' => null,
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
@@ -207,7 +231,7 @@ class BaseAuthController extends Controller
             $sms->sendCode($userData["email"], $code);
         }
         return (new UserResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
 
     }
@@ -223,7 +247,7 @@ class BaseAuthController extends Controller
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->first();
         if ($smsValidation->code !== $request->input("otp")) {
             return (new UserResource(null))->additional([
-                'error' => 'OTP is incorrect!',
+                'errors' => ['OTP' => ['OTP is incorrect!']],
             ])->response()->setStatusCode(406);
         }
         $smsValidation->delete();
@@ -234,23 +258,23 @@ class BaseAuthController extends Controller
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
                 Log::info('fails in AuthController/verifyForgetPassword ' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new UserResource(null))->additional([
-                        'error' => 'fails in AuthController/verifyForgetPassword ' . json_encode($e),
+                        'errors' => ['fail' => ['fails in AuthController/verifyForgetPassword ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new UserResource(null))->additional([
-                        'error' => 'fails in AuthController/verifyForgetPassword',
+                        'errors' => ['fail' => ['fails in AuthController/verifyForgetPassword']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new UserResource(null))->additional([
-            'error' => 'User not found!',
+            'errors' => ['user' => ['User not found!']],
         ])->response()->setStatusCode(404);
     }
 }

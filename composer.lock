@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d5b2b971b883623aef96183679ff0ef",
+    "content-hash": "c9c3b1156b19a97245438c40bcc9d692",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1272,6 +1272,54 @@
             "time": "2020-09-30T07:37:11+00:00"
         },
         {
+            "name": "hautelook/phpass",
+            "version": "0.3.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hautelook/phpass.git",
+                "reference": "b4cbd9b67ed3ef5672ec79d8e0c46d24bd844abd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hautelook/phpass/zipball/b4cbd9b67ed3ef5672ec79d8e0c46d24bd844abd",
+                "reference": "b4cbd9b67ed3ef5672ec79d8e0c46d24bd844abd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Hautelook": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Public Domain"
+            ],
+            "authors": [
+                {
+                    "name": "Solar Designer",
+                    "email": "solar@openwall.com",
+                    "homepage": "http://openwall.com/phpass/"
+                }
+            ],
+            "description": "Portable PHP password hashing framework",
+            "homepage": "http://github.com/hautelook/phpass/",
+            "keywords": [
+                "blowfish",
+                "crypt",
+                "password",
+                "security"
+            ],
+            "support": {
+                "issues": "https://github.com/hautelook/phpass/issues",
+                "source": "https://github.com/hautelook/phpass/tree/0.3.x"
+            },
+            "time": "2012-08-31T00:00:00+00:00"
+        },
+        {
             "name": "intervention/image",
             "version": "2.5.1",
             "source": {
@@ -1901,6 +1949,74 @@
                 }
             ],
             "time": "2021-01-18T20:58:21+00:00"
+        },
+        {
+            "name": "mikemclin/laravel-wp-password",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mikemclin/laravel-wp-password.git",
+                "reference": "84ff1113ff6866cdb0350c176dc3c843383e4819"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mikemclin/laravel-wp-password/zipball/84ff1113ff6866cdb0350c176dc3c843383e4819",
+                "reference": "84ff1113ff6866cdb0350c176dc3c843383e4819",
+                "shasum": ""
+            },
+            "require": {
+                "hautelook/phpass": "0.3.*",
+                "illuminate/support": ">=4.0.0",
+                "php": ">=5.3.0"
+            },
+            "replace": {
+                "mikemclin/laravel-wp-password": "self.version"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.0",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "laravel-package",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MikeMcLin\\WpPassword\\WpPasswordProvider"
+                    ],
+                    "aliases": {
+                        "WpPassword": "MikeMcLin\\WpPassword\\Facades\\WpPassword"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MikeMcLin\\WpPassword\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mike McLin",
+                    "email": "mike@mikemclin.com",
+                    "homepage": "http://mikemclin.net"
+                }
+            ],
+            "description": "Laravel package that checks and creates WordPress password hashes",
+            "homepage": "https://github.com/mikemclin/laravel-wp-password",
+            "keywords": [
+                "hashing",
+                "laravel",
+                "password",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/mikemclin/laravel-wp-password/issues",
+                "source": "https://github.com/mikemclin/laravel-wp-password/tree/2.0.1"
+            },
+            "time": "2018-01-11T14:12:02+00:00"
         },
         {
             "name": "monolog/monolog",

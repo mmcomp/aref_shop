@@ -35,7 +35,7 @@ class CouponController extends Controller
             $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new CouponCollection($coupons))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -50,7 +50,7 @@ class CouponController extends Controller
         
         $coupon = Coupon::create($request->all());
         return (new CouponResource($coupon))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -66,11 +66,11 @@ class CouponController extends Controller
         $coupon = Coupon::where('is_deleted', false)->find($id);
         if ($coupon != null) {
             return (new CouponResource($coupon))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CouponResource($coupon))->additional([
-            'error' => 'Coupon not found!',
+            'errors' => ['coupon' => ['Coupon not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -88,11 +88,11 @@ class CouponController extends Controller
         if ($coupon != null) {
             $coupon->update($request->all());
             return (new CouponResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CouponResource(null))->additional([
-            'error' => 'Coupon not found!',
+            'errors' => ['coupon' => ['Coupon not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -111,23 +111,23 @@ class CouponController extends Controller
             try {
                 $coupon->save();
                 return (new CouponResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CouponController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CouponResource(null))->additional([
-                        'error' => 'Coupon deleting failed! ' . json_encode($e),
+                        'errors' => ['fail' => ['Coupon deleting failed! ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new CouponResource(null))->additional([
-                        'error' => 'Coupon deleting failed!',
+                        'errors' => ['fail' => ['Coupon deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new CouponResource(null))->additional([
-            'error' => 'Coupon not found!',
+            'errors' => ['coupon' => ['Coupon not found!']],
         ])->response()->setStatusCode(404);
     }
 }

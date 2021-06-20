@@ -26,7 +26,7 @@ class ChangeMenusTableAddParentId extends Migration
     public function down()
     {
         Schema::table('menus', function (Blueprint $table) {
-            $table->dropColumn("partent_id");
+            $table->dropColumn("parent_id");
         });
     }
 }

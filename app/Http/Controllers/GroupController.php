@@ -27,7 +27,7 @@ class GroupController extends Controller
             $groups = Group::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new GroupCollection($groups))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -46,7 +46,7 @@ class GroupController extends Controller
             'description' => $request->description,
         ]);
         return (new GroupResource($group))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -62,11 +62,11 @@ class GroupController extends Controller
         $group = Group::where('is_deleted', false)->find($id);
         if ($group != null) {
             return (new GroupResource($group))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new GroupResource($group))->additional([
-            'error' => 'Group not found!',
+            'errors' => ['group' => ['Group not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -84,11 +84,11 @@ class GroupController extends Controller
         if ($group != null) {
             $group->update($request->all());
             return (new GroupResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new GroupResource(null))->additional([
-            'error' => 'Group not found!',
+            'errors' => ['group' => ['Group not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -107,23 +107,23 @@ class GroupController extends Controller
             try {
                 $group->save();
                 return (new GroupResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in GroupController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new GroupResource(null))->additional([
-                        'error' => 'Group deleting failed!' . json_encode($e),
+                        'errors' => ['fail' => ['Group deleting failed!' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new GroupResource(null))->additional([
-                        'error' => 'Group deleting failed!',
+                        'errors' => ['fail' => ['Group deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new GroupResource(null))->additional([
-            'error' => 'Group not found!',
+            'errors' => ['group' => ['Group not found!']],
         ])->response()->setStatusCode(404);
     }
 }

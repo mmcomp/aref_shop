@@ -21,6 +21,9 @@ use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\VideoSessionFilesController;
+use App\Listeners\WordPressPasswordUpdate;
+use Illuminate\Support\Facades\Hash;
+use MikeMcLin\WpPassword\WpPassword;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,9 +63,9 @@ Route::group([
     Route::post('/add', [UserController::class, 'store']);
     Route::get('/get/{id}',[UserController::class, 'show']);
     Route::put('/edit', [UserController::class, 'update']);
-    Route::delete('/delete/{id}', [UserController::class, 'destroy']);
+    Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
-    Route::delete('/delete-avatar/{id}',[UserController::class, 'deleteAvatar']);
+    Route::delete('/avatar/{id}',[UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
     Route::get('/search',[UserController::class, 'search']);
 });
@@ -74,14 +77,15 @@ Route::group([
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/getProduct/{id}',[ProductController::class,'show']);
     Route::post('/add', [ProductController::class, 'store']);
-    Route::post('/edit/{id}', [ProductController::class, 'update']);
-    Route::delete('/delete/{id}', [ProductController::class, 'destroy']);
+    Route::put('/edit/{id}', [ProductController::class, 'update']);
+    Route::delete('/{id}', [ProductController::class, 'destroy']);
     Route::post('/set-main-image/{id}',[ProductController::class, 'setMainImage']);
     Route::post('/set-second-image/{id}',[ProductController::class, 'setSecondImage']);
-    Route::delete('/delete-main-image/{id}',[ProductController::class, 'deleteMainImage']);
-    Route::delete('/delete-second-image/{id}',[ProductController::class, 'deleteSecondImage']);
+    Route::delete('/main-image/{id}',[ProductController::class, 'deleteMainImage']);
+    Route::delete('/second-image/{id}',[ProductController::class, 'deleteSecondImage']);
     Route::post('/search',[ProductController::class, 'search']);
     Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
+    Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailChair'],
@@ -92,7 +96,7 @@ Route::group([
     Route::post('/add', [ProductDetailChairsController::class, 'store']);
     Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailChairsController::class, 'update']);
-    Route::delete('/delete/{id}', [ProductDetailChairsController::class, 'destroy']);
+    Route::delete('/{id}', [ProductDetailChairsController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailDownload'],
@@ -103,7 +107,7 @@ Route::group([
     Route::post('/add', [ProductDetailDownloadsController::class, 'store']);
     Route::get('/show/{id}', [ProductDetailDownloadsController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailDownloadsController::class, 'update']);
-    Route::delete('/delete/{id}', [ProductDetailDownloadsController::class, 'destroy']);
+    Route::delete('/{id}', [ProductDetailDownloadsController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailPackage'],
@@ -113,8 +117,8 @@ Route::group([
     Route::get('/', [ProductDetailPackagesController::class, 'index']);
     Route::post('/add', [ProductDetailPackagesController::class, 'store']);
     Route::get('/show/{id}', [ProductDetailPackagesController::class, 'show']);
-    Route::post('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
-    Route::post('/delete/{id}', [ProductDetailPackagesController::class, 'destroy']);
+    Route::put('/edit/{id}', [ProductDetailPackagesController::class, 'update']);
+    Route::delete('/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([
     'middleware' =>['auth:api','can:category-one'],
@@ -124,10 +128,10 @@ Route::group([
     Route::post('/add', [CategoryOnesController::class, 'store']);
     Route::get('/show/{id}', [CategoryOnesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
-    Route::delete('/delete/{id}', [CategoryOnesController::class, 'destroy']);
+    Route::delete('/{id}', [CategoryOnesController::class, 'destroy']);
     Route::get('/get-subset/{id}',[CategoryOnesController::class, 'GetSubsetOfCategoryOne']);
     Route::post('/set-image/{id}', [CategoryOnesController::class, 'setImage']);
-    Route::delete('/delete-image/{id}',[CategoryOnesController::class, 'deleteImage']);
+    Route::delete('/image/{id}',[CategoryOnesController::class, 'deleteImage']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailVideo'],
@@ -137,7 +141,7 @@ Route::group([
     Route::post('/add', [ProductDetailVideosController::class, 'store']);
     Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
-    Route::delete('/delete/{id}', [ProductDetailVideosController::class, 'destroy']);
+    Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
     Route::post('/assign-video-to-a-product',[ProductDetailVideosController::class,'assignVideoToProduct']);
 });
 Route::group([
@@ -150,7 +154,7 @@ Route::group([
     Route::get('/get/{id}', [ProvinceController::class, 'show']);
     Route::get('/get-cities-of-a-province/{id}', [ProvinceController::class, 'getCitiesOfAProvince']);
     Route::put('/edit/{id}', [ProvinceController::class, 'update']);
-    Route::delete('/delete/{id}', [ProvinceController::class, 'destroy']);
+    Route::delete('/{id}', [ProvinceController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api','can:city'],
@@ -161,7 +165,7 @@ Route::group([
     Route::post('/add', [CityController::class, 'store']);
     Route::get('/getCity/{id}',[CityController::class, 'show']);
     Route::put('/edit/{id}', [CityController::class, 'update']);
-    Route::delete('/delete/{id}', [CityController::class, 'destroy']);
+    Route::delete('/{id}', [CityController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api','can:group_gate'],
@@ -172,7 +176,7 @@ Route::group([
     Route::post('/add', [GroupGatesController::class, 'store']);
     Route::get('/get/{id}', [GroupGatesController::class, 'show']);
     Route::put('/edit/{id}', [GroupGatesController::class, 'update']);
-    Route::delete('/delete/{id}', [GroupGatesController::class, 'destroy']);
+    Route::delete('/{id}', [GroupGatesController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api','can:group'],
@@ -182,7 +186,7 @@ Route::group([
     Route::post('/add', [GroupController::class, 'store']);
     Route::get('/get/{id}', [GroupController::class, 'show']);
     Route::put('/edit/{id}', [GroupController::class, 'update']);
-    Route::delete('/delete/{id}', [GroupController::class, 'destroy']);
+    Route::delete('/{id}', [GroupController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api','can:category-two'],
@@ -192,7 +196,7 @@ Route::group([
     Route::post('/add', [CategoryTwosController::class, 'store']);
     Route::get('/show/{id}', [CategoryTwosController::class, 'show']);
     Route::put('/edit/{id}', [CategoryTwosController::class, 'update']);
-    Route::delete('/delete/{id}', [CategoryTwosController::class, 'destroy']);
+    Route::delete('/{id}', [CategoryTwosController::class, 'destroy']);
     Route::get('/get-subset/{id}',[CategoryTwosController::class, 'GetSubsetOfCategoryTwo']);
 
 });    
@@ -204,7 +208,7 @@ Route::group([
     Route::post('/add', [CategoryThreesController::class, 'store']);
     Route::get('/show/{id}', [CategoryThreesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryThreesController::class, 'update']);
-    Route::delete('/delete/{id}', [CategoryThreesController::class, 'destroy']);
+    Route::delete('/{id}', [CategoryThreesController::class, 'destroy']);
 }); 
 Route::group([
     'middleware' => ['auth:api', 'can:coupon'],
@@ -214,7 +218,7 @@ Route::group([
     Route::post('/add', [CouponController::class, 'store']);
     Route::get('/show/{id}', [CouponController::class, 'show']);
     Route::put('/edit/{id}', [CouponController::class, 'update']);
-    Route::delete('/delete/{id}', [CouponController::class, 'destroy']);
+    Route::delete('/{id}', [CouponController::class, 'destroy']);
 }); 
 Route::group([
     'middleware' => ['auth:api', 'can:video-session'],
@@ -224,7 +228,7 @@ Route::group([
     Route::post('/add', [VideoSessionsController::class, 'store']);
     Route::get('/show/{id}', [VideoSessionsController::class, 'show']);
     Route::put('/edit/{id}', [VideoSessionsController::class, 'update']);
-    Route::delete('/delete/{id}', [VideoSessionsController::class, 'destroy']);
+    Route::delete('/{id}', [VideoSessionsController::class, 'destroy']);
     Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
     Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
     Route::put('/edit-one-video/{id}',[VideoSessionsController::class, 'EditSingleVideoSession']);
@@ -237,14 +241,14 @@ Route::group([
     Route::post('/add', [FileController::class, 'store']);
     Route::get('/show/{id}', [FileController::class, 'show']);
     Route::put('/edit/{id}', [FileController::class, 'update']);
-    Route::delete('/delete/{id}', [FileController::class, 'destroy']);
+    Route::delete('/{id}', [FileController::class, 'destroy']);
 }); 
 Route::group([
     'middleware' => ['auth:api', 'can:product-file'],
     'prefix' => 'product-files'
 ], function ($router) {
     Route::post('/add', [ProductFilesController::class, 'store']);
-    Route::delete('/delete/{id}', [ProductFilesController::class, 'destroy']);
+    Route::delete('/{id}', [ProductFilesController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:video-session-file'],
@@ -252,5 +256,5 @@ Route::group([
 ], function ($router) {
     Route::post('/add', [VideoSessionFilesController::class, 'store']);
     Route::post('/add-new-by-getting-file-info', [VideoSessionFilesController::class, 'createNewVideoSessionFile']);
-    Route::delete('/delete/{id}', [VideoSessionFilesController::class, 'destroy']);
+    Route::delete('/{id}', [VideoSessionFilesController::class, 'destroy']);
 });

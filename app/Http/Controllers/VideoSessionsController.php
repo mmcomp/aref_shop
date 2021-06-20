@@ -10,9 +10,13 @@ use App\Http\Requests\VideoSessionEditRequest;
 use App\Http\Requests\VideoSessionIndexRequest;
 use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
+use App\Models\Order;
 use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
+use App\Models\UserVideoSession;
+use Carbon\Carbon;
 use App\Utils\RaiseError;
+use App\Utils\UpdatePreviousByers;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Log;
@@ -36,12 +40,11 @@ class VideoSessionsController extends Controller
         }
         if ($request->get('per_page') == "all") {
             $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->get();
-
         } else {
             $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
         }
         return (new VideoSessionsCollection($videoSessions))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -56,7 +59,7 @@ class VideoSessionsController extends Controller
 
         $video_session = VideoSession::create($request->all());
         return (new VideoSessionsResource($video_session))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -72,11 +75,11 @@ class VideoSessionsController extends Controller
         $video_session = VideoSession::where('is_deleted', false)->find($id);
         if ($video_session != null) {
             return (new VideoSessionsResource($video_session))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new VideoSessionsResource($video_session))->additional([
-            'error' => 'VideoSession not found!',
+            'errors' => ['video_session' => ['VideoSession not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -94,11 +97,11 @@ class VideoSessionsController extends Controller
         if ($video_session != null) {
             $video_session->update($request->all());
             return (new VideoSessionsResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new VideoSessionsResource(null))->additional([
-            'error' => 'VideoSession not found!',
+            'errors' => ['video_session' => ['VideoSession not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -116,24 +119,25 @@ class VideoSessionsController extends Controller
             $video_session->is_deleted = 1;
             try {
                 $video_session->save();
+                UserVideoSession::where('video_sessions_id', $id)->delete();
                 return (new VideoSessionsResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in VideoSessionsController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new VideoSessionsResource(null))->additional([
-                        'error' => 'VideoSession deleting failed! ' . json_encode($e),
+                        'errors' => ["fail" => ['VideoSession deleting failed! ' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new VideoSessionsResource(null))->additional([
-                        'error' => 'VideoSession deleting failed!',
+                        'errors' => ['fail' => ['VideoSession deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new VideoSessionsResource(null))->additional([
-            'error' => 'VideoSession not found!',
+            'errors' => ['video_session' => ['VideoSession not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -156,6 +160,7 @@ class VideoSessionsController extends Controller
         $date = $request->input('from_date');
         $to_date = $request->input('to_date');
         $days = $request->input('days');
+        $video_session_ids = [];
         while (strtotime($date) <= strtotime($to_date)) {
             $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
             if (in_array($this->getNameOfTheDate($date), $days)) {
@@ -173,10 +178,31 @@ class VideoSessionsController extends Controller
                     "products_id" => $request->input("products_id"),
                     "video_sessions_id" => $v->id,
                 ]);
+                $video_session_ids[] = $v->id;
             }
         }
+        $completed_orders = Order::where('status', 'ok')->get();
+        $data = [];
+        foreach ($completed_orders as $order) {
+            foreach ($order->orderDetails as $orderDetail) {
+                if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
+                    foreach ($video_session_ids as $vs_id) {
+                        $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $vs_id)->first();
+                        if (!$found_user_video_session) {
+                            $data[] = [
+                                'video_sessions_id' => $vs_id,
+                                'users_id' => $order->users_id,
+                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+        UserVideoSession::insert($data);
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
     /**
@@ -189,13 +215,14 @@ class VideoSessionsController extends Controller
     {
 
         $raiseError = new RaiseError;
-        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos','video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
-        ->where('product_detail_videos.is_deleted', false)
-        ->where('video_sessions.is_deleted', false)
-        ->where('products_id', $request->input('products_id'))
-        ->where('video_sessions.start_date', '>', $request->input('date'))
-        ->orderBy('video_sessions.start_date', 'desc')->first();
+        $lastVideoSessionOfThatProduct = VideoSession::join('product_detail_videos', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')
+            ->where('product_detail_videos.is_deleted', false)
+            ->where('video_sessions.is_deleted', false)
+            ->where('products_id', $request->input('products_id'))
+            ->where('video_sessions.start_date', '>', $request->input('date'))
+            ->orderBy('video_sessions.start_date', 'desc')->first();
         $raiseError->validationError($lastVideoSessionOfThatProduct && !$request->input('extraordinary'), ['extraordinary' => ['The extraordinary field should be 1']]);
+
         $video_session = VideoSession::create([
             'start_date' => $request->input('date'),
             'start_time' => $request->input('from_time'),
@@ -204,17 +231,12 @@ class VideoSessionsController extends Controller
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
         ]);
-        ProductDetailVideo::create([
-            "price" => $request->input("price"),
-            "products_id" => $request->input("products_id"),
-            "video_sessions_id" => $video_session->id,
-            "name" => $request->input('name'),
-            "single_purchase" => $request->input('single_purchase'),
-            "extraordinary" => $request->input('extraordinary'),
-            "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0,
-        ]);
+        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $video_session->id)->first();
+        $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
+        $updatePreviousBuyers = new UpdatePreviousByers;
+        $updatePreviousBuyers->create(false, $request, $video_session->id);
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
     /**
@@ -240,10 +262,10 @@ class VideoSessionsController extends Controller
             for ($i = 1; $i <= 5; $i++) {
                 $fiveDaysBeforeTheDate[$i] = strtotime(date("Y-m-d", strtotime("-" . $i . "day", strtotime($video_sesssion->start_date))));
             }
-            if(!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate)) {
+            if (!in_array($date, $fiveDaysAfterTheDate) && !in_array($date, $fiveDaysBeforeTheDate) && $request->input('date') != $video_sesssion->start_date) {
                 throw new HttpResponseException(
                     response()->json(['errors' => ['start_date' => 'You can change start_date just 5 days after or 5 days before!']], 422)
-                ); 
+                );
             }
             $product_detail_video->update([
                 "price" => $request->input("price"),
@@ -260,11 +282,11 @@ class VideoSessionsController extends Controller
                 'price' => $request->input('price'),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
                 'video_link' => $request->input('video_link')
-             ]);
-        } 
-        $raiseError->ValidationError(!$product_detail_video->videoSession,['extraordinary' => ['No video Session is saved for the product']] );
+            ]);
+        }
+        $raiseError->ValidationError(!$product_detail_video->videoSession, ['extraordinary' => ['No video Session is saved for the product']]);
         return (new VideoSessionsResource(null))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeProductsRemoveCategoryFoursId extends Migration
+class AddPayOutputInPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class ChangeProductsRemoveCategoryFoursId extends Migration
      */
     public function up()
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn("category_fours_id");
+        Schema::table('payments', function (Blueprint $table) {
+            $table->text('pay_output')->after('bank_returned')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class ChangeProductsRemoveCategoryFoursId extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
-            //
+        Schema::table('payments', function (Blueprint $table) {
+            $table->dropColumn('pay_output');
         });
     }
 }

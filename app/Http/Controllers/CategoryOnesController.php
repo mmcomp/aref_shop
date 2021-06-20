@@ -30,7 +30,7 @@ class CategoryOnesController extends Controller
             $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new CategoryOnesCollection($category_ones))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
@@ -47,7 +47,7 @@ class CategoryOnesController extends Controller
             'name' => $request->name,
         ]);
         return (new CategoryOnesResource($category_one))->additional([
-            'error' => null,
+            'errors' => null,
         ])->response()->setStatusCode(201);
     }
 
@@ -63,11 +63,11 @@ class CategoryOnesController extends Controller
         $category_one = CategoryOne::where('is_deleted', false)->find($id);
         if ($category_one != null) {
             return (new CategoryOnesResource($category_one))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryOnesResource($category_one))->additional([
-            'error' => 'CategoryOnes not found!',
+            'errors' => ['category_one' => ['CategoryOnes not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -85,11 +85,11 @@ class CategoryOnesController extends Controller
         if ($category_one != null) {
             $category_one->update($request->all());
             return (new CategoryOnesResource(null))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryOnesResource(null))->additional([
-            'error' => 'CategoryOnes not found!',
+            'errors' => ['category_one' => ['CategoryOnes not found!']],
         ])->response()->setStatusCode(404);
     }
 
@@ -108,24 +108,24 @@ class CategoryOnesController extends Controller
             try {
                 $category_one->save();
                 return (new CategoryOnesResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
                 Log::info('failed in CategoryOnesController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CategoryOnesResource(null))->additional([
-                        'error' => 'CategoryOnes deleting failed!' . json_encode($e),
+                        'errors' => ['fail' => ['CategoryOnes deleting failed!' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new CategoryOnesResource(null))->additional([
-                        'error' => 'CategoryOnes deleting failed!',
+                        'errors' => ['fail' => ['CategoryOnes deleting failed!']],
                     ])->response()->setStatusCode(500);
                 }
 
             }
         }
         return (new CategoryOnesResource(null))->additional([
-            'error' => 'CategoryOnes not found!',
+            'errors' => ['category_one' => ['CategoryOnes not found!']],
         ])->response()->setStatusCode(404);
     }
     /**
@@ -140,11 +140,11 @@ class CategoryOnesController extends Controller
         $category_one = CategoryOne::where('is_deleted', false)->find($id);
         if ($category_one != null) {
             return (new CategoryOnesCollection($category_one->categoryTwos))->additional([
-                'error' => null,
+                'errors' => null,
             ])->response()->setStatusCode(200);
         }
         return (new CategoryOnesResource(null))->additional([
-            'error' => "CategoryOne not found!",
+            'errors' => ['category_one' => ['CategoryOnes not found!']],
         ])->response()->setStatusCode(404);
 
     }
@@ -165,23 +165,23 @@ class CategoryOnesController extends Controller
             try {
                 $category_one->save();
                 return (new CategoryOnesResource(null))->additional([
-                    'error' => null,
+                    'errors' => null,
                 ])->response()->setStatusCode(201);
             } catch (Exception $e) {
                 Log::info("fails in saving image set image in CategoryOnesController " . json_encode($e));
                 if (env('APP_ENV') == "development") {
                     return (new CategoryOnesResource(null))->additional([
-                        'error' => "fails in saving image set image in CategoryOnesController " . json_encode($e),
+                        'errors' => ["fail" => ["fails in saving image set image in CategoryOnesController " . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } elseif (env('APP_ENV') == "production") {
                     return (new CategoryOnesResource(null))->additional([
-                        'error' => "fails in saving image set image in CategoryOnesController ",
+                        'errors' => ["fail" => ["fails in saving image set image in CategoryOnesController "]],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new CategoryOnesResource(null))->additional([
-            'error' => 'CategoryOne not found!',
+            'errors' => ['category_one' => ['CategoryOnes not found!']],
         ])->response()->setStatusCode(404);
     }
     /**  Delete image of category-one
@@ -201,17 +201,17 @@ class CategoryOnesController extends Controller
                 try {
                     $category_one->save();
                     return (new CategoryOnesResource(null))->additional([
-                        'error' => null,
+                        'errors' => null,
                     ])->response()->setStatusCode(204);
                 } catch (Exception $e) {
                     Log::info("fails in deleting image in CategoryOnesController/deleteImage " . json_encode($e));
                     if (env('APP_ENV') == "development") {
                         return (new CategoryOnesResource(null))->additional([
-                            'error' => "fails in deleting image in CategoryOnesController/deleteImage " . json_encode($e),
+                            'errors' => ["fail" => ["fails in deleting image in CategoryOnesController/deleteImage " . json_encode($e)]],
                         ])->response()->setStatusCode(500);
                     } elseif (env('APP_ENV') == "production") {
                         return (new CategoryOnesResource(null))->additional([
-                            'error' => "fails in deleting image in CategoryOnesController/deleteImage ",
+                            'errors' => ["fail" => ["fails in deleting image in CategoryOnesController/deleteImage "]],
                         ])->response()->setStatusCode(500);
                     }
                 }

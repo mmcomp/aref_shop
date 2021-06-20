@@ -27,6 +27,11 @@ class EditSingleSessionRequest extends FormRequest
     public function rules()
     {
         return [
+            'id' => [
+                'required',
+                'integer',
+                'exists:product_detail_videos,id'
+            ],
             'date' => 'date',
             'from_time' => 'date_format:H:i',
             'to_time' => 'date_format:H:i|after:from_time',
@@ -44,6 +49,13 @@ class EditSingleSessionRequest extends FormRequest
             'video_link' => 'nullable|url',
             'video_session_type' => 'nullable|in:online,offline'
         ];
+    }
+    public function all($keys = null)
+    {
+        // Add route parameters to validation data
+        $data = parent::all();
+        $data['id'] = $this->route('id');
+        return $data;
     }
       /**
      * Configure the validator instance.

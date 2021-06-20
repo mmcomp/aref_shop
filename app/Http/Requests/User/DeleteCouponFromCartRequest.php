@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
-class ListOfVideosOfAProductRequest extends FormRequest
+class DeleteCouponFromCartRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,10 +27,16 @@ class ListOfVideosOfAProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'per_page' => 'nullable|string|max:255'
+            'coupons_name' => [
+                'required',
+                'string',
+                Rule::exists('coupons', 'name')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                })
+            ]
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator
@@ -41,7 +48,7 @@ class ListOfVideosOfAProductRequest extends FormRequest
             $errors = (new ValidationException($validator))->errors();
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 422)
+                response()->json(['errors' => $errors], 400)
             );
         }
     }
