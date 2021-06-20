@@ -12,8 +12,6 @@ use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use App\Models\Order;
 use App\Models\OrderVideoDetail;
-use Illuminate\Support\Facades\Log;
-use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsResource;
 use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
 use Illuminate\Support\Facades\Auth;
 
