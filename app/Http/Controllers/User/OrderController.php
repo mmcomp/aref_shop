@@ -60,7 +60,7 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('id', $id)->where('users_id', $user_id)->where('status', 'ok')->orderBy('id', 'desc')->first();
+        $order = Order::where('id', $id)->where('users_id', $user_id)->where('status', 'ok')->first();
         return (new OrderResource($order))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
