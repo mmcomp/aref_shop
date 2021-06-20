@@ -10,10 +10,12 @@ use App\Http\Resources\User\OrderResource;
 use App\Http\Resources\User\OrderVideoDetailResource;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\OrderVideoDetail;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsResource;
+use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -109,4 +111,29 @@ class OrderController extends Controller
         ])->response()->setStatusCode(200);
         
     }
+    /*
+     * show student sessions from now to a week later
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showStudentSessions()
+    {
+        
+        $user_id = Auth::user()->id;
+        $video_sessions_arr = [];
+        $date = date("Y-m-d");
+        $to_date = date("Y-m-d", strtotime("+7 day", strtotime($date)));
+        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($date, $to_date) {
+            $query->where('start_date', '>=', $date)->where('start_date', '<=', $to_date);
+        })->get();
+
+        foreach($user_video_sessions as $user_video_session) {
+            $video_sessions_arr[] = $user_video_session->videoSession;
+        }
+        return (new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+
+    }
+    
 }

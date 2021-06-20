@@ -103,6 +103,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/show-factors-of-user',[OrderController::class, 'showOrdersOfAuthUser']);
         Route::get('/single-sessions-of-user',[OrderController::class, 'singleSessionsOfAuthUser']);
         Route::get('/complete-courses-of-user',[OrderController::class, 'completeCoursesOfAuthUser']);
+        Route::get('/show-student-sessions',[OrderController::class, 'showStudentSessions']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
