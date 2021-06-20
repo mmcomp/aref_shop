@@ -7,6 +7,13 @@ use App\Http\Resources\User\VideoSessionsResource;
 
 class ProductDetailVideosResource extends JsonResource
 {
+    protected $value;
+
+    public function check($value)
+    {
+        $this->check = $value;
+        return $this;
+    }
     /**
      * Transform the resource into an array.
      *
@@ -19,7 +26,7 @@ class ProductDetailVideosResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                'videoSession' => new VideoSessionsResource($this->videoSession)
+                'videoSession' => (new VideoSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check)
             ];
         }
     }
