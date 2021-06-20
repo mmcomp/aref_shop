@@ -78,4 +78,18 @@ class OrderController extends Controller
 
     }
     
+     * show specific order of authenticated user
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showSpecificOrderOfAuthUser($id)
+    {
+
+        $user_id = Auth::user()->id;
+        $order = Order::where('id', $id)->where('users_id', $user_id)->where('status', 'ok')->first();
+        return (new OrderResource($order))->additional([
+            'error' => null,
+        ])->response()->setStatusCode(200);
+    }
 }
