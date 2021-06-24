@@ -39,5 +39,12 @@ class GroupGatesSeeder extends Seeder
                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
         }
+        DB::table('group_gates')->insert([
+            'groups_id' => 3,
+            'users_id' => 1,
+            'key' => 'teacher',
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
     }
 }
