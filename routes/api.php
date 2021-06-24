@@ -20,6 +20,7 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
+use App\Http\Controllers\UserVideoSessionHomeworkController;
 use App\Http\Controllers\VideoSessionFilesController;
 use App\Listeners\WordPressPasswordUpdate;
 use Illuminate\Support\Facades\Hash;
@@ -86,6 +87,24 @@ Route::group([
     Route::post('/search',[ProductController::class, 'search']);
     Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
     Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct']);
+});
+Route::group([
+    'middleware' => ['auth:api','can:user-video-session-homework'],
+    'prefix' => 'user-video-session-homework',
+
+], function ($router) {
+    Route::get('/', [UserVideoSessionHomeworkController::class, 'index']);
+    // Route::get('/getProduct/{id}',[ProductController::class,'show']);
+    Route::post('/add', [UserVideoSessionHomeworkController::class, 'store']);
+    // Route::put('/edit/{id}', [ProductController::class, 'update']);
+    // Route::delete('/{id}', [ProductController::class, 'destroy']);
+    // Route::post('/set-main-image/{id}',[ProductController::class, 'setMainImage']);
+    // Route::post('/set-second-image/{id}',[ProductController::class, 'setSecondImage']);
+    // Route::delete('/main-image/{id}',[ProductController::class, 'deleteMainImage']);
+    // Route::delete('/second-image/{id}',[ProductController::class, 'deleteSecondImage']);
+    // Route::post('/search',[ProductController::class, 'search']);
+    // Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
+    // Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct']);
 });
 Route::group([
     'middleware' => ['auth:api','can:productDetailChair'],

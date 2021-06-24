@@ -30,6 +30,13 @@ Route::group(['middleware' => 'user'], function(){
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
     });
+    // Route::group([
+    //     'middleware' => ['auth:api', 'can:teacher'],
+    //     'prefix' => 'auth',
+    
+    // ], function ($router) {
+    //     Route::post('/concat-homework-to-session', [UserVideoSessionHomeWorkController::class, 'ConcatHomeWorkToSession']);
+    // });
     Route::group([
         'middleware' => 'api',
         'prefix' => 'auth',

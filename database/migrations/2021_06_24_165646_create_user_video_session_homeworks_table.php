@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserVideoSessionsHomeworkTable extends Migration
+class CreateUserVideoSessionHomeworksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateUserVideoSessionsHomeworkTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_video_sessions_homework', function (Blueprint $table) {
+        Schema::create('user_video_session_homeworks', function (Blueprint $table) {
             $table->id();
             $table->integer('user_video_sessions_id')->unsigned();
-            $table->string('file', 255);
-            $table->integer('teacher_users_id')->unsigned();
-            $table->text('description');
+            $table->string('file', 255)->nullable();
+            $table->text('teacher_description')->nullable();
+            $table->text('description')->nullable();
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateUserVideoSessionsHomeworkTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_video_sessions_homework');
+        Schema::dropIfExists('user_video_session_homeworks');
     }
 }
