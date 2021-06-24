@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\GroupResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GroupGateResource extends JsonResource
@@ -18,9 +19,9 @@ class GroupGateResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'group' => new GroupResource($this->group),
+                'group' => GroupResource::collection($this->group),
                 'key' => $this->key,
-                'user' => new UserResource($this->user)
+                'user' => UserResource::collection($this->user)
             ];
         }
     }

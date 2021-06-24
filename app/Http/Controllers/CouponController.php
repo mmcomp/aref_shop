@@ -23,16 +23,16 @@ class CouponController extends Controller
     {
         
         $sort = "id";
-        $type = "desc";
-        if ($request->get('type') != null && $request->get('sort') != null) {
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $type = $request->get('type');
+            $sort_dir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $type)->get();
+            $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
 
         } else {
-            $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+            $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new CouponCollection($coupons))->additional([
             'errors' => null,

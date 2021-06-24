@@ -30,16 +30,16 @@ class UserController extends Controller
     public function index(UserIndexRequest $request)
     {
         $sort = "id";
-        $type = "desc";
-        if ($request->get('type') != null && $request->get('sort') != null) {
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $type = $request->get('type');
+            $sort_dir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->get();
+            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
 
         } else {
-            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new UserCollection($paginated_users))->additional([
             'errors' => null,

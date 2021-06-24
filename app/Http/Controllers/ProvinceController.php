@@ -24,15 +24,15 @@ class ProvinceController extends Controller
     {
 
         $sort = "name";
-        $type = "asc";
-        if ($request->get('type') != null && $request->get('sort') != null) {
+        $sort_dir = "asc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $type = $request->get('type');
+            $sort_dir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $provinces = Province::where('is_deleted', false)->orderBy($sort, $type)->get();
+            $provinces = Province::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
         } else {
-            $provinces = Province::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+            $provinces = Province::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new ProvinceCollection($provinces))->additional([
             'errors' => null,
