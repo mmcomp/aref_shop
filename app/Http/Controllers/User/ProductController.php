@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ListOfVideosOfAProductRequest;
+use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductEditRequest;
@@ -380,10 +380,10 @@ class ProductController extends Controller
      * list videos of a product
      *
      * @param  int  $id
-     * @param  \App\Http\Requests\ListOfVideosOfAProductRequest  $request
+     * @param  \App\Http\Requests\GetPerPageRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ListOfVideosOfAProduct(ListOfVideosOfAProductRequest $request, $id)
+    public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
         $per_page = $request->get('per_page');
