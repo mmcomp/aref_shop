@@ -13,6 +13,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\User\ProductCommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -135,14 +136,20 @@ Route::group(['middleware' => 'user'], function(){
         'prefix' => 'payments'
     ], function ($router) {
         Route::get('/bp-pay-request', [PaymentController::class, 'pay']);
-        
-        // Route::post('/add', [PaymentController::class, 'store']);
     });
     Route::group([
         'middleware' => ['auth:api','can:product-detail-video-of-user'],
         'prefix' => 'product-detail-videos',
     ], function ($router) {
         Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
+    });
+    Route::group([
+        'middleware' => ['auth:api','can:product-comment'],
+        'prefix' => 'product-comments',
+    ], function ($router) {
+        Route::get('/', [ProductCommentController::class, 'index']);
+        Route::post('/add', [ProductCommentController::class, 'store']);
+        Route::get('/show/{id}', [ProductCommentController::class, 'show']);
     });
     
 });
