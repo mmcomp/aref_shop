@@ -18,7 +18,7 @@ class GroupGatesSeeder extends Seeder
 
         $arr = [
             'city', 'group', 'product', 'productDetailChair', 'productDetailDownload', 'productDetailPackage', 'productDetailVideo',
-            'province', 'user', 'category-one', 'category-two', 'category-three', 'group_gate', 'coupon', 'video-session', 'file', 'product-file', 'video-session-file', 'user-video-session-homework'
+            'province', 'user', 'category-one', 'category-two', 'category-three', 'group_gate', 'coupon', 'video-session', 'file', 'product-file', 'video-session-file'
         ];
         for ($i = 0; $i < count($arr); $i++) {
             DB::table('group_gates')->insert([
@@ -29,7 +29,7 @@ class GroupGatesSeeder extends Seeder
                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
         }
-        $keys = ['cart', 'product-of-user','videosessions-of-user', 'payment', 'product-detail-video-of-user'];
+        $keys = ['cart', 'product-of-user','videosessions-of-user', 'payment', 'product-detail-video-of-user', 'attach-homework'];
         for ($i = 0; $i < count($keys); $i++) {
             DB::table('group_gates')->insert([
                 'groups_id' => 2,
@@ -42,9 +42,10 @@ class GroupGatesSeeder extends Seeder
         DB::table('group_gates')->insert([
             'groups_id' => 3,
             'users_id' => 1,
-            'key' => 'teacher',
+            'key' => 'add-description-for-homework',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
+
     }
 }

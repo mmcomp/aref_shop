@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
-class UserVideoSessionHomeWorkIndexRequest extends FormRequest
+class DeleteHomeworkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,10 +27,23 @@ class UserVideoSessionHomeWorkIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'per_page' => 'string|min:3|max:255',
+            'id' => [
+                'required',
+                'integer',
+                Rule::exists('user_video_session_homeworks', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
         ];
     }
-     /**
+    public function all($keys = null)
+    {
+        // Add route parameters to validation data
+        $data = parent::all();
+        $data['id'] = $this->route('id');
+        return $data;
+    }
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

@@ -1,78 +1,91 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Teacher\ConcatHomeworkRequest;
-use App\Utils\UploadImage;
-use App\Models\UserVideoSession;
+use App\Http\Requests\User\ConcatHomeworkRequest;
+use App\Http\Requests\User\DeleteHomeworkRequest;
+use App\Http\Requests\User\AddDescriptionRequest;
+use App\Http\Resources\UserVideoSessionHomeWorkResource;
 use App\Models\UserVideoSessionHomework;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Utils\UploadImage;
 
 class UserVideoSessionHomeWorkController extends Controller
 {
-    
+
     /**
      * concat homework to video_session
      *
+     * @param int $id
      * @param  ConcatHomeworkRequest  $request
-     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ConcatHomeWorkToSession(ConcatHomeworkRequest $request, $id)
+    public function ConcatHomeWorkToSession(int $id, ConcatHomeworkRequest $request)
     {
 
-        $user_video_session = UserVideoSession::find($id);
-        if($user_video_session != null) {
-            $upload_file = new UploadImage;
-            if ($request->file('file')) {
-                //$upload_image->imageNullablility($product->second_image_path);
-               // $->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
-                UserVideoSessionHomework::create([
-                   'user_video_sessions_id' => $user_video_session->id,
-
-                ]);
-            }
+        $user_id = Auth::user()->id;
+        $upload_file = new UploadImage;
+        if ($request->file('file')) {
+            $user_video_session_homework = UserVideoSessionHomework::create([
+                'user_video_sessions_id' => $id,
+                'file' => $upload_file->getImage($request->file('file'), "public/homeworks/" . $user_id, "homework"),
+            ]);
+            return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(201);
         }
-
-        
     }
     /**
-     * Set second image for product
+     * Delete homework file 
      *
-     * @param  App\Http\Requests\ProductImageRequest  $request
      * @param  int  $id
+     * @param  DeleteHomeworkRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function setSecondImage(ProductImageRequest $request, $id)
+    public function DeleteHomework(int $id, DeleteHomeworkRequest $request)
     {
 
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            $upload_image = new UploadImage;
-            if ($request->file('second_image_path')) {
-                $upload_image->imageNullablility($product->second_image_path);
-                $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
-            }
-            try {
-                $product->save();
-                return (new ProductResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(201);
-            } catch (Exception $e) {
-                Log::info("fails in saving image " . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image"]],
-                    ])->response()->setStatusCode(500);
-                }
-            }
+        $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->find($id);
+        $file = str_replace("storage", "public", $user_video_session_homework->file);
+        if (Storage::exists($file)) {
+            Storage::delete($file);
         }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
+        $user_video_session_homework->is_deleted = 1;
+        if($user_video_session_homework->teacher_description == null) {
+            $user_video_session_homework->save();
+            return (new UserVideoSessionHomeWorkResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(204);
+        } 
+        return (new UserVideoSessionHomeWorkResource(null))->additional([
+            'errors' => ["not_accepted" => ["You can not delete your homework when teacher added a description"]],
+        ])->response()->setStatusCode(406);
+    }
+    /**
+     * add description 
+     *
+     * @param  int  $id
+     * @param  AddDescriptionRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addDescription(int $id, AddDescriptionRequest $request) 
+    {
+
+        $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->find($id);
+        $description = $request->input("description");
+        $teacher_description = $user_video_session_homework->teacher_description;
+        $user_video_session_homework->description = $description;
+        if($teacher_description == null) {
+            $user_video_session_homework->save();
+            return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new UserVideoSessionHomeWorkResource(null))->additional([
+            'errors' => ["not_accepted" => ["You can not add a description when teacher added a description"]],
+        ])->response()->setStatusCode(406);
+       
     }
 }

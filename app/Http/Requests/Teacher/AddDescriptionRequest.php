@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Teacher;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
-class ConcatHomeworkRequest extends FormRequest
+class AddDescriptionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,12 +27,14 @@ class ConcatHomeworkRequest extends FormRequest
     public function rules()
     {
         return [
-            'file' => 'required|file|mimes:doc,docx,pdf|max:2048',
             'id' => [
                 'required',
                 'integer',
-                'exists:user_video_sessions,id'
-            ]
+                Rule::exists('user_video_session_homeworks', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
+            'description' => 'string|min:3|max:1000'
         ];
     }
     public function all($keys = null)

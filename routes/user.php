@@ -12,6 +12,7 @@ use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductDetailVideosController;
+use App\Http\Controllers\User\UserVideoSessionHomeWorkController;
 use App\Http\Controllers\User\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,13 +31,15 @@ Route::group(['middleware' => 'user'], function(){
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
     });
-    // Route::group([
-    //     'middleware' => ['auth:api', 'can:teacher'],
-    //     'prefix' => 'auth',
+    Route::group([
+        'middleware' => ['auth:api', 'can:attach-homework'],
+        'prefix' => 'homework',
     
-    // ], function ($router) {
-    //     Route::post('/concat-homework-to-session', [UserVideoSessionHomeWorkController::class, 'ConcatHomeWorkToSession']);
-    // });
+    ], function ($router) {
+        Route::post('/concat-homework-to-session/{id}', [UserVideoSessionHomeWorkController::class, 'ConcatHomeWorkToSession']);
+        Route::delete('/file/{id}', [UserVideoSessionHomeWorkController::class, 'DeleteHomework']);
+        Route::put('/add-description/{id}', [UserVideoSessionHomeWorkController::class, 'addDescription']);
+    });
     Route::group([
         'middleware' => 'api',
         'prefix' => 'auth',
