@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserDescriptionCreateRequest;
 use App\Models\UserDescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,10 +22,10 @@ class UserDescriptionsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\UserDescriptionCreateRequest  $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(UserDescriptionCreateRequest $request)
     {
         
         $user_video_session_homeworks_id = $request->input('user_video_session_homeworks_id');
