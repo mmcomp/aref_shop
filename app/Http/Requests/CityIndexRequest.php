@@ -27,7 +27,7 @@ class CityIndexRequest extends FormRequest
     {
         return [
             'sort' => 'required_with:type|in:id,name,provinces_id',
-            'type' => 'required_with:sort|in:asc,desc',
+            'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255'
         ];
     }
