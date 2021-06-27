@@ -5,7 +5,7 @@ namespace App\Http\Resources\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ProductResource;
-use App\Http\Resources\VideoSessionFileResource;
+use App\Http\Resources\User\VideoSessionFileResource;
 use App\Http\Resources\UserResource;
 use App\Utils\Number2Word;
 
