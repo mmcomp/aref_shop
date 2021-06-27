@@ -37,6 +37,7 @@ class SynchronizeProductsWithCrmJob implements ShouldQueue
     public function handle()
     {
         try {
+            Log::info("Job started");
             $response = Http::post(env('CRM_ADD_PRODUCT_URL'), [
                 "products" => [
                     0 => [

@@ -25,7 +25,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
 use Carbon\Carbon;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
