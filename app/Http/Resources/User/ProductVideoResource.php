@@ -5,6 +5,7 @@ namespace App\Http\Resources\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\VideoSessionFileResource;
 use App\Http\Resources\UserResource;
 use App\Utils\Number2Word;
 
@@ -43,7 +44,7 @@ class ProductVideoResource extends JsonResource
                     }
                 }
                 foreach($this->videoSession->videoSessionFiles as $video_session_file) {
-                    $video_session_files[] = $video_session_file;
+                    $video_session_files[] = new VideoSessionFileResource($video_session_file);
                 }
             }
             return [
