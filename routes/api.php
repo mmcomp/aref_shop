@@ -20,11 +20,8 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
-use App\Http\Controllers\UserVideoSessionHomeworkController;
+use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
-use App\Listeners\WordPressPasswordUpdate;
-use Illuminate\Support\Facades\Hash;
-use MikeMcLin\WpPassword\WpPassword;
 
 /*
 |--------------------------------------------------------------------------
@@ -258,4 +255,14 @@ Route::group([
     Route::post('/add', [VideoSessionFilesController::class, 'store']);
     Route::post('/add-new-by-getting-file-info', [VideoSessionFilesController::class, 'createNewVideoSessionFile']);
     Route::delete('/{id}', [VideoSessionFilesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user-description'],
+    'prefix' => 'user-descriptions'
+], function ($router) {
+    Route::get('/', [UserDescriptionsController::class, 'index']);
+    Route::post('/add', [UserDescriptionsController::class, 'store']);
+    Route::get('/show/{id}', [UserDescriptionsController::class, 'show']);
+    Route::put('/edit/{id}', [UserDescriptionsController::class, 'update']);
+    Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
 });
