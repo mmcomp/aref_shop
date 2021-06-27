@@ -7,6 +7,7 @@ use App\Http\Requests\ProductCommentEditRequest;
 use App\Http\Requests\ProductCommentIndexRequest;
 use App\Http\Resources\ProductCommentCollection;
 use App\Http\Resources\ProductCommentResource;
+use Illuminate\Support\Facades\Auth;
 use App\Models\ProductComment;
 
 class ProductCommentController extends Controller
@@ -38,6 +39,7 @@ class ProductCommentController extends Controller
         
         $product_comment = ProductComment::find($id);
         $product_comment->verified = $request->input('verified');
+        $product_comment->verifier_users_id = Auth::user()->id;
         $product_comment->save();
         return (new ProductCommentResource($product_comment))->additional([
             'errors' => null,
