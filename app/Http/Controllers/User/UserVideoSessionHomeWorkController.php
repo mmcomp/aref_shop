@@ -53,15 +53,10 @@ class UserVideoSessionHomeWorkController extends Controller
             Storage::delete($file);
         }
         $user_video_session_homework->is_deleted = 1;
-        if($user_video_session_homework->teacher_description == null) {
-            $user_video_session_homework->save();
-            return (new UserVideoSessionHomeWorkResource(null))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(204);
-        } 
+        $user_video_session_homework->save();
         return (new UserVideoSessionHomeWorkResource(null))->additional([
-            'errors' => ["not_accepted" => ["You can not delete your homework when teacher added a description"]],
-        ])->response()->setStatusCode(406);
+            'errors' => null,
+        ])->response()->setStatusCode(204);
     }
     /**
      * add description 
@@ -70,22 +65,15 @@ class UserVideoSessionHomeWorkController extends Controller
      * @param  AddDescriptionRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addDescription(int $id, AddDescriptionRequest $request) 
+    public function addDescription(int $id, AddDescriptionRequest $request)
     {
 
         $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->find($id);
         $description = $request->input("description");
-        $teacher_description = $user_video_session_homework->teacher_description;
         $user_video_session_homework->description = $description;
-        if($teacher_description == null) {
-            $user_video_session_homework->save();
-            return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
-        }
-        return (new UserVideoSessionHomeWorkResource(null))->additional([
-            'errors' => ["not_accepted" => ["You can not add a description when teacher added a description"]],
-        ])->response()->setStatusCode(406);
-       
+        $user_video_session_homework->save();
+        return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

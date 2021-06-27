@@ -11,10 +11,10 @@ use App\Http\Controllers\Teacher\UserVideoSessionHomeWorkController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
-Route::group([
-    'middleware' => ['auth:api', 'can:add-description-for-homework'],
-    'prefix' => 'homework',
+// Route::group([
+//     'middleware' => ['auth:api', 'can:add-description-for-homework'],
+//     'prefix' => 'homework',
 
-], function ($router) {
-    Route::put('/add-description/{id}', [UserVideoSessionHomeWorkController::class, 'addDescription']);
-});
+// ], function ($router) {
+//     Route::put('/add-description/{id}', [UserVideoSessionHomeWorkController::class, 'addDescription']);
+// });

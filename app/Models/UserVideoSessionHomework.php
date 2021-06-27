@@ -14,11 +14,15 @@ class UserVideoSessionHomework extends Model
         'file',
         'user_video_sessions_id',
         'description',
-        'teacher_description'
+        'teacher_users_id'
     ];
 
     public function userVideoSession()
     {
         return $this->hasOne('App\Models\UserVideoSession', 'id', 'user_video_sessions_id');
+    }
+    public function user()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'teacher_users_id');
     }
 }

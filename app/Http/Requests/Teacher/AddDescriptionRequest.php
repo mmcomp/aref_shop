@@ -34,7 +34,7 @@ class AddDescriptionRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'description' => 'string|min:3|max:1000'
+            'description' => 'required|string|min:3|max:1000'
         ];
     }
     public function all($keys = null)
