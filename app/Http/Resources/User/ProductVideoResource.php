@@ -29,6 +29,7 @@ class ProductVideoResource extends JsonResource
             $number = new Number2Word;
             $num = 0;
             $bought = false;
+            $video_session_files = [];
             if ($this->videoSession) {
                 $numToWord = $this->foo[$this->id] ? $number->numberToWords($this->foo[$this->id]) : $this->product_detail_video_name;
                 if (!$this->foo[$this->id]) {
@@ -41,10 +42,14 @@ class ProductVideoResource extends JsonResource
                         $bought = true;
                     }
                 }
+                foreach($this->videoSession->videoSessionFiles as $video_session_file) {
+                    $video_session_files[] = $video_session_file;
+                }
             }
             return [
                 'id' => $this->id,
                 'buyed_before' => $bought,
+                'video_session_files' => $video_session_files,
                 'start_date' => $this->videoSession ? $this->videoSession->start_date : null,
                 'start_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->start_time)) : null,
                 'end_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->end_time)) : null,
