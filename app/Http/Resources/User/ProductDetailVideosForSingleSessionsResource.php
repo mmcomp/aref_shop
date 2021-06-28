@@ -3,6 +3,7 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\User\ProductForSingleSessionsResource;
 use App\Http\Resources\User\VideoSessionForSingleSessionsResource;
 
 class ProductDetailVideosForSingleSessionsResource extends JsonResource
@@ -26,6 +27,7 @@ class ProductDetailVideosForSingleSessionsResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
+                'product' => new ProductForSingleSessionsResource($this->product),
                 'videoSession' => (new VideoSessionForSingleSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check)
             ];
         }
