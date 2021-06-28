@@ -11,6 +11,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\UserProductsController;
 use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\ProductCommentController;
