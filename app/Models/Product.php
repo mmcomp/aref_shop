@@ -68,5 +68,9 @@ class Product extends Model
     {
         return $this->hasOne('App\Models\OrderDetail', 'products_id', 'id');
     }
+    public function comments()
+    {
+        return $this->hasMany('App\Models\ProductComment', 'products_id', 'id');
+    }
 
 }

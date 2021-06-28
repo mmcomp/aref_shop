@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductDetailChairsController;
 use App\Http\Controllers\ProductDetailDownloadsController;
 use App\Http\Controllers\ProductDetailPackagesController;
 use App\Http\Controllers\ProductDetailVideosController;
+use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -21,9 +22,6 @@ use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\VideoSessionFilesController;
-use App\Listeners\WordPressPasswordUpdate;
-use Illuminate\Support\Facades\Hash;
-use MikeMcLin\WpPassword\WpPassword;
 
 /*
 |--------------------------------------------------------------------------
@@ -257,4 +255,12 @@ Route::group([
     Route::post('/add', [VideoSessionFilesController::class, 'store']);
     Route::post('/add-new-by-getting-file-info', [VideoSessionFilesController::class, 'createNewVideoSessionFile']);
     Route::delete('/{id}', [VideoSessionFilesController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => ['auth:api','can:product-comment-admin'],
+    'prefix' => 'product-comments',
+], function ($router) {
+    Route::get('/', [ProductCommentController::class, 'index']);
+    Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
+    Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
 });
