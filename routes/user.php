@@ -11,6 +11,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\UserProductsController;
 use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\OrderController;
 use Illuminate\Http\Request;
@@ -143,6 +144,11 @@ Route::group(['middleware' => 'user'], function(){
         'prefix' => 'product-detail-videos',
     ], function ($router) {
         Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
+    });
+    Route::group([
+        'middleware' => ['auth:api','can:user-product']
+    ], function ($router) {
+        Route::get('/complete-courses', [UserProductsController::class, 'completeCoursesOfAuthUser']);
     });
     
 });
