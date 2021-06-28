@@ -4,15 +4,15 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\OrderCollection;
-use App\Http\Resources\User\OrderVideoDetailCollection;
 use App\Http\Resources\User\OrderDetailCollection;
 use App\Http\Resources\User\OrderResource;
-use App\Http\Resources\User\OrderVideoDetailResource;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use App\Models\Order;
 use App\Models\OrderVideoDetail;
 use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
+use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsResource;
+use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsCollection;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -79,10 +79,10 @@ class OrderController extends Controller
             $found_user_videoSession = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
             $price = $product_detail_video->price != null ? $product_detail_video->price : $product_detail_video->videoSession->price;
             $checkPriceAndUserVideoSession = (!$price || $found_user_videoSession);
-            $orderVideoDetailResource = (new OrderVideoDetailResource($orderVideoDetail))->check($checkPriceAndUserVideoSession);
+            $orderVideoDetailResource = (new OrderVideoDetailsForSingleSessionsResource($orderVideoDetail))->check($checkPriceAndUserVideoSession);
             $orderVideoDetailsArr[] = $orderVideoDetailResource;
         }
-        return ((new OrderVideoDetailCollection($orderVideoDetailsArr)))->additional([
+        return ((new OrderVideoDetailsForSingleSessionsCollection($orderVideoDetailsArr)))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
     }
