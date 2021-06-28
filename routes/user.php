@@ -98,7 +98,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
     });
     Route::group([
-        'middleware' => ['auth:api'],
+        'middleware' => ['auth:api', 'can:order'],
         'prefix' => 'order'
     ], function ($router) {
         Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);

@@ -29,7 +29,7 @@ class GroupGatesSeeder extends Seeder
                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
         }
-        $keys = ['cart', 'product-of-user','videosessions-of-user', 'payment', 'product-detail-video-of-user', 'product-packages-of-user', 'product-comment'];
+        $keys = ['cart', 'product-of-user','videosessions-of-user', 'payment', 'product-detail-video-of-user', 'product-packages-of-user', 'product-comment', 'order'];
         for ($i = 0; $i < count($keys); $i++) {
             DB::table('group_gates')->insert([
                 'groups_id' => 2,
