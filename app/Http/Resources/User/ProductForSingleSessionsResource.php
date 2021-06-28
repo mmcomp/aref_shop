@@ -18,6 +18,7 @@ class ProductForSingleSessionsResource extends JsonResource
            
             return [
                 'id' => $this->id,
+                'name' => $this->name,
                 'thumbnail' => $this->main_image_thumb_path
             ];
         }
