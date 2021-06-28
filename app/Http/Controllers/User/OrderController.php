@@ -10,9 +10,12 @@ use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use App\Models\Order;
 use App\Models\OrderVideoDetail;
+use App\Models\UserProduct;
+use App\Models\Product;
 use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
 use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsResource;
 use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsCollection;
+use App\Http\Resources\User\ProductForSingleSessionsCollection;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -95,19 +98,23 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $orders = Order::where('users_id', $user_id)->where('status', 'ok')->get();
-        $orderDetailsArr = [];
-        foreach($orders as $order) {
-           foreach($order->orderDetails as $orderDetail) {
-               if($orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
-                  $orderDetailsArr[] = $orderDetail;
-               }
-           }
+        $user_video_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function($query){
+           $query->where('type', 'video');
+        })->pluck('products_id')->toArray(); 
+        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function($query){
+            $query->where('type', 'package');
+         })->get(); 
+        $package_child_products = [];
+        foreach($user_package_products as $package) {
+           foreach($package->product->productDetailPackages as $productDetailPackage) {
+               $package_child_products[] = $productDetailPackage->child_products_id;
+           }   
         }
-        return (new OrderDetailCollection($orderDetailsArr))->additional([
+        $needed_product_ids = array_values(array_unique(array_merge($package_child_products, $user_video_products)));
+        $products = Product::where('is_deleted', false)->whereIn('id', $needed_product_ids)->get();
+        return (new ProductForSingleSessionsCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
-        
     }
     /*
      * show student sessions from now to a week later
