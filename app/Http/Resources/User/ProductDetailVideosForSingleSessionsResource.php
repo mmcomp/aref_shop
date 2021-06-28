@@ -26,6 +26,7 @@ class ProductDetailVideosForSingleSessionsResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
+                'product_thumbnail' => $this->product->main_image_thumb_path,
                 'videoSession' => (new VideoSessionForSingleSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check)
             ];
         }
