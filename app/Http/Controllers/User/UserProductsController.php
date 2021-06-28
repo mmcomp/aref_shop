@@ -23,15 +23,15 @@ class UserProductsController extends Controller
 
         $user_id = Auth::user()->id;
         //$user_products = UserProduct::where('users_id', $user_id)->where('partial', 0);
-        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
+        DB::enableQueryLog();
+        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->join('product_detail_packages', 'product_detail_packages.products_id', '=', 'user_products.products_id')->whereHas('product', function ($query) {
             $query->where('type', 'package');
             // if('type' == "package") {
             //     dd('hello');
             // }
         })->get();
-        dd($user_package_products->join('product_detail_packages', 'product_detail_packages.products_id', '=', 'user_products.products_id'));
         
-        //dd(DB::getQueryLog());
+        dd(DB::getQueryLog());
         //dd($user_package_products);
         // return (new UserProductCollection($user_products))->additional([
         //     'error' => null,
