@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsCollection;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsResource;
+use App\Http\Resources\User\ProductDetailVideosForTodaySessionsCollection;
 use App\Models\ProductDetailVideo;
 use Carbon\Carbon;
 
@@ -47,7 +48,7 @@ class VideoSessionsController extends Controller
         $today_sessions = ProductDetailVideo::where('is_deleted', false)->whereHas('videoSession', function($query) use($today_date) {
            $query->where('start_date', $today_date);
         })->get();
-        return (new ProductDetailVideosForFreeSessionsCollection($today_sessions))->additional([
+        return (new ProductDetailVideosForTodaySessionsCollection($today_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
