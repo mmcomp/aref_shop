@@ -41,6 +41,7 @@ class SynchronizeProductsWithCrmJob implements ShouldQueue
                 "products" => [
                     0 => [
                         "woo_id" => $this->product->id,
+                        "source" => "shop",
                         "name" => $this->product->name,
                         "collections_id" => $this->product->category_ones_id
                     ],
