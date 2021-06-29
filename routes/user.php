@@ -15,6 +15,7 @@ use App\Http\Controllers\User\UserProductsController;
 use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\ProductCommentController;
+use App\Http\Controllers\User\VideoSessionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -151,6 +152,13 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/', [ProductCommentController::class, 'index']);
         Route::post('/add', [ProductCommentController::class, 'store']);
         Route::get('/show/{id}', [ProductCommentController::class, 'show']);
+    });
+
+    Route::group([
+        'middleware' => ['auth:api','can:sessions'],
+        'prefix' => 'sessions',
+    ], function ($router) {
+        Route::get('/free', [VideoSessionsController::class, 'freeSessions']);
     });
     
 });
