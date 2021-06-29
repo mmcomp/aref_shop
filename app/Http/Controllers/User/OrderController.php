@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\OrderCollection;
 use App\Http\Resources\User\OrderDetailCollection;
+use App\Http\Resources\User\OrderForShowFactorsCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
@@ -56,7 +57,7 @@ class OrderController extends Controller
 
         $user_id = Auth::user()->id;
         $orders = Order::where('users_id', $user_id)->where('status', 'ok')->orderBy('id', 'desc')->get();
-        return (new OrderCollection($orders))->additional([
+        return (new OrderForShowFactorsCollection($orders))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
     }
