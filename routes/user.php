@@ -159,6 +159,7 @@ Route::group(['middleware' => 'user'], function(){
         'prefix' => 'sessions',
     ], function ($router) {
         Route::get('/free', [VideoSessionsController::class, 'freeSessions']);
+        Route::get('/today', [VideoSessionsController::class, 'todaySessions']);
     });
     
 });
