@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsCollection;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsResource;
 use App\Http\Resources\User\ProductDetailVideosForTodaySessionsCollection;
-use App\Http\Resources\User\ProductDetailVideosForTodaySessionsResource;
 use App\Models\ProductDetailVideo;
 use Carbon\Carbon;
 

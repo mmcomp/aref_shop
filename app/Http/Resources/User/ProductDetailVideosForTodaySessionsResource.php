@@ -31,12 +31,13 @@ class ProductDetailVideosForTodaySessionsResource extends JsonResource
             if($this->name == null){
                 $num = strpos($persianAlphabetNum, "سه") !== false ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' : $persianAlphabetNum . 'م';
             } else {
-                $num = $this->productDetailVideo->name;
+                $num = $this->name;
             }
             return [
                 'id' => $this->id,
+                'price' => $this->price,
                 'product' => new ProductForSingleSessionsResource($this->product),
-                'videoSession' => (new VideoSessionForSingleSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check),
+                'videoSession' => (new VideoSessionForTodaySessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check),
                 'numName' => $num
             ];
         }
