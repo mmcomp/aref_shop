@@ -2,8 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Models\UserSync;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -11,20 +9,24 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\ProductSync;
+use App\Models\Product;
+use Exception;
 
-class SynchronizeUsersWithCrmJob implements ShouldQueue
+
+class SynchronizeProductsWithCrmJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    private $product;
 
-    private $user;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct(Product $product)
     {
-        $this->user = $user;
+        $this->product = $product;
     }
 
     /**
@@ -35,24 +37,27 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
     public function handle()
     {
         try {
-            $response = Http::post(env('CRM_ADD_STUDENT_URL'), [
-                "students" => [
+            $response = Http::post(env('CRM_ADD_PRODUCT_URL'), [
+                "products" => [
                     0 => [
-                        "phone" => $this->user->email,
+                        "woo_id" => $this->product->id,
+                        "source" => "shop",
+                        "name" => $this->product->name,
+                        "collections_id" => $this->product->category_ones_id
                     ],
                 ],
             ]);
             if ($response->getStatusCode() == 200) {
-                UserSync::create([
-                    "users_id" => $this->user->id,
+                ProductSync::create([
+                    "products_id" => $this->product->id,
                     "status" => "successful",
                     "error_message" => null,
                 ]);
             }
         } catch (Exception $e) {
-            Log::info("CRM ran into a problem in synchronize users!" . json_encode($e->getMessage()));
-            UserSync::create([
-                "users_id" => $this->user->id,
+            Log::info("CRM ran into a problem in synchronize products! " . json_encode($e->getMessage()));
+            ProductSync::create([
+                "products_id" => $this->product->id,
                 "status" => "failed",
                 "error_message" => json_encode($e->getMessage()),
             ]);
