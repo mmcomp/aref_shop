@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\User\ProductDetailVideosForSingleSessionsCollection;
+use App\Http\Resources\User\ProductDetailVideosForFreeSessionsCollection;
+use App\Http\Resources\User\ProductDetailVideosForFreeSessionsResource;
 use App\Models\ProductDetailVideo;
 
 class VideoSessionsController extends Controller
@@ -17,6 +18,7 @@ class VideoSessionsController extends Controller
     public function freeSessions()
     {
 
+        $final_arr = [];
         $free_sessions = ProductDetailVideo::where('is_deleted', false)->where(function($query) {
            $query->orWhere('price', 0)->orWhere(function($q){
                 $q->where('price', null)->whereHas('videoSession', function($q2){
@@ -24,8 +26,11 @@ class VideoSessionsController extends Controller
                  });
            });
         })->get();
+        foreach($free_sessions as $item) {
+            $final_arr[] = (new ProductDetailVideosForFreeSessionsResource($item))->check(true);
+        }
 
-        return (new ProductDetailVideosForSingleSessionsCollection($free_sessions))->additional([
+        return (new ProductDetailVideosForFreeSessionsCollection($final_arr))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
