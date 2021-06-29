@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\User;
 
-use App\Http\Resources\User\ProductDetailVideosForFreeSessionsResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use App\Http\Resources\User\ProductDetailVideosForTodaySessionsResource;
 
-class ProductDetailVideosForFreeSessionsCollection extends ResourceCollection
+
+class ProductDetailVideosForTodaySessionsCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
@@ -15,7 +16,7 @@ class ProductDetailVideosForFreeSessionsCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return $this->collection->map(function (ProductDetailVideosForFreeSessionsResource $resource) use ($request) {
+        return $this->collection->map(function (ProductDetailVideosForTodaySessionsResource $resource) use ($request) {
             $i = 1;
             $numArray = [];
             $product = $resource->product;
@@ -28,6 +29,6 @@ class ProductDetailVideosForFreeSessionsCollection extends ResourceCollection
                 $resource->numName = $numArray[$resource->id];
             }
             return $resource;
-        })->filter()->all();   
-     }
+        })->filter()->all();
+    }
 }
