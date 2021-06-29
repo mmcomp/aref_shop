@@ -30,7 +30,7 @@ class ProductDetailVideosForFreeSessionsResource extends JsonResource
             if($this->name == null){
                 $num = strpos($persianAlphabetNum, "سه") !== false ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' : $persianAlphabetNum . 'م';
             } else {
-                $num = $this->productDetailVideo->name;
+                $num = $this->name;
             }
             return [
                 'id' => $this->id,
