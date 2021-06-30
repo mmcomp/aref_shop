@@ -17,6 +17,7 @@ use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
 use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsResource;
 use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsCollection;
 use App\Http\Resources\User\ProductForSingleSessionsCollection;
+use App\Utils\TheDate;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -126,18 +127,21 @@ class OrderController extends Controller
     {
         
         $user_id = Auth::user()->id;
+        $theDate = new TheDate;
         $video_sessions_arr = [];
         $date = date("Y-m-d");
-        $to_date = date("Y-m-d", strtotime("+7 day", strtotime($date)));
-        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($date, $to_date) {
-            $query->where('start_date', '>=', $date)->where('start_date', '<=', $to_date);
+        $saturday_and_friday = $theDate->getSaturdayAndFriday($date);
+        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($saturday_and_friday) {
+            $query->where('start_date', '>=', $saturday_and_friday['saturday'])->where('start_date', '<=', $saturday_and_friday['friday']);
         })->get();
 
         foreach($user_video_sessions as $user_video_session) {
             $video_sessions_arr[] = $user_video_session->videoSession;
         }
-        return (new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->additional([
+        return ((new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->foo($saturday_and_friday))->additional([
             'errors' => null,
+            'saturday' => $saturday_and_friday['saturday'],
+            'friday' => $saturday_and_friday['friday']
         ])->response()->setStatusCode(201);
 
     }
