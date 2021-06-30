@@ -23,7 +23,6 @@ class ProductDetailVideosForTodaySessionsResource extends JsonResource
      */
     public function toArray($request)
     {
-       
         if ($this->resource != null) {
             $number = new Number2Word;
             $num = 0;

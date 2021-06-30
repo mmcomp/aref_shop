@@ -28,6 +28,6 @@ class ProductDetailVideosForFreeSessionsCollection extends ResourceCollection
                 $resource->numName = $numArray[$resource->id];
             }
             return $resource;
-        })->filter()->all();   
-     }
+        })->filter()->all();
+    }
 }
