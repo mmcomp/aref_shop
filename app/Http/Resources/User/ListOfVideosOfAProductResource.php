@@ -3,21 +3,9 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\ProductResource;
-use App\Http\Resources\User\VideoSessionFileResource;
-use App\Http\Resources\UserResource;
-use App\Utils\Number2Word;
 
-class ProductVideoResource extends JsonResource
+class ListOfVideosOfAProductResource extends JsonResource
 {
-    // protected $value;
-
-    // public function foo($value)
-    // {
-    //     $this->foo = $value;
-    //     return $this;
-    // }
     /**
      * Transform the resource into an array.
      *
@@ -56,9 +44,9 @@ class ProductVideoResource extends JsonResource
                 'start_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->start_time)) : null,
                 'end_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->end_time)) : null,
                 // 'teacher'  => $this->videoSession ? new UserResource($this->videoSession->teacher) : null,
-                // //'name' => $this->name == null ? $num : $this->name,
-                // 'price' => $this->price == null ? ($this->videoSession ? $this->videoSession->price : null) : $this->price,
-                // 'product' => new ProductResource($this->product),
+                //'name' => $this->name == null ? $num : $this->name,
+                'price' => $this->price == null ? ($this->videoSession ? $this->videoSession->price : null) : $this->price,
+                'product' => new ProductForListOfVideosOfAProductResource($this->product),
                 // 'video_session_type' => $this->videoSession ? $this->videoSession->video_session_type : null,
                 // 'video_link' => $this->videoSession ? base64_encode($this->videoSession->video_link) : null,
                 // 'extraordinary' => $this->extraordinary,

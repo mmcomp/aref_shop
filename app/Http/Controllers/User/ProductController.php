@@ -9,6 +9,8 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\User\ProductOfUserCollection;
 use App\Http\Resources\User\ProductVideoCollection;
 use App\Http\Resources\User\ProductVideoResource;
+use App\Http\Resources\User\ListOfVideosOfAProductResource;
+use App\Http\Resources\User\ListOfVideosOfAProductCollection;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Utils\RaiseError;
 use App\Models\Product;
@@ -99,18 +101,20 @@ class ProductController extends Controller
         if ($product != null) {
             $numArray = [];
             $i = 1;
-            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
-                $v = $product->productDetailVideos[$indx];
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
-                $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
-            }
+            // for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
+            //     // $v = $product->productDetailVideos[$indx];
+            //     // $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
+            //     // $i = $numArray[$v->id] ? $i + 1 : $i;
+            //     $product_detail_videos[] = $product->productDetailVideos[$indx];
+            // }
+            $product_detail_videos = $product->productDetailVideos;
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
-            return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
+            //return $product_detail_video_items;
+            return (new ListOfVideosOfAProductCollection($product_detail_video_items))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
-        return (new ProductVideoResource(null))->additional([
+        return (new ListOfVideosOfAProductResource(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
