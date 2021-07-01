@@ -27,6 +27,7 @@ class ListOfVideosOfAProductResource extends JsonResource
                 'start_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->start_time)) : null,
                 'end_time' => $this->videoSession ? date('H:i', strtotime($this->videoSession->end_time)) : null,
                 'name' => $this->name,
+                'is_hidden' => $this->is_hidden,
                 'price' => $this->price == null ? ($this->videoSession ? $this->videoSession->price : null) : $this->price,
             ];
         }
