@@ -9,7 +9,10 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\User\ProductOfUserCollection;
 use App\Http\Resources\User\ProductVideoCollection;
 use App\Http\Resources\User\ProductVideoResource;
+use App\Http\Resources\User\ListOfVideosOfAProductResource;
+use App\Http\Resources\User\ListOfVideosOfAProductCollection;
 use App\Http\Resources\ProductDetailPackagesCollection;
+use App\Utils\Number2Word;
 use App\Utils\RaiseError;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
@@ -42,7 +45,7 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate(env('PAGE_COUNT'));
         }
-        
+
         return (new ProductOfUserCollection($products))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -93,6 +96,7 @@ class ProductController extends Controller
     public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        $number = new Number2Word;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
@@ -105,16 +109,23 @@ class ProductController extends Controller
                 $i = $numArray[$v->id] ? $i + 1 : $i;
                 $product_detail_videos[] = $product->productDetailVideos[$indx];
             }
+            for($j = 0; $j < count($product_detail_videos); $j++) {
+                $persianAlphabetNum = $number->numberToWords($numArray[$product_detail_videos[$j]->id]);
+                if($persianAlphabetNum != null) {
+                    $product_detail_videos[$j]->name = $product_detail_videos[$j]->name == null ? (strpos($persianAlphabetNum, "سه") !== false ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' : $persianAlphabetNum . 'م') : $product_detail_videos[$j]->name;
+                }
+            }
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
-            return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
-                'errors' => null,
+            $productArr = ["name" => $product->name, "thumbnail" => $product->main_image_thumb_path];
+            return ((new ListOfVideosOfAProductCollection($product_detail_video_items))->foo($productArr))->additional([
+                'errors' => null
             ])->response()->setStatusCode(200);
         }
-        return (new ProductVideoResource(null))->additional([
+        return (new ListOfVideosOfAProductResource(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
-     /**
+    /**
      * get packages of a product that is package
      *
      * @param  int  $id
@@ -126,7 +137,7 @@ class ProductController extends Controller
 
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->find($id);        
+        $product = Product::where('is_deleted', false)->find($id);
         $product_detail_packages = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
