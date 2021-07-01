@@ -29,7 +29,7 @@ class UserEditRequest extends FormRequest
     {
         return [
             'id' => ['required',new theInt],
-            'first_name' => 'string|between:2,100',
+            'first_name' => 'nullable|string|between:2,100',
             'last_name' => 'string|between:2,100',
             'email' => 'string|max:12',
             'password' => 'nullable|string|min:6|confirmed',
