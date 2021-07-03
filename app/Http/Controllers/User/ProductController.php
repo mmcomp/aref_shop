@@ -12,6 +12,7 @@ use App\Http\Resources\User\ProductVideoResource;
 use App\Http\Resources\User\ListOfVideosOfAProductResource;
 use App\Http\Resources\User\ListOfVideosOfAProductCollection;
 use App\Http\Resources\ProductDetailPackagesCollection;
+use App\Utils\GetNameOfSessions;
 use App\Utils\Number2Word;
 use App\Utils\RaiseError;
 use App\Models\Product;
@@ -96,25 +97,12 @@ class ProductController extends Controller
     public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
-        $number = new Number2Word;
+        $getNameOfSessions = new GetNameOfSessions;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
-            $numArray = [];
-            $i = 1;
-            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
-                $v = $product->productDetailVideos[$indx];
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
-                $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
-            }
-            for($j = 0; $j < count($product_detail_videos); $j++) {
-                $persianAlphabetNum = $number->numberToWords($numArray[$product_detail_videos[$j]->id]);
-                if($persianAlphabetNum != null) {
-                    $product_detail_videos[$j]->name = $product_detail_videos[$j]->name == null ? (strpos($persianAlphabetNum, "سه") !== false ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' : $persianAlphabetNum . 'م') : $product_detail_videos[$j]->name;
-                }
-            }
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product);
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
             $productArr = ["name" => $product->name, "thumbnail" => $product->main_image_thumb_path];
             return ((new ListOfVideosOfAProductCollection($product_detail_video_items))->foo($productArr))->additional([
