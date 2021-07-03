@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use Illuminate\Support\Facades\Auth;
-use App\Utils\Number2Word;
 use App\Http\Resources\User\ProductDetailVideosResourceForShow;
 use App\Utils\GetNameOfSessions;
 
