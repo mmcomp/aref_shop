@@ -129,6 +129,7 @@ class OrderController extends Controller
         $user_id = Auth::user()->id;
         $theDate = new TheDate;
         $video_sessions_arr = [];
+        $video_sessions_id_arr = [];
         $date = date("Y-m-d");
         $saturday_and_friday = $theDate->getSaturdayAndFriday($date);
         $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($saturday_and_friday) {
@@ -138,11 +139,16 @@ class OrderController extends Controller
         foreach($user_video_sessions as $user_video_session) {
             $video_sessions_arr[] = $user_video_session->videoSession;
         }
+        foreach($video_sessions_arr as $item) {
+            $video_sessions_id_arr[] = $item->id;
+        }
+        $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
+        return $product_detail_videos;
         return ((new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->foo($saturday_and_friday))->additional([
             'errors' => null,
             'saturday' => $saturday_and_friday['saturday'],
             'friday' => $saturday_and_friday['friday']
-        ])->response()->setStatusCode(201);
+        ])->response()->setStatusCode(200);
 
     }
     
