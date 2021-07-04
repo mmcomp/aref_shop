@@ -24,4 +24,5 @@ class GetNameOfSessions {
         }
         return $product_detail_videos;
     }
+
 }

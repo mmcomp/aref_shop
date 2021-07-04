@@ -295,11 +295,11 @@ class ProductController extends Controller
                 Log::info("fails in saving image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in saving second image" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image"]],
+                        'errors' => ["fail" => ["fails in saving second image"]],
                     ])->response()->setStatusCode(500);
                 }
             }
