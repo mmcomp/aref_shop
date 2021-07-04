@@ -8,6 +8,7 @@ use App\Http\Requests\User\DeleteHomeworkRequest;
 use App\Http\Requests\User\AddDescriptionRequest;
 use App\Http\Resources\UserVideoSessionHomeWorkResource;
 use App\Models\UserVideoSessionHomework;
+use App\Models\UserDescription;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\UploadImage;
@@ -52,11 +53,17 @@ class UserVideoSessionHomeWorkController extends Controller
         if (Storage::exists($file)) {
             Storage::delete($file);
         }
-        $user_video_session_homework->is_deleted = 1;
-        $user_video_session_homework->save();
+        $user_description = UserDescription::where('user_video_session_homeworks_id', $user_video_session_homework->id)->first();
+        if($user_description == null) {
+            $user_video_session_homework->is_deleted = 1;
+            $user_video_session_homework->save();
+            return (new UserVideoSessionHomeWorkResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(204);
+        }
         return (new UserVideoSessionHomeWorkResource(null))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(204);
+            'errors' => ["can_not_be_deleted" => ["You can not delete homework because there is comment on this!"]],
+        ])->response()->setStatusCode(406);  
     }
     /**
      * add description 
@@ -69,7 +76,7 @@ class UserVideoSessionHomeWorkController extends Controller
     {
 
         $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->find($id);
-        $description = $request->input("description");
+        $description = $request->input("description");        
         $user_video_session_homework->description = $description;
         $user_video_session_homework->save();
         return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
