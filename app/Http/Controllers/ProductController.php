@@ -17,6 +17,7 @@ use App\Models\ProductDetailPackage;
 use App\Models\OrderDetail;
 use App\Utils\RaiseError;
 use App\Utils\UploadImage;
+use App\Utils\GetNameOfSessions;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -408,22 +409,25 @@ class ProductController extends Controller
     public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        $getNameOfSessions = new GetNameOfSessions;
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'video', ['type' => ['You should get a product with type video']]);
-            $numArray = [];
-            $i = 1;
-            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
-                $v = $product->productDetailVideos[$indx];
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
-                $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
-            }
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product);
+            // $numArray = [];
+            // $i = 1;
+            // for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
+            //     $v = $product->productDetailVideos[$indx];
+            //     $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
+            //     $i = $numArray[$v->id] ? $i + 1 : $i;
+            //     $product_detail_videos[] = $product->productDetailVideos[$indx];
+            // }
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
-            return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
+            $productArr = ["name" => $product->name, "thumbnail" => $product->main_image_thumb_path];
+            return ((new ProductVideoCollection($product_detail_video_items))->foo($productArr))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
