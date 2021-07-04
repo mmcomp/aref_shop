@@ -223,14 +223,14 @@ class UserController extends Controller
                         'errors' => null,
                     ])->response()->setStatusCode(204);
                 } catch (Exception $e) {
-                    Log::info("fails in saving image delete avater in UserController " . json_encode($e));
+                    Log::info("fails in delete avater in UserController " . json_encode($e));
                     if (env('APP_ENV') == "development") {
                         return (new UserResource(null))->additional([
-                            'errors' => ["fail" => ["fails in saving image delete avater in UserController " . json_encode($e)]],
+                            'errors' => ["fail" => ["fails in delete avater in UserController " . json_encode($e)]],
                         ])->response()->setStatusCode(500);
                     } elseif (env('APP_ENV') == "production") {
                         return (new UserResource(null))->additional([
-                            'errors' => ["fail" => ["fails in saving image delete avater in UserController "]],
+                            'errors' => ["fail" => ["fails in delete avater in UserController "]],
                         ])->response()->setStatusCode(500);
                     }
                 }
