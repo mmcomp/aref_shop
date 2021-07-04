@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\User\OrderCollection;
-use App\Http\Resources\User\OrderDetailCollection;
 use App\Http\Resources\User\OrderForShowFactorsCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Models\ProductDetailVideo;
@@ -13,11 +11,12 @@ use App\Models\Order;
 use App\Models\OrderVideoDetail;
 use App\Models\UserProduct;
 use App\Models\Product;
-use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
+use App\Http\Resources\User\ProductDetailVideosForShowingToStudentsCollection;
 use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsResource;
 use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsCollection;
 use App\Http\Resources\User\ProductForSingleSessionsCollection;
 use App\Utils\TheDate;
+use App\Utils\GetNameOfSessions;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -91,7 +90,7 @@ class OrderController extends Controller
             'error' => null,
         ])->response()->setStatusCode(200);
     }
-     /**
+    /**
      * complete courses of authenticated user
      *
      * @return \Illuminate\Http\JsonResponse
@@ -100,17 +99,17 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $user_video_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function($query){
-           $query->where('type', 'video');
-        })->pluck('products_id')->toArray(); 
-        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function($query){
+        $user_video_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
+            $query->where('type', 'video');
+        })->pluck('products_id')->toArray();
+        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
             $query->where('type', 'package');
-         })->get(); 
+        })->get();
         $package_child_products = [];
-        foreach($user_package_products as $package) {
-           foreach($package->product->productDetailPackages as $productDetailPackage) {
-               $package_child_products[] = $productDetailPackage->child_products_id;
-           }   
+        foreach ($user_package_products as $package) {
+            foreach ($package->product->productDetailPackages as $productDetailPackage) {
+                $package_child_products[] = $productDetailPackage->child_products_id;
+            }
         }
         $needed_product_ids = array_values(array_unique(array_merge($package_child_products, $user_video_products)));
         $products = Product::where('is_deleted', false)->whereIn('id', $needed_product_ids)->get();
@@ -125,34 +124,41 @@ class OrderController extends Controller
      */
     public function showStudentSessions()
     {
-        
+
         $user_id = Auth::user()->id;
         $theDate = new TheDate;
+        $getNameOfSessions = new GetNameOfSessions;
         $video_sessions_arr = [];
         $video_sessions_id_arr = [];
         $date = date("Y-m-d");
         $saturday_and_friday = $theDate->getSaturdayAndFriday($date);
-        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($saturday_and_friday) {
+        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function ($query) use ($saturday_and_friday) {
             $query->where('start_date', '>=', $saturday_and_friday['saturday'])->where('start_date', '<=', $saturday_and_friday['friday']);
         })->get();
 
-        foreach($user_video_sessions as $user_video_session) {
+        foreach ($user_video_sessions as $user_video_session) {
             $video_sessions_arr[] = $user_video_session->videoSession;
         }
-        foreach($video_sessions_arr as $item) {
+        foreach ($video_sessions_arr as $item) {
             $video_sessions_id_arr[] = $item->id;
         }
         $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
-        return $product_detail_videos;
-        return ((new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->foo($saturday_and_friday))->additional([
+        for($i = 0; $i < count($product_detail_videos); $i++) {
+            $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product);
+            for($j = 0; $j < count($output); $j++) {
+                if($output[$j]->id == $product_detail_videos[$i]->id) {
+                    $product_detail_videos[$i] = $output[$j];
+                }
+            }
+        }
+        return ((new ProductDetailVideosForShowingToStudentsCollection($product_detail_videos))->foo($saturday_and_friday))->additional([
             'errors' => null,
             'saturday' => $saturday_and_friday['saturday'],
             'friday' => $saturday_and_friday['friday']
         ])->response()->setStatusCode(200);
-
     }
-    
-     /* show specific order of authenticated user
+
+    /* show specific order of authenticated user
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse

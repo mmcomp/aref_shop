@@ -4,7 +4,7 @@ namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class VideoSessionsResourceForShowingToStudentsCollection extends ResourceCollection
+class ProductDetailVideosForShowingToStudentsCollection extends ResourceCollection
 {
     protected $foo;
 
@@ -19,7 +19,7 @@ class VideoSessionsResourceForShowingToStudentsCollection extends ResourceCollec
      * @return array
      */
     public function toArray($request){
-        return $this->collection->map(function (VideoSessionsResourceForShowingToStudentsResource $resource) use ($request) {
+        return $this->collection->map(function (ProductDetailVideosForShowingToStudentsResource $resource) use ($request) {
             return $resource->foo($this->foo)->toArray($request);
         })->filter()->all();
     }
