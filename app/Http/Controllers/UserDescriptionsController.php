@@ -21,7 +21,7 @@ class UserDescriptionsController extends Controller
     public function index()
     {
         
-        $user_descriptions = UserDescription::OrderBy('id', 'desc')->get();
+        $user_descriptions = UserDescription::where('is_deleted', false)->OrderBy('id', 'desc')->get();
         return (new UserDescriptionCollection($user_descriptions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -58,7 +58,7 @@ class UserDescriptionsController extends Controller
     public function show($id)
     {
         
-        $userDescription = UserDescription::find($id);
+        $userDescription = UserDescription::where('is_deleted', false)->find($id);
         if($userDescription != null) {
             return (new UserDescriptionResource($userDescription))->additional([
                 'errors' => null,
@@ -79,7 +79,7 @@ class UserDescriptionsController extends Controller
     public function update(UserDescriptionEditRequest $request, $id)
     {
         
-        $userDescription = UserDescription::find($id);
+        $userDescription = UserDescription::where('is_deleted', false)->find($id);
         if($userDescription != null) {
             $userDescription->user_video_session_homeworks_id = $request->input("user_video_session_homeworks_id") ? $request->input('user_video_session_homeworks_id') : $userDescription->user_video_session_homeworks_id;
             $userDescription->description = $request->input("description") ? $request->input('description') : $userDescription->description;
@@ -117,7 +117,7 @@ class UserDescriptionsController extends Controller
     public function destroy($id)
     {
         
-        $userDescription = UserDescription::find($id);
+        $userDescription = UserDescription::where('is_deleted', false)->find($id);
         if($userDescription != null) {
             $userDescription->delete();
             return (new UserDescriptionResource(null))->additional([

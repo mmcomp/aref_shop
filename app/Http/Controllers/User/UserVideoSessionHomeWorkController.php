@@ -48,12 +48,13 @@ class UserVideoSessionHomeWorkController extends Controller
     public function DeleteHomework(int $id, DeleteHomeworkRequest $request)
     {
 
+        $user_id = Auth::user()->id;
         $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->find($id);
         $file = str_replace("storage", "public", $user_video_session_homework->file);
         if (Storage::exists($file)) {
             Storage::delete($file);
         }
-        $user_description = UserDescription::where('user_video_session_homeworks_id', $user_video_session_homework->id)->first();
+        $user_description = UserDescription::where('user_video_session_homeworks_id', $user_video_session_homework->id)->where('users_id', '!=', $user_id)->first();
         if($user_description == null) {
             $user_video_session_homework->is_deleted = 1;
             $user_video_session_homework->save();

@@ -22,7 +22,8 @@ class UserDescriptionsController extends Controller
     public function index()
     {
         
-        $user_descriptions = UserDescription::OrderBy('id', 'desc')->get();
+        $user_id = Auth::user()->id;
+        $user_descriptions = UserDescription::where('is_deleted', false)->OrderBy('id', 'desc')->where('users_id', $user_id)->get();
         return (new UserDescriptionCollection($user_descriptions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -59,7 +60,10 @@ class UserDescriptionsController extends Controller
     public function show($id)
     {
         
-        $userDescription = UserDescription::find($id);
+        $user_id = Auth::user()->id;
+        $userDescription = UserDescription::where('is_deleted', false)->where('users_id', $user_id)->find($id)/*orWhereHas('userVideoSessionHomework.userVideoSession', function($query) use($user_id){
+            $query->where('users_id', $user_id);
+        })*/;
         if($userDescription != null) {
             return (new UserDescriptionResource($userDescription))->additional([
                 'errors' => null,
@@ -71,45 +75,6 @@ class UserDescriptionsController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\UserDescriptionEditRequest  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(UserDescriptionEditRequest $request, $id)
-    {
-        
-        $userDescription = UserDescription::find($id);
-        if($userDescription != null) {
-            $userDescription->user_video_session_homeworks_id = $request->input("user_video_session_homeworks_id") ? $request->input('user_video_session_homeworks_id') : $userDescription->user_video_session_homeworks_id;
-            $userDescription->description = $request->input("description") ? $request->input('description') : $userDescription->description;
-            $userDescription->save();
-            try {
-                $userDescription->save();
-                return (new UserDescriptionResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(200);
-            } catch (Exception $e) {
-                Log::info('fails in UserDescriptionsController/update ' . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new UserDescriptionResource(null))->additional([
-                        'errors' => ['fail' => ['fails in UserDescriptionsController/update' . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new UserDescriptionResource(null))->additional([
-                        'errors' => ['fail' => ['fails in UserDescriptionsController/update']],
-                    ])->response()->setStatusCode(500);
-                }
-            }
-        }
-        return (new UserDescriptionResource(null))->additional([
-            'errors' => ["not_found" => ["user description not found!"]],
-        ])->response()->setStatusCode(200);
-        
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
@@ -118,9 +83,10 @@ class UserDescriptionsController extends Controller
     public function destroy($id)
     {
         
-        $userDescription = UserDescription::find($id);
+        $userDescription = UserDescription::where('is_deleted', false)->find($id);
         if($userDescription != null) {
-            $userDescription->delete();
+            $userDescription->is_deleted = 1;
+            $userDescription->save();
             return (new UserDescriptionResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(204);
