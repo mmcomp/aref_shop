@@ -6,6 +6,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -54,6 +55,8 @@ class Handler extends ExceptionHandler
             return response()->json(['errors' => ['forbidden' => ['Forbidden.']]], 403);
         } else if($exception instanceof NotFoundHttpException) {
             return response()->json(['errors' => ['not_found' => ['Not Found.']]], 404);
+        } else if($exception instanceof MethodNotAllowedHttpException) {
+            return response()->json(['errors' => ['not_allowed' => ['Method Not allowed']]], 405);
         } 
         // else if($exception instanceof QueryException) {
         //     return response()->json(['error' => 'Server Error.'], 500);

@@ -27,15 +27,15 @@ class ProductDetailVideosController extends Controller
     {
 
         $sort = "id";
-        $type = "desc";
-        if ($request->get('type') != null && $request->get('sort') != null) {
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $type = $request->get('type');
+            $sort_dir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->get();
+            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
         } else {
-            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+            $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new ProductDetailVideosCollection($product_detail_videos))->additional([
             'errors' => null,

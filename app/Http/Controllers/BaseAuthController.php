@@ -191,7 +191,7 @@ class BaseAuthController extends Controller
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth('api')->factory()->getTTL() * 60,
+                'expires_in' => auth('api')->factory()->getTTL() * 60 * 24 * 7,
                 'menus' => auth('api')->getUser()->menus(),
                 'group' => auth('api')->getUser()->group,
                 'first_name'  => auth('api')->getUser()->first_name,

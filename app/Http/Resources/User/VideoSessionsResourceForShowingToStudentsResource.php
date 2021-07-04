@@ -7,6 +7,12 @@ use App\Http\Resources\UserResource;
 
 class VideoSessionsResourceForShowingToStudentsResource extends JsonResource
 {
+    protected $foo;
+
+    public function foo($value){
+        $this->foo = $value;
+        return $this;
+    }
     /**
      * Transform the resource into an array.
      *
@@ -21,12 +27,7 @@ class VideoSessionsResourceForShowingToStudentsResource extends JsonResource
                 'start_date' => $this->start_date,
                 'start_time' => date('H:i', strtotime($this->start_time)),
                 'end_time' => date('H:i', strtotime($this->end_time)),
-                'teacher'  => new UserResource($this->teacher),
-                'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
-                'video_link' =>  base64_encode($this->video_link),
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at
             ];
         }
     }

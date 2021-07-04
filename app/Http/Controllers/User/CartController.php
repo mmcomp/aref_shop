@@ -188,7 +188,7 @@ class CartController extends Controller
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
+        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
         $user_coupon = UserCoupon::where('users_id', $user_id)->where('coupons_id', $coupon->id)->first();
         if ($user_coupon) {
             return (new OrderResource(null))->additional([
@@ -250,7 +250,7 @@ class CartController extends Controller
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
+        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
         if ($orderDetail->coupons_id && $orderDetail->coupons_amount != null) {
             $orderDetail->coupons_id = 0;
             $orderDetail->total_price_with_coupon = $orderDetail->total_price;
