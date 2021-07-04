@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductDetailChairsController;
 use App\Http\Controllers\ProductDetailDownloadsController;
 use App\Http\Controllers\ProductDetailPackagesController;
 use App\Http\Controllers\ProductDetailVideosController;
+use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -265,4 +266,12 @@ Route::group([
     Route::get('/show/{id}', [UserDescriptionsController::class, 'show']);
     Route::put('/edit/{id}', [UserDescriptionsController::class, 'update']);
     Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => ['auth:api','can:product-comment-admin'],
+    'prefix' => 'product-comments',
+], function ($router) {
+    Route::get('/', [ProductCommentController::class, 'index']);
+    Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
+    Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
 });

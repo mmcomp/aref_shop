@@ -54,7 +54,7 @@ class ProductDetailDownloadsController extends Controller
                 ])->response()->setStatusCode(500);
             } else if (env('APP_ENV') == 'production') {
                 return (new ProductDetailDownloadsResource(null))->additional([
-                    'errors' => ["fail" => ["fails in saving image"]],
+                    'errors' => ["fail" => ["fails in saving file"]],
                 ])->response()->setStatusCode(500);
             }
         }

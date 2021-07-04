@@ -23,7 +23,9 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
-use Log;
+use App\Jobs\SynchronizeProductsWithCrmJob;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -70,6 +72,7 @@ class ProductController extends Controller
         try {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $product->save();
+            SynchronizeProductsWithCrmJob::dispatch($product)->delay(Carbon::now()->addSecond(env('CRM_ADD_PRODUCT_TIMEOUT')));
             return (new ProductResource($product))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(201);
@@ -291,11 +294,11 @@ class ProductController extends Controller
                 Log::info("fails in saving image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in saving second image" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image"]],
+                        'errors' => ["fail" => ["fails in saving second image"]],
                     ])->response()->setStatusCode(500);
                 }
             }

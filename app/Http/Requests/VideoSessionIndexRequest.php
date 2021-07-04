@@ -27,7 +27,7 @@ class VideoSessionIndexRequest extends FormRequest
     {
         return [
             'sort' => 'required_with:type|in:id,start_date,start_time,end_time,teacher_users_id,price,video_session_type,video_link',
-            'type' => 'required_with:sort|in:asc,desc',
+            'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255'
         ];
     }

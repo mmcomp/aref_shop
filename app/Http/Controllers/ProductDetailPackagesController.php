@@ -44,7 +44,7 @@ class ProductDetailPackagesController extends Controller
 
         $raiseError = new RaiseError;
         $found_product_detail_package = ProductDetailPackage::where("products_id", $request->input("products_id"))->where('child_products_id', $request->input('child_products_id'))->where('is_deleted', false)->first();
-        $raiseError->ValidationError($found_product_detail_package, ['repeated' => ['It is repeated!']]);
+        $raiseError->ValidationError($found_product_detail_package, ['repeated' => ['The productDetailPackage is repeated!']]);
         $product_detail_package = ProductDetailPackage::create($request->all());
         return (new ProductDetailPackagesResource($product_detail_package))->additional([
             'errors' => null,

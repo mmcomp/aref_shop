@@ -4,15 +4,20 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\OrderCollection;
-use App\Http\Resources\User\OrderVideoDetailCollection;
 use App\Http\Resources\User\OrderDetailCollection;
+use App\Http\Resources\User\OrderForShowFactorsCollection;
 use App\Http\Resources\User\OrderResource;
-use App\Http\Resources\User\OrderVideoDetailResource;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use App\Models\Order;
 use App\Models\OrderVideoDetail;
+use App\Models\UserProduct;
+use App\Models\Product;
 use App\Http\Resources\User\VideoSessionsResourceForShowingToStudentsCollection;
+use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsResource;
+use App\Http\Resources\User\OrderVideoDetailsForSingleSessionsCollection;
+use App\Http\Resources\User\ProductForSingleSessionsCollection;
+use App\Utils\TheDate;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -53,7 +58,7 @@ class OrderController extends Controller
 
         $user_id = Auth::user()->id;
         $orders = Order::where('users_id', $user_id)->where('status', 'ok')->orderBy('id', 'desc')->get();
-        return (new OrderCollection($orders))->additional([
+        return (new OrderForShowFactorsCollection($orders))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
     }
@@ -79,10 +84,10 @@ class OrderController extends Controller
             $found_user_videoSession = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
             $price = $product_detail_video->price != null ? $product_detail_video->price : $product_detail_video->videoSession->price;
             $checkPriceAndUserVideoSession = (!$price || $found_user_videoSession);
-            $orderVideoDetailResource = (new OrderVideoDetailResource($orderVideoDetail))->check($checkPriceAndUserVideoSession);
+            $orderVideoDetailResource = (new OrderVideoDetailsForSingleSessionsResource($orderVideoDetail))->check($checkPriceAndUserVideoSession);
             $orderVideoDetailsArr[] = $orderVideoDetailResource;
         }
-        return ((new OrderVideoDetailCollection($orderVideoDetailsArr)))->additional([
+        return ((new OrderVideoDetailsForSingleSessionsCollection($orderVideoDetailsArr)))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
     }
@@ -95,19 +100,23 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $orders = Order::where('users_id', $user_id)->where('status', 'ok')->get();
-        $orderDetailsArr = [];
-        foreach($orders as $order) {
-           foreach($order->orderDetails as $orderDetail) {
-               if($orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
-                  $orderDetailsArr[] = $orderDetail;
-               }
-           }
+        $user_video_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function($query){
+           $query->where('type', 'video');
+        })->pluck('products_id')->toArray(); 
+        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function($query){
+            $query->where('type', 'package');
+         })->get(); 
+        $package_child_products = [];
+        foreach($user_package_products as $package) {
+           foreach($package->product->productDetailPackages as $productDetailPackage) {
+               $package_child_products[] = $productDetailPackage->child_products_id;
+           }   
         }
-        return (new OrderDetailCollection($orderDetailsArr))->additional([
+        $needed_product_ids = array_values(array_unique(array_merge($package_child_products, $user_video_products)));
+        $products = Product::where('is_deleted', false)->whereIn('id', $needed_product_ids)->get();
+        return (new ProductForSingleSessionsCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
-        
     }
     /*
      * show student sessions from now to a week later
@@ -118,18 +127,21 @@ class OrderController extends Controller
     {
         
         $user_id = Auth::user()->id;
+        $theDate = new TheDate;
         $video_sessions_arr = [];
         $date = date("Y-m-d");
-        $to_date = date("Y-m-d", strtotime("+7 day", strtotime($date)));
-        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($date, $to_date) {
-            $query->where('start_date', '>=', $date)->where('start_date', '<=', $to_date);
+        $saturday_and_friday = $theDate->getSaturdayAndFriday($date);
+        $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function($query) use ($saturday_and_friday) {
+            $query->where('start_date', '>=', $saturday_and_friday['saturday'])->where('start_date', '<=', $saturday_and_friday['friday']);
         })->get();
 
         foreach($user_video_sessions as $user_video_session) {
             $video_sessions_arr[] = $user_video_session->videoSession;
         }
-        return (new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->additional([
+        return ((new VideoSessionsResourceForShowingToStudentsCollection($video_sessions_arr))->foo($saturday_and_friday))->additional([
             'errors' => null,
+            'saturday' => $saturday_and_friday['saturday'],
+            'friday' => $saturday_and_friday['friday']
         ])->response()->setStatusCode(201);
 
     }

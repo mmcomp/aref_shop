@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class SynchronizeUsersWithCrmJob implements ShouldQueue
 {
@@ -50,7 +50,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
                 ]);
             }
         } catch (Exception $e) {
-            Log::info("CRM ran into a problem!" . json_encode($e->getMessage()));
+            Log::info("CRM ran into a problem in synchronize users!" . json_encode($e->getMessage()));
             UserSync::create([
                 "users_id" => $this->user->id,
                 "status" => "failed",
