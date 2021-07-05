@@ -50,6 +50,10 @@ class RouteServiceProvider extends ServiceProvider
             Route::prefix('user')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/user.php'));
+
+            Route::prefix('server')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/server.php'));
         });
     }
 
