@@ -42,7 +42,7 @@ class GroupGatesSeeder extends Seeder
         DB::table('group_gates')->insert([
             'groups_id' => 3,
             'users_id' => 1,
-            'key' => 'user-description',
+            'key' => 'user-description-for-teacher',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);

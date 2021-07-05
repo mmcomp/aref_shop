@@ -1,6 +1,6 @@
 <?php 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserDescriptionsController;
+use App\Http\Controllers\Teacher\UserDescriptionsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,7 +13,7 @@ use App\Http\Controllers\UserDescriptionsController;
  */
 
 Route::group([
-    'middleware' => ['auth:api', 'can:user-description'],
+    'middleware' => ['auth:api', 'can:user-description-for-teacher'],
     'prefix' => 'user-descriptions'
 ], function ($router) {
     Route::get('/', [UserDescriptionsController::class, 'index']);

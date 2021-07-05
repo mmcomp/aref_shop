@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Teacher;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\UserDescriptionCreateRequest;
 use App\Http\Requests\UserDescriptionEditRequest;
 use App\Http\Resources\UserDescriptionResource;
@@ -58,7 +59,11 @@ class UserDescriptionsController extends Controller
     public function show($id)
     {
         
-        $userDescription = UserDescription::where('is_deleted', false)->where('user_video_session_homeworks_id', $id);
+        $teacher_id = Auth::user()->id;
+        $user_video_session_homeworks_id = request()->input('user_video_session_homeworks_id');
+        $userDescription = UserDescription::where('is_deleted', false)->where('user_video_session_homeworks_id', $user_video_session_homeworks_id)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
+            $query->where('teachers_users_id', $teacher_id);  
+        })->find($id);
         if($userDescription != null) {
             return (new UserDescriptionResource($userDescription))->additional([
                 'errors' => null,

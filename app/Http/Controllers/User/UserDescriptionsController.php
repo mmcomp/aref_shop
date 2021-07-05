@@ -4,12 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserDescriptionCreateRequest;
-use App\Http\Requests\UserDescriptionEditRequest;
 use App\Http\Resources\UserDescriptionResource;
 use App\Http\Resources\UserDescriptionCollection;
 use App\Models\UserDescription;
+use App\Models\UserVideoSessionHomework;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 class UserDescriptionsController extends Controller
@@ -61,16 +60,17 @@ class UserDescriptionsController extends Controller
     {
         
         $user_id = Auth::user()->id;
-        $userDescription = UserDescription::where('is_deleted', false)->where('users_id', $user_id)->find($id)/*orWhereHas('userVideoSessionHomework.userVideoSession', function($query) use($user_id){
-            $query->where('users_id', $user_id);
-        })*/;
+        $user_video_session_homeworks_id = UserVideoSessionHomework::where('is_deleted', false)->whereHas('userVideoSession', function($query) use ($user_id){
+           $query->where('users_id', $user_id);
+        })->pluck('id');
+        $userDescription = UserDescription::where('is_deleted', false)->whereIn('user_video_session_homeworks_id', $user_video_session_homeworks_id)->find($id);
         if($userDescription != null) {
             return (new UserDescriptionResource($userDescription))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200); 
         }
         return (new UserDescriptionResource(null))->additional([
-            'errors' => ["not_found" => ["The user_description id not found"]],
+            'errors' => ["not_found" => ["The user_description not found"]],
         ])->response()->setStatusCode(404);
     }
 
