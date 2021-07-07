@@ -67,6 +67,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany('App\Models\UserSync', 'users_id', 'id');
     }
+    public function chatMessages()
+    {
+        return $this->hasMany('App\Models\ChatMessage');
+    }
     public function orderDetail()
     {
         return $this->hasOne('App\Models\OrderDetail', 'users_id', 'id');
