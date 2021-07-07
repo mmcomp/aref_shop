@@ -27,6 +27,12 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Gate::define('viewWebSocketsDashboard', function ($user = null) {
+            // return in_array($user->email, [
+            //     //
+            // ]);
+            return true;
+        });
         if (Schema::hasTable('group_gates')) {
             $group_gates = GroupGate::where('is_deleted', false)->get();
             foreach ($group_gates as $group_gate) {
