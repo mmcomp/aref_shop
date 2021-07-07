@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Resources\ProductResource;
-use App\Http\Resources\User\ProductOfUserCollection;
-use App\Http\Resources\User\ListOfVideosOfAProductResource;
-use App\Http\Resources\User\ListOfVideosOfAProductCollection;
+use App\Http\Resources\Server\ProductOfUserCollection;
+use App\Http\Resources\Server\ListOfVideosOfAProductResource;
+use App\Http\Resources\Server\ListOfVideosOfAProductCollection;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Http\Resources\ProductDetailPackagesResource;
-use App\Http\Resources\User\ProductOfUserResource;
+use App\Http\Resources\Server\ProductOfUserResource;
 use App\Models\Product;
 use App\Utils\RaiseError;
 use App\Utils\GetNameOfSessions;
@@ -21,7 +21,7 @@ use Illuminate\Pagination\Paginator;
 
 class ProductController extends Controller
 {
-    
+
      /**
      * Display a listing of the resource.
      *
