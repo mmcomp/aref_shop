@@ -9,7 +9,6 @@ use App\Http\Resources\UserDescriptionCollection;
 use App\Models\UserDescription;
 use App\Models\UserVideoSessionHomework;
 use Illuminate\Support\Facades\Auth;
-use Exception;
 
 class UserDescriptionsController extends Controller
 {
@@ -83,7 +82,10 @@ class UserDescriptionsController extends Controller
     public function destroy($id)
     {
         
-        $userDescription = UserDescription::where('is_deleted', false)->find($id);
+        $user_id = Auth::user()->id;
+        $userDescription = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use ($user_id){
+            $query->where('users_id', $user_id);
+         })->find($id);
         if($userDescription != null) {
             $userDescription->is_deleted = 1;
             $userDescription->save();

@@ -9,6 +9,7 @@ use App\Http\Resources\UserDescriptionResource;
 use App\Http\Resources\UserDescriptionCollection;
 use App\Http\Requests\UserVideoSessionHomeworkRequest;
 use App\Models\UserDescription;
+use App\Models\UserVideoSessionHomework;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -23,7 +24,10 @@ class UserDescriptionsController extends Controller
     public function index()
     {
         
-        $user_descriptions = UserDescription::where('is_deleted', false)->OrderBy('id', 'desc')->get();
+        $teacher_id = Auth::user()->id;
+        $user_descriptions = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
+            $query->where('teachers_users_id', $teacher_id);  
+        })->OrderBy('id', 'desc')->get();
         return (new UserDescriptionCollection($user_descriptions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -46,6 +50,9 @@ class UserDescriptionsController extends Controller
            'description' => $description,
            'users_id' => $users_id
         ]);
+        $user_video_session_homework = UserVideoSessionHomework::find($user_video_session_homeworks_id);
+        $user_video_session_homework->teachers_users_id = $users_id;
+        $user_video_session_homework->save();
         return (new UserDescriptionResource($userDescription))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -86,7 +93,10 @@ class UserDescriptionsController extends Controller
     public function update(UserDescriptionEditRequest $request, $id)
     {
         
-        $userDescription = UserDescription::where('is_deleted', false)->find($id);
+        $teacher_id = Auth::user()->id;
+        $userDescription = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
+            $query->where('teachers_users_id', $teacher_id);  
+        })->find($id);
         if($userDescription != null) {
             $userDescription->user_video_session_homeworks_id = $request->input("user_video_session_homeworks_id") ? $request->input('user_video_session_homeworks_id') : $userDescription->user_video_session_homeworks_id;
             $userDescription->description = $request->input("description") ? $request->input('description') : $userDescription->description;
@@ -124,7 +134,10 @@ class UserDescriptionsController extends Controller
     public function destroy($id)
     {
         
-        $userDescription = UserDescription::where('is_deleted', false)->find($id);
+        $teacher_id = Auth::user()->id;
+        $userDescription = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
+            $query->where('teachers_users_id', $teacher_id);  
+        })->find($id);
         if($userDescription != null) {
             $userDescription->delete();
             return (new UserDescriptionResource(null))->additional([
