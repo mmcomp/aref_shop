@@ -3,9 +3,9 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\ProductOfStudentSessionsResource;
 
-class VideoSessionsResourceForShowingToStudentsResource extends JsonResource
+class ProductDetailVideosForShowingToStudentsResource extends JsonResource
 {
     protected $foo;
 
@@ -24,10 +24,10 @@ class VideoSessionsResourceForShowingToStudentsResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                'start_date' => $this->start_date,
-                'start_time' => date('H:i', strtotime($this->start_time)),
-                'end_time' => date('H:i', strtotime($this->end_time)),
-                'video_session_type' => $this->video_session_type,
+                'product' => new ProductOfStudentSessionsResource($this->product),
+                'is_hidden' => $this->is_hidden,
+                'video_session' => new VideoSessionForStudentSessionsResource($this->videoSession),
+                'name' => $this->name
             ];
         }
     }
