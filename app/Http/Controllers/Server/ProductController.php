@@ -1,26 +1,28 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Server;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Resources\ProductResource;
-use App\Http\Resources\User\ProductOfUserCollection;
-use App\Http\Resources\User\ListOfVideosOfAProductResource;
-use App\Http\Resources\User\ListOfVideosOfAProductCollection;
+use App\Http\Resources\Server\ProductOfUserCollection;
+use App\Http\Resources\Server\ListOfVideosOfAProductResource;
+use App\Http\Resources\Server\ListOfVideosOfAProductCollection;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Http\Resources\ProductDetailPackagesResource;
-use App\Utils\GetNameOfSessions;
-use App\Utils\RaiseError;
+use App\Http\Resources\Server\ProductOfUserResource;
 use App\Models\Product;
+use App\Utils\RaiseError;
+use App\Utils\GetNameOfSessions;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 
 class ProductController extends Controller
 {
-    /**
+
+     /**
      * Display a listing of the resource.
      *
      * @param  \App\Http\Requests\ProductIndexRequest $request
@@ -28,6 +30,11 @@ class ProductController extends Controller
      */
     public function index(ProductIndexRequest $request)
     {
+        if($request->ip() != env('WORDPRESS_IP_SHOP')){
+            return (new ProductOfUserResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(404);
+        }
         $per_page = $request->get('per_page');
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
@@ -59,6 +66,11 @@ class ProductController extends Controller
     public function show($id)
     {
 
+        if(request()->ip() != env('WORDPRESS_IP_SHOP')){
+            return (new ProductResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(404);
+        }
         $product = Product::where('is_deleted', false)->where('published', true)->with('productFiles.file')->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
@@ -95,9 +107,14 @@ class ProductController extends Controller
     public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        if($request->ip() != env('WORDPRESS_IP_SHOP')){
+            return (new ListOfVideosOfAProductResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(404);
+        }
         $getNameOfSessions = new GetNameOfSessions;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->where('published', true)->with('productDetailVideos.videoSession')->find($id);
+        $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->where('published', true)->find($id);
         $product_detail_videos = [];
         if ($product != null) {
             $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product);
@@ -121,6 +138,11 @@ class ProductController extends Controller
     public function ListOfPackagesOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        if($request->ip() != env('WORDPRESS_IP_SHOP')){
+            return (new ProductDetailPackagesResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(404);
+        }
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->where('published', true)->find($id);
