@@ -7,6 +7,7 @@ use App\Http\Requests\UserDescriptionCreateRequest;
 use App\Http\Requests\UserDescriptionEditRequest;
 use App\Http\Resources\UserDescriptionResource;
 use App\Http\Resources\UserDescriptionCollection;
+use App\Http\Requests\UserVideoSessionHomeworkRequest;
 use App\Models\UserDescription;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -53,14 +54,15 @@ class UserDescriptionsController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\UserVideoSessionHomeWorkRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show($id,  UserVideoSessionHomeworkRequest $request)
     {
         
         $teacher_id = Auth::user()->id;
-        $user_video_session_homeworks_id = request()->input('user_video_session_homeworks_id');
+        $user_video_session_homeworks_id = $request->input('user_video_session_homeworks_id');
         $userDescription = UserDescription::where('is_deleted', false)->where('user_video_session_homeworks_id', $user_video_session_homeworks_id)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
             $query->where('teachers_users_id', $teacher_id);  
         })->find($id);
