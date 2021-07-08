@@ -26,7 +26,7 @@ class UserDescriptionsController extends Controller
         
         $teacher_id = Auth::user()->id;
         $user_descriptions = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
-            $query->where('teachers_users_id', $teacher_id);  
+            $query->where('teachers_users_id', $teacher_id)->where('is_deleted', false); 
         })->OrderBy('id', 'desc')->get();
         return (new UserDescriptionCollection($user_descriptions))->additional([
             'errors' => null,
@@ -95,7 +95,7 @@ class UserDescriptionsController extends Controller
         
         $teacher_id = Auth::user()->id;
         $userDescription = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
-            $query->where('teachers_users_id', $teacher_id);  
+            $query->where('teachers_users_id', $teacher_id)->where('is_deleted', false); 
         })->find($id);
         if($userDescription != null) {
             $userDescription->user_video_session_homeworks_id = $request->input("user_video_session_homeworks_id") ? $request->input('user_video_session_homeworks_id') : $userDescription->user_video_session_homeworks_id;
@@ -136,7 +136,7 @@ class UserDescriptionsController extends Controller
         
         $teacher_id = Auth::user()->id;
         $userDescription = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use($teacher_id){
-            $query->where('teachers_users_id', $teacher_id);  
+            $query->where('teachers_users_id', $teacher_id)->where('is_deleted', false); 
         })->find($id);
         if($userDescription != null) {
             $userDescription->delete();

@@ -84,7 +84,7 @@ class UserDescriptionsController extends Controller
         
         $user_id = Auth::user()->id;
         $userDescription = UserDescription::where('is_deleted', false)->whereHas('userVideoSessionHomework', function($query) use ($user_id){
-            $query->where('users_id', $user_id);
+            $query->where('users_id', $user_id)->where('is_deleted', false);
          })->find($id);
         if($userDescription != null) {
             $userDescription->is_deleted = 1;
