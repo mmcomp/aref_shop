@@ -39,7 +39,7 @@ class ProductController extends Controller
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
-        $products = Product::where('is_deleted', false)->with('userProducts.user')
+        $products = Product::where('is_deleted', false)->where('published', true)->with('userProducts.user')
             ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
@@ -71,7 +71,7 @@ class ProductController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(404);
         }
-        $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
+        $product = Product::where('is_deleted', false)->where('published', true)->with('productFiles.file')->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
                 'errors' => null,
@@ -114,7 +114,7 @@ class ProductController extends Controller
         }
         $getNameOfSessions = new GetNameOfSessions;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
+        $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->where('published', true)->find($id);
         $product_detail_videos = [];
         if ($product != null) {
             $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product);
@@ -145,7 +145,7 @@ class ProductController extends Controller
         }
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->find($id);
+        $product = Product::where('is_deleted', false)->where('published', true)->find($id);
         $product_detail_packages = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
@@ -159,7 +159,7 @@ class ProductController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
-        return (new ProductDetailPackagesCollection(null))->additional([
+        return (new ProductDetailPackagesResource(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
