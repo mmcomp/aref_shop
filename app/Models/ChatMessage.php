@@ -21,4 +21,8 @@ class ChatMessage extends Model
     {
         return $this->belongsTo('App\Models\User','users_id', 'id');
     }
+    public function videoSession()
+    {
+        return $this->belongsTo('App\Models\VideoSession', 'video_sessions_id', 'id');
+    }
 }

@@ -18,6 +18,7 @@ class CreateChatMessagesTable extends Migration
             $table->integer('users_id')->unsigned();
             $table->text('message');
             $table->integer('video_sessions_id')->unsigned();
+            $table->ipAddress('ip_address');
             $table->timestamps();
         });
     }
