@@ -82,25 +82,4 @@ class ProductCommentController extends Controller
             'errors' => ["not_found" => "The product_comments_id does not exist"],
         ])->response()->setStatusCode(404);
     }
-     /**
-     * filter by verify
-     *
-     * @param  \Illuminate\Http\ProductCommentSearchVerifiedRequest  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function search(ProductCommentSearchVerifiedRequest $request)
-    {
-
-        $verified = $request->input('verified');
-        $product_comments_builder = ProductComment::where('verified', $verified);
-        if($verified == "all") {
-            $comments = $request->per_page == "all" ? ProductComment::get() : ProductComment::paginate(env('PAGE_COUNT'));
-        } else {
-            $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
-        }
-        return (new ResourcesProductCommentCollection($comments))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(200);
-
-    }
 }
