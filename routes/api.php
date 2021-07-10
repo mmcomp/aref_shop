@@ -263,4 +263,5 @@ Route::group([
     Route::get('/', [ProductCommentController::class, 'index']);
     Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
     Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
+    Route::get('/search',[ProductCommentController::class, 'search']);
 });
