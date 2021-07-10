@@ -5,7 +5,11 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCommentIndexRequest;
 use App\Http\Requests\User\ProductCommentCreateRequest;
+use App\Http\Requests\ProductCommentSearchVerifiedRequest;
+use App\Http\Resources\User\ProductCommentForUserShowCollection;
+use App\Http\Resources\ProductCommentCollection as ResourcesProductCommentCollection;
 use App\Http\Resources\User\ProductCommentCollection;
+use App\Http\Resources\User\ProductCommentForUserShowResource;
 use App\Http\Resources\User\ProductCommentResource;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ProductComment;
@@ -70,12 +74,33 @@ class ProductCommentController extends Controller
                     $product_comments[] = $product_comment;
                 }
             }
-            return (new ProductCommentCollection($product_comments))->additional([
+            return (new ProductCommentForUserShowCollection($product_comments))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
-        return (new ProductCommentResource(null))->additional([
+        return (new ProductCommentForUserShowResource(null))->additional([
             'errors' => ["not_found" => "The product_comments_id does not exist"],
         ])->response()->setStatusCode(404);
+    }
+     /**
+     * filter by verify
+     *
+     * @param  \Illuminate\Http\ProductCommentSearchVerifiedRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(ProductCommentSearchVerifiedRequest $request)
+    {
+
+        $verified = $request->input('verified');
+        $product_comments_builder = ProductComment::where('verified', $verified);
+        if($verified == 2) {
+            $comments = $request->per_page == "all" ? ProductComment::get() : ProductComment::paginate(env('PAGE_COUNT'));
+        } else {
+            $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
+        }
+        return (new ResourcesProductCommentCollection($comments))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+
     }
 }

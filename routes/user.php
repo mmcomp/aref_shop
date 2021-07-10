@@ -152,6 +152,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/', [ProductCommentController::class, 'index']);
         Route::post('/add', [ProductCommentController::class, 'store']);
         Route::get('/show/{id}', [ProductCommentController::class, 'show']);
+        Route::get('/search',[ProductCommentController::class, 'search']);
     });
 
     Route::group([

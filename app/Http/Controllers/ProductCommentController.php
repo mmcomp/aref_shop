@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCommentEditRequest;
 use App\Http\Requests\ProductCommentIndexRequest;
+use App\Http\Requests\ProductCommentSearchVerifiedRequest;
 use App\Http\Resources\ProductCommentCollection;
 use App\Http\Resources\ProductCommentResource;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +63,27 @@ class ProductCommentController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(204);
         }
+
+    }
+    /**
+     * filter by verify
+     *
+     * @param  \Illuminate\Http\ProductCommentSearchVerifiedRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(ProductCommentSearchVerifiedRequest $request)
+    {
+
+        $verified = $request->input('verified');
+        $product_comments_builder = ProductComment::where('verified', $verified);
+        if($verified == 2) {
+            $comments = $request->per_page == "all" ? ProductComment::get() : ProductComment::paginate(env('PAGE_COUNT'));
+        } else {
+            $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
+        }
+        return (new ProductCommentCollection($comments))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
 
     }
 }
