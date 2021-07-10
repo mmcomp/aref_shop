@@ -27,7 +27,7 @@ class ProductCommentSearchVerifiedRequest extends FormRequest
     {
         return [
             'per_page' => 'nullable|string|max:255',
-            'verified' => 'required|integer|in:0,1,2',
+            'verified' => 'required|in:0,1,all',
         ];
     }
     /**

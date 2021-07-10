@@ -93,7 +93,7 @@ class ProductCommentController extends Controller
 
         $verified = $request->input('verified');
         $product_comments_builder = ProductComment::where('verified', $verified);
-        if($verified == 2) {
+        if($verified == "all") {
             $comments = $request->per_page == "all" ? ProductComment::get() : ProductComment::paginate(env('PAGE_COUNT'));
         } else {
             $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
