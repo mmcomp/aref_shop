@@ -84,7 +84,7 @@ class ProductCommentController extends Controller
                 $query->where('products_id', $products_id);
             }
         });
-        $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
+        $comments = $request->per_page == "all" ? $product_comments_builder->orderBy('created_at', 'desc')->get() : $product_comments_builder->orderBy('created_at', 'desc')->paginate(env('PAGE_COUNT'));
         return (new ProductCommentCollection($comments))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
