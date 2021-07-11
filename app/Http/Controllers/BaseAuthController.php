@@ -69,14 +69,9 @@ class BaseAuthController extends Controller
         }
         $value = Redis::hGet('aref_shop_user', $user->id);
         if($value != $token) {
-
-        } else {
-            Redis::hSet('aref_shop_user', $user->id, $token);
+           //inform Mr Mirsamie
         }
-        // Redis::hSet('aref_shop_user', $user->id, $token);
-        // $value = Redis::hGet('aref_shop_user', $user->id);
-        // $x = Redis::hGetAll("aref_shop_user");
-        // dd($x);
+        Redis::hSet('aref_shop_user', $user->id, $token);
         return $this->createNewToken($token);
     }
 
