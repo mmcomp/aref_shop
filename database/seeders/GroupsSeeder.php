@@ -15,9 +15,9 @@ class GroupsSeeder extends Seeder
      */
     public function run()
     {
-        $names = ['Admin', 'Registered'];
-        $types = ['admin', 'user'];
-        for ($i = 0; $i < 2; $i++) {
+        $names = ['Admin', 'Registered', 'Teachers'];
+        $types = ['admin', 'user', 'teacher'];
+        for ($i = 0; $i < 3; $i++) {
             DB::table('groups')->insert([
                 'name' => $names[$i],
                 'type' => $types[$i],

@@ -13,7 +13,9 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\UserProductsController;
 use App\Http\Controllers\User\ProductDetailVideosController;
+use App\Http\Controllers\User\UserVideoSessionHomeWorkController;
 use App\Http\Controllers\User\OrderController;
+use App\Http\Controllers\User\UserDescriptionsController;
 use App\Http\Controllers\User\ProductCommentController;
 use App\Http\Controllers\User\VideoSessionsController;
 use Illuminate\Http\Request;
@@ -32,6 +34,15 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'user'], function(){
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
+    });
+    Route::group([
+        'middleware' => ['auth:api', 'can:attach-homework'],
+        'prefix' => 'homework',
+    
+    ], function ($router) {
+        Route::post('/concat-homework-to-session/{id}', [UserVideoSessionHomeWorkController::class, 'ConcatHomeWorkToSession']);
+        Route::delete('/file/{id}', [UserVideoSessionHomeWorkController::class, 'DeleteHomework']);
+        Route::put('/add-description/{id}', [UserVideoSessionHomeWorkController::class, 'addDescription']);
     });
     Route::group([
         'middleware' => 'api',
@@ -146,6 +157,17 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
     });
     Route::group([
+        'middleware' => ['auth:api', 'can:user-description-for-user'],
+        'prefix' => 'user-descriptions'
+    ], function ($router) {
+        Route::get('/', [UserDescriptionsController::class, 'index']);
+        Route::post('/add', [UserDescriptionsController::class, 'store']);
+        Route::get('/show/{id}', [UserDescriptionsController::class, 'show']);
+        Route::put('/edit/{id}', [UserDescriptionsController::class, 'update']);
+        Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
+    });
+     Route::group([
+
         'middleware' => ['auth:api','can:product-comment'],
         'prefix' => 'product-comments',
     ], function ($router) {
