@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
-class ProductCommentCreateRequest extends FormRequest
+
+class StoreProductOrderDetailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,15 +28,29 @@ class ProductCommentCreateRequest extends FormRequest
     public function rules()
     {
         return [
+            'orders_id' => [
+                'required',
+                'integer',
+                Rule::exists('orders', 'id')->where(function ($query) {
+                    return $query->where('status', 'manual_waiting');
+                }),
+            ],
             'products_id' => [
                 'required',
-                'integer', 
+                'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'comment' => 'required|string|min:3|max:500'
+            'number' => 'nullable|integer'
         ];
+    }
+    public function all($keys = null)
+    {
+        // Add route parameters to validation data
+        $data = parent::all();
+        $data['orders_id'] = $this->route('orders_id');
+        return $data;
     }
     /**
      * Configure the validator instance.
@@ -49,7 +64,7 @@ class ProductCommentCreateRequest extends FormRequest
             $errors = (new ValidationException($validator))->errors();
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 422)
+                response()->json(['errors' => $errors], 400)
             );
         }
     }

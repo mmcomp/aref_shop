@@ -1,67 +1,78 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\User\AddCouponToTheCartRequest;
-use App\Http\Requests\User\AddProductToCartRequest;
-use App\Http\Requests\User\DeleteProductFromCartRequest;
-use App\Http\Requests\User\DeleteMicroProductFromCartRequest;
-use App\Http\Requests\User\AddMicroProductToCartRequest;
-use App\Http\Requests\User\DeleteCouponFromCartRequest;
-use App\Http\Resources\User\OrderResource;
+use App\Http\Requests\getWholeCartRequest;
+use App\Http\Requests\InsertOrderForUserRequest;
+use App\Http\Requests\StoreProductOrderDetailRequest;
+use App\Http\Requests\DeleteMicroProductFromCartRequest;
+use App\Http\Requests\DeleteProductFromCartRequest;
+use App\Http\Requests\AddMicroProductToCartRequest;
+use App\Utils\RaiseError;
 use App\Models\Order;
-use App\Models\Temp;
+use App\Models\User;
+use App\Models\Product;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
-use App\Models\Product;
 use App\Models\ProductDetailVideo;
+use App\Models\Coupon;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
-use App\Models\Coupon;
-use App\Models\UserCoupon;
-use App\Models\Payment;
-use App\Utils\Buying;
-use App\Utils\MellatPayment;
-use App\Utils\RaiseError;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\AddCouponToTheCartRequest;
+use App\Http\Requests\CompleteBuyingRequest;
+use App\Http\Requests\deleteCouponFromCartRequest;
+use App\Http\Requests\DestroyWholeCartRequest;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Log;
+use App\Models\UserCoupon;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use App\Http\Resources\AdminOrderResource;
+use App\Http\Resources\User\OrderResource;
+use App\Utils\Buying;
 
-class CartController extends Controller
+class OrderController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * Insert factor for a user
      *
+     * @param  \App\Http\Requests\InsertOrderForUserRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function store(InsertOrderForUserRequest $request)
     {
-        //
+
+        $users_id = $request->input('users_id');
+        $user = User::where('is_deleted', false)->find($users_id);
+        if ($user->group->type == 'user') {
+            $order = Order::create([
+                'users_id' => $users_id,
+                'status' => 'manual_waiting',
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+            ]);
+            return (new AdminOrderResource($order))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(201);
+        }
+        return (new AdminOrderResource(null))->additional([
+            'errors' => ['type' => ['The user type is invalid!']],
+        ])->response()->setStatusCode(406);
     }
-
     /**
-     * Store a newly created resource in storage.
+     * add orderDetail product
      *
-     * @param  \App\Http\Requests\User\AddProductToCartRequest  $request
+     * @param int $orders_id
+     * @param  \App\Http\Requests\User\StoreProductOrderDetailRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(AddProductToCartRequest $request)
+    public function storeProduct(StoreProductOrderDetailRequest $request, $orders_id)
     {
 
-        $user_id = Auth::user()->id;
         $number = $request->input('number', 1);
         $products_id = $request->input('products_id');
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        if (!$order) {
-            $order = Order::create([
-                'users_id' => $user_id,
-                'status' => 'waiting',
-            ]);
-        }
+        $order = Order::find($orders_id);
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         if ($orderDetail && $product->type == 'normal') {
@@ -72,14 +83,14 @@ class CartController extends Controller
         } else if ($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy) {
             $orderDetail->all_videos_buy = 1;
             OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
-            $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+            $order = Order::find($orders_id);
             $orderDetail->save();
         } else if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
                 'price' => $product->sale_price,
-                'users_id' => $user_id,
+                'users_id' => $order->users_id,
                 'all_videos_buy' => 1,
                 'number' => $product->type != 'normal' ? 1 : $number,
                 'total_price' => DB::raw('number * price'),
@@ -93,34 +104,29 @@ class CartController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(201);
     }
+
     /**
      * add a microProduct to the cart
      *
+     * @param int $orders_id
      * @param  \App\Http\Requests\User\AddMicroProductToCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function StoreMicroProduct(AddMicroProductToCartRequest $request)
+    public function StoreMicroProduct(AddMicroProductToCartRequest $request, $orders_id)
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
         $product_details_id = $request->input('product_details_id');
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        if (!$order) {
-            $order = Order::create([
-                'users_id' => $user_id,
-                'status' => 'waiting'
-            ]);
-        }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $orders_id)->where('products_id', $products_id)->first();
+        $order = Order::find($orders_id);
         if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
                 'products_id' => $products_id,
                 'price' => $product->sale_price,
-                'users_id' => $user_id,
+                'users_id' => $order->users_id,
                 'number' => 1,
                 'total_price' => DB::raw('number * price'),
                 'total_price_with_coupon' => DB::raw('number * price')
@@ -161,13 +167,14 @@ class CartController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param int $orders_id
+     * @param  \App\Http\Requests\User\getWholeCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getWholeCart()
+    public function getWholeCart(getWholeCartRequest $request, $orders_id)
     {
 
-        $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails')->first();
+        $order = Order::find($orders_id);
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -175,22 +182,22 @@ class CartController extends Controller
     /**
      * add coupon to the cart
      *
+     * @param int $orders_id
      * @param  \App\Http\Requests\User\AddCouponToTheCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function addCouponToTheCart(AddCouponToTheCartRequest $request)
+    public function addCouponToTheCart(AddCouponToTheCartRequest $request, $orders_id)
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
         $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
         $products_id = $coupon->products_id;
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
+        $order = Order::find($orders_id);
+        $raiseError->ValidationError($order == null, ['orders_id' => ['There is not any waiting orders yet for the user!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
-        $user_coupon = UserCoupon::where('users_id', $user_id)->where('coupons_id', $coupon->id)->first();
+        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['The user does not have any orders for the product that he/she has coupon for']]);
+        $user_coupon = UserCoupon::where('users_id', $order->users_id)->where('coupons_id', $coupon->id)->first();
         if ($user_coupon) {
             return (new OrderResource(null))->additional([
                 'errors' => ["already applied" => ["The discount code has already been applied."]],
@@ -218,7 +225,7 @@ class CartController extends Controller
                 $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
                 $order->save();
                 UserCoupon::create([
-                    'users_id' => $user_id,
+                    'users_id' => $order->users_id,
                     'coupons_id' => $coupon->id
                 ]);
                 return (new OrderResource($order))->additional([
@@ -228,11 +235,11 @@ class CartController extends Controller
                 Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
-                        'errors' =>["fail" => ["fails in addCouponToTheCart in User/CartController" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in addCouponToTheCart in User/CartController" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new OrderResource(null))->additional([
-                        'errors' =>["fail" => ["fails in addCouponToTheCart in User/CartController"]],
+                        'errors' => ["fail" => ["fails in addCouponToTheCart in User/CartController"]],
                     ])->response()->setStatusCode(500);
                 }
             }
@@ -241,14 +248,20 @@ class CartController extends Controller
             "errors" => ["all_videos_buy" => ["Coupon can not be used when you didn't buy all of a product!"]]
         ])->response()->setStatusCode(406);
     }
-    public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
+    /**
+     * delete coupon from cart
+     *
+     * @param int $orders_id
+     * @param  \App\Http\Requests\User\AddCouponToTheCartRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteCouponFromCart(DeleteCouponFromCartRequest $request, $orders_id)
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
         $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
         $products_id = $coupon->products_id;
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        $order = Order::find($orders_id);
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
@@ -265,14 +278,14 @@ class CartController extends Controller
                     'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
-                Log::info("fails in deleteCouponToTheCart in User/CartController" . json_encode($e));
+                Log::info("fails in deleteCouponToTheCart in Admin/OrderController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
-                        'errors' => ["fail" => ["fails in deleteCouponToTheCart in User/CartController" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in deleteCouponToTheCart in Admin/OrderController" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new OrderResource(null))->additional([
-                        'errors' => ["fail" => ["fails in deleteCouponToTheCart in User/CartController"]],
+                        'errors' => ["fail" => ["fails in deleteCouponToTheCart in Admin/OrderController"]],
                     ])->response()->setStatusCode(500);
                 }
             }
@@ -280,26 +293,16 @@ class CartController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(Request $request, $id)
-    {
-    }
-
-    /**
      * destroy whole cart
      *
+     * @param int $orders_id
+     * @param  \App\Http\Requests\User\DestroyWholeCartRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroyWholeCart()
+    public function destroyWholeCart(DestroyWholeCartRequest $request, $orders_id)
     {
 
-        $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        $order = Order::find($orders_id);
         $order->status = 'cancel';
         if ($order->orderDetails) {
             foreach ($order->orderDetails as $item) {
@@ -313,7 +316,7 @@ class CartController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(204);
         } catch (Exception $e) {
-            Log::info('failed in User/CartController/destoryWholeCart', json_encode($e));
+            Log::info('failed in Admin/OrderController/destoryWholeCart', json_encode($e));
             if (env('APP_ENV') == 'development') {
                 return (new OrderResource(null))->additional([
                     'errors' => ["fail" => 'destroying Whole Cart failed!' . json_encode($e)],
@@ -328,22 +331,23 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Http\Requests\User\DeleteProductFromCartRequest  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\DeleteProductFromCartRequest  $request
+     * @param  int  $order_details_id
+     * @param  int  $orders_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id, DeleteProductFromCartRequest $request)
+    public function destroy($orders_id, $order_details_id,  DeleteProductFromCartRequest $request)
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
-        $orderDetail = OrderDetail::where('id', $id)->first();
-        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
-        $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
-        OrderDetail::where('id', $id)->delete();
+        $orderDetail = OrderDetail::where('id', $order_details_id)->first();
+        $order = Order::find($orders_id);
+        $foundOrderDetail = OrderDetail::where('orders_id', $orders_id)->find($order_details_id);
+        $raiseError->ValidationError(!$foundOrderDetail, ['orders_id' => ['The orders id and order details id are not related to eachother!']]);
+        OrderDetail::where('id', $order_details_id)->delete();
         if ($orderDetail->product->type == 'video') {
             if (!$orderDetail->all_videos_buy) {
-                OrderVideoDetail::where('order_details_id', $id)->delete();
+                OrderVideoDetail::where('order_details_id', $order_details_id)->delete();
             }
         }
         $order = Order::where('id', $orderDetail->orders_id)->first();
@@ -356,28 +360,30 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Http\Requests\User\DeleteProductFromCartRequest  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\User\DeleteMicroProductFromCartRequest  $request
+     * @param  int  $order_details_id
+     * @param  int  $orders_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroyMicroProduct($id, DeleteMicroProductFromCartRequest $request)
+    public function destroyMicroProduct($orders_id, $order_details_id,  DeleteMicroProductFromCartRequest $request)
     {
 
         $raiseError = new RaiseError;
-        $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
-        $orderDetail = OrderDetail::find($id);
-        $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
-        $raiseError->ValidationError($orderDetail->order->user->id != $user_id, ['users_id' => ['This is order of another user!']]);
-        $raiseError->ValidationError($orderDetail->product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['You have already bought ' . $orderDetail->product->name . ' therefore you can not remove a subproduct of it']]);
+        $orderDetail = OrderDetail::find($order_details_id);
+        $order = Order::find($orders_id);
+        $foundOrderDetail = OrderDetail::where('orders_id', $orders_id)->find($order_details_id);
+        $raiseError->ValidationError(!$foundOrderDetail, ['orders_id' => ['The orders id and order details id are not related to eachother!']]);
+        $raiseError->ValidationError($orderDetail->order->user->id != $order->users_id, ['users_id' => ['This is order of another user!']]);
+        $raiseError->ValidationError($orderDetail->product->type == 'video' && $orderDetail->all_videos_buy, ['all_videos_buy' => ['The User already bought ' . $orderDetail->product->name . ' therefore he/she can not remove a subproduct of it']]);
         if ($orderDetail->product->type == 'video' && !$orderDetail->all_videos_buy) {
-            $order_video_details = OrderVideoDetail::where('order_details_id', $id)->pluck('product_details_videos_id')->toArray();
+            $order_video_details = OrderVideoDetail::where('order_details_id', $order_details_id)->pluck('product_details_videos_id')->toArray();
             $raiseError->ValidationError(!in_array($product_details_id, $order_video_details), ['product_details_id' => ['The product_details_id is not valid!']]);
-            OrderVideoDetail::where('order_details_id', $id)->where('product_details_videos_id', $product_details_id)->delete();
-            $found = OrderVideoDetail::where('order_details_id', $id)->count();
+            OrderVideoDetail::where('order_details_id', $order_details_id)->where('product_details_videos_id', $product_details_id)->delete();
+            $found = OrderVideoDetail::where('order_details_id', $order_details_id)->count();
             if (!$found) {
-                OrderDetail::where('id', $id)->delete();
-                $order = Order::where('users_id', $user_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
+                OrderDetail::where('id', $order_details_id)->delete();
+                $order = Order::where('users_id', $order->users_id)->where('status', '!=', 'cancel')->with('orderDetails')->first();
             }
         }
         $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
@@ -430,92 +436,20 @@ class CartController extends Controller
     /**
      * complete buying
      *
+     * @param  \App\Http\Requests\CompleteBuyingRequest  $request
+     * @param int $orders_id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function completeBuying()
+    public function completeBuying(CompleteBuyingRequest $request, $orders_id)
     {
 
-        $user_id = Auth::user()->id;
+        $order = Order::find($orders_id);
         $buying = new Buying;
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        if ($order) {
-            if (!$order->amount) {
-                $order->status = "ok";
-                $order->save();
-                $buying->completeInsertAfterBuying($order);
-                return (new OrderResource($order))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(201);
-            } else {
-                return MellatPayment::pay($order);
-            }
-        }
+        $order->status = "manual_ok";
+        $order->save();
+        $buying->completeInsertAfterBuying($order);
+        return (new OrderResource($order))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
-    /**
-     * return from mellat bank
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function mellatBank(Request $request)
-    {
-
-        Temp::create([
-            'output' => json_encode($request->all()),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
-        $sw = 0;
-        $SaleOrderId = $request->input('SaleOrderId');
-        $ResCode = $request->input('ResCode');
-        $RefId = $request->input('RefId');
-        $payment = Payment::where('is_deleted', false)->where('bank_orders_id', $SaleOrderId)->first();
-        if ($payment) {
-            $order = Order::where('status', 'processing')->find($payment->orders_id);
-            if ($order) {
-                $payment->bank_returned = json_encode($request->all());
-                $payment->res_code = $ResCode;
-                $payment->ref_id = $RefId;
-                if ($ResCode) {
-                    $payment->status = "error";
-                    $order->status = "waiting";
-                } else {
-                    $payment->sale_reference_id = $request->input("SaleReferenceId");
-                    $payment->sale_order_id = $request->input('SaleOrderId');
-                    $payment->save();
-                    $verify_output = MellatPayment::verify($order, $payment);
-                    $verify_error = $verify_output["errors"];
-                    if ($verify_error != null) {
-                        $payment->status = "verify_error";
-                        $order->status = "waiting";
-                    } else {
-                        $FinalAmount = $request->input('FinalAmount');
-                        if ($FinalAmount != $order->amount * 10) {
-                            $payment->status = "amount_error";
-                            $order->status = "waiting";
-                        }
-                        $settle_output = MellatPayment::settle($order, $payment);
-                        $settle_error = $settle_output["errors"];
-                        if ($settle_error != null) {
-                            $payment->status = "settle_error";
-                            $order->status = "waiting";
-                        } else {
-                            $sw = 1;
-                            $payment->status = "success";
-                            $order->status = "ok";
-                            $this->completeInsertAfterBuying($order);  
-                        }
-                    }
-                }
-                $payment->save();
-                $order->save();
-                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL').'/'.$order->id.'/'.$sw);
-            }
-            Log::info('order not exists');
-            return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
-        }
-        Log::info('payment not exists');
-        return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
-    }
-    
-
 }

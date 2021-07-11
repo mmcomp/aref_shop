@@ -20,6 +20,7 @@ use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
@@ -274,4 +275,20 @@ Route::group([
     Route::get('/', [ProductCommentController::class, 'index']);
     Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
     Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
+    Route::get('/search',[ProductCommentController::class, 'search']);
+});
+Route::group([
+    'middleware' => ['auth:api','can:admin-order'],
+    'prefix' => 'orders',
+], function ($router) {
+    Route::post('/add', [OrderController::class, 'store']);
+    Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct']);
+    Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
+    Route::get('/get-cart/{orders_id}', [OrderController::class, 'getWholeCart']);
+    Route::delete('/cart/{orders_id}', [OrderController::class, 'destroyWholeCart']);
+    Route::delete('/product/{orders_id}/{order_details_id}', [OrderController::class, 'destroy']);
+    Route::put('/add-coupon/{orders_id}', [OrderController::class, 'addCouponToTheCart']);
+    Route::put('/delete-coupon/{orders_id}', [OrderController::class, 'deleteCouponFromCart']);
+    Route::delete('/micro-product/{orders_id}/{order_details_id}', [OrderController::class, 'destroyMicroProduct']);
+    Route::get('/complete-buying/{orders_id}',[OrderController::class, 'completeBuying'] );
 });

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
-class ProductCommentCreateRequest extends FormRequest
+class InsertOrderForUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,17 +27,17 @@ class ProductCommentCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'products_id' => [
+            'users_id' =>
+            [
                 'required',
-                'integer', 
-                Rule::exists('products', 'id')->where(function ($query) {
+                'integer',
+                Rule::exists('users', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'comment' => 'required|string|min:3|max:500'
         ];
     }
-    /**
+     /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

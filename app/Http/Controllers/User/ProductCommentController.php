@@ -5,7 +5,11 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductCommentIndexRequest;
 use App\Http\Requests\User\ProductCommentCreateRequest;
+use App\Http\Requests\ProductCommentSearchVerifiedRequest;
+use App\Http\Resources\User\ProductCommentForUserShowCollection;
+use App\Http\Resources\ProductCommentCollection as ResourcesProductCommentCollection;
 use App\Http\Resources\User\ProductCommentCollection;
+use App\Http\Resources\User\ProductCommentForUserShowResource;
 use App\Http\Resources\User\ProductCommentResource;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ProductComment;
@@ -70,11 +74,11 @@ class ProductCommentController extends Controller
                     $product_comments[] = $product_comment;
                 }
             }
-            return (new ProductCommentCollection($product_comments))->additional([
+            return (new ProductCommentForUserShowCollection($product_comments))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
-        return (new ProductCommentResource(null))->additional([
+        return (new ProductCommentForUserShowResource(null))->additional([
             'errors' => ["not_found" => "The product_comments_id does not exist"],
         ])->response()->setStatusCode(404);
     }
