@@ -22,6 +22,7 @@ use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\VideoSessionFilesController;
+use Illuminate\Support\Facades\Redis;
 
 /*
 |--------------------------------------------------------------------------
@@ -263,4 +264,11 @@ Route::group([
     Route::get('/', [ProductCommentController::class, 'index']);
     Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
     Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
+});
+Route::get('/publish', function () {
+    // ...
+
+    Redis::publish('test-channel', json_encode([
+        'name' => 'Adam Wathan'
+    ]));
 });

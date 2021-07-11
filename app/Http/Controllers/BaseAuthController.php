@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Exception;
 use Hautelook\Phpass\PasswordHash;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 use MikeMcLin\WpPassword\WpPassword;
 
 class BaseAuthController extends Controller
@@ -66,8 +67,16 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
+        $value = Redis::hGet('aref_shop_user', $user->id);
+        if($value != $token) {
 
-
+        } else {
+            Redis::hSet('aref_shop_user', $user->id, $token);
+        }
+        // Redis::hSet('aref_shop_user', $user->id, $token);
+        // $value = Redis::hGet('aref_shop_user', $user->id);
+        // $x = Redis::hGetAll("aref_shop_user");
+        // dd($x);
         return $this->createNewToken($token);
     }
 
