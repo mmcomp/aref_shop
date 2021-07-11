@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class DeleteProductFromCartRequest extends FormRequest
+
+class StoreProductOrderDetailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,26 +28,28 @@ class DeleteProductFromCartRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => [
+            'orders_id' => [
                 'required',
                 'integer',
-                'exists:order_details,id'
+                Rule::exists('orders', 'id')->where(function ($query) {
+                    return $query->where('status', 'manual_waiting');
+                }),
             ],
-            'users_id' =>
-            [
+            'products_id' => [
                 'required',
                 'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
+                Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'number' => 'nullable|integer'
         ];
     }
     public function all($keys = null)
     {
         // Add route parameters to validation data
         $data = parent::all();
-        $data['id'] = $this->route('id');
+        $data['orders_id'] = $this->route('orders_id');
         return $data;
     }
     /**
@@ -61,7 +64,7 @@ class DeleteProductFromCartRequest extends FormRequest
             $errors = (new ValidationException($validator))->errors();
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 422)
+                response()->json(['errors' => $errors], 400)
             );
         }
     }

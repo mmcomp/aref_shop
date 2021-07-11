@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
@@ -27,26 +27,26 @@ class DeleteProductFromCartRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => [
+            'order_details_id' => [
                 'required',
                 'integer',
                 'exists:order_details,id'
-            ],
-            'users_id' =>
-            [
+            ], 
+            "orders_id" => [
                 'required',
                 'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
+                Rule::exists('orders', 'id')->where(function ($query) {
+                    return $query->where('status', 'manual_waiting');
                 }),
-            ],
+            ]
         ];
     }
     public function all($keys = null)
     {
         // Add route parameters to validation data
         $data = parent::all();
-        $data['id'] = $this->route('id');
+        $data['order_details_id'] = $this->route('order_details_id');
+        $data['orders_id'] = $this->route('orders_id');
         return $data;
     }
     /**

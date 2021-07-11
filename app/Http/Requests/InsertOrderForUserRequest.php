@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
-class DeleteProductFromCartRequest extends FormRequest
+class InsertOrderForUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,11 +27,6 @@ class DeleteProductFromCartRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => [
-                'required',
-                'integer',
-                'exists:order_details,id'
-            ],
             'users_id' =>
             [
                 'required',
@@ -42,14 +37,7 @@ class DeleteProductFromCartRequest extends FormRequest
             ],
         ];
     }
-    public function all($keys = null)
-    {
-        // Add route parameters to validation data
-        $data = parent::all();
-        $data['id'] = $this->route('id');
-        return $data;
-    }
-    /**
+     /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator
