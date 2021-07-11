@@ -21,8 +21,8 @@ class ProductCommentController extends Controller
      */
     public function index(ProductCommentIndexRequest $request)
     {
-        
-        $product_comments = $request->get('per_page') == "all" ? ProductComment::orderBy('id', 'desc')->get():ProductComment::orderBy('id', 'desc')->paginate(env('PAGE_COUNT')); 
+
+        $product_comments = $request->get('per_page') == "all" ? ProductComment::orderBy('id', 'desc')->get() : ProductComment::orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         return (new ProductCommentCollection($product_comments))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -37,7 +37,7 @@ class ProductCommentController extends Controller
      */
     public function update(ProductCommentEditRequest $request, $id)
     {
-        
+
         $product_comment = ProductComment::find($id);
         $product_comment->verified = $request->input('verified');
         $product_comment->verifier_users_id = Auth::user()->id;
@@ -55,15 +55,14 @@ class ProductCommentController extends Controller
      */
     public function destroy($id)
     {
-        
+
         $product_comment = ProductComment::find($id);
-        if($product_comment != null) {
+        if ($product_comment != null) {
             $product_comment->delete();
             return (new ProductCommentResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(204);
         }
-
     }
     /**
      * filter by verify
@@ -75,15 +74,19 @@ class ProductCommentController extends Controller
     {
 
         $verified = $request->input('verified');
-        $product_comments_builder = ProductComment::where('verified', $verified);
-        if($verified == 2) {
-            $comments = $request->per_page == "all" ? ProductComment::get() : ProductComment::paginate(env('PAGE_COUNT'));
-        } else {
-            $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
-        }
+        $products_id = $request->input('products_id');
+        $product_comments_builder = ProductComment::where(function ($query) use ($verified) {
+            if ($verified != "all") {
+                $query->where('verified', $verified);
+            }
+        })->where(function ($query) use ($products_id) {
+            if ($products_id != null) {
+                $query->where('products_id', $products_id);
+            }
+        });
+        $comments = $request->per_page == "all" ? $product_comments_builder->get() : $product_comments_builder->paginate(env('PAGE_COUNT'));
         return (new ProductCommentCollection($comments))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-
     }
 }

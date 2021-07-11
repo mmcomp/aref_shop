@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class ProductCommentSearchVerifiedRequest extends FormRequest
 {
@@ -28,6 +29,13 @@ class ProductCommentSearchVerifiedRequest extends FormRequest
         return [
             'per_page' => 'nullable|string|max:255',
             'verified' => 'required|in:0,1,all',
+            'products_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('products', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
         ];
     }
     /**

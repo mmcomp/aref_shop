@@ -34,7 +34,7 @@ class ProductCommentCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'comment' => 'required|string|min:3|max:1000'
+            'comment' => 'required|string|min:3|max:500'
         ];
     }
     /**
