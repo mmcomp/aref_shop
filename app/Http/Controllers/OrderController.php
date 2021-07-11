@@ -444,8 +444,12 @@ class OrderController extends Controller
     {
 
         $order = Order::find($orders_id);
+        $amount = $request->input('amount');
+        $description = $request->input('description');
         $buying = new Buying;
         $order->status = "manual_ok";
+        $order->amount = $amount;
+        $order->comment = $description;
         $order->save();
         $buying->completeInsertAfterBuying($order);
         return (new OrderResource($order))->additional([

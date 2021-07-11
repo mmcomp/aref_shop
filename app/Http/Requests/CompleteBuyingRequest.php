@@ -33,7 +33,9 @@ class CompleteBuyingRequest extends FormRequest
                 Rule::exists('orders', 'id')->where(function ($query) {
                     return $query->where('status', 'manual_waiting');
                 }),
-            ]
+            ], 
+            'amount' => 'required|integer',
+            'description' => 'required|string|min:3|max:1000'
         ];
     }
     public function all($keys = null)
