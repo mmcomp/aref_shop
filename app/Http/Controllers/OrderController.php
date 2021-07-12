@@ -46,12 +46,15 @@ class OrderController extends Controller
         $users_id = $request->input('users_id');
         $user = User::where('is_deleted', false)->find($users_id);
         if ($user->group->type == 'user') {
-            $order = Order::create([
-                'users_id' => $users_id,
-                'status' => 'manual_waiting',
-                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-            ]);
+            $order = Order::where('users_id', $users_id)->where('status', 'manual_waiting')->first();
+            if($order == null) {
+                $order = Order::create([
+                    'users_id' => $users_id,
+                    'status' => 'manual_waiting',
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                ]);
+            }
             return (new AdminOrderResource($order))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(201);
