@@ -74,6 +74,7 @@ class ProductCommentController extends Controller
                     $product_comments[] = $product_comment;
                 }
             }
+            
             return (new ProductCommentForUserShowCollection($product_comments))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);

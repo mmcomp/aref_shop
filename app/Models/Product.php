@@ -71,7 +71,7 @@ class Product extends Model
     }
     public function comments()
     {
-        return $this->hasMany('App\Models\ProductComment', 'products_id', 'id');
+        return $this->hasMany('App\Models\ProductComment', 'products_id', 'id')->orderBy('created_at', 'desc');
     }
 
 }
