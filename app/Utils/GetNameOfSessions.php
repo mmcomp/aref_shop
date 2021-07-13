@@ -10,6 +10,7 @@ class GetNameOfSessions {
         $number = new Number2Word;
         $numArray = [];
         $i = 1;
+        $product_detail_videos = [];
         for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
             $v = $product->productDetailVideos[$indx];
             $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
