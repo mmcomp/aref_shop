@@ -306,7 +306,7 @@ class OrderController extends Controller
     {
 
         $order = Order::find($orders_id);
-        $order->status = 'cancel';
+        $order->status = 'manual_waiting';
         if ($order->orderDetails) {
             foreach ($order->orderDetails as $item) {
                 $item->where('orders_id', $order->id)->delete();
