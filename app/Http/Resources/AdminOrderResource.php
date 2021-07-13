@@ -20,7 +20,6 @@ class AdminOrderResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                'user' => new UserResource($this->user),
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
