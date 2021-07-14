@@ -10,6 +10,7 @@ use App\Models\ProductDetailVideo;
 use App\Models\User;
 use App\Http\Requests\ReportSaleRequest;
 use App\Http\Resources\User\OrderCollection;
+use App\Http\Resources\User\OrderResource;
 use App\Http\Resources\UserCollection;
 use App\Utils\RaiseError;
 
@@ -28,6 +29,17 @@ class UserProductController extends Controller
         $raiseError = new RaiseError;
         $mode = $request->input('mode');
         $users_id = $request->input('users_id');
+        $products_id = $request->input('products_id');
+        if ($users_id != null && $products_id != null) {
+            $order = Order::where('users_id', $users_id)->where(function ($query) {
+                $query->where('status', 'ok')->orWhere('status', 'manual_ok');
+            })->whereHas('orderDetails', function ($query) use ($products_id) {
+                $query->where("products_id", $products_id);
+            })->first();
+            return (new OrderResource($order))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
         if ($users_id != null) {
             if ($mode == "order") {
                 $orders = Order::where('users_id', $users_id)->where(function ($query) {
@@ -39,7 +51,6 @@ class UserProductController extends Controller
             }
         }
         if ($mode == "product") {
-            $products_id = $request->input('products_id');
             $product_details_id = $request->input('product_detail_videos_id');
             if ($product_details_id == null) {
                 $user_products = UserProduct::where('products_id', $products_id)->where('partial', 0)->pluck('users_id');
