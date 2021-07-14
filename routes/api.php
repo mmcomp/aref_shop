@@ -24,6 +24,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
+use App\Http\Controllers\UserProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -292,3 +293,10 @@ Route::group([
     Route::delete('/micro-product/{orders_id}/{order_details_id}', [OrderController::class, 'destroyMicroProduct']);
     Route::post('/complete-buying/{orders_id}',[OrderController::class, 'completeBuying'] );
 });
+Route::group([
+    'middleware' => ['auth:api','can:report-sale'],
+    'prefix' => 'user-products',
+], function ($router) {
+    Route::post('/report-sale', [UserProductController::class, 'reportSale']);
+});
+
