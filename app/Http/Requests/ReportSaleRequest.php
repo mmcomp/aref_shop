@@ -29,6 +29,7 @@ class ReportSaleRequest extends FormRequest
         return [
             'products_id' => [
                 'required_if:mode,product',
+                'nullable',
                 'integer',
                 Rule::exists('products', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
@@ -43,6 +44,7 @@ class ReportSaleRequest extends FormRequest
             ],
             'users_id' => [
                 'required_if:mode,order',
+                'nullable',
                 'integer',
                 Rule::exists('users', 'id')->where(function ($query) {
                     return $query->where('is_deleted', false);
