@@ -270,7 +270,7 @@ class UserController extends Controller
                 }
             })->where(function ($query) use ($fullName) {
             if ($fullName != null) {
-                $query->where(DB::raw('CONCAT(first_name, " ", last_Name)'), 'like', '%' . $fullName . '%');
+                $query->where(DB::raw("CONCAT(IFNULL(first_name, ''), IFNULL(CONCAT(' ', last_name), ''))"), 'like', '%' . $fullName . '%');
             }
         });
         if ($request->per_page == "all") {
