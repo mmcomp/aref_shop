@@ -11,6 +11,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Utils\UploadImage;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,7 +76,8 @@ class UserController extends Controller
     public function store(UserCreateRequest $request)
     {
 
-        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
+        $saver_users_id = Auth::user()->id;
+        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
 
         $user = User::create($userData);
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));

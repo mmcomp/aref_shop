@@ -24,6 +24,10 @@ class UserResource extends JsonResource
                 'last_name' => $this->last_name,
                 'avatar_path' => $this->avatar_path,
                 'referrer_user' => new UserResource($this->referrerUser),
+                'saver_users_id' => [
+                   'first_name' => $this->saverUser->first_name,
+                   'last_name' => $this->saverUser->last_name
+                ],
                 'address' => $this->address,
                 'postall' => $this->postall,
                 'city' => new CityResource($this->city),
