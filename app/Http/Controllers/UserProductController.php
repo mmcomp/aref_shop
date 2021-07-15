@@ -35,8 +35,8 @@ class UserProductController extends Controller
                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
             })->whereHas('orderDetails', function ($query) use ($products_id) {
                 $query->where("products_id", $products_id);
-            })->first();
-            return (new OrderResource($order))->additional([
+            })->get();
+            return (new OrderCollection($order))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }

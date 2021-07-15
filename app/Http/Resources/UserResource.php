@@ -17,6 +17,7 @@ class UserResource extends JsonResource
     {
 
         if($this->resource != null){
+            
             return [
                 'id' => $this->id,
                 'email' => $this->email,
@@ -25,8 +26,8 @@ class UserResource extends JsonResource
                 'avatar_path' => $this->avatar_path,
                 'referrer_user' => new UserResource($this->referrerUser),
                 'saver_users_id' => [
-                   'first_name' => $this->saverUser->first_name,
-                   'last_name' => $this->saverUser->last_name
+                   'first_name' => $this->saverUser ? $this->saverUser->first_name : '',
+                   'last_name' => $this->saverUser ? $this->saverUser->last_name : ''
                 ],
                 'address' => $this->address,
                 'postall' => $this->postall,
