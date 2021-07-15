@@ -25,7 +25,7 @@ class UserResource extends JsonResource
                 'last_name' => $this->last_name,
                 'avatar_path' => $this->avatar_path,
                 'referrer_user' => new UserResource($this->referrerUser),
-                'saver_users_id' => [
+                'saver_user' => [
                    'first_name' => $this->saverUser ? $this->saverUser->first_name : '',
                    'last_name' => $this->saverUser ? $this->saverUser->last_name : ''
                 ],
