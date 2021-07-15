@@ -25,6 +25,7 @@ use App\Http\Requests\DestroyWholeCartRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\UserCoupon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Http\Resources\AdminOrderResource;
@@ -50,6 +51,7 @@ class OrderController extends Controller
             if($order == null) {
                 $order = Order::create([
                     'users_id' => $users_id,
+                    'saver_users_id' => Auth::user()->id,
                     'status' => 'manual_waiting',
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')

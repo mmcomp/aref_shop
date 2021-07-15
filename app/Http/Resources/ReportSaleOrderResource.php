@@ -20,6 +20,10 @@ class ReportSaleOrderResource extends JsonResource
             return [
                 'id' => $this->id,
                 'user' => new UserResource($this->user),
+                'saver_user' => [
+                   'first_name' => $this->saverUser ? $this->saverUser->first_name : '',
+                   'last_name' => $this->saverUser ? $this->saverUser->last_name: ''   
+                ],
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
