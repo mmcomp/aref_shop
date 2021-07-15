@@ -9,7 +9,7 @@ use App\Models\UserVideoSession;
 use App\Models\ProductDetailVideo;
 use App\Models\User;
 use App\Http\Requests\ReportSaleRequest;
-use App\Http\Resources\User\OrderCollection;
+use App\Http\Resources\ReportSaleOrderCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Http\Resources\UserCollection;
 use App\Utils\RaiseError;
@@ -36,7 +36,7 @@ class UserProductController extends Controller
             })->whereHas('orderDetails', function ($query) use ($products_id) {
                 $query->where("products_id", $products_id);
             })->get();
-            return (new OrderCollection($order))->additional([
+            return (new ReportSaleOrderCollection($order))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
@@ -45,7 +45,7 @@ class UserProductController extends Controller
                 $orders = Order::where('users_id', $users_id)->where(function ($query) {
                     $query->where('status', 'ok')->orWhere('status', 'manual_ok');
                 })->get();
-                return (new OrderCollection($orders))->additional([
+                return (new ReportSaleOrderCollection($orders))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(200);
             }
