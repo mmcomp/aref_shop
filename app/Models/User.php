@@ -25,6 +25,7 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'avatar_path',
         'referrer_users_id',
+        'saver_users_id',
         'pass_txt',
         'address',
         'postall',
@@ -62,6 +63,10 @@ class User extends Authenticatable implements JWTSubject
     public function referrerUser()
     {
         return $this->hasOne('App\Models\User','id','referrer_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
+    }
+    public function saverUser()
+    {
+        return $this->hasOne('App\Models\User','id','saver_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
     }
     public function usersyncs()
     {
