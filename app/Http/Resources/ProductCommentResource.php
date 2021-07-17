@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\UserForProductCommentResource;
+use App\Http\Resources\ProductForProductCommentResource;
 
 class ProductCommentResource extends JsonResource
 {
@@ -16,8 +18,9 @@ class ProductCommentResource extends JsonResource
     {
         if($this->resource != null) {
             return [
-                "user" => new UserResource($this->user),
-                "product" => new ProductResource($this->product),
+                "id" => $this->id,
+                "user" => new UserForProductCommentResource($this->user),
+                "product" => new ProductForProductCommentResource($this->product),
                 "comment" => $this->comment,
                 "verified" => $this->verified,
                 "created_at" => $this->created_at,

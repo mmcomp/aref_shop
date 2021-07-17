@@ -20,9 +20,12 @@ use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\VideoSessionsController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductFilesController;
+use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
 use Illuminate\Support\Facades\Redis;
+use App\Http\Controllers\UserProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -258,12 +261,38 @@ Route::group([
     Route::delete('/{id}', [VideoSessionFilesController::class, 'destroy']);
 });
 Route::group([
+    'middleware' => ['auth:api', 'can:user-description'],
+    'prefix' => 'user-descriptions'
+], function ($router) {
+    Route::get('/', [UserDescriptionsController::class, 'index']);
+    Route::post('/add', [UserDescriptionsController::class, 'store']);
+    Route::get('/show/{id}', [UserDescriptionsController::class, 'show']);
+    Route::put('/edit/{id}', [UserDescriptionsController::class, 'update']);
+    Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
+});
+Route::group([
     'middleware' => ['auth:api','can:product-comment-admin'],
     'prefix' => 'product-comments',
 ], function ($router) {
     Route::get('/', [ProductCommentController::class, 'index']);
     Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
     Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
+    Route::get('/search',[ProductCommentController::class, 'search']);
+});
+Route::group([
+    'middleware' => ['auth:api','can:admin-order'],
+    'prefix' => 'orders',
+], function ($router) {
+    Route::post('/add', [OrderController::class, 'store']);
+    Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct']);
+    Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
+    Route::get('/get-cart/{orders_id}', [OrderController::class, 'getWholeCart']);
+    Route::delete('/cart/{orders_id}', [OrderController::class, 'destroyWholeCart']);
+    Route::delete('/product/{orders_id}/{order_details_id}', [OrderController::class, 'destroy']);
+    Route::put('/add-coupon/{orders_id}', [OrderController::class, 'addCouponToTheCart']);
+    Route::put('/delete-coupon/{orders_id}', [OrderController::class, 'deleteCouponFromCart']);
+    Route::delete('/micro-product/{orders_id}/{order_details_id}', [OrderController::class, 'destroyMicroProduct']);
+    Route::post('/complete-buying/{orders_id}',[OrderController::class, 'completeBuying'] );
 });
 Route::get('/publish', function () {
     // ...
@@ -272,3 +301,10 @@ Route::get('/publish', function () {
         'name' => 'Adam Wathan'
     ]));
 });
+Route::group([
+    'middleware' => ['auth:api','can:report-sale'],
+    'prefix' => 'user-products',
+], function ($router) {
+    Route::post('/report-sale', [UserProductController::class, 'reportSale']);
+});
+
