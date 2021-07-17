@@ -10,12 +10,15 @@ use App\Http\Requests\VerifyRegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\SmsValidation;
 use App\Models\User;
+use App\Models\ChatMessage;
 use App\Utils\Sms;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Hautelook\Phpass\PasswordHash;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 use MikeMcLin\WpPassword\WpPassword;
 
 class BaseAuthController extends Controller
@@ -66,9 +69,32 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
-
-
-        return $this->createNewToken($token);
+        $value = Redis::hGet('user', $user->id);
+        if($value != $token) {
+           Redis::publish('test-channel', json_encode([
+            'id' => $user->id,
+            'old_token' => $value,
+            'new_token' => $token
+           ]));
+        }
+        Redis::hSet('user', $user->id, $token);
+        Redis::hSet('expires_in', "expire", Carbon::now()->addDays(7));
+        $message = json_encode([
+            "Type"=> "MESSAGE",
+            "Token"=> "absd",
+            "Data"=> [
+              "video_sessions_id" => 5,
+              "msg" => "dd"
+            ]
+        ]);
+        Redis::publish('test-channel', $message);
+        ChatMessage::create([
+          'users_id' => $user->id,
+          'ip_address' => $request->ip(),
+          'video_sessions_id' => json_decode($message)->Data->video_sessions_id,
+          'message' => json_decode($message)->Data->msg  
+        ]);
+        return $this->createNewToken($token);  
     }
 
     /**
@@ -191,7 +217,7 @@ class BaseAuthController extends Controller
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth('api')->factory()->getTTL() * 60 * 24 * 7,
+                'expires_in' => auth('api')->factory()->getTTL() * 24 * 7,
                 'menus' => auth('api')->getUser()->menus(),
                 'group' => auth('api')->getUser()->group,
                 'first_name'  => auth('api')->getUser()->first_name,
