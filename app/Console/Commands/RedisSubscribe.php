@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 
 class RedisSubscribe extends Command
 {
@@ -39,7 +40,7 @@ class RedisSubscribe extends Command
     public function handle()
     {
         Redis::subscribe(['test-channel'], function ($message) {
-            echo $message;
+            Log::info("message recieved ". $message);
         });
     }
 }
