@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
@@ -257,12 +258,18 @@ class UserController extends Controller
     /**
      * Search users according to name,last_name,phone
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\SearchRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function search(Request $request)
+    public function search(SearchRequest $request)
     {
 
+        $sort = "id";
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $sort_dir = $request->get('sort_dir');
+        }
         $phone = trim(request()->email);
         $fullName = trim(request()->name);
         $users_builder = User::where('is_deleted', false)
@@ -276,9 +283,9 @@ class UserController extends Controller
             }
         });
         if ($request->per_page == "all") {
-            $users = $users_builder->get();
+            $users = $users_builder->orderBy($sort, $sort_dir)->get();
         } else {
-            $users = $users_builder->paginate(env('PAGE_COUNT'));
+            $users = $users_builder->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new UserCollection($users))->additional([
             'errors' => null,
