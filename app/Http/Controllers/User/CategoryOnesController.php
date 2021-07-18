@@ -4,7 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\CategoryOne;
-use App\Http\Resources\CategoryOnesCollection;
+use App\Http\Resources\User\CategoryOnesCollection;
 
 
 class CategoryOnesController extends Controller
