@@ -19,6 +19,7 @@ class CategoryOnesResource extends JsonResource
                 'id' => $this->id,
                 'name' => $this->name,
                 'image_path' => $this->image_path,
+                'published' => $this->published,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

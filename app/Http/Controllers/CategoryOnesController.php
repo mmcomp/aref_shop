@@ -45,6 +45,7 @@ class CategoryOnesController extends Controller
 
         $category_one = CategoryOne::create([
             'name' => $request->name,
+            'published' => $request->published
         ]);
         return (new CategoryOnesResource($category_one))->additional([
             'errors' => null,
