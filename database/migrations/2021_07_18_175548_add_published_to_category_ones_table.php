@@ -14,7 +14,7 @@ class AddPublishedToCategoryOnesTable extends Migration
     public function up()
     {
         Schema::table('category_ones', function (Blueprint $table) {
-            $table->boolean('published')->default(0)->after('image_path');
+            $table->boolean('published')->default(1)->after('image_path');
         });
     }
 
