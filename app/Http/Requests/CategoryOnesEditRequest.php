@@ -27,6 +27,7 @@ class CategoryOnesEditRequest extends FormRequest
     {
         return [
             'name' => 'string|min:3|max:255',
+            'published' => 'nullable|in:0,1'
         ];
     }
      /**

@@ -3,7 +3,7 @@
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\ProductController;
-use App\Http\Controllers\CategoryOnesController;
+use App\Http\Controllers\User\CategoryOnesController;
 use App\Http\Controllers\CategoryTwosController;
 use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
