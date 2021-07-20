@@ -277,4 +277,15 @@ class BaseAuthController extends Controller
             'errors' => ['user' => ['User not found!']],
         ])->response()->setStatusCode(404);
     }
+    public function synchronizeUsers()
+    {
+
+        $users = User::where('is_deleted', false)->get();
+        foreach($users as $user) {
+            SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
+        }
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
 }
