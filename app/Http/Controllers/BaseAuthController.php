@@ -69,31 +69,37 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
+        Log::info("Start Redis : " . json_encode($user));
         $value = Redis::hGet('user', $user->id);
+        Log::info("Check Token : '$value' =? '$token'");
         if($value != $token) {
-           Redis::publish('test-channel', json_encode([
+           $res = Redis::publish('node', json_encode([
             'id' => $user->id,
             'old_token' => $value,
             'new_token' => $token
            ]));
+           Log::info("Pub : " . json_encode($res));
         }
         Redis::hSet('user', $user->id, $token);
         Redis::hSet('expires_in', "expire", Carbon::now()->addDays(7));
-        $message = json_encode([
-            "Type"=> "MESSAGE",
-            "Token"=> "absd",
-            "Data"=> [
-              "video_sessions_id" => 5,
-              "msg" => "dd"
-            ]
-        ]);
-        Redis::publish('test-channel', $message);
-        ChatMessage::create([
-          'users_id' => $user->id,
-          'ip_address' => $request->ip(),
-          'video_sessions_id' => json_decode($message)->Data->video_sessions_id,
-          'message' => json_decode($message)->Data->msg  
-        ]);
+        Log::info("hSet : " . $token);
+        $value = Redis::hGet('user', $user->id);
+        Log::info("hGet : " . $value);
+        // $message = json_encode([
+        //     "Type"=> "MESSAGE",
+        //     "Token"=> "absd",
+        //     "Data"=> [
+        //       "video_sessions_id" => 5,
+        //       "msg" => "dd"
+        //     ]
+        // ]);
+        // Redis::publish('test-channel', $message);
+        // ChatMessage::create([
+        //   'users_id' => $user->id,
+        //   'ip_address' => $request->ip(),
+        //   'video_sessions_id' => json_decode($message)->Data->video_sessions_id,
+        //   'message' => json_decode($message)->Data->msg  
+        // ]);
         return $this->createNewToken($token);  
     }
 
