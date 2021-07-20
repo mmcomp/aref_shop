@@ -48,6 +48,12 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
                     "status" => "successful",
                     "error_message" => null,
                 ]);
+            } else {
+                UserSync::create([
+                    "users_id" => $this->user->id,
+                    "status" => "failed",
+                    "error_message" => "the response was not successful". $response->getStatusCode(),
+                ]);
             }
         } catch (Exception $e) {
             Log::info("CRM ran into a problem in synchronize users!" . json_encode($e->getMessage()));
