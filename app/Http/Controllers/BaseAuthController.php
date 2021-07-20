@@ -81,14 +81,9 @@ class BaseAuthController extends Controller
            Log::info("Pub : " . json_encode($res));
         }
         Redis::hSet('user', $user->id, $token);
-        if($user->first_name != null && $user->last_name != null) {
-            Redis::hSet('name', $user->id, $user->first_name .' '. $user->last_name);
-        }
-        if($user->first_name == null || $user->last_name == null) {
-            return (new UserResource(null))->additional([
-                'errors' => ['nullName' => ['first_name or last_name is null']],
-            ])->response()->setStatusCode(406);
-        }
+        $first_name = $user->first_name == null ? '' : $user->first_name;
+        $last_name = $user->last_name == null ? '' : $user->last_name;
+        Redis::hSet('name', $user->id, $first_name .' '. $last_name);
         Redis::hSet('expires_in', "expire", Carbon::now()->addDays(7));
         Log::info("hSet : " . $token);
         $value = Redis::hGet('user', $user->id);
@@ -234,6 +229,7 @@ class BaseAuthController extends Controller
                 'expires_in' => auth('api')->factory()->getTTL() * 24 * 7,
                 'menus' => auth('api')->getUser()->menus(),
                 'group' => auth('api')->getUser()->group,
+                'user_id' => auth('api')->getUser()->id,
                 'first_name'  => auth('api')->getUser()->first_name,
                 'last_name' => auth('api')->getUser()->last_name,
                 'phone' => auth('api')->getUser()->email,
