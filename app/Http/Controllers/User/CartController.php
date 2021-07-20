@@ -21,6 +21,7 @@ use App\Models\UserVideoSession;
 use App\Models\Coupon;
 use App\Models\UserCoupon;
 use App\Models\Payment;
+use App\Utils\Buying;
 use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
@@ -435,12 +436,13 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
+        $buying = new Buying;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if ($order) {
             if (!$order->amount) {
                 $order->status = "ok";
                 $order->save();
-                $this->completeInsertAfterBuying($order);
+                $buying->completeInsertAfterBuying($order);
                 return (new OrderResource($order))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(201);
