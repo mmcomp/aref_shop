@@ -15,6 +15,7 @@ use App\Models\Temp;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
 use App\Models\Product;
+use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
@@ -434,6 +435,23 @@ class CartController extends Controller
                         ];
                     }
                 }
+            }
+            if ($orderDetail->product->type == 'package') {
+                $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+                foreach($child_products as $child_product) {
+                    $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                    if($p->type == 'video') {
+                        $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
+                        foreach($videoSessionIds as $video_session_id) {
+                            $data = [
+                                'users_id' => $user,
+                                'video_sessions_id' => $video_session_id
+                             ];
+                        }
+                        
+                    }
+                }
+                UserVideoSession::insert($data);
             }
         }
         UserVideoSession::insert($data);

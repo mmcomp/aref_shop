@@ -5,6 +5,7 @@ use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use App\Models\ProductDetailVideo;
 use App\Models\ProductDetailPackage;
+use App\Models\Product;
 
 class Buying {
     
@@ -50,6 +51,23 @@ class Buying {
                         ];
                     }
                 }
+            }
+            if ($orderDetail->product->type == 'package') {
+                $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+                foreach($child_products as $child_product) {
+                    $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                    if($p->type == 'video') {
+                        $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
+                        foreach($videoSessionIds as $video_session_id) {
+                            $data = [
+                                'users_id' => $user,
+                                'video_sessions_id' => $video_session_id
+                             ];
+                        }
+                        
+                    }
+                }
+                UserVideoSession::insert($data);
             }
         }
         UserVideoSession::insert($data);
