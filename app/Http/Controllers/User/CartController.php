@@ -472,6 +472,7 @@ class CartController extends Controller
                 $order->status = "ok";
                 $order->save();
                 $buying->completeInsertAfterBuying($order);
+                dd('1');
                 return (new OrderResource($order))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(201);

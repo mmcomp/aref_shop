@@ -13,6 +13,8 @@ use App\Http\Resources\VideoSessionsResource;
 use App\Models\Order;
 use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
+use App\Models\ProductDetailPackage;
+use App\Models\Product;
 use App\Models\UserVideoSession;
 use Carbon\Carbon;
 use App\Utils\RaiseError;
@@ -197,6 +199,22 @@ class VideoSessionsController extends Controller
                             ];
                         }
                     }
+                }
+                if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->product->type == 'package') {
+                    $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+                    foreach ($child_products as $child_product) {
+                        $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                        if ($p->type == 'video') {
+                            $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
+                            foreach ($videoSessionIds as $video_session_id) {
+                                $data = [
+                                    'users_id' => $order->users_id,
+                                    'video_sessions_id' => $video_session_id
+                                ];
+                            }
+                        }
+                    }
+                    UserVideoSession::insert($data);
                 }
             }
         }

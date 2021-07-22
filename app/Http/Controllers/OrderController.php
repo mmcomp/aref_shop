@@ -456,7 +456,7 @@ class OrderController extends Controller
                             $data = [
                                 'users_id' => $user,
                                 'video_sessions_id' => $video_session_id
-                             ];
+                            ];
                         }
                         
                     }
