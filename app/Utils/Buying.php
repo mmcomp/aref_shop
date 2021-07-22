@@ -4,6 +4,7 @@ use App\Models\Order;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use App\Models\ProductDetailVideo;
+use App\Models\ProductDetailPackage;
 
 class Buying {
     
@@ -19,6 +20,16 @@ class Buying {
             $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
             if (!$found_user_product) {
                 $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
+                if($orderDetail->product->type == "package"){
+                    $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+                    foreach($child_products as $child_product) {
+                        $data = [
+                           'users_id' => $user,
+                           'products_id' => $child_product
+                        ];
+                    }
+                    UserProduct::insert($data);
+                }
             }
             if ($orderDetail->product->type == 'video') {
                 if ($orderDetail->all_videos_buy) {
