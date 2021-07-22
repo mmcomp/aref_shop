@@ -144,7 +144,7 @@ class OrderController extends Controller
         }
         $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
         for($i = 0; $i < count($product_detail_videos); $i++) {
-            $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product);
+            $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product, Auth::user()->id);
             for($j = 0; $j < count($output); $j++) {
                 if($output[$j]->id == $product_detail_videos[$i]->id) {
                     $product_detail_videos[$i] = $output[$j];

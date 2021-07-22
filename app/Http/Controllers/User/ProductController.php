@@ -17,6 +17,7 @@ use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -100,7 +101,7 @@ class ProductController extends Controller
         $product = Product::where('is_deleted', false)->where('published', true)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
-            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product);
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product, Auth::user()->id);
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
             $productArr = ["name" => $product->name, "thumbnail" => $product->main_image_thumb_path];
             return ((new ListOfVideosOfAProductCollection($product_detail_video_items))->foo($productArr))->additional([

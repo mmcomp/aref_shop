@@ -24,7 +24,7 @@ class ProductDetailVideosController extends Controller
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         $product_detail_videos = [];
         if ($product_detail_video != null) {
-            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product_detail_video->product);
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product_detail_video->product, Auth::user()->id);
             foreach($product_detail_videos as $item) {
                if($item->id == $product_detail_video->id) {
                    $product_detail_video = $item;

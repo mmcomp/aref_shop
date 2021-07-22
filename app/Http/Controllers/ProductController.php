@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -416,7 +417,7 @@ class ProductController extends Controller
         $product_detail_videos = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'video', ['type' => ['You should get a product with type video']]);
-            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product);
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product, Auth::user()->id);
             // $numArray = [];
             // $i = 1;
             // for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
