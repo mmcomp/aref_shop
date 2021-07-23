@@ -25,9 +25,9 @@ class CategoryOnesController extends Controller
 
         $per_page = request()->get('per_page');
         if ($per_page == "all") {
-            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->get();
+            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('ordering', 'asc')->get();
         } else {
-            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('ordering', 'asc')->paginate(env('PAGE_COUNT'));
         }
         return (new CategoryOnesCollection($category_ones))->additional([
             'errors' => null,
@@ -45,6 +45,7 @@ class CategoryOnesController extends Controller
 
         $category_one = CategoryOne::create([
             'name' => $request->name,
+            'ordering' => $request->ordering,
             'published' => $request->published
         ]);
         return (new CategoryOnesResource($category_one))->additional([
