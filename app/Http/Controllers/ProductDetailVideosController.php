@@ -12,6 +12,7 @@ use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use App\Utils\RaiseError;
 use App\Utils\UpdatePreviousByers;
+use App\Utils\GetNameOfSessions;
 use Exception;
 use Log;
 
@@ -68,8 +69,16 @@ class ProductDetailVideosController extends Controller
     public function show($id)
     {
 
+        $getNameOfSessions = new GetNameOfSessions;
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
+        $product_detail_videos = [];
         if ($product_detail_video != null) {
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product_detail_video->product);
+            foreach($product_detail_videos as $item) {
+               if($item->id == $product_detail_video->id) {
+                   $product_detail_video = $item;
+               }
+            }
             return (new ProductDetailVideosResource($product_detail_video))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);

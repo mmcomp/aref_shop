@@ -5,7 +5,7 @@ use App\Models\UserVideoSession;
 
 class GetNameOfSessions {
     
-    public function getProductDetailVideos(Product $product, int $users_id)
+    public function getProductDetailVideos(Product $product, int $users_id = 0)
     {
 
         $number = new Number2Word;
