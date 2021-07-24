@@ -32,14 +32,14 @@ class DeleteProductFromCartRequest extends FormRequest
                 'integer',
                 'exists:order_details,id'
             ],
-            'users_id' =>
-            [
-                'required',
-                'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
-            ],
+            // 'users_id' =>
+            // [
+            //     'required',
+            //     'integer',
+            //     Rule::exists('users', 'id')->where(function ($query) {
+            //         return $query->where('is_deleted', false);
+            //     }),
+            // ],
         ];
     }
     public function all($keys = null)
