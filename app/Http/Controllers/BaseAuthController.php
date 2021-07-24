@@ -128,6 +128,7 @@ class BaseAuthController extends Controller
         $userData["groups_id"] = 2;
 
         $code = rand(1000, 9999);
+        SmsValidation::where('mobile', $userData["email"])->delete();
         SmsValidation::updateOrCreate(
             [
                 "mobile" => $userData["email"],
@@ -249,6 +250,7 @@ class BaseAuthController extends Controller
         $userData = $request->validated();
 
         $code = rand(1000, 9999);
+        SmsValidation::where('mobile', $userData["email"])->delete();
         SmsValidation::updateOrCreate(
             [
                 "mobile" => $userData["email"],
