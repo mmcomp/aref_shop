@@ -18,10 +18,11 @@ class CategoryOnesController extends Controller
     {
 
         $per_page = request()->get('per_page');
+        $category_ones_builder = CategoryOne::where('is_deleted', false)->where('published', 1)->orderBy('ordering', 'asc');
         if ($per_page == "all") {
-            $category_ones = CategoryOne::where('is_deleted', false)->where('published', 1)->orderBy('id', 'desc')->get();
+            $category_ones = $category_ones_builder->get();
         } else {
-            $category_ones = CategoryOne::where('is_deleted', false)->where('published', 1)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $category_ones = $category_ones_builder->paginate(env('PAGE_COUNT'));
         }
         return (new CategoryOnesCollection($category_ones))->additional([
             'errors' => null,
