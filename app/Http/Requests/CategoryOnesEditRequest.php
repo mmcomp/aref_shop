@@ -28,7 +28,7 @@ class CategoryOnesEditRequest extends FormRequest
         return [
             'name' => 'string|min:3|max:255',
             'published' => 'nullable|in:0,1',
-            'ordering' => 'nullable|integer'
+            'ordering' => 'nullable|regex:/^\d*(\.\d{2})?$/'
         ];
     }
      /**

@@ -14,7 +14,7 @@ class AddOrderingToCategoryOnesTable extends Migration
     public function up()
     {
         Schema::table('category_ones', function (Blueprint $table) {
-            $table->integer('ordering')->after('published')->unsigned()->default(1)->index();
+            $table->float('ordering')->after('published')->unsigned()->default(1)->index();
         });
     }
 

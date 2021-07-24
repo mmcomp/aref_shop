@@ -27,7 +27,7 @@ class CategoryOnesCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:255',
-            'ordering' => 'required|integer',
+            'ordering' => 'required|regex:/^\d*(\.\d{2})?$/',
             'published' => 'nullable|in:0,1'
         ];
     }
