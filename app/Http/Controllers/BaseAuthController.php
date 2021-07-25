@@ -88,21 +88,6 @@ class BaseAuthController extends Controller
         Log::info("hSet : " . $token);
         $value = Redis::hGet('user', $user->id);
         Log::info("hGet : " . $value);
-        // $message = json_encode([
-        //     "Type"=> "MESSAGE",
-        //     "Token"=> "absd",
-        //     "Data"=> [
-        //       "video_sessions_id" => 5,
-        //       "msg" => "dd"
-        //     ]
-        // ]);
-        // Redis::publish('test-channel', $message);
-        // ChatMessage::create([
-        //   'users_id' => $user->id,
-        //   'ip_address' => $request->ip(),
-        //   'video_sessions_id' => json_decode($message)->Data->video_sessions_id,
-        //   'message' => json_decode($message)->Data->msg  
-        // ]);
         return $this->createNewToken($token);  
     }
 

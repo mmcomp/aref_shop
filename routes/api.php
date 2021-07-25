@@ -297,9 +297,15 @@ Route::group([
 });
 Route::get('/publish', function () {
     // ...
-
+    //$values = Redis::hGetAll('user');
+    //dd($values);
     Redis::publish('test-channel', json_encode([
-        'name' => 'Adam Wathan'
+            "Type"=> "MESSAGE",
+            "Token"=> "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYyNzIxMDQwMywiZXhwIjoxNjI3MjE0MDAzLCJuYmYiOjE2MjcyMTA0MDMsImp0aSI6InVBU2VtTEVWcG1QRTZUcGYiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vUYPZR5FlT0UIbdL-RJlFssSWC6cPnXODwBUULwzs9E",
+            "Data"=> [
+              "video_sessions_id" => 5,
+              "msg" => "dd"
+            ]
     ]));
 });
 Route::group([
