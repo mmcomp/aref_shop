@@ -294,6 +294,9 @@ Route::group([
     Route::put('/delete-coupon/{orders_id}', [OrderController::class, 'deleteCouponFromCart']);
     Route::delete('/micro-product/{orders_id}/{order_details_id}', [OrderController::class, 'destroyMicroProduct']);
     Route::post('/complete-buying/{orders_id}',[OrderController::class, 'completeBuying'] );
+    Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
+    Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
+
 });
 Route::get('/publish', function () {
     // ...
