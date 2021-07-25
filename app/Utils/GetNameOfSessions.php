@@ -2,6 +2,7 @@
 namespace App\Utils;
 use App\Models\Product;
 use App\Models\UserVideoSession;
+use Log;
 
 class GetNameOfSessions {
     
@@ -24,7 +25,18 @@ class GetNameOfSessions {
         for($j = 0; $j < count($product_detail_videos); $j++) {
             $persianAlphabetNum = $number->numberToWords($numArray[$product_detail_videos[$j]->id]);
             if($persianAlphabetNum != null) {
-                $product_detail_videos[$j]->name = $product_detail_videos[$j]->name == null ? (strpos($persianAlphabetNum, "سه") !== false ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' : $persianAlphabetNum . 'م') : $product_detail_videos[$j]->name;
+                // $product_detail_videos[$j]->name = $product_detail_videos[$j]->name == null 
+                // ? (strpos($persianAlphabetNum, "سه") !== false 
+                // ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' 
+                // : $persianAlphabetNum . 'م') 
+                // : $product_detail_videos[$j]->name;
+                if($product_detail_videos[$j]->name == null) {
+                    if(strpos($persianAlphabetNum, "سه") !== false) {
+                        $product_detail_videos[$j]->name = str_replace("سه", "سو", $persianAlphabetNum) . 'م';
+                    } else {
+                        $product_detail_videos[$j]->name = $persianAlphabetNum . 'م';
+                    }
+                }
             }
             $product_detail_videos[$j]->buyed_before = in_array($product_detail_videos[$j]->video_sessions_id, $bouth_video_sessions);
         }

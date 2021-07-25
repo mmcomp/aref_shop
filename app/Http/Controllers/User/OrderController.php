@@ -155,6 +155,14 @@ class OrderController extends Controller
         foreach ($video_sessions_arr as $item) {
             $video_sessions_id_arr[] = $item->id;
         }
+        for($i = 0; $i < count($free_sessions); $i++) {
+            $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
+            for($j = 0; $j < count($output); $j++) {
+                if($output[$j]->id == $free_sessions[$i]->id) {
+                    $free_sessions[$i] = $output[$j];
+                }
+            }
+        }
         $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
         for($i = 0; $i < count($product_detail_videos); $i++) {
             $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product, Auth::user()->id);

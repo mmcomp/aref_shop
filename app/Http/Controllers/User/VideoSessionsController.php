@@ -7,6 +7,8 @@ use App\Http\Resources\User\ProductDetailVideosForFreeSessionsCollection;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsResource;
 use App\Http\Resources\User\ProductDetailVideosForTodaySessionsCollection;
 use App\Models\ProductDetailVideo;
+use App\Utils\GetNameOfSessions;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class VideoSessionsController extends Controller
@@ -21,6 +23,7 @@ class VideoSessionsController extends Controller
     {
 
         $final_arr = [];
+        $getNameOfSessions = new GetNameOfSessions;
         $free_sessions = ProductDetailVideo::where('is_deleted', false)->where(function ($query) {
             $query->orWhere(function ($q1) {
                 $q1->where('price', 0)->whereHas('videoSession', function ($q2) {
@@ -34,7 +37,14 @@ class VideoSessionsController extends Controller
         })->whereHas('product', function ($q) {
             $q->where('is_deleted', false);
         })->get();
-  
+        for($i = 0; $i < count($free_sessions); $i++) {
+            $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
+            for($j = 0; $j < count($output); $j++) {
+                if($output[$j]->id == $free_sessions[$i]->id) {
+                    $free_sessions[$i] = $output[$j];
+                }
+            }
+        }
         foreach ($free_sessions as $item) {
             $final_arr[] = (new ProductDetailVideosForFreeSessionsResource($item))->check(true);
         }
