@@ -325,8 +325,10 @@ class VideoSessionsController extends Controller
 
         $video_sessions = Redis::hGetAll('disable_video_session');
         $disabled_video_sessions = [];
-        foreach($video_sessions as $index => $item) {
-           $disabled_video_sessions[] = VideoSession::where('is_deleted', false)->find($index);
+        if($video_sessions) {
+            foreach($video_sessions as $index => $item) {
+                $disabled_video_sessions[] = VideoSession::where('is_deleted', false)->find($index);
+             }
         }
         return (new VideoSessionsCollection($disabled_video_sessions))->additional([
             'errors' => null,
