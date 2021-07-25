@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use App\Models\ChatMessage;
+use Predis\Client;
 
 class RedisSubscribe extends Command
 {
@@ -39,8 +41,22 @@ class RedisSubscribe extends Command
      */
     public function handle()
     {
-        Redis::subscribe(['test-channel'], function ($message) {
-            Log::info("message recieved ". $message);
+        $client = new Client();
+        Redis::subscribe(['test-channel'], function ($message) use ($client) {
+            Log::info("message recieved " . $message);
+            $values = $client->hgetall(env('REDIS_PREFIX', 'aref_shop_') . 'user');
+            $userId = 0;
+            foreach($values as $user_id => $token) {
+                if($token == json_decode($message)->Token) {
+                    $userId = $user_id;
+                }
+            }
+            ChatMessage::create([
+              'users_id' => $userId,
+              'ip_address' => "",
+              'video_sessions_id' => json_decode($message)->Data->video_sessions_id,
+              'message' => json_decode($message)->Data->msg  
+            ]);
         });
     }
 }
