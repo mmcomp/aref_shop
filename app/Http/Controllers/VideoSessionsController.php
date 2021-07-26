@@ -12,6 +12,7 @@ use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
 use App\Models\Order;
 use App\Models\VideoSession;
+use App\Models\UserProduct;
 use App\Utils\Buying;
 use App\Models\ProductDetailVideo;
 use App\Models\ProductDetailPackage;
@@ -193,6 +194,14 @@ class VideoSessionsController extends Controller
         foreach ($completed_orders as $order) {
             //$buying->completeInsertAfterBuying($order);
             foreach ($order->orderDetails as $orderDetail) {
+                $found_user_product = UserProduct::where('users_id', $order->users_id)->where('products_id',$request->input('products_id'))->first();
+                if (!$found_user_product) {
+                    $orderDetail->product->type == 'video'
+                        ?
+                        UserProduct::create(['users_id' => $order->users_id, 'products_id' => $request->input('products_id'), 'partial' => !$orderDetail->all_videos_buy])
+                        :
+                        UserProduct::create(['users_id' => $order->users_id, 'products_id' => $request->input('products_id'), 'partial' => 0]);
+                }
                 if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
                     foreach ($video_session_ids as $vs_id) {
                         $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $vs_id)->first();
@@ -209,17 +218,26 @@ class VideoSessionsController extends Controller
                 if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->product->type == 'package') {
                     $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
                     foreach ($child_products as $child_product) {
+                        $childData[] = [
+                            'users_id' => $order->users_id,
+                            'products_id' => $child_product,
+                            'created_at' => date("Y-m-d H:i:s"),
+                            'updated_at' => date("Y-m-d H:i:s")
+                        ];
                         $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
                         if ($p->type == 'video') {
                             $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
                             foreach ($videoSessionIds as $video_session_id) {
-                                $data = [
+                                $data[] = [
                                     'users_id' => $order->users_id,
-                                    'video_sessions_id' => $video_session_id
+                                    'video_sessions_id' => $video_session_id,
+                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                                 ];
                             }
                         }
                     }
+                    UserProduct::insert($childData);
                     UserVideoSession::insert($data);
                 }
             }
