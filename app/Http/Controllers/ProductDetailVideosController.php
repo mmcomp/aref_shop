@@ -189,7 +189,7 @@ class ProductDetailVideosController extends Controller
         $productDetailVideo = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
         $value = Redis::hGet('disable_video_session', $productDetailVideo->video_sessions_id);
         if(!$value) {
-            Redis::hSet('disable_video_session', $productDetailVideo->video_sessions_id, "");
+            Redis::hSet('disable_video_session', $productDetailVideo->video_sessions_id, "value");
         }
         return (new ProductDetailVideosResource(null))->additional([
             'errors' => null,
