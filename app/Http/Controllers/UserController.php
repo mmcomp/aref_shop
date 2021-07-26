@@ -12,6 +12,7 @@ use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Redis;
 use App\Utils\UploadImage;
 use Illuminate\Support\Facades\Auth;
 use Exception;
@@ -302,6 +303,12 @@ class UserController extends Controller
     {
         
         $users_id = $request->input('users_id');
-        
+        $value = Redis::get('block_user_'. $users_id);
+        if($value != null) {
+            Redis::setex('block_user_'.$users_id, 10800, "block");
+        }
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }
