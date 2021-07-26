@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BlockAUserRequest;
 use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
@@ -11,6 +12,7 @@ use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Redis;
 use App\Utils\UploadImage;
 use Illuminate\Support\Facades\Auth;
 use Exception;
@@ -288,6 +290,24 @@ class UserController extends Controller
             $users = $users_builder->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new UserCollection($users))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+    /**
+     * block a user for chats
+     *
+     * @param  \Illuminate\Http\BlockAUserRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function block(BlockAUserRequest $request)
+    {
+        
+        $users_id = $request->input('users_id');
+        $value = Redis::get('block_user_'. $users_id);
+        if($value != null) {
+            Redis::setex('block_user_'.$users_id, 10800, "block");
+        }
+        return (new UserResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
