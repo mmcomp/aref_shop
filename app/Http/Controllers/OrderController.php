@@ -503,7 +503,9 @@ class OrderController extends Controller
         $products_id = $request->input('products_id');
         $users_id = $request->input('users_id');
         $product = Product::where('is_deleted', false)->find($products_id);
-        $order = Order::where('users_id', $users_id)->where(function ($query) {
+        $order = Order::where('users_id', $users_id)->whereHas('orderDetails', function($query) use($products_id){
+            $query->where('products_id', $products_id);
+        })->where(function ($query) {
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->orderBy('updated_at', 'desc')->first();
         if ($order) {
@@ -552,7 +554,11 @@ class OrderController extends Controller
         $product_detail_videos_id = $request->input('product_detail_videos_id');
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($product_detail_videos_id);
         $raiseError->ValidationError($product_detail_video->products_id != $products_id, ['product_detail_videos_id' => ['The product_details_id is not for the product']]);
-        $order = Order::where('users_id', $users_id)->where(function ($query) {
+        $orderDetailIds = OrderVideoDetail::where('product_details_videos_id', $product_detail_videos_id)->pluck('order_details_id');
+        $orderIds = OrderDetail::whereIn('id', $orderDetailIds)
+        ->where('products_id', $products_id)
+        ->pluck('orders_id');
+        $order = Order::where('users_id', $users_id)->whereIn('id', $orderIds)->where(function ($query) {
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->orderBy('updated_at', 'desc')->first();
         if ($order) {
