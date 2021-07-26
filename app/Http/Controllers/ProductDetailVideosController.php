@@ -10,6 +10,8 @@ use App\Http\Resources\ProductDetailVideosCollection;
 use App\Http\Resources\ProductDetailVideosResource;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
+use App\Http\Requests\DisableChatRequest;
+use Illuminate\Support\Facades\Redis;
 use App\Utils\RaiseError;
 use App\Utils\UpdatePreviousByers;
 use App\Utils\GetNameOfSessions;
@@ -180,5 +182,18 @@ class ProductDetailVideosController extends Controller
         return (new ProductDetailVideosResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+    public function disable_chats(DisableChatRequest $request)
+    {
+
+        $productDetailVideo = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
+        $value = Redis::hGet('disable_video_session', $productDetailVideo->video_sessions_id);
+        if(!$value) {
+            Redis::hSet('disable_video_session', $productDetailVideo->video_sessions_id, "");
+        }
+        return (new ProductDetailVideosResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+
     }
 }

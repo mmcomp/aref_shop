@@ -12,6 +12,7 @@ use App\Http\Controllers\ProductDetailVideosController;
 use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChatMessageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryOnesController;
@@ -146,6 +147,7 @@ Route::group([
     Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
     Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
     Route::post('/assign-video-to-a-product',[ProductDetailVideosController::class,'assignVideoToProduct']);
+    Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
 });
 Route::group([
     'middleware' => ['auth:api','can:province'],
@@ -235,6 +237,7 @@ Route::group([
     Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
     Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
     Route::put('/edit-one-video/{id}',[VideoSessionsController::class, 'EditSingleVideoSession']);
+    Route::get('/disabled-video-sessions', [VideoSessionsController::class, 'disabledVideoSessions']);
 }); 
 Route::group([
     'middleware' => ['auth:api', 'can:file'],
@@ -314,4 +317,10 @@ Route::group([
 ], function ($router) {
     Route::post('/report-sale', [UserProductController::class, 'reportSale']);
 });
-
+// Route::group([
+//     'middleware' => ['auth:api','can:admin-order'],
+//     'prefix' => 'chats',
+// ], function ($router) {
+//     Route::post('/disable', [ChatMessageController::class, 'disable_chats']);
+//     Route::get('/disabled-video-sessions', [ChatMessageController::class, 'disabledVideoSessions']);
+// });
