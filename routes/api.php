@@ -147,6 +147,7 @@ Route::group([
     Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
     Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
     Route::post('/assign-video-to-a-product',[ProductDetailVideosController::class,'assignVideoToProduct']);
+    Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
 });
 Route::group([
     'middleware' => ['auth:api','can:province'],
@@ -236,7 +237,6 @@ Route::group([
     Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
     Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
     Route::put('/edit-one-video/{id}',[VideoSessionsController::class, 'EditSingleVideoSession']);
-    Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
     Route::get('/disabled-video-sessions', [VideoSessionsController::class, 'disabledVideoSessions']);
 }); 
 Route::group([

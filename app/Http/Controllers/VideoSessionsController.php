@@ -310,16 +310,6 @@ class VideoSessionsController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(201);
     }
-    public function disable_chats(DisableChatRequest $request)
-    {
-
-        $productDetailVideo = ProductDetailVideo::where('is_deleted', false)->find($request->input('product_detail_videos_id'));
-        Redis::hSet('disable_video_session', $productDetailVideo->video_sessions_id, "");
-        return (new VideoSessionsResource(null))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(200);
-
-    }
     public function disabledVideoSessions()
     {
 
