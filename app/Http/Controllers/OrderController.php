@@ -556,7 +556,7 @@ class OrderController extends Controller
         $raiseError->ValidationError($product_detail_video->products_id != $products_id, ['product_detail_videos_id' => ['The product_details_id is not for the product']]);
         $orderDetailIds = OrderVideoDetail::where('product_details_videos_id', $product_detail_videos_id)->pluck('order_details_id');
         $orderIds = OrderDetail::whereIn('id', $orderDetailIds)
-        ->where('products_id', $products_id)
+        //->where('products_id', $products_id)
         ->pluck('orders_id');
         $order = Order::where('users_id', $users_id)->whereIn('id', $orderIds)->where(function ($query) {
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
