@@ -22,6 +22,9 @@ use App\Utils\UpdatePreviousByers;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Log;
+use App\Http\Requests\DisableChatRequest;
+use App\Http\Resources\ChatMessageResource;
+use Illuminate\Support\Facades\Redis;
 
 class VideoSessionsController extends Controller
 {
@@ -306,5 +309,20 @@ class VideoSessionsController extends Controller
         return (new VideoSessionsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+    public function disabledVideoSessions()
+    {
+
+        $video_sessions = Redis::hGetAll('disable_video_session');
+        $disabled_video_sessions = [];
+        if($video_sessions) {
+            foreach($video_sessions as $index => $item) {
+                $disabled_video_sessions[] = VideoSession::where('is_deleted', false)->find($index);
+             }
+        }
+        return (new VideoSessionsCollection($disabled_video_sessions))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+
     }
 }
