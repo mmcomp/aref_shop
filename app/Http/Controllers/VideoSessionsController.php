@@ -286,7 +286,9 @@ class VideoSessionsController extends Controller
             if (!$found_user_video_session) {
                 $data[] = [
                     'users_id' => $id,
-                    'video_sessions_id' => $video_session->id
+                    'video_sessions_id' => $video_session->id,
+                    'created_at' =>  Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' =>  Carbon::now()->format('Y-m-d H:i:s')
                 ];
             }
         }
