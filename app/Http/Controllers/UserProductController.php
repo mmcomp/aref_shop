@@ -31,12 +31,16 @@ class UserProductController extends Controller
         $users_id = $request->input('users_id');
         $products_id = $request->input('products_id');
         if ($users_id != null && $products_id != null) {
-            $order = Order::where('users_id', $users_id)->where(function ($query) {
+            $orders = Order::where('users_id', $users_id)->where(function ($query) {
                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
             })->whereHas('orderDetails', function ($query) use ($products_id) {
                 $query->where("products_id", $products_id);
             })->get();
-            return (new ReportSaleOrderCollection($order))->additional([
+            $orderIds = [];
+            foreach($orders as $order) {
+                $orderIds[] = $order->id;
+            }
+            return (new ReportSaleOrderCollection($orders))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
