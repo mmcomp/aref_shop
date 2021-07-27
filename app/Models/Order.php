@@ -38,6 +38,6 @@ class Order extends Model
     }
     public function refunds()
     {
-        return $this->hasMany('App\Models\Refund', 'orders_id', 'id');
+        return $this->hasMany('App\Models\Refund', 'orders_id', 'id')->where('is_deleted', false);
     }
 }
