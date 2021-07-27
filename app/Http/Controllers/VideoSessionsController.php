@@ -278,6 +278,12 @@ class VideoSessionsController extends Controller
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
         ]);
+        ProductDetailVideo::create([
+            "single_purchase" => 0,
+            "price" => $request->input("price"),
+            "products_id" => $request->input("products_id"),
+            "video_sessions_id" => $video_session->id,
+        ]);
         $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $video_session->id)->first();
         $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
         //$updatePreviousBuyers = new UpdatePreviousByers;
