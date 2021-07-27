@@ -210,11 +210,11 @@ class VideoSessionsController extends Controller
         UserVideoSession::insert($data);
         $user_product_packages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
             $query->where('type', 'package')->where('is_deleted', false);
-        })->where('partial', 1)->pluck('products_id');
+        })->where('partial', 0)->pluck('products_id');
         $child_products = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $user_product_packages)->pluck('child_products_id');
         $userIdsForPackages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
             $query->where('type', 'package')->where('is_deleted', false);
-        })->where('partial', 1)->pluck('users_id');
+        })->where('partial', 0)->pluck('users_id');
         $childData = [];
         foreach($userIdsForPackages as $userId) {
             foreach ($child_products as $child_product) {
