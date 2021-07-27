@@ -36,10 +36,6 @@ class UserProductController extends Controller
             })->whereHas('orderDetails', function ($query) use ($products_id) {
                 $query->where("products_id", $products_id);
             })->get();
-            $orderIds = [];
-            foreach($orders as $order) {
-                $orderIds[] = $order->id;
-            }
             return (new ReportSaleOrderCollection($orders))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
@@ -49,6 +45,9 @@ class UserProductController extends Controller
                 $orders = Order::where('users_id', $users_id)->where(function ($query) {
                     $query->where('status', 'ok')->orWhere('status', 'manual_ok');
                 })->get();
+                $orders = $orders->filter(function($order) {
+                    return $order->orderDetails->count() != 0;
+                });
                 return (new ReportSaleOrderCollection($orders))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(200);
