@@ -33,6 +33,7 @@ class UserProductController extends Controller
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
         if ($users_id != null && $products_id != null) {
+
             if ($from_date != null && $to_date != null) {
                 $orders = Order::where('users_id', $users_id)->where('created_at', '>=', $from_date)->where('created_at', '<=', $to_date)->where(function ($query) {
                     $query->where('status', 'ok')->orWhere('status', 'manual_ok');
@@ -62,6 +63,9 @@ class UserProductController extends Controller
                         $query->where('status', 'ok')->orWhere('status', 'manual_ok');
                     })->get();
                 }
+                $orders = $orders->filter(function ($order) {
+                    return $order->orderDetails->count() != 0;
+                });
 
                 return (new ReportSaleOrderCollection($orders))->additional([
                     'errors' => null,
