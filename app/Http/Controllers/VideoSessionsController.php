@@ -193,7 +193,7 @@ class VideoSessionsController extends Controller
         $data1 = [];
         $userIds = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
             $query->where('type', 'video')->where('is_deleted', false);
-        })->where('partial', 1)->pluck('users_id');
+        })->where('partial', 0)->pluck('users_id');
         foreach ($userIds as $id) {
             foreach ($video_session_ids as $video_session_id) {
                 $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session_id)->first();
@@ -283,7 +283,7 @@ class VideoSessionsController extends Controller
         //$updatePreviousBuyers = new UpdatePreviousByers;
         //$updatePreviousBuyers->create(false, $request, $video_session->id);
         $data = [];
-        $userIds = UserProduct::where('products_id', $request->input('products_id'))->where('partial', 1)->pluck('users_id');
+        $userIds = UserProduct::where('products_id', $request->input('products_id'))->where('partial', 0)->pluck('users_id');
         foreach ($userIds as $id) {
             $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session->id)->first();
             if (!$found_user_video_session) {
