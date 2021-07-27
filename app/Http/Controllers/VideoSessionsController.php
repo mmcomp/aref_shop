@@ -188,61 +188,66 @@ class VideoSessionsController extends Controller
                 $video_session_ids[] = $v->id;
             }
         }
-        $completed_orders = Order::where('status', 'ok')->get();
+        //$completed_orders = Order::where('status', 'ok')->get();
         $data = [];
-        //$buying = new Buying;
-        foreach ($completed_orders as $order) {
-            //$buying->completeInsertAfterBuying($order);
-            foreach ($order->orderDetails as $orderDetail) {
-                $found_user_product = UserProduct::where('users_id', $order->users_id)->where('products_id',$request->input('products_id'))->first();
-                if (!$found_user_product) {
-                    $orderDetail->product->type == 'video'
-                        ?
-                        UserProduct::create(['users_id' => $order->users_id, 'products_id' => $request->input('products_id'), 'partial' => !$orderDetail->all_videos_buy])
-                        :
-                        UserProduct::create(['users_id' => $order->users_id, 'products_id' => $request->input('products_id'), 'partial' => 0]);
-                }
-                if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
-                    foreach ($video_session_ids as $vs_id) {
-                        $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $vs_id)->first();
-                        if (!$found_user_video_session) {
-                            $data[] = [
-                                'video_sessions_id' => $vs_id,
-                                'users_id' => $order->users_id,
-                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                            ];
-                        }
-                    }
-                }
-                if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->product->type == 'package') {
-                    $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
-                    foreach ($child_products as $child_product) {
-                        $childData[] = [
-                            'users_id' => $order->users_id,
-                            'products_id' => $child_product,
-                            'created_at' => date("Y-m-d H:i:s"),
-                            'updated_at' => date("Y-m-d H:i:s")
-                        ];
-                        $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
-                        if ($p->type == 'video') {
-                            $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
-                            foreach ($videoSessionIds as $video_session_id) {
-                                $data[] = [
-                                    'users_id' => $order->users_id,
-                                    'video_sessions_id' => $video_session_id,
-                                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
-                                ];
-                            }
-                        }
-                    }
-                    UserProduct::insert($childData);
-                    UserVideoSession::insert($data);
+        $data1 = [];
+        $userIds = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'video')->where('is_deleted', false);
+        })->where('partial', 1)->pluck('users_id');
+        foreach ($userIds as $id) {
+            foreach ($video_session_ids as $video_session_id) {
+                $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session_id)->first();
+                if (!$found_user_video_session) {
+                    $data[] = [
+                        'users_id' => $id,
+                        'video_sessions_id' => $video_session_id,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                    ];
                 }
             }
         }
         UserVideoSession::insert($data);
+        $user_product_packages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'package')->where('is_deleted', false);
+        })->where('partial', 0)->pluck('products_id');
+        $child_products = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $user_product_packages)->pluck('child_products_id');
+        $userIdsForPackages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'package')->where('is_deleted', false);
+        })->where('partial', 0)->pluck('users_id');
+        $childData = [];
+        foreach($userIdsForPackages as $userId) {
+            foreach ($child_products as $child_product) {
+                $found_product = UserVideoSession::where('users_id', $id)->where('products_id', $child_product)->first();
+                if(!$found_product) {
+                    $childData[] = [
+                        'users_id' => $userId,
+                        'products_id' => $child_product,
+                        'created_at' => date("Y-m-d H:i:s"),
+                        'updated_at' => date("Y-m-d H:i:s")
+                    ];
+                }
+                $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                if ($p->type == 'video') {
+                    $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
+                    foreach ($videoSessionIds as $video_session_id) {
+                        $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session_id)->first();
+                        if(!$found_user_video_session) {
+                            $data1[] = [
+                                'users_id' => $userId,
+                                'video_sessions_id' => $video_session_id,
+                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                            ];
+                        }
+                       
+                    }
+                }
+            }
+        }
+       
+        UserProduct::insert($childData);
+        UserVideoSession::insert($data1);
         return (new VideoSessionsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -275,8 +280,23 @@ class VideoSessionsController extends Controller
         ]);
         $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $video_session->id)->first();
         $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
-        $updatePreviousBuyers = new UpdatePreviousByers;
-        $updatePreviousBuyers->create(false, $request, $video_session->id);
+        //$updatePreviousBuyers = new UpdatePreviousByers;
+        //$updatePreviousBuyers->create(false, $request, $video_session->id);
+        $data = [];
+        $userIds = UserProduct::where('products_id', $request->input('products_id'))->where('partial', 1)->pluck('users_id');
+        foreach ($userIds as $id) {
+            $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session->id)->first();
+            if (!$found_user_video_session) {
+                $data[] = [
+                    'users_id' => $id,
+                    'video_sessions_id' => $video_session->id,
+                    'created_at' =>  Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' =>  Carbon::now()->format('Y-m-d H:i:s')
+                ];
+            }
+        }
+        UserVideoSession::insert($data);
+
         return (new VideoSessionsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -336,14 +356,13 @@ class VideoSessionsController extends Controller
 
         $video_sessions = Redis::hGetAll('disable_video_session');
         $disabled_video_sessions = [];
-        if($video_sessions) {
-            foreach($video_sessions as $index => $item) {
+        if ($video_sessions) {
+            foreach ($video_sessions as $index => $item) {
                 $disabled_video_sessions[] = VideoSession::where('is_deleted', false)->find($index);
-             }
+            }
         }
         return (new VideoSessionsCollection($disabled_video_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-
     }
 }
