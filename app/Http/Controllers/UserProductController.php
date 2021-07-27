@@ -33,11 +33,21 @@ class UserProductController extends Controller
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
         if ($users_id != null && $products_id != null) {
-            $orders = Order::where('users_id', $users_id)->where(function ($query) {
-                $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-            })->whereHas('orderDetails', function ($query) use ($products_id) {
-                $query->where("products_id", $products_id);
-            })->get();
+
+            if ($from_date != null && $to_date != null) {
+                $orders = Order::where('users_id', $users_id)->where('created_at', '>=', $from_date)->where('created_at', '<=', $to_date)->where(function ($query) {
+                    $query->where('status', 'ok')->orWhere('status', 'manual_ok');
+                })->whereHas('orderDetails', function ($query) use ($products_id) {
+                    $query->where("products_id", $products_id);
+                })->get();
+            } else {
+                $orders = Order::where('users_id', $users_id)->where(function ($query) {
+                    $query->where('status', 'ok')->orWhere('status', 'manual_ok');
+                })->whereHas('orderDetails', function ($query) use ($products_id) {
+                    $query->where("products_id", $products_id);
+                })->get();
+            }
+
             return (new ReportSaleOrderCollection($orders))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
