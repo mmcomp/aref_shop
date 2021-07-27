@@ -50,7 +50,9 @@ class ReportSaleRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'mode'=> 'required|string|in:product,order'
+            'mode'=> 'required|string|in:product,order',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date'
         ];
     }
     /**

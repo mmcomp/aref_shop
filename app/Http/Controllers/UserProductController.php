@@ -30,6 +30,8 @@ class UserProductController extends Controller
         $mode = $request->input('mode');
         $users_id = $request->input('users_id');
         $products_id = $request->input('products_id');
+        $from_date = $request->input('from_date');
+        $to_date = $request->input('to_date');
         if ($users_id != null && $products_id != null) {
             $orders = Order::where('users_id', $users_id)->where(function ($query) {
                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
@@ -42,12 +44,19 @@ class UserProductController extends Controller
         }
         if ($users_id != null) {
             if ($mode == "order") {
-                $orders = Order::where('users_id', $users_id)->where(function ($query) {
-                    $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-                })->get();
-                $orders = $orders->filter(function($order) {
+                if ($from_date != null && $to_date != null) {
+                    $orders = Order::where('users_id', $users_id)->where('created_at', '>=', $from_date)->where('created_at', '<=', $to_date)->where()->where(function ($query) {
+                        $query->where('status', 'ok')->orWhere('status', 'manual_ok');
+                    })->get();
+                } else {
+                    $orders = Order::where('users_id', $users_id)->where(function ($query) {
+                        $query->where('status', 'ok')->orWhere('status', 'manual_ok');
+                    })->get();
+                }
+                $orders = $orders->filter(function ($order) {
                     return $order->orderDetails->count() != 0;
                 });
+
                 return (new ReportSaleOrderCollection($orders))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(200);

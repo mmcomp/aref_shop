@@ -9,6 +9,7 @@ use App\Http\Requests\User\AddDescriptionRequest;
 use App\Http\Resources\UserVideoSessionHomeWorkResource;
 use App\Models\UserVideoSessionHomework;
 use App\Models\UserDescription;
+use App\Models\UserVideoSession;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\UploadImage;
@@ -27,12 +28,18 @@ class UserVideoSessionHomeWorkController extends Controller
     {
 
         $user_id = Auth::user()->id;
+        $user_video_session_homeworks_id = $request->input('user_video_session_homeworks_id');
         $upload_file = new UploadImage;
+        $user_video_session = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $id)->first();
         if ($request->file('file')) {
-            $user_video_session_homework = UserVideoSessionHomework::create([
-                'user_video_sessions_id' => $id,
-                'file' => $upload_file->getImage($request->file('file'), "public/homeworks/" . $user_id, "homework"),
-            ]);
+            // $user_video_session_homework = UserVideoSessionHomework::create([
+            //     'user_video_sessions_id' => $user_video_session->id,
+            //     'file' => $upload_file->getImage($request->file('file'), "public/homeworks/" . $user_id, "homework"),
+            // ]);
+            $user_video_session_homework = UserVideoSessionHomework::find($user_video_session_homeworks_id);
+            $user_video_session_homework->user_video_sessions_id = $user_video_session->id;
+            $user_video_session_homework->file = $upload_file->getImage($request->file('file'), "public/homeworks/" . $user_id, "homework");
+            $user_video_session_homework->save();
             return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(201);

@@ -36,4 +36,8 @@ class Order extends Model
     {
         return $this->hasMany('App\Models\Payment', 'orders_id', 'id')->where('is_deleted', false)->where('status', 'success');
     }
+    public function refunds()
+    {
+        return $this->hasMany('App\Models\Refund', 'orders_id', 'id')->where('is_deleted', false);
+    }
 }
