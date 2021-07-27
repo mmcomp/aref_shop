@@ -200,7 +200,9 @@ class VideoSessionsController extends Controller
                 if (!$found_user_video_session) {
                     $data[] = [
                         'users_id' => $id,
-                        'video_sessions_id' => $video_session_id
+                        'video_sessions_id' => $video_session_id,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                     ];
                 }
             }
@@ -213,6 +215,7 @@ class VideoSessionsController extends Controller
         $userIdsForPackages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
             $query->where('type', 'package')->where('is_deleted', false);
         })->where('partial', 1)->pluck('users_id');
+        $childData = [];
         foreach($userIdsForPackages as $userId) {
             foreach ($child_products as $child_product) {
                 $found_product = UserVideoSession::where('users_id', $id)->where('products_id', $child_product)->first();
