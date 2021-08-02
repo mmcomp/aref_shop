@@ -12,6 +12,8 @@ class Refund extends Model
        'orders_id', 
        'products_id',
        'product_detail_videos_id',
+       'order_details_id',
+       'order_video_details_id',
        'users_id',
        'description'
     ];
