@@ -26,4 +26,8 @@ class OrderVideoDetail extends Model
     {
         return $this->belongsTo('App\Models\ProductDetailVideo', 'product_details_videos_id', 'id');
     }
+    public function refund()
+    {
+        return $this->hasOne('App\Models\Refund', 'order_video_details_id', 'id');
+    }
 }

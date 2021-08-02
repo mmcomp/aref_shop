@@ -35,6 +35,7 @@ class ReportSaleOrderDetailResource extends JsonResource
                 'number' => $this->number,
                 'total_price' => $this->total_price,
                 'total_price_with_coupon' => $this->total_price_with_coupon,
+                'refund' => $this->refund,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

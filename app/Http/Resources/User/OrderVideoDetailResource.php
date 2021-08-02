@@ -38,6 +38,7 @@ class OrderVideoDetailResource extends JsonResource
                 'productDetailVideo' => (new ProductDetailVideosResource($this->productDetailVideo))->check($this->check),
                 'price' => $this->price,
                 'numName' => $num,
+                'refund' => $this->refund,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
