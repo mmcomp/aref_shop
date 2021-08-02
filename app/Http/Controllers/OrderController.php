@@ -509,6 +509,7 @@ class OrderController extends Controller
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->orderBy('updated_at', 'desc')->first();
         if ($order) {
+            $orderDetail = OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->first();
             // OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->delete();
             if ($product->type == "package") {
                 $child_products_id = ProductDetailPackage::where('is_deleted', false)->where('products_id', $products_id)->pluck('child_products_id')->toArray();
@@ -526,6 +527,7 @@ class OrderController extends Controller
                 Refund::create([
                     'users_id' => $users_id,
                     'products_id' => $products_id,
+                    'order_details_id' => $orderDetail->id,
                     'orders_id' => $order->id,
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
@@ -564,6 +566,7 @@ class OrderController extends Controller
         if ($order) {
             $order_detail = OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->first();
             if ($order_detail) {
+                $orderVideoDetail = OrderVideoDetail::where('order_details_id', $order_detail->id)->where('product_details_videos_id', $product_detail_videos_id)->first();
                 // OrderVideoDetail::where('order_details_id', $order_detail->id)->where('product_details_videos_id', $product_detail_videos_id)->delete();
                 // $order_video_detail = OrderVideoDetail::where('order_details_id', $order_detail->id)->first();
                 // if($order_video_detail == null) {
@@ -577,6 +580,8 @@ class OrderController extends Controller
                         'users_id' => $users_id,
                         'products_id' => $products_id,
                         'product_detail_videos_id' => $product_detail_videos_id,
+                        'order_details_id' => $order_detail->id,
+                        'order_video_details_id' => $orderVideoDetail ? $orderVideoDetail->id : null,
                         'orders_id' => $order->id,
                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
