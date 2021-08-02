@@ -509,7 +509,7 @@ class OrderController extends Controller
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->orderBy('updated_at', 'desc')->first();
         if ($order) {
-            OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->delete();
+            // OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->delete();
             if ($product->type == "package") {
                 $child_products_id = ProductDetailPackage::where('is_deleted', false)->where('products_id', $products_id)->pluck('child_products_id')->toArray();
                 $child_products_id = array_merge($child_products_id, [$products_id]);
