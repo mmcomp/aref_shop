@@ -13,6 +13,7 @@ use App\Http\Resources\ReportSaleOrderCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Http\Resources\UserCollection;
 use App\Utils\RaiseError;
+use Log;
 
 class UserProductController extends Controller
 {
@@ -35,6 +36,7 @@ class UserProductController extends Controller
             $orders = null;
             if ($from_date) {
                 $orders = Order::where('created_at', '>=', $from_date);
+                Log::info("created_at >= $from_date");
             }
             if ($to_date) {
                 if ($orders) {
@@ -42,6 +44,7 @@ class UserProductController extends Controller
                 } else {
                     $orders = Order::where('created_at', '<=', $to_date);
                 }
+                Log::info("created_at <= $to_date");
             }
             if ($users_id) {
                 if ($orders) {
