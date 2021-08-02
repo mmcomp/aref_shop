@@ -564,11 +564,11 @@ class OrderController extends Controller
         if ($order) {
             $order_detail = OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->first();
             if ($order_detail) {
-                OrderVideoDetail::where('order_details_id', $order_detail->id)->where('product_details_videos_id', $product_detail_videos_id)->delete();
-                $order_video_detail = OrderVideoDetail::where('order_details_id', $order_detail->id)->first();
-                if($order_video_detail == null) {
-                    $order_detail->delete();
-                }
+                // OrderVideoDetail::where('order_details_id', $order_detail->id)->where('product_details_videos_id', $product_detail_videos_id)->delete();
+                // $order_video_detail = OrderVideoDetail::where('order_details_id', $order_detail->id)->first();
+                // if($order_video_detail == null) {
+                //     $order_detail->delete();
+                // }
                 UserProduct::where('users_id', $users_id)->where('products_id', $products_id)->where('partial', 1)->delete();
                 UserVideoSession::where('users_id', $users_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->delete();
                 $found_refund = Refund::where('users_id', $users_id)->where('products_id', $products_id)->where('orders_id', $order->id)->first();
@@ -576,6 +576,7 @@ class OrderController extends Controller
                     Refund::create([
                         'users_id' => $users_id,
                         'products_id' => $products_id,
+                        'product_detail_videos_id' => $product_detail_videos_id,
                         'orders_id' => $order->id,
                         'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                         'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
