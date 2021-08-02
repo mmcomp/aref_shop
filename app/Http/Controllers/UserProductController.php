@@ -32,21 +32,7 @@ class UserProductController extends Controller
         $from_date = $request->input('from_date');
         $to_date = $request->input('to_date');
         if ($mode != "product") {
-        // if ($users_id != null && $products_id != null) {
             $orders = null;
-            // if ($from_date != null && $to_date != null) {
-            //     $orders = Order::where('users_id', $users_id)->where('created_at', '>=', $from_date)->where('created_at', '<=', $to_date)->where(function ($query) {
-            //         $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-            //     })->whereHas('orderDetails', function ($query) use ($products_id) {
-            //         $query->where("products_id", $products_id);
-            //     })->get();
-            // } else {
-            //     $orders = Order::where('users_id', $users_id)->where(function ($query) {
-            //         $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-            //     })->whereHas('orderDetails', function ($query) use ($products_id) {
-            //         $query->where("products_id", $products_id);
-            //     })->get();
-            // }
             if ($from_date) {
                 $orders = Order::where('created_at', '>=', $from_date);
             }
@@ -71,27 +57,6 @@ class UserProductController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(200);
         } else {
-        // if ($users_id != null) {
-        //     if ($mode == "order") {
-        //         if ($from_date != null && $to_date != null) {
-        //             $orders = Order::where('users_id', $users_id)->where('created_at', '>=', $from_date)->where('created_at', '<=', $to_date)->where()->where(function ($query) {
-        //                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-        //             })->get();
-        //         } else {
-        //             $orders = Order::where('users_id', $users_id)->where(function ($query) {
-        //                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-        //             })->get();
-        //         }
-        //         $orders = $orders->filter(function ($order) {
-        //             return $order->orderDetails->count() != 0;
-        //         });
-
-        //         return (new ReportSaleOrderCollection($orders))->additional([
-        //             'errors' => null,
-        //         ])->response()->setStatusCode(200);
-        //     }
-        // }
-        // if ($mode == "product") {
             $product_details_id = $request->input('product_detail_videos_id');
             if ($product_details_id == null) {
                 $user_products = UserProduct::where('products_id', $products_id)->where('partial', 0)->pluck('users_id');
