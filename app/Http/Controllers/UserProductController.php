@@ -60,8 +60,15 @@ class UserProductController extends Controller
         } else {
             $product_details_id = $request->input('product_detail_videos_id');
             if ($product_details_id == null) {
-                $user_products = UserProduct::where('products_id', $products_id)->where('partial', 0)->pluck('users_id');
-                $users = User::whereIn('id', $user_products)->get();
+                $user_products = UserProduct::where('products_id', $products_id)->where('partial', 0)->orderBy("created_at", "desc");
+                $userProductIds = $user_products->pluck('users_id');
+                $user_products = $user_products->pluck('created_at', 'users_id');
+                // dd($user_products);
+                $users = User::whereIn('id', $userProductIds)->get()->map(function ($user) use ($user_products) {
+                    $user->order_date = $user_products[$user->id]->format("Y-m-d H:i:s");
+                    return $user;
+                });
+                // dd($users);
                 return (new UserCollection($users))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(200);
