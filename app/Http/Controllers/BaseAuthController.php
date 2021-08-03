@@ -49,6 +49,29 @@ class BaseAuthController extends Controller
         }
     }
 
+    public function userToRedis($user, string $token)
+    {
+        Log::info("Start Redis : " . json_encode($user));
+        $value = Redis::hGet('user', $user->id);
+        Log::info("Check Token : '$value' =? '$token'");
+        // if($value != $token) {
+        //    $res = Redis::publish('node', json_encode([
+        //     'id' => $user->id,
+        //     'old_token' => $value,
+        //     'new_token' => $token
+        //    ]));
+        //    Log::info("Pub : " . json_encode($res));
+        // }
+        Redis::hSet('user', $user->id, $token);
+        $first_name = $user->first_name == null ? '' : $user->first_name;
+        $last_name = $user->last_name == null ? '' : $user->last_name;
+        Redis::hSet('name', $user->id, $first_name .' '. $last_name);
+        Redis::hSet('expires_in', $user->id, Carbon::now()->addDays(7));
+        Log::info("hSet : " . $token);
+        $value = Redis::hGet('user', $user->id);
+        Log::info("hGet : " . $value);
+    }
+
     /**
      * Get a JWT via given credentials.
      *
@@ -69,25 +92,8 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
-        Log::info("Start Redis : " . json_encode($user));
-        $value = Redis::hGet('user', $user->id);
-        Log::info("Check Token : '$value' =? '$token'");
-        // if($value != $token) {
-        //    $res = Redis::publish('node', json_encode([
-        //     'id' => $user->id,
-        //     'old_token' => $value,
-        //     'new_token' => $token
-        //    ]));
-        //    Log::info("Pub : " . json_encode($res));
-        // }
-        Redis::hSet('user', $user->id, $token);
-        $first_name = $user->first_name == null ? '' : $user->first_name;
-        $last_name = $user->last_name == null ? '' : $user->last_name;
-        Redis::hSet('name', $user->id, $first_name .' '. $last_name);
-        Redis::hSet('expires_in', $user->id, Carbon::now()->addDays(7));
-        Log::info("hSet : " . $token);
-        $value = Redis::hGet('user', $user->id);
-        Log::info("hGet : " . $value);
+
+        $this->userToRedis($user, $token);
         return $this->createNewToken($token);  
     }
 
@@ -156,6 +162,7 @@ class BaseAuthController extends Controller
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
 
         $token = auth('api')->login($user);
+        $this->userToRedis($user, $token);
         return $this->createNewToken($token);
     }
 
