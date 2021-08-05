@@ -19,7 +19,7 @@ class OrderDetailResource extends JsonResource
     {
         if ($this->resource != null) {
             $items = [];
-            foreach ($this->orderVideoDetails as $item) {                
+            foreach ($this->orderVideoDetails as $item) {
                 $items[] = $item;
             }
             return [
@@ -37,7 +37,8 @@ class OrderDetailResource extends JsonResource
                 'total_price' => $this->total_price,
                 'total_price_with_coupon' => $this->total_price_with_coupon,
                 'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at
+                'updated_at' => $this->updated_at,
+                'orders_id' => $this->orders_id
             ];
         }
     }

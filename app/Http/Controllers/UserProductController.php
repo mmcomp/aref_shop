@@ -77,7 +77,7 @@ class UserProductController extends Controller
             // foreach ($result as $first) {
             //     return (array)$first;
             // }
-            // return [ "data" => $orderDetails, "error" => null];
+            //return [ "data" => $orderDetails, "error" => null];
             return (new OrderDetailCollection($orderDetails))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);

@@ -16,8 +16,8 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
 
-        if($this->resource != null){
-            
+        if ($this->resource != null) {
+
             return [
                 'id' => $this->id,
                 'email' => $this->email,
@@ -30,8 +30,7 @@ class UserResource extends JsonResource
                 'city' => new CityResource($this->city),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-                'group' => new GroupResource($this->group),
-                'order_date' => $this->order_date,
+                'group' => new GroupResource($this->group)
             ];
         }
     }
