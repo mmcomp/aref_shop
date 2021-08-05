@@ -12,8 +12,10 @@ use App\Http\Requests\ReportSaleRequest;
 use App\Http\Resources\ReportSaleOrderCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Http\Resources\UserCollection;
+use App\Models\OrderDetail;
 use App\Utils\RaiseError;
 use Log;
+use Illuminate\Support\Facades\DB;
 
 class UserProductController extends Controller
 {
@@ -59,17 +61,28 @@ class UserProductController extends Controller
             ])->response()->setStatusCode(200);
         } else {
             $product_details_id = $request->input('product_detail_videos_id');
+            $orderDetails = OrderDetail::where("products_id", $products_id)->whereDoesntHave("refund");
+            if ($product_details_id != null)
+            {
+                $orderDetails = $orderDetails->where("all_videos_buy", false);
+                $orderDetails = $orderDetails->whereHas("orderVideoDetails", function($query) use ($product_details_id) {
+                    $query->where("product_details_videos_id", $product_details_id);
+                });
+            }
+            $orderDetails = $orderDetails->orderBy("created_at", "desc")/*->with("order.orderDetails")*/->with("user")->get();
+            return ($orderDetails);
+            /*
+            $product_details_id = $request->input('product_detail_videos_id');
             if ($product_details_id == null) {
                 $user_products = UserProduct::where('products_id', $products_id)->where('partial', 0)->orderBy("created_at", "desc");
-                // dd($user_products->get());
                 $userProductIds = $user_products->pluck('users_id');
                 $user_products = $user_products->pluck('created_at', 'users_id');
-                // dd($user_products);
                 $users = User::whereIn('id', $userProductIds)->get()->map(function ($user) use ($user_products) {
                     $user->order_date = $user_products[$user->id]->format("Y-m-d H:i:s");
                     return $user;
+                })->sortBy(function ($user) {
+                    return $user->order_date;
                 });
-                dd($users);
                 return (new UserCollection($users))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(200);
@@ -88,6 +101,7 @@ class UserProductController extends Controller
             return (new UserCollection($users))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
+            */
         }
     }
 }
