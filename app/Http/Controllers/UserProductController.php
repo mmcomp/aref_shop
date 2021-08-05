@@ -10,6 +10,7 @@ use App\Models\ProductDetailVideo;
 use App\Models\User;
 use App\Http\Requests\ReportSaleRequest;
 use App\Http\Resources\ReportSaleOrderCollection;
+use App\Http\Resources\User\OrderDetailCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Http\Resources\UserCollection;
 use App\Models\OrderDetail;
@@ -69,8 +70,17 @@ class UserProductController extends Controller
                     $query->where("product_details_videos_id", $product_details_id);
                 });
             }
-            $orderDetails = $orderDetails->orderBy("created_at", "desc")/*->with("order.orderDetails")*/->with("user")->get();
-            return ($orderDetails);
+            $orderDetails = $orderDetails->orderBy("created_at", "desc")/*->with("order.orderDetails")*/
+                            ->with("user")->get();
+            // $result = (array)$orderDetails;
+            // dd($result);
+            // foreach ($result as $first) {
+            //     return (array)$first;
+            // }
+            // return [ "data" => $orderDetails, "error" => null];
+            return (new OrderDetailCollection($orderDetails))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
             /*
             $product_details_id = $request->input('product_detail_videos_id');
             if ($product_details_id == null) {
