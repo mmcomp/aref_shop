@@ -9,7 +9,7 @@ class Refund extends Model
 {
     use HasFactory;
     protected $fillable = [
-       'orders_id', 
+       'orders_id',
        'products_id',
        'product_detail_videos_id',
        'order_details_id',
@@ -33,5 +33,9 @@ class Refund extends Model
     public function User()
     {
         return $this->hasOne('App\Models\User', 'id', 'users_id');
+    }
+    public function SaverUser()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'saver_users_id');
     }
 }

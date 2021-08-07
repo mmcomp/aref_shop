@@ -547,6 +547,7 @@ class OrderController extends Controller
                 Refund::create([
                     'users_id' => $users_id,
                     'products_id' => $products_id,
+                    'saver_users_id' => Auth::user()->id,
                     'order_details_id' => $orderDetail->id,
                     'orders_id' => $order->id,
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -598,6 +599,7 @@ class OrderController extends Controller
                 if (!$found_refund) {
                     Refund::create([
                         'users_id' => $users_id,
+                        'saver_users_id' => Auth::user()->id,
                         'products_id' => $products_id,
                         'product_detail_videos_id' => $product_detail_videos_id,
                         'order_details_id' => $order_detail->id,
