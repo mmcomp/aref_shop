@@ -62,7 +62,9 @@ class UserProductController extends Controller
             ])->response()->setStatusCode(200);
         } else {
             $product_details_id = $request->input('product_detail_videos_id');
-            $orderDetails = OrderDetail::where("products_id", $products_id)->whereDoesntHave("refund");
+            $orderDetails = OrderDetail::where("products_id", $products_id)->whereDoesntHave("refund")->whereHas("order", function($query) {
+                $query->where("status", "ok")->orWhere('status', 'manual_ok');
+            });
             if ($product_details_id != null)
             {
                 $orderDetails = $orderDetails->where("all_videos_buy", false);
