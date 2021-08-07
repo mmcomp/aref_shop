@@ -33,12 +33,32 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Http\Resources\AdminOrderResource;
+use App\Http\Resources\GetInfoOfAnOrderResource;
 use App\Http\Resources\User\OrderResource;
 use App\Utils\Buying;
 
 class OrderController extends Controller
 {
 
+     /**
+     * get info of an order
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getInfoOfAnOrder(int $id)
+    {
+
+        $order = Order::find($id);
+        if ($order != null) {
+            return (new GetInfoOfAnOrderResource($order))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new GetInfoOfAnOrderResource(null))->additional([
+            'errors' => ['order' => ['Order does not exist!']],
+        ])->response()->setStatusCode(406);
+    }
     /**
      * Insert factor for a user
      *

@@ -205,7 +205,7 @@ Route::group([
     Route::delete('/{id}', [CategoryTwosController::class, 'destroy']);
     Route::get('/get-subset/{id}',[CategoryTwosController::class, 'GetSubsetOfCategoryTwo']);
 
-});    
+});
 Route::group([
     'middleware' => ['auth:api', 'can:category-three'],
     'prefix' => 'category-threes'
@@ -215,7 +215,7 @@ Route::group([
     Route::get('/show/{id}', [CategoryThreesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryThreesController::class, 'update']);
     Route::delete('/{id}', [CategoryThreesController::class, 'destroy']);
-}); 
+});
 Route::group([
     'middleware' => ['auth:api', 'can:coupon'],
     'prefix' => 'coupons'
@@ -225,7 +225,7 @@ Route::group([
     Route::get('/show/{id}', [CouponController::class, 'show']);
     Route::put('/edit/{id}', [CouponController::class, 'update']);
     Route::delete('/{id}', [CouponController::class, 'destroy']);
-}); 
+});
 Route::group([
     'middleware' => ['auth:api', 'can:video-session'],
     'prefix' => 'video-sessions'
@@ -239,7 +239,7 @@ Route::group([
     Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
     Route::put('/edit-one-video/{id}',[VideoSessionsController::class, 'EditSingleVideoSession']);
     Route::get('/disabled-video-sessions', [VideoSessionsController::class, 'disabledVideoSessions']);
-}); 
+});
 Route::group([
     'middleware' => ['auth:api', 'can:file'],
     'prefix' => 'file'
@@ -249,7 +249,7 @@ Route::group([
     Route::get('/show/{id}', [FileController::class, 'show']);
     Route::put('/edit/{id}', [FileController::class, 'update']);
     Route::delete('/{id}', [FileController::class, 'destroy']);
-}); 
+});
 Route::group([
     'middleware' => ['auth:api', 'can:product-file'],
     'prefix' => 'product-files'
@@ -288,6 +288,7 @@ Route::group([
     'middleware' => ['auth:api','can:admin-order'],
     'prefix' => 'orders',
 ], function ($router) {
+    Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
     Route::post('/add', [OrderController::class, 'store']);
     Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct']);
     Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
