@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\User\GetInfoOfAnOrderResource;
 use App\Http\Resources\User\OrderForShowFactorsCollection;
 use App\Http\Resources\User\OrderResource;
 use App\Models\ProductDetailVideo;
@@ -35,15 +36,15 @@ class OrderController extends Controller
         $order = Order::find($id);
         if ($order != null) {
             if ($order->users_id != $user_id) {
-                return (new OrderResource(null))->additional([
+                return (new GetInfoOfAnOrderResource(null))->additional([
                     'errors' => ['auth_error' => ['This order does not belong to you!']],
                 ])->response()->setStatusCode(406);
             }
-            return (new OrderResource($order))->additional([
+            return (new GetInfoOfAnOrderResource($order))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
-        return (new OrderResource(null))->additional([
+        return (new GetInfoOfAnOrderResource(null))->additional([
             'errors' => ['order' => ['Order does not exist!']],
         ])->response()->setStatusCode(406);
     }
@@ -172,7 +173,7 @@ class OrderController extends Controller
                 }
             }
         }
-   
+
         $merged = $product_detail_videos->merge($free_sessions);
 
         return ((new ProductDetailVideosForShowingToStudentsCollection($merged))->foo($saturday_and_friday))->additional([
