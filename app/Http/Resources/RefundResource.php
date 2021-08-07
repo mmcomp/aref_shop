@@ -19,7 +19,7 @@ class RefundResource extends JsonResource
                "orders_id" => $this->orders_id,
                "products_id" => $this->products_id,
                "product_detail_videos_id" => $this->product_detail_videos_id,
-               "user" => new UserRefundResource($this->user),
+               "user" => new UserRefundResource($this->saverUser),
                "description" => $this->description,
                "created_at" => $this->created_at,
                "updated_at" => $this->updated_at
