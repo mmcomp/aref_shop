@@ -65,46 +65,46 @@ Route::group([
 ], function ($router) {
     Route::get('/', [UserController::class, 'index']);
     Route::post('/add', [UserController::class, 'store']);
-    Route::get('/get/{id}',[UserController::class, 'show']);
+    Route::get('/get/{id}', [UserController::class, 'show']);
     Route::put('/edit', [UserController::class, 'update']);
     Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
-    Route::delete('/avatar/{id}',[UserController::class, 'deleteAvatar']);
+    Route::delete('/avatar/{id}', [UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
-    Route::get('/search',[UserController::class, 'search']);
-    Route::post('/block',[UserController::class, 'block']);
+    Route::get('/search', [UserController::class, 'search']);
+    Route::post('/block', [UserController::class, 'block']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:product'],
+    'middleware' => ['auth:api', 'can:product'],
     'prefix' => 'products',
 
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/getProduct/{id}',[ProductController::class,'show']);
+    Route::get('/getProduct/{id}', [ProductController::class, 'show']);
     Route::post('/add', [ProductController::class, 'store']);
     Route::put('/edit/{id}', [ProductController::class, 'update']);
     Route::delete('/{id}', [ProductController::class, 'destroy']);
-    Route::post('/set-main-image/{id}',[ProductController::class, 'setMainImage']);
-    Route::post('/set-second-image/{id}',[ProductController::class, 'setSecondImage']);
-    Route::delete('/main-image/{id}',[ProductController::class, 'deleteMainImage']);
-    Route::delete('/second-image/{id}',[ProductController::class, 'deleteSecondImage']);
-    Route::post('/search',[ProductController::class, 'search']);
-    Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct']);
-    Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct']);
+    Route::post('/set-main-image/{id}', [ProductController::class, 'setMainImage']);
+    Route::post('/set-second-image/{id}', [ProductController::class, 'setSecondImage']);
+    Route::delete('/main-image/{id}', [ProductController::class, 'deleteMainImage']);
+    Route::delete('/second-image/{id}', [ProductController::class, 'deleteSecondImage']);
+    Route::post('/search', [ProductController::class, 'search']);
+    Route::get('/get-videos/{id}', [ProductController::class, 'ListOfVideosOfAProduct']);
+    Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:productDetailChair'],
+    'middleware' => ['auth:api', 'can:productDetailChair'],
     'prefix' => 'product-detail-chairs',
 
 ], function ($router) {
     Route::get('/', [ProductDetailChairsController::class, 'index']);
     Route::post('/add', [ProductDetailChairsController::class, 'store']);
-    Route::get('/get-product-detail-chairs/{id}',[ProductDetailChairsController::class, 'show']);
+    Route::get('/get-product-detail-chairs/{id}', [ProductDetailChairsController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailChairsController::class, 'update']);
     Route::delete('/{id}', [ProductDetailChairsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:productDetailDownload'],
+    'middleware' => ['auth:api', 'can:productDetailDownload'],
     'prefix' => 'product-detail-downloads',
 
 ], function ($router) {
@@ -115,7 +115,7 @@ Route::group([
     Route::delete('/{id}', [ProductDetailDownloadsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:productDetailPackage'],
+    'middleware' => ['auth:api', 'can:productDetailPackage'],
     'prefix' => 'product-detail-packages',
 
 ], function ($router) {
@@ -126,7 +126,7 @@ Route::group([
     Route::delete('/{id}', [ProductDetailPackagesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' =>['auth:api','can:category-one'],
+    'middleware' => ['auth:api', 'can:category-one'],
     'prefix' => 'category-ones',
 ], function ($router) {
     Route::get('/', [CategoryOnesController::class, 'index']);
@@ -134,12 +134,12 @@ Route::group([
     Route::get('/show/{id}', [CategoryOnesController::class, 'show']);
     Route::put('/edit/{id}', [CategoryOnesController::class, 'update']);
     Route::delete('/{id}', [CategoryOnesController::class, 'destroy']);
-    Route::get('/get-subset/{id}',[CategoryOnesController::class, 'GetSubsetOfCategoryOne']);
+    Route::get('/get-subset/{id}', [CategoryOnesController::class, 'GetSubsetOfCategoryOne']);
     Route::post('/set-image/{id}', [CategoryOnesController::class, 'setImage']);
-    Route::delete('/image/{id}',[CategoryOnesController::class, 'deleteImage']);
+    Route::delete('/image/{id}', [CategoryOnesController::class, 'deleteImage']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:productDetailVideo'],
+    'middleware' => ['auth:api', 'can:productDetailVideo'],
     'prefix' => 'product-detail-videos',
 ], function ($router) {
     Route::get('/', [ProductDetailVideosController::class, 'index']);
@@ -147,11 +147,11 @@ Route::group([
     Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailVideosController::class, 'update']);
     Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
-    Route::post('/assign-video-to-a-product',[ProductDetailVideosController::class,'assignVideoToProduct']);
+    Route::post('/assign-video-to-a-product', [ProductDetailVideosController::class, 'assignVideoToProduct']);
     Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:province'],
+    'middleware' => ['auth:api', 'can:province'],
     'prefix' => 'provinces',
 
 ], function ($router) {
@@ -163,18 +163,18 @@ Route::group([
     Route::delete('/{id}', [ProvinceController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:city'],
+    'middleware' => ['auth:api', 'can:city'],
     'prefix' => 'cities',
 
 ], function ($router) {
     Route::get('/', [CityController::class, 'index']);
     Route::post('/add', [CityController::class, 'store']);
-    Route::get('/getCity/{id}',[CityController::class, 'show']);
+    Route::get('/getCity/{id}', [CityController::class, 'show']);
     Route::put('/edit/{id}', [CityController::class, 'update']);
     Route::delete('/{id}', [CityController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:group_gate'],
+    'middleware' => ['auth:api', 'can:group_gate'],
     'prefix' => 'group-gates',
 
 ], function ($router) {
@@ -185,7 +185,7 @@ Route::group([
     Route::delete('/{id}', [GroupGatesController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:group'],
+    'middleware' => ['auth:api', 'can:group'],
     'prefix' => 'groups',
 ], function ($router) {
     Route::get('/', [GroupController::class, 'index']);
@@ -195,7 +195,7 @@ Route::group([
     Route::delete('/{id}', [GroupController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:category-two'],
+    'middleware' => ['auth:api', 'can:category-two'],
     'prefix' => 'category-twos'
 ], function ($router) {
     Route::get('/', [CategoryTwosController::class, 'index']);
@@ -203,8 +203,7 @@ Route::group([
     Route::get('/show/{id}', [CategoryTwosController::class, 'show']);
     Route::put('/edit/{id}', [CategoryTwosController::class, 'update']);
     Route::delete('/{id}', [CategoryTwosController::class, 'destroy']);
-    Route::get('/get-subset/{id}',[CategoryTwosController::class, 'GetSubsetOfCategoryTwo']);
-
+    Route::get('/get-subset/{id}', [CategoryTwosController::class, 'GetSubsetOfCategoryTwo']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:category-three'],
@@ -235,9 +234,9 @@ Route::group([
     Route::get('/show/{id}', [VideoSessionsController::class, 'show']);
     Route::put('/edit/{id}', [VideoSessionsController::class, 'update']);
     Route::delete('/{id}', [VideoSessionsController::class, 'destroy']);
-    Route::post('/add-video',[VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
-    Route::post('/add-one-video',[VideoSessionsController::class, 'InsertSingleVideoSession']);
-    Route::put('/edit-one-video/{id}',[VideoSessionsController::class, 'EditSingleVideoSession']);
+    Route::post('/add-video', [VideoSessionsController::class, 'AddVideosAccordingToUserInputs']);
+    Route::post('/add-one-video', [VideoSessionsController::class, 'InsertSingleVideoSession']);
+    Route::put('/edit-one-video/{id}', [VideoSessionsController::class, 'EditSingleVideoSession']);
     Route::get('/disabled-video-sessions', [VideoSessionsController::class, 'disabledVideoSessions']);
 });
 Route::group([
@@ -276,19 +275,19 @@ Route::group([
     Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:product-comment-admin'],
+    'middleware' => ['auth:api', 'can:product-comment-admin'],
     'prefix' => 'product-comments',
 ], function ($router) {
     Route::get('/', [ProductCommentController::class, 'index']);
     Route::put('/edit/{id}', [ProductCommentController::class, 'update']);
     Route::delete('/{id}', [ProductCommentController::class, 'destroy']);
-    Route::get('/search',[ProductCommentController::class, 'search']);
+    Route::get('/search', [ProductCommentController::class, 'search']);
 });
 Route::group([
-    'middleware' => ['auth:api','can:admin-order'],
+    'middleware' => ['auth:api', 'can:admin-order'],
     'prefix' => 'orders',
 ], function ($router) {
-    Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
+    Route::get('/get-info-of-an-order/{id}', [OrderController::class, 'getInfoOfAnOrder']);
     Route::post('/add', [OrderController::class, 'store']);
     Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct']);
     Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
@@ -298,26 +297,35 @@ Route::group([
     Route::put('/add-coupon/{orders_id}', [OrderController::class, 'addCouponToTheCart']);
     Route::put('/delete-coupon/{orders_id}', [OrderController::class, 'deleteCouponFromCart']);
     Route::delete('/micro-product/{orders_id}/{order_details_id}', [OrderController::class, 'destroyMicroProduct']);
-    Route::post('/complete-buying/{orders_id}',[OrderController::class, 'completeBuying'] );
+    Route::post('/complete-buying/{orders_id}', [OrderController::class, 'completeBuying']);
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
-
 });
 Route::get('/publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
     //dd($values);
     Redis::publish('test-channel', json_encode([
-            "Type"=> "MESSAGE",
-            "Token"=> "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYyNzIxMDQwMywiZXhwIjoxNjI3MjE0MDAzLCJuYmYiOjE2MjcyMTA0MDMsImp0aSI6InVBU2VtTEVWcG1QRTZUcGYiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vUYPZR5FlT0UIbdL-RJlFssSWC6cPnXODwBUULwzs9E",
-            "Data"=> [
-              "video_sessions_id" => 5,
-              "msg" => "dd"
-            ]
+        "Type" => "MESSAGE",
+        "Token" => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYyNzIxMDQwMywiZXhwIjoxNjI3MjE0MDAzLCJuYmYiOjE2MjcyMTA0MDMsImp0aSI6InVBU2VtTEVWcG1QRTZUcGYiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vUYPZR5FlT0UIbdL-RJlFssSWC6cPnXODwBUULwzs9E",
+        "Data" => [
+            "video_sessions_id" => 5,
+            "msg" => "dd"
+        ]
+    ]));
+});
+Route::get('/new-publish', function () {
+    // ...
+    //$values = Redis::hGetAll('user');
+    //dd($values);
+    Redis::publish('absence-presence-channel', json_encode([
+        "type" => "online",
+        "product_detail_videos_id" => 21,
+        "users_id" => 2
     ]));
 });
 Route::group([
-    'middleware' => ['auth:api','can:report-sale'],
+    'middleware' => ['auth:api', 'can:report-sale'],
     'prefix' => 'user-products',
 ], function ($router) {
     Route::post('/report-sale', [UserProductController::class, 'reportSale']);

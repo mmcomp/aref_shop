@@ -13,6 +13,12 @@ class UserVideoSession extends Model
         'video_sessions_id',
         'users_id',
         'partial',
+        'online_started_at',
+        'online_exited_at',
+        'online_spend',
+        'offline_started_at',
+        'offline_exited_at',
+        'offline_spend'
     ];
     public function videoSession()
     {
