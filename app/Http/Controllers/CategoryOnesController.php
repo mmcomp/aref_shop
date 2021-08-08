@@ -24,7 +24,7 @@ class CategoryOnesController extends Controller
     {
 
         $per_page = request()->get('per_page');
-        $category_ones_builder = CategoryOne::where('is_deleted', false)->where('published', 1)->orderBy('ordering', 'asc');
+        $category_ones_builder = CategoryOne::where('is_deleted', false)->orderBy('ordering', 'asc');
         if ($per_page == "all") {
             $category_ones = $category_ones_builder->get();
         } else {
