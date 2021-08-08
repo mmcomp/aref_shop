@@ -18,6 +18,7 @@ use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\UserDescriptionsController;
 use App\Http\Controllers\User\ProductCommentController;
 use App\Http\Controllers\User\VideoSessionsController;
+use App\Http\Controllers\User\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,7 +39,7 @@ Route::group(['middleware' => 'user'], function(){
     Route::group([
         'middleware' => ['auth:api', 'can:attach-homework'],
         'prefix' => 'homework',
-    
+
     ], function ($router) {
         Route::post('/concat-homework-to-session/{id}', [UserVideoSessionHomeWorkController::class, 'ConcatHomeWorkToSession']);
         Route::delete('/file/{id}', [UserVideoSessionHomeWorkController::class, 'DeleteHomework']);
@@ -47,7 +48,7 @@ Route::group(['middleware' => 'user'], function(){
     Route::group([
         'middleware' => 'api',
         'prefix' => 'auth',
-    
+
     ], function ($router) {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register', [AuthController::class, 'register']);
@@ -59,11 +60,11 @@ Route::group(['middleware' => 'user'], function(){
         Route::post('/verify-forget-password', [AuthController::class, 'verifyForgetPassword']);
         Route::patch('/change-password', [AuthController::class, 'ChangePassword']);
     });
-    
+
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'products',
-    
+
     ], function ($router) {
         Route::get('/', [ProductController::class, 'index'])->middleware('can:product-of-user');
         Route::get('/getProduct/{id}',[ProductController::class,'show']);
@@ -81,7 +82,7 @@ Route::group(['middleware' => 'user'], function(){
         'prefix' => 'category-twos'
     ], function ($router) {
         Route::get('/', [CategoryTwosController::class, 'index']);
-    });    
+    });
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'category-threes'
@@ -93,7 +94,7 @@ Route::group(['middleware' => 'user'], function(){
         'prefix' => 'coupons'
     ], function ($router) {
         Route::get('/', [CouponController::class, 'index']);
-    }); 
+    });
     Route::group([
         'middleware' => ['auth:api', 'can:cart'],
         'prefix' => 'cart'
@@ -125,7 +126,7 @@ Route::group(['middleware' => 'user'], function(){
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'provinces',
-    
+
     ], function ($router) {
         Route::get('/', [ProvinceController::class, 'index']);
         Route::get('/get-cities-of-a-province/{id}', [ProvinceController::class, 'getCitiesOfAProvince']);
@@ -133,14 +134,14 @@ Route::group(['middleware' => 'user'], function(){
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'cities',
-    
+
     ], function ($router) {
         Route::get('/', [CityController::class, 'index']);
     });
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'users',
-    
+
     ], function ($router) {
         Route::put('/edit', [UserController::class, 'update']);
     });
@@ -183,5 +184,12 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/free', [VideoSessionsController::class, 'freeSessions']);
         Route::get('/today', [VideoSessionsController::class, 'todaySessions']);
     });
-    
+    Route::group([
+        'middleware' => ['auth:api', 'can:notification-user'],
+        'prefix' => 'notifications'
+    ], function ($router) {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/show/{id}', [NotificationController::class, 'show']);
+    });
+
 });

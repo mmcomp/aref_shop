@@ -25,6 +25,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductFilesController;
 use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\UserProductController;
 
@@ -329,3 +330,13 @@ Route::group([
 //     Route::post('/disable', [ChatMessageController::class, 'disable_chats']);
 //     Route::get('/disabled-video-sessions', [ChatMessageController::class, 'disabledVideoSessions']);
 // });
+Route::group([
+    'middleware' => ['auth:api', 'can:notification'],
+    'prefix' => 'notifications'
+], function ($router) {
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::post('/add', [NotificationController::class, 'store']);
+    Route::get('/show/{id}', [NotificationController::class, 'show']);
+    Route::put('/edit/{id}', [NotificationController::class, 'update']);
+    Route::delete('/{id}', [NotificationController::class, 'destroy']);
+});
