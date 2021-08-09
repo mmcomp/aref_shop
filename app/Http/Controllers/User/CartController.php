@@ -443,12 +443,16 @@ class CartController extends Controller
                     if($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
                         foreach($videoSessionIds as $video_session_id) {
-                            $data = [
-                                'users_id' => $user,
-                                'video_sessions_id' => $video_session_id
-                             ];
+                            $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
+                            if(!$found_user_video_session) {
+                                $data = [
+                                    'users_id' => $user,
+                                    'video_sessions_id' => $video_session_id
+                                 ];
+                            }
+
                         }
-                        
+
                     }
                 }
                 UserVideoSession::insert($data);
@@ -531,7 +535,7 @@ class CartController extends Controller
                             $sw = 1;
                             $payment->status = "success";
                             $order->status = "ok";
-                            $this->completeInsertAfterBuying($order);  
+                            $this->completeInsertAfterBuying($order);
                         }
                     }
                 }
@@ -545,6 +549,6 @@ class CartController extends Controller
         Log::info('payment not exists');
         return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
     }
-    
+
 
 }

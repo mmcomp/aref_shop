@@ -64,12 +64,15 @@ class Buying
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
                         foreach ($videoSessionIds as $video_session_id) {
-                            $data[] = [
-                                'users_id' => $user,
-                                'video_sessions_id' => $video_session_id,
-                                'created_at' => $now,
-                                'updated_at' => $now
-                            ];
+                            $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
+                            if(!$found_user_video_session) {
+                                $data = [
+                                    'users_id' => $user,
+                                    'video_sessions_id' => $video_session_id,
+                                    'created_at' => $now,
+                                    'updated_at' => $now
+                                ];
+                            }
                         }
                     }
                 }
