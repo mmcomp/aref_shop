@@ -43,7 +43,7 @@ class UpdatePreviousByers
                                 foreach ($videoSessionIds as $video_session_id) {
                                     $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $video_session_id)->first();
                                     if(!$found_user_video_session) {
-                                        $data = [
+                                        $data[] = [
                                             'users_id' => $order->users_id,
                                             'video_sessions_id' => $video_session_id
                                         ];
