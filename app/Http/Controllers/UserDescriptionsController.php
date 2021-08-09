@@ -10,6 +10,7 @@ use App\Http\Resources\UserDescriptionCollection;
 use App\Models\UserDescription;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\UserVideoSession;
 use Exception;
 
 class UserDescriptionsController extends Controller
@@ -21,7 +22,7 @@ class UserDescriptionsController extends Controller
      */
     public function index()
     {
-        
+
         $user_descriptions = UserDescription::where('is_deleted', false)->OrderBy('id', 'desc')->get();
         return (new UserDescriptionCollection($user_descriptions))->additional([
             'errors' => null,
@@ -36,7 +37,7 @@ class UserDescriptionsController extends Controller
      */
     public function store(UserDescriptionCreateRequest $request)
     {
-        
+
         $user_video_session_homeworks_id = $request->input('user_video_session_homeworks_id');
         $description = $request->input('description');
         $users_id = Auth::user()->id;
@@ -59,13 +60,13 @@ class UserDescriptionsController extends Controller
      */
     public function show($id, UserVideoSessionHomeworkRequest $request)
     {
-        
+
         $user_video_session_homeworks_id = $request->input('user_video_session_homeworks_id');
         $userDescription = UserDescription::where('is_deleted', false)->where('user_video_session_homeworks_id', $user_video_session_homeworks_id)->find($id);
         if($userDescription != null) {
             return (new UserDescriptionResource($userDescription))->additional([
                 'errors' => null,
-            ])->response()->setStatusCode(200); 
+            ])->response()->setStatusCode(200);
         }
         return (new UserDescriptionResource(null))->additional([
             'errors' => ["not_found" => ["The user_description not found"]],
@@ -81,7 +82,7 @@ class UserDescriptionsController extends Controller
      */
     public function update(UserDescriptionEditRequest $request, $id)
     {
-        
+
         $userDescription = UserDescription::where('is_deleted', false)->find($id);
         if($userDescription != null) {
             $userDescription->user_video_session_homeworks_id = $request->input("user_video_session_homeworks_id") ? $request->input('user_video_session_homeworks_id') : $userDescription->user_video_session_homeworks_id;
@@ -108,7 +109,7 @@ class UserDescriptionsController extends Controller
         return (new UserDescriptionResource(null))->additional([
             'errors' => ["not_found" => ["user description not found!"]],
         ])->response()->setStatusCode(200);
-        
+
     }
 
     /**
@@ -119,7 +120,7 @@ class UserDescriptionsController extends Controller
      */
     public function destroy($id)
     {
-        
+
         $userDescription = UserDescription::where('is_deleted', false)->find($id);
         if($userDescription != null) {
             $userDescription->delete();
@@ -127,5 +128,20 @@ class UserDescriptionsController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(204);
         }
+    }
+    public function test()
+    {
+        $user_video_sessions = UserVideoSession::all();
+        foreach($user_video_sessions as $user_video_session) {
+            $foundArray = UserVideoSession::where('users_id', $user_video_session->users_id)->where('video_sessions_id', $user_video_session->video_sessions_id)->get()->toArray();
+            if(count($foundArray) > 1) {
+                array_shift($foundArray);
+                for($i = 0; $i < count($foundArray); $i++) {
+                    UserVideoSession::where('id', $foundArray[0]['id'])->delete();
+                }
+            }
+        }
+        dd('done');
+
     }
 }

@@ -264,6 +264,7 @@ Route::group([
     Route::post('/add-new-by-getting-file-info', [VideoSessionFilesController::class, 'createNewVideoSessionFile']);
     Route::delete('/{id}', [VideoSessionFilesController::class, 'destroy']);
 });
+Route::get('/test', [UserDescriptionsController::class, 'test']);
 Route::group([
     'middleware' => ['auth:api', 'can:user-description'],
     'prefix' => 'user-descriptions'
