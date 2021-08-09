@@ -10,6 +10,7 @@ use App\Models\ProductDetailVideo;
 use App\Utils\GetNameOfSessions;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\UserVideoSession;
 
 class VideoSessionsController extends Controller
 {
@@ -37,10 +38,10 @@ class VideoSessionsController extends Controller
         })->whereHas('product', function ($q) {
             $q->where('is_deleted', false);
         })->get();
-        for($i = 0; $i < count($free_sessions); $i++) {
+        for ($i = 0; $i < count($free_sessions); $i++) {
             $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
-            for($j = 0; $j < count($output); $j++) {
-                if($output[$j]->id == $free_sessions[$i]->id) {
+            for ($j = 0; $j < count($output); $j++) {
+                if ($output[$j]->id == $free_sessions[$i]->id) {
                     $free_sessions[$i] = $output[$j];
                 }
             }
@@ -67,6 +68,14 @@ class VideoSessionsController extends Controller
         })->whereHas('product', function ($q) {
             $q->where('is_deleted', false);
         })->get();
+        $bouth_video_sessions = UserVideoSession::where('users_id', Auth::user()->id)
+            ->whereIn('video_sessions_id', $today_sessions->pluck('video_sessions_id'))
+            ->pluck('video_sessions_id')->toArray();
+        for ($j = 0; $j < count($today_sessions); $j++) {
+
+            $today_sessions[$j]->buyed_before = in_array($today_sessions[$j]->video_sessions_id, $bouth_video_sessions);
+        }
+        //dd($today_sessions);
         return (new ProductDetailVideosForTodaySessionsCollection($today_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);

@@ -27,19 +27,19 @@ class ProductDetailVideosForTodaySessionsResource extends JsonResource
         if ($this->resource != null) {
             $number = new Number2Word;
             $num = 0;
-            $buyed_before = false;
-            $persianAlphabetNum = $number->numberToWords($this->numName); 
+            //$buyed_before = false;
+            $persianAlphabetNum = $number->numberToWords($this->numName);
             if($this->name == null){
                 $num = strpos($persianAlphabetNum, "سه") !== false ? str_replace("سه", "سو", $persianAlphabetNum) . 'م' : $persianAlphabetNum . 'م';
             } else {
                 $num = $this->name;
             }
-            if($this->videoSession->userVideoSession != null && $this->videoSession->userVideoSession->user->id == Auth::user()->id) {
-                $buyed_before = true;
-            }
+            // if($this->videoSession->userVideoSession != null && $this->videoSession->userVideoSession->user->id == Auth::user()->id) {
+            //     $buyed_before = true;
+            // }
             return [
                 'id' => $this->id,
-                'buyed_before' => $buyed_before,
+                'buyed_before' => $this->buyed_before,
                 'price' => $this->price,
                 'product' => new ProductForSingleSessionsResource($this->product),
                 'videoSession' => (new VideoSessionForTodaySessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check),
