@@ -60,33 +60,5 @@ class RedisSubscribe extends Command
                 'message' => json_decode($message)->Data->msg
             ]);
         });
-
-        Redis::subscribe(['absence-presence-channel'], function ($message) {
-            Log::info('absence-presence-channel '. $message);
-            $json_decode_message = json_decode($message);
-            $product_detail_videos_id = $json_decode_message->product_detail_videos_id;
-            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($product_detail_videos_id);
-            $users_id = $json_decode_message->users_id;
-            $type = $json_decode_message->type;
-            $user_video_session = UserVideoSession::where('video_sessions_id', $product_detail_video->video_sessions_id)->where('users_id', $users_id)->first();
-            Log::info($user_video_session->id);
-            if ($type == "online") {
-                if ($user_video_session->online_started_at == null) {
-                    $user_video_session->online_started_at = now();
-                } else {
-                    $user_video_session->online_exited_at = now();
-                }
-                $user_video_session->online_spend += 5;
-            } else {
-                if ($user_video_session->offline_started_at == null) {
-                    $user_video_session->offline_started_at = now();
-                } else {
-                    $user_video_session->offline_exited_at = now();
-                }
-                $user_video_session->offline_spend += 5;
-            }
-            $user_video_session->save();
-
-        });
     }
 }
