@@ -63,7 +63,7 @@ class AbsencePresenceSubscribe extends Command
                 if ($user_video_session->offline_started_at == null && $isFirst) {
                     $user_video_session->offline_started_at = now();
                     $user_video_session->offline_spend += 5;
-                } else {
+                } else if($user_video_session->offline_started_at != null) {
                     $user_video_session->offline_exited_at = now();
                     $user_video_session->offline_spend += 5;
                 }
