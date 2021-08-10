@@ -27,7 +27,7 @@ class ConcatHomeworkRequest extends FormRequest
     public function rules()
     {
         return [
-            'file' => 'required|file|mimes:doc,docx,pdf|max:2048',
+            'file' => 'required|file|mimes:doc,docx,pdf,xls,xlsx|max:2048',
             'id' => [
                 'required',
                 'integer',
