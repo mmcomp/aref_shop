@@ -28,16 +28,14 @@ class UserVideoSessionHomeWorkController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $user_video_session_homeworks_id = $request->input('user_video_session_homeworks_id');
         $upload_file = new UploadImage;
-        $user_video_session = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $id)->first();
         if ($request->file('file')) {
             // $user_video_session_homework = UserVideoSessionHomework::create([
             //     'user_video_sessions_id' => $user_video_session->id,
             //     'file' => $upload_file->getImage($request->file('file'), "public/homeworks/" . $user_id, "homework"),
             // ]);
-            $user_video_session_homework = UserVideoSessionHomework::find($user_video_session_homeworks_id);
-            $user_video_session_homework->user_video_sessions_id = $user_video_session->id;
+            $user_video_session_homework = UserVideoSessionHomework::find($id);
+            $user_video_session_homework->user_video_sessions_id = $user_video_session_homework->user_video_sessions_id;
             $user_video_session_homework->file = $upload_file->getImage($request->file('file'), "public/homeworks/" . $user_id, "homework");
             $user_video_session_homework->save();
             return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
@@ -46,7 +44,7 @@ class UserVideoSessionHomeWorkController extends Controller
         }
     }
     /**
-     * Delete homework file 
+     * Delete homework file
      *
      * @param  int  $id
      * @param  DeleteHomeworkRequest  $request
@@ -71,10 +69,10 @@ class UserVideoSessionHomeWorkController extends Controller
         }
         return (new UserVideoSessionHomeWorkResource(null))->additional([
             'errors' => ["can_not_be_deleted" => ["You can not delete homework because there is comment on this!"]],
-        ])->response()->setStatusCode(406);  
+        ])->response()->setStatusCode(406);
     }
     /**
-     * add description 
+     * add description
      *
      * @param  int  $id
      * @param  AddDescriptionRequest  $request
@@ -83,12 +81,19 @@ class UserVideoSessionHomeWorkController extends Controller
     public function addDescription(int $id, AddDescriptionRequest $request)
     {
 
-        $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->find($id);
-        $description = $request->input("description");        
-        $user_video_session_homework->description = $description;
-        $user_video_session_homework->save();
-        return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(200);
+        $user_video_session = UserVideoSession::where('video_sessions_id', $id)->where('users_id', Auth::user()->id)->first();
+        $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->where('user_video_sessions_id', $user_video_session->id)->first();
+        if($user_video_session_homework != null) {
+            $description = $request->input("description");
+            $user_video_session_homework->description = $description;
+            $user_video_session_homework->save();
+            return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new UserVideoSessionHomeWorkResource(null))->additional([
+            'errors' => ["not_found" => ["user video session homework not found"]],
+        ])->response()->setStatusCode(406);
+
     }
 }
