@@ -14,7 +14,9 @@ class AddIsHiddenToProductDetailVideosTable extends Migration
     public function up()
     {
         Schema::table('product_detail_videos', function (Blueprint $table) {
-            $table->boolean("is_hidden")->default(false)->after('extraordinary');
+            if (!Schema::hasColumn('product_detail_videos', 'is_hidden')){
+                $table->boolean("is_hidden")->default(false)->after('extraordinary');
+            }
         });
     }
 
