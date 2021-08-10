@@ -132,16 +132,18 @@ class UserDescriptionsController extends Controller
     public function test()
     {
         $user_video_sessions = UserVideoSession::all();
+        $count = 0;
         foreach($user_video_sessions as $user_video_session) {
             $foundArray = UserVideoSession::where('users_id', $user_video_session->users_id)->where('video_sessions_id', $user_video_session->video_sessions_id)->get()->toArray();
             if(count($foundArray) > 1) {
                 array_shift($foundArray);
                 for($i = 0; $i < count($foundArray); $i++) {
-                    UserVideoSession::where('id', $foundArray[0]['id'])->delete();
+                    UserVideoSession::where('id', $foundArray[$i]['id'])->delete();
+                    $count++;
                 }
             }
         }
-        dd('done');
+        return $count.' number of rows were repeated';
 
     }
 }
