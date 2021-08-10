@@ -82,18 +82,13 @@ class UserVideoSessionHomeWorkController extends Controller
     {
 
         $user_video_session = UserVideoSession::where('video_sessions_id', $id)->where('users_id', Auth::user()->id)->first();
-        $user_video_session_homework = UserVideoSessionHomework::where('is_deleted', false)->where('user_video_sessions_id', $user_video_session->id)->first();
-        if($user_video_session_homework != null) {
-            $description = $request->input("description");
-            $user_video_session_homework->description = $description;
-            $user_video_session_homework->save();
-            return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
-        }
-        return (new UserVideoSessionHomeWorkResource(null))->additional([
-            'errors' => ["not_found" => ["user video session homework not found"]],
-        ])->response()->setStatusCode(406);
-
+        $description = $request->input("description");
+        $user_video_session_homework = new UserVideoSessionHomework();
+        $user_video_session_homework->user_video_sessions_id = $user_video_session->id;
+        $user_video_session_homework->description = $description;
+        $user_video_session_homework->save();
+        return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }
