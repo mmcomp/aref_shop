@@ -17,11 +17,11 @@ class UserVideoSessionHomeWorkResource extends JsonResource
         if($this->resource != null){
             return [
                 'id' => $this->id,
-                'user_video_session' => $this->userVideoSession,
-                'file' => $this->file,
-                'description' => $this->description,
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at
+                // 'user_video_session' => $this->userVideoSession,
+                // 'file' => $this->file,
+                // 'description' => $this->description,
+                // 'created_at' => $this->created_at,
+                // 'updated_at' => $this->updated_at
             ];
         }
     }
