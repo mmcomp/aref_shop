@@ -54,7 +54,9 @@ class AbsencePresenceSubscribe extends Command
             if ($type == "online") {
                 if ($user_video_session->online_started_at == null && $isFirst) {
                     $user_video_session->online_started_at = now();
-                    $user_video_session->online_spend += 5;
+                    if (!$isFirst) {
+                        $user_video_session->online_spend += 5;
+                    }
                 } else if ($user_video_session->online_started_at != null) {
                     $user_video_session->online_exited_at = now();
                     $user_video_session->online_spend += 5;
@@ -62,7 +64,9 @@ class AbsencePresenceSubscribe extends Command
             } else {
                 if ($user_video_session->offline_started_at == null && $isFirst) {
                     $user_video_session->offline_started_at = now();
-                    $user_video_session->offline_spend += 5;
+                    if (!$isFirst) {
+                        $user_video_session->offline_spend += 5;
+                    }
                 } else if($user_video_session->offline_started_at != null) {
                     $user_video_session->offline_exited_at = now();
                     $user_video_session->offline_spend += 5;
