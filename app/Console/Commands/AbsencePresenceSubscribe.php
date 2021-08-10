@@ -42,7 +42,7 @@ class AbsencePresenceSubscribe extends Command
     public function handle()
     {
         Redis::subscribe(['absence-presence-channel'], function ($message) {
-            // Log::info('absence-presence-channel '. $message);
+            Log::info('absence-presence-channel '. $message);
             $json_decode_message = json_decode($message, true);
             $product_detail_videos_id = $json_decode_message["product_detail_viedos_id"];
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($product_detail_videos_id);
