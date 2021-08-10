@@ -86,6 +86,7 @@ class UserVideoSessionHomeWorkController extends Controller
         $user_video_session_homework = new UserVideoSessionHomework();
         $user_video_session_homework->user_video_sessions_id = $user_video_session->id;
         $user_video_session_homework->description = $description;
+        $user_video_session_homework->file = "";
         $user_video_session_homework->save();
         return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
             'errors' => null,
