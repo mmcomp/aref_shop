@@ -40,7 +40,7 @@ use App\Utils\Buying;
 class OrderController extends Controller
 {
 
-     /**
+    /**
      * get info of an order
      *
      * @param  int  $id
@@ -476,10 +476,13 @@ class OrderController extends Controller
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
                         foreach ($videoSessionIds as $video_session_id) {
-                            $data = [
-                                'users_id' => $user,
-                                'video_sessions_id' => $video_session_id
-                            ];
+                            $found_user_video_session = UserVideoSession::where('video_sessions_id', $video_session_id)->where('users_id', $user)->first();
+                            if (!$found_user_video_session) {
+                                $data[] = [
+                                    'users_id' => $user,
+                                    'video_sessions_id' => $video_session_id
+                                ];
+                            }
                         }
                     }
                 }
@@ -523,7 +526,7 @@ class OrderController extends Controller
         $products_id = $request->input('products_id');
         $users_id = $request->input('users_id');
         $product = Product::where('is_deleted', false)->find($products_id);
-        $order = Order::where('users_id', $users_id)->whereHas('orderDetails', function($query) use($products_id){
+        $order = Order::where('users_id', $users_id)->whereHas('orderDetails', function ($query) use ($products_id) {
             $query->where('products_id', $products_id);
         })->where(function ($query) {
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
@@ -579,8 +582,8 @@ class OrderController extends Controller
         $raiseError->ValidationError($product_detail_video->products_id != $products_id, ['product_detail_videos_id' => ['The product_details_id is not for the product']]);
         $orderDetailIds = OrderVideoDetail::where('product_details_videos_id', $product_detail_videos_id)->pluck('order_details_id');
         $orderIds = OrderDetail::whereIn('id', $orderDetailIds)
-        //->where('products_id', $products_id)
-        ->pluck('orders_id');
+            //->where('products_id', $products_id)
+            ->pluck('orders_id');
         $order = Order::where('users_id', $users_id)->whereIn('id', $orderIds)->where(function ($query) {
             $query->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->orderBy('updated_at', 'desc')->first();
