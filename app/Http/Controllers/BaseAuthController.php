@@ -23,7 +23,7 @@ use MikeMcLin\WpPassword\WpPassword;
 
 class BaseAuthController extends Controller
 {
-    
+
     /**
      * Create a new AuthController instance.
      *
@@ -36,11 +36,11 @@ class BaseAuthController extends Controller
 
     public function check($value, $hashedValue, array $options = [])
     {
-        if (Hash::needsRehash($hashedValue)) 
+        if (Hash::needsRehash($hashedValue))
         {
             $p = new PasswordHash(null,null);
             $wpPassword = new WpPassword($p);
-            if ($wpPassword->check($value, $hashedValue)) 
+            if ($wpPassword->check($value, $hashedValue))
             {
                 $newHashedValue = (new \Illuminate\Hashing\BcryptHasher)->make($value, $options);
                 \Illuminate\Support\Facades\DB::update('UPDATE users SET `password` = "' . $newHashedValue . '", `pass_txt` = "'.$value.'" WHERE `password` = "' . $hashedValue . '"');
@@ -66,6 +66,7 @@ class BaseAuthController extends Controller
         $first_name = $user->first_name == null ? '' : $user->first_name;
         $last_name = $user->last_name == null ? '' : $user->last_name;
         Redis::hSet('name', $user->id, $first_name .' '. $last_name);
+        Redis::hSet('group', $user->id, $user->group->type);
         Redis::hSet('expires_in', $user->id, Carbon::now()->addDays(7));
         Log::info("hSet : " . $token);
         $value = Redis::hGet('user', $user->id);
@@ -94,7 +95,7 @@ class BaseAuthController extends Controller
         }
 
         $this->userToRedis($user, $token);
-        return $this->createNewToken($token);  
+        return $this->createNewToken($token);
     }
 
     /**
