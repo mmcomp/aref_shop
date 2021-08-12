@@ -16,7 +16,9 @@ class UserVideoSessionController extends Controller
         $product_detail_videos_id = $request->input('product_detail_videos_id');
         $productDetailVideo = ProductDetailVideo::where('is_deleted', false)->find($product_detail_videos_id);
         $video_sessions_id = $productDetailVideo->video_sessions_id;
-        $user_video_sessions = UserVideoSession::where('video_sessions_id', $video_sessions_id)->get();
+        $user_video_sessions = UserVideoSession::where('video_sessions_id', $video_sessions_id)->whereHas('user', function ($query) {
+            $query->where('is_deleted',false);
+        })->get();
         return (new UserVideoSessionCollection($user_video_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
