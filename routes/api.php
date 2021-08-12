@@ -27,6 +27,7 @@ use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\UserProductController;
+use App\Http\Controllers\UserVideoSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -337,3 +338,9 @@ Route::group([
 //     Route::post('/disable', [ChatMessageController::class, 'disable_chats']);
 //     Route::get('/disabled-video-sessions', [ChatMessageController::class, 'disabledVideoSessions']);
 // });
+Route::group([
+    'middleware' => ['auth:api', 'can:user-video-session-admin'],
+    'prefix' => 'user-video-sessions',
+], function ($router) {
+    Route::get('/report', [UserVideoSessionController::class, 'report']);
+});
