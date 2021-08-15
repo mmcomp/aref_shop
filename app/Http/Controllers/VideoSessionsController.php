@@ -308,6 +308,7 @@ class VideoSessionsController extends Controller
             $query->where('type', 'package')->where('is_deleted', false);
         })->where('partial', 0)->pluck('users_id');
         $childData = [];
+        $data1 = [];
         foreach($userIdsForPackages as $userId) {
             foreach ($child_products as $child_product) {
                 $found_product = UserProduct::where('users_id', $userId)->where('products_id', $child_product)->first();
