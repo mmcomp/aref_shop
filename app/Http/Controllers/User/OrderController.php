@@ -133,6 +133,7 @@ class OrderController extends Controller
         $video_sessions_id_arr = [];
         $date = date("Y-m-d");
         $saturday_and_friday = $theDate->getSaturdayAndFriday($date);
+        $user_products = UserProduct::where('users_id', $user_id)->pluck('products_id')->toArray();
         $user_video_sessions = UserVideoSession::where('users_id', $user_id)->whereHas('videoSession', function ($query) use ($saturday_and_friday) {
             $query->where('start_date', '>=', $saturday_and_friday['saturday'])->where('start_date', '<=', $saturday_and_friday['friday']);
         })->get();
@@ -164,7 +165,7 @@ class OrderController extends Controller
                 }
             }
         }
-        $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
+        $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('products_id', $user_products )->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
         for($i = 0; $i < count($product_detail_videos); $i++) {
             $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product, Auth::user()->id);
             for($j = 0; $j < count($output); $j++) {
@@ -174,8 +175,8 @@ class OrderController extends Controller
             }
         }
 
-        $merged = $product_detail_videos->merge($free_sessions);
-
+        //$merged = $product_detail_videos->merge($free_sessions);
+        $merged = $product_detail_videos;
         return ((new ProductDetailVideosForShowingToStudentsCollection($merged))->foo($saturday_and_friday))->additional([
             'errors' => null,
             'saturday' => $saturday_and_friday['saturday'],
