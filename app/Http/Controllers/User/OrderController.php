@@ -175,8 +175,7 @@ class OrderController extends Controller
             }
         }
 
-        //$merged = $product_detail_videos->merge($free_sessions);
-        $merged = $product_detail_videos;
+        $merged = $product_detail_videos->merge($free_sessions);
         return ((new ProductDetailVideosForShowingToStudentsCollection($merged))->foo($saturday_and_friday))->additional([
             'errors' => null,
             'saturday' => $saturday_and_friday['saturday'],
