@@ -183,7 +183,7 @@ class ProductDetailVideosController extends Controller
             'single_purchase' => $request->input('single_purchase'),
             'video_sessions_id' => $product_detail_video->videoSession ? $product_detail_video->video_sessions_id :  $raiseError->ValidationError(!$product_detail_video->videoSession, ['video_sessions_id' => ['The product_detail_videos videoSession is not valid!']])
         ]);
-        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
+        $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('products_id'))->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
         $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
         //$updatePreviousBuyers = new UpdatePreviousByers;
         //$updatePreviousBuyers->create(false, $request, $video_session->id);
