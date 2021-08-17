@@ -388,78 +388,78 @@ class CartController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
-    /**
-     * insert into user_video_sessions and user_products when buying is completed
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function completeInsertAfterBuying($order)
-    {
+    // /**
+    //  * insert into user_video_sessions and user_products when buying is completed
+    //  *
+    //  * @return \Illuminate\Http\JsonResponse
+    //  */
+    // public function completeInsertAfterBuying($order)
+    // {
 
-        $user = 0;
-        $product = null;
-        $data = [];
-        foreach ($order->orderDetails as $orderDetail) {
-            $product = $orderDetail->products_id;
-            $user = $order->users_id;
-            $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
-            if (!$found_user_product) {
-                $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
-                if($orderDetail->product->type == "package"){
-                    $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
-                    foreach($child_products as $child_product) {
-                        $data = [
-                           'users_id' => $user,
-                           'products_id' => $child_product
-                        ];
-                    }
-                    UserProduct::insert($data);
-                }
-            }
-            if ($orderDetail->product->type == 'video') {
-                if ($orderDetail->all_videos_buy) {
-                    $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
-                } else {
-                    if ($orderDetail->orderVideoDetails) {
-                        foreach ($orderDetail->orderVideoDetails as $orderVideoDetail) {
-                            $videoSessionIds[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
-                        }
-                    }
-                }
-                foreach ($videoSessionIds as $videoSessionId) {
-                    $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
-                    if (!$found_user_video_session) {
-                        $data[] = [
-                            "video_sessions_id" => $videoSessionId,
-                            "users_id" => $user
-                        ];
-                    }
-                }
-            }
-            if ($orderDetail->product->type == 'package') {
-                $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
-                foreach($child_products as $child_product) {
-                    $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
-                    if($p->type == 'video') {
-                        $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
-                        foreach($videoSessionIds as $video_session_id) {
-                            $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
-                            if(!$found_user_video_session) {
-                                $data[] = [
-                                    'users_id' => $user,
-                                    'video_sessions_id' => $video_session_id
-                                 ];
-                            }
+    //     $user = 0;
+    //     $product = null;
+    //     $data = [];
+    //     foreach ($order->orderDetails as $orderDetail) {
+    //         $product = $orderDetail->products_id;
+    //         $user = $order->users_id;
+    //         $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
+    //         if (!$found_user_product) {
+    //             $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
+    //             if($orderDetail->product->type == "package"){
+    //                 $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+    //                 foreach($child_products as $child_product) {
+    //                     $data = [
+    //                        'users_id' => $user,
+    //                        'products_id' => $child_product
+    //                     ];
+    //                 }
+    //                 UserProduct::insert($data);
+    //             }
+    //         }
+    //         if ($orderDetail->product->type == 'video') {
+    //             if ($orderDetail->all_videos_buy) {
+    //                 $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
+    //             } else {
+    //                 if ($orderDetail->orderVideoDetails) {
+    //                     foreach ($orderDetail->orderVideoDetails as $orderVideoDetail) {
+    //                         $videoSessionIds[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
+    //                     }
+    //                 }
+    //             }
+    //             foreach ($videoSessionIds as $videoSessionId) {
+    //                 $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
+    //                 if (!$found_user_video_session) {
+    //                     $data[] = [
+    //                         "video_sessions_id" => $videoSessionId,
+    //                         "users_id" => $user
+    //                     ];
+    //                 }
+    //             }
+    //         }
+    //         if ($orderDetail->product->type == 'package') {
+    //             $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+    //             foreach($child_products as $child_product) {
+    //                 $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+    //                 if($p->type == 'video') {
+    //                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
+    //                     foreach($videoSessionIds as $video_session_id) {
+    //                         $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
+    //                         if(!$found_user_video_session) {
+    //                             $data[] = [
+    //                                 'users_id' => $user,
+    //                                 'video_sessions_id' => $video_session_id
+    //                              ];
+    //                         }
 
-                        }
+    //                     }
 
-                    }
-                }
-                UserVideoSession::insert($data);
-            }
-        }
-        UserVideoSession::insert($data);
-    }
+    //                 }
+    //             }
+    //             UserVideoSession::insert($data);
+    //         }
+    //     }
+    //     UserVideoSession::insert($data);
+    // }
     /**
      * complete buying
      *
@@ -497,6 +497,7 @@ class CartController extends Controller
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
+        $buying = new Buying;
         $sw = 0;
         $SaleOrderId = $request->input('SaleOrderId');
         $ResCode = $request->input('ResCode');
@@ -535,7 +536,7 @@ class CartController extends Controller
                             $sw = 1;
                             $payment->status = "success";
                             $order->status = "ok";
-                            $this->completeInsertAfterBuying($order);
+                            $buying->completeInsertAfterBuying($order);
                         }
                     }
                 }
