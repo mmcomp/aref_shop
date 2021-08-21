@@ -57,7 +57,9 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $orders = Order::where('users_id', $user_id)->where('status', 'ok')->orderBy('id', 'desc')->get();
+        $orders = Order::where('users_id', $user_id)->where(function($query){
+           $query->where('status', 'ok')->orWhere('status', 'manual_ok');
+        })->orderBy('id', 'desc')->get();
         return (new OrderForShowFactorsCollection($orders))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
