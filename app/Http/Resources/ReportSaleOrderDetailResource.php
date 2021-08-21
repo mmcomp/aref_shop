@@ -29,6 +29,7 @@ class ReportSaleOrderDetailResource extends JsonResource
                 'productDetails' => (new OrderVideoDetailCollection($items)),
                 'price' => $this->price,
                 'coupons_id' => $this->coupons_id,
+                'coupons_name' => $this->coupon ? $this->coupon->name : '',
                 'coupons_amount' => $this->coupons_amount,
                 'coupons_type' => $this->coupons_type,
                 'all_videos_buy' => $this->all_videos_buy,
