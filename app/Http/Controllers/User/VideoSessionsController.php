@@ -11,6 +11,7 @@ use App\Utils\GetNameOfSessions;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\UserVideoSession;
+use App\Models\UserProduct;
 
 class VideoSessionsController extends Controller
 {
@@ -63,7 +64,8 @@ class VideoSessionsController extends Controller
     {
 
         $today_date = Carbon::now()->format('Y-m-d');
-        $today_sessions = ProductDetailVideo::where('is_deleted', false)->whereHas('videoSession', function ($query) use ($today_date) {
+        $user_products = UserProduct::where('users_id', Auth::user()->id)->pluck('products_id')->toArray();
+        $today_sessions = ProductDetailVideo::where('is_deleted', false)->whereIn('products_id', $user_products)->whereHas('videoSession', function ($query) use ($today_date) {
             $query->where('start_date', $today_date);
         })->whereHas('product', function ($q) {
             $q->where('is_deleted', false);
