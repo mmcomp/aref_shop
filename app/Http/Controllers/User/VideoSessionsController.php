@@ -64,8 +64,8 @@ class VideoSessionsController extends Controller
     {
 
         $today_date = Carbon::now()->format('Y-m-d');
-        $user_products = UserProduct::where('users_id', Auth::user()->id)->pluck('products_id')->toArray();
-        $today_sessions = ProductDetailVideo::where('is_deleted', false)->whereIn('products_id', $user_products)->whereHas('videoSession', function ($query) use ($today_date) {
+        // $user_products = UserProduct::where('users_id', Auth::user()->id)->pluck('products_id')->toArray();
+        $today_sessions = ProductDetailVideo::where('is_deleted', false)/*->whereIn('products_id', $user_products)*/->whereHas('videoSession', function ($query) use ($today_date) {
             $query->where('start_date', $today_date);
         })->whereHas('product', function ($q) {
             $q->where('is_deleted', false);
