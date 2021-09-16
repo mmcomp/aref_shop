@@ -74,7 +74,7 @@ class OrderController extends Controller
         $orderVideoDetails = OrderVideoDetail::whereHas('orderDetail', function ($query) {
             $query->where('all_videos_buy', 0);
         })->whereHas('orderDetail.order', function ($query) use ($user_id) {
-            $query->where('status', 'ok')->where('users_id', $user_id);
+            $query->where('status', 'ok')->orWhere('status', 'manual_ok')->where('users_id', $user_id);
         })->whereHas('orderDetail.product', function ($query) {
             $query->where('type', 'video');
         })->get();
