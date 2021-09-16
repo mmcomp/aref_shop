@@ -19,7 +19,7 @@ class UpdatePreviousByers
         $product_detail_video = null;
         if (!$found) {
             $product_detail_video = $request->input('video_sessions_id') == null ? ProductDetailVideo::create(array_merge($request->all(), ['video_sessions_id' => $video_sessions_id])):ProductDetailVideo::create($request->all());
-            $completed_orders = Order::where('status', 'ok')->get();
+            $completed_orders = Order::where('status', 'ok')->orWhere('status', 'manual_ok')->get();
             $data = [];
             foreach ($completed_orders as $order) {
                 foreach ($order->orderDetails as $orderDetail) {

@@ -74,46 +74,10 @@ class UserProductController extends Controller
             }
             $orderDetails = $orderDetails->orderBy("created_at", "desc")/*->with("order.orderDetails")*/
                             ->with("user")->get();
-            // $result = (array)$orderDetails;
-            // dd($result);
-            // foreach ($result as $first) {
-            //     return (array)$first;
-            // }
-            //return [ "data" => $orderDetails, "error" => null];
             return (new OrderDetailCollection($orderDetails))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
-            /*
-            $product_details_id = $request->input('product_detail_videos_id');
-            if ($product_details_id == null) {
-                $user_products = UserProduct::where('products_id', $products_id)->where('partial', 0)->orderBy("created_at", "desc");
-                $userProductIds = $user_products->pluck('users_id');
-                $user_products = $user_products->pluck('created_at', 'users_id');
-                $users = User::whereIn('id', $userProductIds)->get()->map(function ($user) use ($user_products) {
-                    $user->order_date = $user_products[$user->id]->format("Y-m-d H:i:s");
-                    return $user;
-                })->sortBy(function ($user) {
-                    return $user->order_date;
-                });
-                return (new UserCollection($users))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(200);
-            }
-            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $products_id)->find($product_details_id);
-            $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid.']]);
-            $user_video_sessions_id = UserVideoSession::where('video_sessions_id', $product_detail_video->video_sessions_id);
-            if ($from_date) {
-                $orders = $user_video_sessions_id->where('created_at', '>=', $from_date);
-            }
-            if ($to_date) {
-                $orders = $user_video_sessions_id->where('created_at', '<=', $to_date);
-            }
-            $user_video_sessions_id = $user_video_sessions_id->pluck('users_id');
-            $users = User::whereIn('id', $user_video_sessions_id)->get();
-            return (new UserCollection($users))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
-            */
+            
         }
     }
 }
