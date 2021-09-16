@@ -39,16 +39,17 @@ class ProductController extends Controller
      */
     public function index(ProductIndexRequest $request)
     {
-
         $per_page = $request->get('per_page');
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
+        $searchName = $request->input('search_name');
         $products = Product::where('is_deleted', false)
-            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
+            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id, $searchName) {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
                 if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
+                if ($searchName != null) $query->where('name', 'like','%'.$searchName.'%');
             })
             ->orderBy('id', 'desc');
         if ($per_page == "all") {
@@ -448,7 +449,7 @@ class ProductController extends Controller
 
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->find($id);        
+        $product = Product::where('is_deleted', false)->find($id);
         $product_detail_packages = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
