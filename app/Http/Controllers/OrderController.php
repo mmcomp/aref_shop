@@ -48,7 +48,6 @@ class OrderController extends Controller
      */
     public function getInfoOfAnOrder(int $id)
     {
-
         $order = Order::find($id);
         if ($order != null) {
             return (new GetInfoOfAnOrderResource($order))->additional([
