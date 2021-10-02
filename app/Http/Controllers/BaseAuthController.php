@@ -123,7 +123,7 @@ class BaseAuthController extends Controller
                 'errors' => ['OTP' => ['OTP is incorrect!']],
             ])->response()->setStatusCode(406);
         }
-        
+
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
         return $this->createNewToken($token);
@@ -239,7 +239,7 @@ class BaseAuthController extends Controller
         $sms = new Sms;
         $sms->sendCode($email, $code);
         return response([
-            "type" => $type
+            "data" => ["type" => $type]
         ])->setStatusCode(201);
     }
     /**
