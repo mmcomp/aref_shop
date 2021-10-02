@@ -38,7 +38,8 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return mixed
      */
-    public function getJWTIdentifier() {
+    public function getJWTIdentifier()
+    {
         return $this->getKey();
     }
 
@@ -47,26 +48,27 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return array
      */
-    public function getJWTCustomClaims() {
+    public function getJWTCustomClaims()
+    {
         return [];
     }
 
     public function group()
     {
-        return $this->hasOne('App\Models\Group', 'id', 'groups_id')->where('is_deleted',false);
+        return $this->hasOne('App\Models\Group', 'id', 'groups_id')->where('is_deleted', false);
     }
 
     public function city()
     {
-        return $this->hasOne('App\Models\City','id','cities_id')->where('is_deleted',false);
+        return $this->hasOne('App\Models\City', 'id', 'cities_id')->where('is_deleted', false);
     }
     public function referrerUser()
     {
-        return $this->hasOne('App\Models\User','id','referrer_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
+        return $this->hasOne('App\Models\User', 'id', 'referrer_users_id')->select('id', 'email', 'first_name', 'last_name')->where('is_deleted', false);
     }
     public function saverUser()
     {
-        return $this->hasOne('App\Models\User','id','saver_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
+        return $this->hasOne('App\Models\User', 'id', 'saver_users_id')->select('id', 'email', 'first_name', 'last_name')->where('is_deleted', false);
     }
     public function usersyncs()
     {
@@ -82,7 +84,7 @@ class User extends Authenticatable implements JWTSubject
         $menus = [];
         $menuIndex = [];
         foreach ($groupMenus as $groupMenu) {
-            if ($groupMenu->menu && $groupMenu->menu->parent_id==null) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id == null) {
                 $menuIndex[$groupMenu->menu->id] = count($menus);
                 $groupMenu->menu->elements = [];
                 unset($groupMenu->menu->created_at);
@@ -92,7 +94,7 @@ class User extends Authenticatable implements JWTSubject
             }
         }
         foreach ($groupMenus as $groupMenu) {
-            if ($groupMenu->menu && $groupMenu->menu->parent_id!=null) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id != null) {
                 $parent_id = $groupMenu->menu->parent_id;
                 if (!isset($menuIndex[$parent_id])) {
                     $menuIndex[$parent_id] = count($menus);
