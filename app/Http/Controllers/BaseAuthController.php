@@ -106,7 +106,7 @@ class BaseAuthController extends Controller
         }
 
 
-        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-2 minutes"));
+        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-30 seconds"));
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->whereType("login")->first();
         if (!$smsValidation) {
             return (new UserResource(null))->additional([
@@ -115,7 +115,7 @@ class BaseAuthController extends Controller
         }
         if (strtotime($smsValidation->created_at) <= strtotime($twoMinBefore)) {
             return (new UserResource(null))->additional([
-                'errors' => ['OTP' => ['two minutes time out']],
+                'errors' => ['OTP' => ['30 seconds time out']],
             ])->response()->setStatusCode(406);
         }
         if ($smsValidation->code !== $request->input("otp")) {
@@ -137,7 +137,7 @@ class BaseAuthController extends Controller
     public function registerWithOTP(RegisterWithOPTRequest $request)
     {
         $request->validated();
-        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-2 minutes"));
+        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-30 seconds"));
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->whereType("register")->first();
         if (!$smsValidation) {
             return (new UserResource(null))->additional([
@@ -146,7 +146,7 @@ class BaseAuthController extends Controller
         }
         if (strtotime($smsValidation->created_at) <= strtotime($twoMinBefore)) {
             return (new UserResource(null))->additional([
-                'errors' => ['OTP' => ['two minutes time out']],
+                'errors' => ['OTP' => ['30 seconds time out']],
             ])->response()->setStatusCode(406);
         }
         if ($smsValidation->code !== $request->input("otp")) {
@@ -220,11 +220,11 @@ class BaseAuthController extends Controller
         if (User::whereEmail($email)->first()) {
             $type  = "login";
         }
-        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-2 minutes"));
+        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-30 seconds"));
         $canSendSms = SmsValidation::where('mobile', $email)->first();
         if ($canSendSms && strtotime($canSendSms->created_at) > strtotime($twoMinBefore)) {
             return (new UserResource(null))->additional([
-                'errors' => ['soon_request' => ['you may wait more than two minutes']],
+                'errors' => ['soon_request' => ['30 seconds time out']],
             ])->response()->setStatusCode(406);
         }
         SmsValidation::where('mobile', $email)->delete();
