@@ -124,6 +124,7 @@ class BaseAuthController extends Controller
             ])->response()->setStatusCode(406);
         }
 
+        $smsValidation->delete();
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
         return $this->createNewToken($token);
