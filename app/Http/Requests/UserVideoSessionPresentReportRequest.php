@@ -7,7 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class UserVideoSessionReportRequest extends FormRequest
+class UserVideoSessionPresentReportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

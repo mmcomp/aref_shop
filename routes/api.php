@@ -12,7 +12,6 @@ use App\Http\Controllers\ProductDetailVideosController;
 use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ChatMessageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryOnesController;
@@ -27,7 +26,7 @@ use App\Http\Controllers\UserDescriptionsController;
 use App\Http\Controllers\VideoSessionFilesController;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\UserProductController;
-use App\Http\Controllers\UserVideoSessionController;
+use App\Http\Controllers\UserVideoSessionPresentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -343,7 +342,7 @@ Route::group([
 // });
 Route::group([
     'middleware' => ['auth:api', 'can:user-video-session-admin'],
-    'prefix' => 'user-video-sessions',
+    'prefix' => 'user-video-session-presents',
 ], function ($router) {
-    Route::get('/report', [UserVideoSessionController::class, 'report']);
+    Route::get('/report', [UserVideoSessionPresentController::class, 'report']);
 });
