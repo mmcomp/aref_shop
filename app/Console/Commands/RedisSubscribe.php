@@ -17,7 +17,7 @@ class RedisSubscribe extends Command
      *
      * @var string
      */
-    protected $signature = 'redis:subscribe';
+    protected $signature = 'chat:subscribe';
 
     /**
      * The console command description.
@@ -44,20 +44,21 @@ class RedisSubscribe extends Command
     public function handle()
     {
         $client = new Client();
-        Redis::subscribe(['test-channel'], function ($message) use ($client) {
+        Redis::subscribe([env('REDIS_CHAT_CHANEL','chat-channel')], function ($message) use ($client) {
             Log::info("message recieved " . $message);
+            $chatData = json_decode($message);
             $values = $client->hgetall(env('REDIS_PREFIX', 'aref_shop_') . 'user');
             $userId = 0;
             foreach ($values as $user_id => $token) {
-                if ($token == json_decode($message)->Token) {
+                if ($token == $chatData->Token) {
                     $userId = $user_id;
                 }
             }
             ChatMessage::create([
                 'users_id' => $userId,
                 'ip_address' => "",
-                'video_sessions_id' => json_decode($message)->Data->video_sessions_id,
-                'message' => json_decode($message)->Data->msg
+                'video_sessions_id' => $chatData->Data->video_session_id,
+                'message' => $chatData->Data->msg
             ]);
         });
     }
