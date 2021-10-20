@@ -44,12 +44,13 @@ class AbsencePresenceSubscribe extends Command
         Redis::subscribe([env('REDIS_PRESENCE_CHANEL','absence-presence-channel')], function ($message) {
             //Log::info('absence-presence-channel ' . $message);
             $json_decode_message = json_decode($message, true);
-            $product_detail_videos_id = $json_decode_message["product_detail_viedos_id"];
-            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($product_detail_videos_id);
+            // $product_detail_videos_id = $json_decode_message["product_detail_viedos_id"];
+            // $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($product_detail_videos_id);
+            $video_sessions_id = $json_decode_message["videoSessionId"];
             $users_id = $json_decode_message["users_id"];
             $type = $json_decode_message["type"];
             $isFirst = isset($json_decode_message["isFirst"]) && $json_decode_message["isFirst"];
-            $user_video_session_presents = UserVideoSessionPresent::where('video_sessions_id', $product_detail_video->video_sessions_id)->where('users_id', $users_id)->first();
+            $user_video_session_presents = UserVideoSessionPresent::where('video_sessions_id', $video_sessions_id)->where('users_id', $users_id)->first();
             if ($user_video_session_presents) {
                 if ($type == "online") {
                     $user_video_session_presents->online_exited_at = now();
@@ -76,7 +77,7 @@ class AbsencePresenceSubscribe extends Command
                 //insert into UserVideoSessionPresent
                 $user_video_session_presents = new UserVideoSessionPresent;
                 $user_video_session_presents->users_id = $users_id;
-                $user_video_session_presents->video_sessions_id = $product_detail_video->video_sessions_id;
+                $user_video_session_presents->video_sessions_id = $video_sessions_id;
                 if ($type == "online") {
                     $user_video_session_presents->online_started_at = now();
                 } else if ($type == "offline") {
