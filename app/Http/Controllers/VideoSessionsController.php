@@ -216,10 +216,10 @@ class VideoSessionsController extends Controller
             $query->where('type', 'package')->where('is_deleted', false);
         })->where('partial', 0)->pluck('users_id');
         $childData = [];
-        foreach($userIdsForPackages as $userId) {
+        foreach ($userIdsForPackages as $userId) {
             foreach ($child_products as $child_product) {
                 $found_product = UserProduct::where('users_id', $userId)->where('products_id', $child_product)->first();
-                if(!$found_product) {
+                if (!$found_product) {
                     $childData[] = [
                         'users_id' => $userId,
                         'products_id' => $child_product,
@@ -232,7 +232,7 @@ class VideoSessionsController extends Controller
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
                     foreach ($videoSessionIds as $video_session_id) {
                         $found_user_video_session = UserVideoSession::where('users_id', $userId)->where('video_sessions_id', $video_session_id)->first();
-                        if(!$found_user_video_session) {
+                        if (!$found_user_video_session) {
                             $data1[] = [
                                 'users_id' => $userId,
                                 'video_sessions_id' => $video_session_id,
@@ -240,7 +240,6 @@ class VideoSessionsController extends Controller
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                             ];
                         }
-
                     }
                 }
             }
@@ -309,10 +308,10 @@ class VideoSessionsController extends Controller
         })->where('partial', 0)->pluck('users_id');
         $childData = [];
         $data1 = [];
-        foreach($userIdsForPackages as $userId) {
+        foreach ($userIdsForPackages as $userId) {
             foreach ($child_products as $child_product) {
                 $found_product = UserProduct::where('users_id', $userId)->where('products_id', $child_product)->first();
-                if(!$found_product) {
+                if (!$found_product) {
                     $childData[] = [
                         'users_id' => $userId,
                         'products_id' => $child_product,
@@ -325,7 +324,7 @@ class VideoSessionsController extends Controller
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
                     foreach ($videoSessionIds as $video_session_id) {
                         $found_user_video_session = UserVideoSession::where('users_id', $userId)->where('video_sessions_id', $video_session_id)->first();
-                        if(!$found_user_video_session) {
+                        if (!$found_user_video_session) {
                             $data1[] = [
                                 'users_id' => $userId,
                                 'video_sessions_id' => $video_session_id,
@@ -333,7 +332,6 @@ class VideoSessionsController extends Controller
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                             ];
                         }
-
                     }
                 }
             }
@@ -379,6 +377,8 @@ class VideoSessionsController extends Controller
                 "single_purchase" => $request->input('single_purchase'),
                 "extraordinary" => $request->input('extraordinary'),
                 "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0,
+                "free_conference_start_mode" => $request->input('free_conference_start_mode'),
+                "free_conference_description" => $request->input('free_conference_description'),
             ]);
             $video_sesssion->update([
                 'start_date' => $request->input('date'),

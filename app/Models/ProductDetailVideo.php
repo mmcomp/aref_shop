@@ -8,15 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class ProductDetailVideo extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
-      'name', 
-      'products_id',
-      'price',
-      'video_sessions_id',
-      'extraordinary',
-      'single_purchase',
-      'is_hidden'
+        'name',
+        'products_id',
+        'price',
+        'video_sessions_id',
+        'extraordinary',
+        'single_purchase',
+        'is_hidden',
+        'free_conference_start_mode',
+        'free_conference_description'
     ];
 
     public function product()

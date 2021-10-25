@@ -156,6 +156,13 @@ Route::group(['middleware' => 'user'], function(){
     ], function ($router) {
         Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
     });
+
+    Route::group([
+        'prefix' => 'product-detail-videos',
+    ], function ($router) {
+        Route::get('/get-conference-info/{id}', [ProductDetailVideosController::class, 'conferenceInfo']);
+    });
+
     Route::group([
         'middleware' => ['auth:api', 'can:user-description-for-user'],
         'prefix' => 'user-descriptions'

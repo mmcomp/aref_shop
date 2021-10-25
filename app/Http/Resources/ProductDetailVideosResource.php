@@ -38,6 +38,8 @@ class ProductDetailVideosResource extends JsonResource
                 'single_purchase' => $this->single_purchase,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
+                'free_conference_start_mode' => $this->free_conference_start_mode,
+                'free_conference_description' => $this->free_conference_description,
             ];
         }
     }

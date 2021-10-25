@@ -29,6 +29,7 @@ class ProductDetailVideoIndexRequest extends FormRequest
             'sort' => 'required_with:type|in:id,name,products_id,price,video_sessions_id',
             'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
+            
         ];
     }
     /**
