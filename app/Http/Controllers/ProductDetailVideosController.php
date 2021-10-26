@@ -103,7 +103,6 @@ class ProductDetailVideosController extends Controller
      */
     public function update(ProductDetailVideosEditRequest $request, $id)
     {
-        dd($request);
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
         $updatePreviousBuyers = new UpdatePreviousByers;
         $updatePreviousBuyers->update($request, $product_detail_video);

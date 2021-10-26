@@ -11,13 +11,13 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\PaymentController;
-use App\Http\Controllers\User\UserProductsController;
 use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\UserVideoSessionHomeWorkController;
 use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\UserDescriptionsController;
 use App\Http\Controllers\User\ProductCommentController;
 use App\Http\Controllers\User\VideoSessionsController;
+use App\Http\Controllers\User\ConferenceUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -161,6 +161,13 @@ Route::group(['middleware' => 'user'], function(){
         'prefix' => 'product-detail-videos',
     ], function ($router) {
         Route::get('/get-conference-info/{id}', [ProductDetailVideosController::class, 'conferenceInfo']);
+    });
+
+    Route::group([
+        'middleware' => ['auth:api'],
+        'prefix' => 'conference-users',
+    ], function ($router) {
+        Route::post('/add-user', [ConferenceUserController::class, 'store']);
     });
 
     Route::group([

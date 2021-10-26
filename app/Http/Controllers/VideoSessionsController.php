@@ -379,6 +379,7 @@ class VideoSessionsController extends Controller
                 "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0,
                 "free_conference_start_mode" => $request->input('free_conference_start_mode'),
                 "free_conference_description" => $request->input('free_conference_description'),
+                "free_conference_before_start_text" => $request->input('free_conference_before_start_text'),
             ]);
             $video_sesssion->update([
                 'start_date' => $request->input('date'),

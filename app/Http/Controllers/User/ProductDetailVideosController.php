@@ -45,7 +45,14 @@ class ProductDetailVideosController extends Controller
 
     public function conferenceInfo($id)
     {
-        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->select(['free_conference_description', 'free_conference_start_mode','name','products_id'])->find($id);
+        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->select(
+            [
+                'free_conference_description',
+                'free_conference_start_mode',
+                'name',
+                'products_id'
+            ]
+        )->find($id);
         if ($product_detail_video != null) {
             return (new ProductDetailVideosResourceForConference($product_detail_video))->additional([
                 'errors' => null,

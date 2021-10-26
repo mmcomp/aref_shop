@@ -18,7 +18,8 @@ class ProductDetailVideo extends Model
         'single_purchase',
         'is_hidden',
         'free_conference_start_mode',
-        'free_conference_description'
+        'free_conference_description',
+        'free_conference_before_start_text'
     ];
 
     public function product()
