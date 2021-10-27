@@ -5,6 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\ConferenceUser;
 use Illuminate\Http\Request;
+use App\Http\Requests\User\ConferenceUserRequest;
+use App\Http\Resources\User\ConferenceUserResource;
+
 
 class ConferenceUserController extends Controller
 {
@@ -21,12 +24,19 @@ class ConferenceUserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\User\ConferenceUserRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ConferenceUserRequest $request)
     {
-        //
+        $conferenceUser = ConferenceUser::create([
+            'product_detail_videos_id' => $request->product_detail_videos_id,
+            'users_id' => $request->users_id,
+            'referrer' => $request->referrer,
+        ]);
+        return (new ConferenceUserResource($conferenceUser))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     /**
