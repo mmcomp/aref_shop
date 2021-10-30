@@ -37,16 +37,28 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
     {
         Log::info("CRM_ADD_STUDENT");
         try {
-            Log::info("CRM_ADD_STUDENT_Try".json_encode($this->user));
-            $response = Http::post('http://crm.aref-group.ir/api/students', [
-                "students" => [
-                    0 => [
-                        "phone" => $this->user->email,
-                        "last_name" => $this->user->last_name,
-                        'introducing'=>'عضویت در سایت'
+            Log::info("CRM_ADD_STUDENT_Try" . json_encode($this->user));
+            // $response = Http::post(env('CRM_ADD_STUDENT_URL'), [
+            //     "students" => [
+            //         0 => [
+            //             "phone" => $this->user->email,
+            //             "last_name" => $this->user->last_name,
+            //             'introducing' => 'عضویت در سایت'
+            //         ],
+            //     ],
+            // ]);
+
+            $response = Http::withoutVerifying()
+                ->withOptions(["verify" => false])->post(env('CRM_ADD_STUDENT_URL'), [
+                    "students" => [
+                        0 => [
+                            "phone" => $this->user->email,
+                            "last_name" => $this->user->last_name,
+                            'introducing' => 'عضویت در سایت'
+                        ],
                     ],
-                ],
-            ])->withOptions(["verify"=>false]);
+                ]);
+
             Log::info("CRM_ADD_STUDENT_SUCCESS");
             if ($response->getStatusCode() == 200) {
                 Log::info("CRM_ADD_STUDENT_SUCCESS_200");
@@ -56,7 +68,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
                     "error_message" => null,
                 ]);
             } else {
-                Log::info("CRM_ADD_STUDENT_SUCCESS:".$response->getStatusCode());
+                Log::info("CRM_ADD_STUDENT_SUCCESS:" . $response->getStatusCode());
                 UserSync::create([
                     "users_id" => $this->user->id,
                     "status" => "failed",
