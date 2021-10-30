@@ -49,7 +49,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
             // ]);
 
             $response = Http::withoutVerifying()
-                ->withOptions(["verify" => false])->post(env('CRM_ADD_STUDENT_URL'), [
+                ->withOptions(["verify" => false])->post("http://crm.aref-group.ir/api/students", [
                     "students" => [
                         0 => [
                             "phone" => $this->user->email,
