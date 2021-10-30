@@ -48,18 +48,18 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
             //     ],
             // ]);
 
-            // $response = Http::withoutVerifying()
-            //     ->withOptions(["verify" => false])->post("http://crm.aref-group.ir/api/students", [
-            //         "students" => [
-            //             0 => [
-            //                 "phone" => $this->user->email,
-            //                 "last_name" => $this->user->last_name,
-            //                 'introducing' => 'عضویت در سایت'
-            //             ],
-            //         ],
-            //     ]);
+            $response = Http::withoutVerifying()
+                ->withOptions(["verify" => false])->post("http://crm.aref-group.ir/api/students", [
+                    "students" => [
+                        0 => [
+                            "phone" => $this->user->email,
+                            "last_name" => $this->user->last_name,
+                            'introducing' => 'عضویت در سایت'
+                        ],
+                    ],
+                ]);
 
-            // Log::info("CRM_ADD_STUDENT_SUCCESS");
+            Log::info("CRM_ADD_STUDENT_SUCCESS");
             // if ($response->getStatusCode() == 200) {
             //     Log::info("CRM_ADD_STUDENT_SUCCESS_200");
             //     UserSync::create([
