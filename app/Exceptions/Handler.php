@@ -46,7 +46,6 @@ class Handler extends ExceptionHandler
 
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        Log::info('AuthenticationException '. $exception);
         return response()->json(['errors' => ['authentication' => ['Unauthenticated.']]], 401);
     } 
     public function handleException($request, Exception $exception)

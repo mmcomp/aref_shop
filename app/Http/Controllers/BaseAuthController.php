@@ -52,7 +52,6 @@ class BaseAuthController extends Controller
     {
         Log::info("Start Redis : " . json_encode($user));
         $value = Redis::hGet('user', $user->id);
-        Log::info("Check Token : '$value' =? '$token'");
         // if($value != $token) {
         //    $res = Redis::publish('node', json_encode([
         //     'id' => $user->id,
