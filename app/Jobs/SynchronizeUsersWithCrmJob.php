@@ -38,7 +38,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
         Log::info("CRM_ADD_STUDENT");
         try {
             Log::info("CRM_ADD_STUDENT_Try".json_encode($this->user));
-            $response = Http::post(env('CRM_ADD_STUDENT_URL'), [
+            $response = Http::post('http://crm.aref-group.ir/api/students', [
                 "students" => [
                     0 => [
                         "phone" => $this->user->email,
