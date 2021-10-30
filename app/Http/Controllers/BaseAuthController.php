@@ -170,8 +170,9 @@ class BaseAuthController extends Controller
 
         $smsValidation->delete();
 
-        Log::info("Before_Sync");
-        SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
+        Log::info("Before_Sync".Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT'))->format("YYYY/mm/dd H:i:s") );
+        //SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
+        SynchronizeUsersWithCrmJob::dispatch($user)->delay(now());
 
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
