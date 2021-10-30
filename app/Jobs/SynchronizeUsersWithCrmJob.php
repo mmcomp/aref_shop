@@ -46,7 +46,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
                         'introducing'=>'عضویت در سایت'
                     ],
                 ],
-            ],['verify' => false]);
+            ])->withOptions(["verify"=>false]);
             Log::info("CRM_ADD_STUDENT_SUCCESS");
             if ($response->getStatusCode() == 200) {
                 Log::info("CRM_ADD_STUDENT_SUCCESS_200");
