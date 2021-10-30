@@ -48,33 +48,33 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
             //     ],
             // ]);
 
-            $response = Http::withoutVerifying()
-                ->withOptions(["verify" => false])->post("http://crm.aref-group.ir/api/students", [
-                    "students" => [
-                        0 => [
-                            "phone" => $this->user->email,
-                            "last_name" => $this->user->last_name,
-                            'introducing' => 'عضویت در سایت'
-                        ],
-                    ],
-                ]);
+            // $response = Http::withoutVerifying()
+            //     ->withOptions(["verify" => false])->post("http://crm.aref-group.ir/api/students", [
+            //         "students" => [
+            //             0 => [
+            //                 "phone" => $this->user->email,
+            //                 "last_name" => $this->user->last_name,
+            //                 'introducing' => 'عضویت در سایت'
+            //             ],
+            //         ],
+            //     ]);
 
-            Log::info("CRM_ADD_STUDENT_SUCCESS");
-            if ($response->getStatusCode() == 200) {
-                Log::info("CRM_ADD_STUDENT_SUCCESS_200");
-                UserSync::create([
-                    "users_id" => $this->user->id,
-                    "status" => "successful",
-                    "error_message" => null,
-                ]);
-            } else {
-                Log::info("CRM_ADD_STUDENT_SUCCESS:" . $response->getStatusCode());
-                UserSync::create([
-                    "users_id" => $this->user->id,
-                    "status" => "failed",
-                    "error_message" => "the response was not successful" . $response->getStatusCode(),
-                ]);
-            }
+            // Log::info("CRM_ADD_STUDENT_SUCCESS");
+            // if ($response->getStatusCode() == 200) {
+            //     Log::info("CRM_ADD_STUDENT_SUCCESS_200");
+            //     UserSync::create([
+            //         "users_id" => $this->user->id,
+            //         "status" => "successful",
+            //         "error_message" => null,
+            //     ]);
+            // } else {
+            //     Log::info("CRM_ADD_STUDENT_SUCCESS:" . $response->getStatusCode());
+            //     UserSync::create([
+            //         "users_id" => $this->user->id,
+            //         "status" => "failed",
+            //         "error_message" => "the response was not successful" . $response->getStatusCode(),
+            //     ]);
+            // }
         } catch (Throwable $e) {
             Log::info("CRM ran into a problem in synchronize users!" . json_encode($e->getMessage()));
             UserSync::create([
