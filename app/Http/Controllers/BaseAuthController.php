@@ -170,6 +170,7 @@ class BaseAuthController extends Controller
 
         $smsValidation->delete();
 
+        Log::info("Before_Sync");
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
 
         $token = auth('api')->login($user);
