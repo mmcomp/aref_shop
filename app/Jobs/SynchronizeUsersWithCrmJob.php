@@ -43,7 +43,7 @@ class SynchronizeUsersWithCrmJob implements ShouldQueue
                     0 => [
                         "phone" => $this->user->email,
                         "last_name" => $this->user->last_name,
-                        'introducing'=>'پرتال'
+                        'introducing'=>'عضویت در سایت'
                     ],
                 ],
             ]);
