@@ -65,9 +65,7 @@ class BaseAuthController extends Controller
         $last_name = $user->last_name == null ? '' : $user->last_name;
         Redis::hSet('name', $user->id, $first_name . ' ' . $last_name);
         Redis::hSet('expires_in', $user->id, Carbon::now()->addDays(7));
-        Log::info("hSet : " . $token);
         $value = Redis::hGet('user', $user->id);
-        Log::info("hGet : " . $value);
     }
 
     /**
