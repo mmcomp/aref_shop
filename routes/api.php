@@ -101,10 +101,12 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductDetailChairsController::class, 'index']);
+    Route::get('/product/{product_id}', [ProductDetailChairsController::class, 'productIndex']);
     Route::post('/add', [ProductDetailChairsController::class, 'store']);
     Route::get('/get-product-detail-chairs/{id}', [ProductDetailChairsController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailChairsController::class, 'update']);
     Route::delete('/{id}', [ProductDetailChairsController::class, 'destroy']);
+    
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailDownload'],
