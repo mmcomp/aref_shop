@@ -34,10 +34,10 @@ class ChairUniqueRange implements Rule
      */
     public function passes($attribute, $value)
     {
-        return ProductDetailChair::whereProductsId($this->productsId)->where(function ($query) use ($value) {
-            $query->where("start", "<=" , $value)->where("end", ">=", $value);
-        })->count() === 0;
-        
+        $count = ProductDetailChair::whereProductsId($this->productsId)->where(function ($query) use ($value) {
+            $query->where("start", "<=", $value)->where("end", ">=", $value);
+        })->where('is_deleted', false)->count();
+        return $count === 0;
     }
 
     /**

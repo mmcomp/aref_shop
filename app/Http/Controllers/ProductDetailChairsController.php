@@ -40,6 +40,21 @@ class ProductDetailChairsController extends Controller
      */
     public function store(ProductDetailChairsCreateRequest $request)
     {
+
+        $records_between = ProductDetailChair::whereProductsId($request->products_id)
+            ->where('start', '>=', $request->start)
+            ->where('end', '<=', $request->end)
+            ->count();
+        if ($records_between > 0) {
+            return (new ProductDetailChairsResource(null))->additional([
+                'errors' => [
+                    'rangeNumber' => [
+                        'chairs number already registerd'
+                    ]
+                ]
+            ])->response()->setStatusCode(422);
+        }
+
         $product_detail_chair = ProductDetailChair::create($request->all());
         return (new ProductDetailChairsResource($product_detail_chair))->additional([
             'errors' => null
@@ -97,9 +112,9 @@ class ProductDetailChairsController extends Controller
     {
         $product_detail_chair = ProductDetailChair::where('is_deleted', false)->find($id);
         if ($product_detail_chair != null) {
-            $product_detail_chair->is_deleted = 1;
+
             try {
-                $product_detail_chair->save();
+                $product_detail_chair->delete();
                 return (new ProductDetailChairsResource(null))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(204);

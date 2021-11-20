@@ -43,7 +43,12 @@ class ProductDetailChairsCreateRequest extends FormRequest
                 'integer',
                 $chairUniqueRange
             ],
-            'end' => 'required|integer|gt:start',
+            'end' => [
+                'required',
+                'integer',
+                'gt:start',
+                $chairUniqueRange
+            ],
             'price' => 'required|integer',
             'description' => 'required|string|max:1000'
         ];
