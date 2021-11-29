@@ -11,6 +11,7 @@ class ConferenceUser extends Model
     protected $fillable = [
         'product_detail_videos_id',
         'users_id',
-        'referrer'
+        'referrer',
+        'already_registerd'
      ];
 }

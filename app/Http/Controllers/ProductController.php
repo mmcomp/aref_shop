@@ -467,4 +467,11 @@ class ProductController extends Controller
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
     }
+
+    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id){
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);
+        return [];
+    }
 }

@@ -33,6 +33,7 @@ class ConferenceUserController extends Controller
             'product_detail_videos_id' => $request->product_detail_videos_id,
             'users_id' => $request->users_id,
             'referrer' => $request->referrer,
+            'already_registerd' => $request->already_registerd
         ]);
         return (new ConferenceUserResource($conferenceUser))->additional([
             'errors' => null,

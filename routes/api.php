@@ -94,6 +94,7 @@ Route::group([
     Route::post('/search', [ProductController::class, 'search']);
     Route::get('/get-videos/{id}', [ProductController::class, 'ListOfVideosOfAProduct']);
     Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct']);
+    Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailChair'],

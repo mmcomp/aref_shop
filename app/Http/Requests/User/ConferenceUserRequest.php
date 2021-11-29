@@ -41,7 +41,11 @@ class ConferenceUserRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 })
             ],
-            'referrer'=> 'nullable|string|max:4096'
+            'referrer' => 'nullable|string|max:4096',
+            'already_registerd' => [
+                'string',
+                Rule::in(['yes', 'no'])
+            ],
         ];
     }
     /**
