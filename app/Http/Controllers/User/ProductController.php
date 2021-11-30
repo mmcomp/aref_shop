@@ -14,6 +14,8 @@ use App\Http\Resources\ProductDetailPackagesResource;
 use App\Utils\GetNameOfSessions;
 use App\Utils\RaiseError;
 use App\Models\Product;
+use App\Models\ProductDetailChair;
+use App\Http\Resources\UserProductChairsResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -141,5 +143,26 @@ class ProductController extends Controller
         return (new ProductDetailPackagesResource(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
+    }
+
+    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id)
+    {
+        $per_page = request()->get('per_page');
+        $product_detail_chairs = ProductDetailChair::where('is_deleted', false)
+            ->whereProductsId($id)
+            ->orderBy('start', 'asc');
+        if ($per_page == "all") {
+            $product_detail_chairs = $product_detail_chairs->get();
+        } else {
+            $product_detail_chairs = $product_detail_chairs->paginate(env('PAGE_COUNT'));
+        }
+        $reserved_chairs = [13, 14];
+        $newCollection = [
+            'chairs' => $product_detail_chairs,
+            'reserved_chairs' => $reserved_chairs
+        ];
+        return (new UserProductChairsResource($newCollection))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

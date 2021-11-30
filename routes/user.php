@@ -69,6 +69,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/getProduct/{id}',[ProductController::class,'show']);
         Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
+        Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
     });
     Route::group([
         'middleware' =>['auth:api'],

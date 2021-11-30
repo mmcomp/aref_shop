@@ -69,7 +69,6 @@ class ProductDetailChairsController extends Controller
      */
     public function show($id)
     {
-
         $product_detail_chair = ProductDetailChair::where('is_deleted', false)->find($id);
         if ($product_detail_chair != null) {
             return (new ProductDetailChairsResource($product_detail_chair))->additional([
