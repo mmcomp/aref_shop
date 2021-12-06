@@ -27,6 +27,7 @@ use App\Http\Controllers\VideoSessionFilesController;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\UserVideoSessionPresentController;
+use App\Http\Controllers\ConferenceUsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -349,3 +350,12 @@ Route::group([
 ], function ($router) {
     Route::get('/report', [UserVideoSessionPresentController::class, 'report']);
 });
+
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'conference_users',
+], function ($router) {
+    
+   Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'show']);
+});
+
