@@ -20,8 +20,8 @@ class ConferenceUsersShowResource extends JsonResource
             "lastName" =>  $this->last_name,
             "referrer" => $this->referrer, 
             "productDetailVideosId" => $this->product_detail_videos_id,
-            "name" => $this->name,
-            "alreadyRegistered"=>$this->already_registerd        
+            //"name" => $this->name,
+            //"alreadyRegistered"=>$this->already_registerd        
         ];
     }
 }
