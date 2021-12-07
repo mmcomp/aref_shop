@@ -353,7 +353,7 @@ Route::group([
 
 Route::group([
     'middleware' => ['auth:api'],
-    'prefix' => 'conference_users',
+    'prefix' => 'conference-users',
 ], function ($router) {
     
    Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'showReport']);
