@@ -19,7 +19,7 @@ class ConferenceUsersController extends Controller
     { 
         $result=DB::table("conference_users")
         ->leftJoin('users','users.id','=','users_id')
-        ->select('email','first_name','last_name' , 'referrer' , 'product_detail_videos_id')    
+        ->select('email','first_name','last_name','already_registerd' , 'referrer' , 'product_detail_videos_id')    
         ->where('product_detail_videos_id',"$product_detail_videos_id")
         ->groupBy('email')
         //->paginate(2);
