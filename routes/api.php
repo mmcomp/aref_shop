@@ -356,6 +356,7 @@ Route::group([
     'prefix' => 'conference_users',
 ], function ($router) {
     
-   Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'show']);
+   Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'showReport']);
+   Route::get('/getall',[ConferenceUsersController::class, 'index']);
 });
 
