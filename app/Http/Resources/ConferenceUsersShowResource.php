@@ -15,13 +15,13 @@ class ConferenceUsersShowResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "mobile" => $this->email,
-            "firstName" => $this->first_name,
-            "lastName" =>  $this->last_name,
+            "email" => $this->email,
+            "first_name" => $this->first_name,
+            "last_name" =>  $this->last_name,
             "referrer" => $this->referrer, 
-            "productDetailVideosId" => $this->product_detail_videos_id,
+            "product_detail_videos_id" => $this->product_detail_videos_id,
             //"name" => $this->name,
-            //"alreadyRegistered"=>$this->already_registerd        
+            "already_registerd"=>$this->already_registerd        
         ];
     }
 }
