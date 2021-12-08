@@ -158,7 +158,7 @@ class ProductController extends Controller
         } else {
             $product_detail_chairs = $product_detail_chairs->paginate(env('PAGE_COUNT'));
         }
-        $reserved_chairs =self::GetListOfChairs($id); //[13, 14];//self::GetListOfChairs($id);
+        $reserved_chairs =self::GetListOfReservedChairs($id); //[13, 14];//self::GetListOfChairs($id);
         $newCollection = [
             'chairs' => $product_detail_chairs,
             'reserved_chairs' => $reserved_chairs
@@ -168,7 +168,7 @@ class ProductController extends Controller
         ])->response()->setStatusCode(200);
 
     }
-    public function GetListOfChairs($product_id)
+    public function GetListOfReservedChairs($product_id)
     {        
         $result=DB::table('products')
         ->leftjoin('order_details','products.id','=','order_details.products_id')
