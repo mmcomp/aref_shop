@@ -178,13 +178,16 @@ class ProductController extends Controller
         ->where('products.id',$product_id)
         //->pluck('chair_number')
         ->where('orders.status','=',"ok")
-        ->get()->filter(function ($item, $key) {
+        ->get()        
+        ->filter(function ($item, $key) {
             return $item->chair_number;
-        })->map(function ($item, $key) {
-            return $item->chair_number;
-        }); 
-        return  (["data"=>$result]);    
-        //return response()->json(["data"=>$result],200);
+        })
+        ->map(function ($item, $key) {
+             return $item->chair_number;
+         }); 
+         //dd($result);
+        //return GetListOfChairsResource::collection($result);    
+        return response()->json(["data"=>$result],200);
     }
 
 }
