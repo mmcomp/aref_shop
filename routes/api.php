@@ -357,6 +357,6 @@ Route::group([
 ], function ($router) {
     
    Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'showReport']);
-   Route::get('/getall',[ConferenceUsersController::class, 'index']);
+   Route::get('/getall',[ConferenceUsersController::class, 'index']);   
 });
 

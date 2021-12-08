@@ -16,10 +16,12 @@ use App\Utils\RaiseError;
 use App\Models\Product;
 use App\Models\ProductDetailChair;
 use App\Http\Resources\UserProductChairsResource;
+use App\Http\Resources\GetListOfChairsResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
+use DB;
 
 class ProductController extends Controller
 {
@@ -156,7 +158,7 @@ class ProductController extends Controller
         } else {
             $product_detail_chairs = $product_detail_chairs->paginate(env('PAGE_COUNT'));
         }
-        $reserved_chairs = [13, 14];
+        $reserved_chairs =self::GetListOfChairs($id); //[13, 14];//self::GetListOfChairs($id);
         $newCollection = [
             'chairs' => $product_detail_chairs,
             'reserved_chairs' => $reserved_chairs
@@ -164,5 +166,25 @@ class ProductController extends Controller
         return (new UserProductChairsResource($newCollection))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+
     }
+    public function GetListOfChairs($product_id)
+    {        
+        $result=DB::table('products')
+        ->leftjoin('order_details','products.id','=','order_details.products_id')
+        ->leftjoin('orders','orders.id','=','order_details.orders_id')
+        ->leftjoin('order_chair_details','order_chair_details.order_details_id','=','order_details.id')
+        ->select('chair_number') 
+        ->where('products.id',$product_id)
+        //->pluck('chair_number')
+        ->where('orders.status','=',"ok")
+        ->get()->filter(function ($item, $key) {
+            return $item->chair_number;
+        })->map(function ($item, $key) {
+            return $item->chair_number;
+        }); 
+        return  (["data"=>$result]);    
+        //return response()->json(["data"=>$result],200);
+    }
+
 }

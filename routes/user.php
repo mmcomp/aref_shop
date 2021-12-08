@@ -21,6 +21,7 @@ use App\Http\Controllers\User\ConferenceUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -70,6 +71,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
         Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
+        Route::get('/getallChairs',[ProductController::class, 'GetListOfChairs']);
     });
     Route::group([
         'middleware' =>['auth:api'],
