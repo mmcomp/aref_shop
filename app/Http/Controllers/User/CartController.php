@@ -102,8 +102,8 @@ class CartController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request)
-    {
-
+    {   
+        dd("hh");     
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
