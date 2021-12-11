@@ -103,7 +103,7 @@ class CartController extends Controller
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request)
     {   
-        dd("hh");     
+        //dd("hh");     
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
