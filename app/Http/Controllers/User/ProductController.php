@@ -14,6 +14,7 @@ use App\Http\Resources\ProductDetailPackagesResource;
 use App\Utils\GetNameOfSessions;
 use App\Utils\RaiseError;
 use App\Models\Product;
+use App\Models\Order;
 use App\Models\ProductDetailChair;
 use App\Http\Resources\UserProductChairsResource;
 use App\Http\Resources\GetListOfChairsResource;
@@ -170,24 +171,38 @@ class ProductController extends Controller
     }
     public function GetListOfReservedChairs($product_id)
     {        
-        $result=DB::table('products')
-        ->leftjoin('order_details','products.id','=','order_details.products_id')
-        ->leftjoin('orders','orders.id','=','order_details.orders_id')
-        ->leftjoin('order_chair_details','order_chair_details.order_details_id','=','order_details.id')
-        ->select('chair_number') 
-        ->where('products.id',$product_id)
-        //->pluck('chair_number')
-        ->where('orders.status','=',"ok")
-        ->get()        
-        ->filter(function ($item, $key) {
-            return $item->chair_number;
-        })
-        ->map(function ($item, $key) {
-             return $item->chair_number;
-         }); 
-         //dd($result);
-        //return GetListOfChairsResource::collection($result);    
+        $result = $this->_GetListOfReservedChairs($product_id);
+  
         return response()->json(["data"=>$result],200);
     }
 
+    public function cleanProccessingOrders()
+    {
+        $fiftheenMinutesAgo = date('Y-m-d H:i:s', strtotime('- 15 minutes'));
+        Order::whereStatus('processing')
+            ->where('updated_at', '<=', $fiftheenMinutesAgo)
+            ->update([
+                'status' => 'waiting',
+            ]);
+    }
+
+    public function _GetListOfReservedChairs($product_id)
+    {
+        $result = DB::table('products')
+            ->leftjoin('order_details','products.id','=','order_details.products_id')
+            ->leftjoin('orders','orders.id','=','order_details.orders_id')
+            ->leftjoin('order_chair_details','order_chair_details.order_details_id','=','order_details.id')
+            ->select('chair_number') 
+            ->where('products.id',$product_id)
+            ->whereIn('orders.status',['ok', 'processing'])
+            ->get()        
+            ->filter(function ($item, $key) {
+                return $item->chair_number;
+            })
+            ->map(function ($item, $key) {
+                return $item->chair_number;
+            });
+
+        return $result;
+    }
 }

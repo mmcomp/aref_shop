@@ -35,20 +35,19 @@ class AddMicroProductToCartRequest extends FormRequest
                 })
             ],
             'product_details_id' => 'nullable|integer',
-
-            // 'type' => [
-            //     'nullable',
-            //     Rule ::in(['chair','video'])
-            // ],            
-            // "chairs" => [
-            //     'nullable',
-            //     'array',
-            //     "required_if:type,chair"
-            // ],
-            // "chairs.*" => ['nullable','distinct','integer','min:1']
-        
+            'type' => [
+                'nullable',
+                Rule ::in(['chair','video'])
+            ],            
+            "chairs" => [
+                'nullable',
+                'array',
+                "required_if:type,chair"
+            ],
+            "chairs.*" => ['nullable','distinct','integer','min:1']
         ];
     }
+
      /**
      * Configure the validator instance.
      *

@@ -103,8 +103,7 @@ class CartController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request)
-    {   
-        //dd("hh");     
+    {
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
@@ -153,14 +152,12 @@ class CartController extends Controller
             $orderDetail->price = $orderDetail->total_price_with_coupon;
             $orderDetail->save();
         } else if ($product->type == 'chairs') {
-            $query = [];
             foreach($request->chairs as $chair) {
-                $query[] = [
+                OrderChairDetail::create([
                     "order_details_id" => $orderDetail->id,
                     "chair_number"     => $chair,
-                ];
+                ]);
             }
-            OrderChairDetail::create($query);
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $sumOfOrderDetailPrices;
@@ -179,7 +176,7 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails')->first();
+        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails.orderChairDetails')->first();
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -398,6 +395,20 @@ class CartController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+    public function destroyChairMicroProduct($id)
+    {
+        $orderChairDetail = OrderChairDetail::whereId($id)->first();
+        $orderDetailId = $orderChairDetail->order_details_id;
+        OrderChairDetail::whereId($id)->delete();
+        $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
+        if ($count == 0) {
+            OrderDetail::whereId($orderDetailId)->delete();
+        }
+
+        return response([
+            'errors' => null,
+        ])->setStatusCode(201);
+    }
     // /**
     //  * insert into user_video_sessions and user_products when buying is completed
     //  *
@@ -477,11 +488,16 @@ class CartController extends Controller
      */
     public function completeBuying()
     {
-
         $user_id = Auth::user()->id;
         $buying = new Buying;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if ($order) {
+            $validation = $this->validateOrderChairs($order);
+            if (!$validation) {
+                return response([
+                    'errors' => 'some chairs are taken',
+                ])->setStatusCode(406);
+            }
             if (!$order->amount) {
                 $order->status = "ok";
                 $order->save();
@@ -493,7 +509,35 @@ class CartController extends Controller
                 return MellatPayment::pay($order);
             }
         }
+
+        return response([
+            'errors' => 'order not found',
+        ])->setStatusCode(404);
     }
+
+    public function validateOrderChairs($order)
+    {
+        $orderDetails = $order->orderDetails()->with('product')->with('orderChairDetails')->get()->where('product.type', 'chairs');
+        if (count($orderDetails) > 0) {
+            ProductController::cleanProccessingOrders();
+        }
+        foreach($orderDetails as $orderDetail) {
+            $productId = $orderDetail->products_id;
+            $chairs = [];
+            foreach($orderDetail->orderChairDetails as $orderChairDetails) {
+                $chairs[] = $orderChairDetails->chair_number;
+            }
+            if(count($chairs) > 0) {
+                $reserved = ProductController::_GetListOfReservedChairs($productId)->toArray();
+
+                if (count(array_intersect($chairs, $reserved)) > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * return from mellat bank
      *

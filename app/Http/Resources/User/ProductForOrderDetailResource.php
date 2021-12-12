@@ -18,6 +18,7 @@ class ProductForOrderDetailResource extends JsonResource
             return [
                 'id' => $this->id,
                 'name' => $this->name,
+                'type' => $this->type,
                 'main_image_thumb_path' => $this->main_image_thumb_path
             ];
         }
