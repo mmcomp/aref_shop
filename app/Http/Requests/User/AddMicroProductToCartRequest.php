@@ -36,31 +36,17 @@ class AddMicroProductToCartRequest extends FormRequest
             ],
             'product_details_id' => 'nullable|integer',
 
-            // 'type' => 'required_without:chairs',
-            // 'chairs' => 'required_without:Email',
-
-            'type' => [
-                'nullable',
-                Rule ::in(['chair','video'])
-            ],            
-            "chairs" => [
-                'nullable',
-                'array',
-                "required_if:type,chair"
-            ],
-            "chairs.*" => ['nullable','distinct','integer','min:1']
-           
-            
             // 'type' => [
-            //     'required_if:chairs.*,in:chair'
-            //     // 'required',
-            //     // Rule::exists(),
-            //     // Rule ::in(['chair','video'])
+            //     'nullable',
+            //     Rule ::in(['chair','video'])
+            // ],            
+            // "chairs" => [
+            //     'nullable',
+            //     'array',
+            //     "required_if:type,chair"
             // ],
-            // "chairs" => ['required_if:type','array'],
-            // "chairs.*" => ['required','distinct','integer','min:1']
-            // "names"    => "required|array|min:3",
-            // "names.*"  => "required|string|distinct|min:3",
+            // "chairs.*" => ['nullable','distinct','integer','min:1']
+        
         ];
     }
      /**
