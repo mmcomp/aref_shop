@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\Temp;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
+use App\Models\OrderChairDetail;
 use App\Models\Product;
 use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
@@ -151,6 +152,15 @@ class CartController extends Controller
             $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
             $orderDetail->price = $orderDetail->total_price_with_coupon;
             $orderDetail->save();
+        } else if ($product->type == 'chairs') {
+            $query = [];
+            foreach($request->chairs as $chair) {
+                $query[] = [
+                    "order_details_id" => $orderDetail->id,
+                    "chair_number"     => $chair,
+                ];
+            }
+            OrderChairDetail::create($query);
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $sumOfOrderDetailPrices;
