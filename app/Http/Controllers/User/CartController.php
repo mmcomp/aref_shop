@@ -24,6 +24,7 @@ use App\Models\Coupon;
 use App\Models\UserCoupon;
 use App\Models\ProductDetailPackage;
 use App\Models\Payment;
+use App\Models\ProductDetailChair;
 use App\Utils\Buying;
 use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
@@ -153,10 +154,31 @@ class CartController extends Controller
             $orderDetail->save();
         } else if ($product->type == 'chairs') {
             foreach($request->chairs as $chair) {
-                OrderChairDetail::firstOrCreate([
-                    "order_details_id" => $orderDetail->id,
-                    "chair_number"     => $chair,
-                ]);
+               $chair_price =ProductDetailChair::where('start','<=',$chair)
+                ->where('end','>=',$chair)
+                ->select('price')
+                ->first();
+                if($chair_price===null)                
+                    $chair_price=0;
+                else
+                    $chair_price =$chair_price["price"];
+
+                if( $chair_price>0) // in valid chair number insert in another table
+                {
+                    $order_chair_detail= OrderChairDetail::firstOrCreate([
+                        "order_details_id" => $orderDetail->id,
+                        "chair_number"     => $chair,                    
+                    ],
+                    [                    
+                            "order_details_id" =>  $orderDetail->id,
+                            "chair_number"     => $chair,
+                            "price" => $chair_price                  
+                    ]);
+                    //dd( $order_chair_detail["id"]);
+                    $add_chair_price=self::plusChairPrice($orderDetail->id,$chair_price);               
+                    
+                }    
+
             //    $isAlready=OrderChairDetail::where("order_details_id",'=',$orderDetail->id)
             //     ->where("chair_number",'=',$chair)
             //     ->first();
@@ -408,14 +430,20 @@ class CartController extends Controller
     }
     public function destroyChairMicroProduct($id)
     {
+       
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
         $orderDetailId = $orderChairDetail->order_details_id;
-        OrderChairDetail::whereId($id)->delete();
-        $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
-        if ($count == 0) {
-            OrderDetail::whereId($orderDetailId)->delete();
+        $chair_price=$orderChairDetail->price;
+        $del_price_chair=self::minusChairPrice($orderDetailId,$chair_price);
+        if($del_price_chair)
+        {
+            OrderChairDetail::whereId($id)->delete();
+            $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
+            if ($count == 0) {
+                OrderDetail::whereId($orderDetailId)->delete();
+            }
         }
-
+        
         return response([
             'errors' => null,
         ])->setStatusCode(201);
@@ -616,5 +644,32 @@ class CartController extends Controller
         return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
     }
 
-
+    public function plusChairPrice($order_detail_id,$chair_price)
+    {
+        $order_detail= OrderDetail::where('id',$order_detail_id)
+                ->first();
+               // dd( $order_detail["price"]);
+                if($order_detail!==null)
+                {
+                    $order_detail["price"]=$order_detail["price"] + $chair_price;
+                    $order_detail["total_price_with_coupon"]=$order_detail["total_price_with_coupon"] + $chair_price;
+                    $order_detail["total_price"]=$order_detail["total_price"] + $chair_price;
+                    $order_detail->save();
+                }
+    }
+    public function minusChairPrice($order_detail_id,$chair_price)
+    {
+        $order_detail= OrderDetail::where('id',$order_detail_id)
+                ->first();
+               // dd( $order_detail["price"]);
+                if($order_detail!==null)
+                {
+                    $order_detail["price"]=$order_detail["price"] - $chair_price;
+                    $order_detail["total_price_with_coupon"]=$order_detail["total_price_with_coupon"] - $chair_price;
+                    $order_detail["total_price"]=$order_detail["total_price"] - $chair_price;
+                    $order_detail->save();
+                    return true;
+                }
+                return false;
+    }
 }
