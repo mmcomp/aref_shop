@@ -103,7 +103,7 @@ class CartController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request)
-    {
+    {           
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
@@ -153,10 +153,17 @@ class CartController extends Controller
             $orderDetail->save();
         } else if ($product->type == 'chairs') {
             foreach($request->chairs as $chair) {
-                OrderChairDetail::create([
-                    "order_details_id" => $orderDetail->id,
-                    "chair_number"     => $chair,
-                ]);
+               $isAlready=OrderChairDetail::where("order_details_id",'=',$orderDetail->id)
+                ->where("chair_number",'=',$chair)
+                ->first();
+                if($isAlready===null)
+                {
+                    OrderChairDetail::create([
+                        "order_details_id" => $orderDetail->id,
+                        "chair_number"     => $chair,
+                    ]);
+                }
+               
             }
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
@@ -403,26 +410,6 @@ class CartController extends Controller
         $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
         if ($count == 0) {
             OrderDetail::whereId($orderDetailId)->delete();
-        }
-
-        return response([
-            'errors' => null,
-        ])->setStatusCode(201);
-    }
-    public function destroyChairMicroProductWithChairNumber($productId, $chairNumber)
-    {
-        $activeOrder = Order::where('users_id', Auth::user()->id)
-                        ->where('status', 'waiting')
-                        ->first();
-        $orderDetail = OrderDetail::where('products_id', $productId)
-                        ->where('orders_id', $activeOrder->id)
-                        ->first();
-        OrderChairDetail::where('order_details_id', $orderDetail->id)
-                            ->where('chair_number', $chairNumber)
-                            ->delete();
-        $count = OrderChairDetail::where('order_details_id', $orderDetail->id)->count();
-        if ($count == 0) {
-            OrderDetail::whereId($orderDetail->id)->delete();
         }
 
         return response([

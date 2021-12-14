@@ -171,12 +171,12 @@ class ProductController extends Controller
     }
     public function GetListOfReservedChairs($product_id)
     {        
-        $result = self::_GetListOfReservedChairs($product_id);
+        $result = $this->_GetListOfReservedChairs($product_id);
   
         return response()->json(["data"=>$result],200);
     }
 
-    public static function cleanProccessingOrders()
+    public function cleanProccessingOrders()
     {
         $fiftheenMinutesAgo = date('Y-m-d H:i:s', strtotime('- 15 minutes'));
         Order::whereStatus('processing')
@@ -186,7 +186,7 @@ class ProductController extends Controller
             ]);
     }
 
-    public static function _GetListOfReservedChairs($product_id)
+    public function _GetListOfReservedChairs($product_id)
     {
         $result = DB::table('products')
             ->leftjoin('order_details','products.id','=','order_details.products_id')
@@ -195,6 +195,7 @@ class ProductController extends Controller
             ->select('chair_number') 
             ->where('products.id',$product_id)
             ->whereIn('orders.status',['ok', 'processing'])
+            ->orderby('chair_number')
             ->get()        
             ->filter(function ($item, $key) {
                 return $item->chair_number;
