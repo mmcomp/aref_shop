@@ -153,16 +153,20 @@ class CartController extends Controller
             $orderDetail->save();
         } else if ($product->type == 'chairs') {
             foreach($request->chairs as $chair) {
-               $isAlready=OrderChairDetail::where("order_details_id",'=',$orderDetail->id)
-                ->where("chair_number",'=',$chair)
-                ->first();
-                if($isAlready===null)
-                {
-                    OrderChairDetail::create([
-                        "order_details_id" => $orderDetail->id,
-                        "chair_number"     => $chair,
-                    ]);
-                }
+                OrderChairDetail::firstOrCreate([
+                    "order_details_id" => $orderDetail->id,
+                    "chair_number"     => $chair,
+                ]);
+            //    $isAlready=OrderChairDetail::where("order_details_id",'=',$orderDetail->id)
+            //     ->where("chair_number",'=',$chair)
+            //     ->first();
+            //     if($isAlready===null)
+            //     {
+            //         OrderChairDetail::create([
+            //             "order_details_id" => $orderDetail->id,
+            //             "chair_number"     => $chair,
+            //         ]);
+            //     }
                
             }
         }
