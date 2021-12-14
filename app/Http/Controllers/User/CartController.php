@@ -409,6 +409,26 @@ class CartController extends Controller
             'errors' => null,
         ])->setStatusCode(201);
     }
+    public function destroyChairMicroProductWithChairNumber($productId, $chairNumber)
+    {
+        $activeOrder = Order::where('users_id', Auth::user()->id)
+                        ->where('status', 'waiting')
+                        ->first();
+        $orderDetail = OrderDetail::where('products_id', $productId)
+                        ->where('orders_id', $activeOrder->id)
+                        ->first();
+        OrderChairDetail::where('order_details_id', $orderDetail->id)
+                            ->where('chair_number', $chairNumber)
+                            ->delete();
+        $count = OrderChairDetail::where('order_details_id', $orderDetail->id)->count();
+        if ($count == 0) {
+            OrderDetail::whereId($orderDetail->id)->delete();
+        }
+
+        return response([
+            'errors' => null,
+        ])->setStatusCode(201);
+    }
     // /**
     //  * insert into user_video_sessions and user_products when buying is completed
     //  *

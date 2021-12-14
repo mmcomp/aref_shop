@@ -112,6 +112,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::delete('/{id}', [CartController::class, 'destroy']);
         Route::delete('/micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
         Route::delete('/chair/{id}', [CartController::class, 'destroyChairMicroProduct']);
+        Route::delete('/chair-product/{productId}/{chairNumber}', [CartController::class, 'destroyChairMicroProductWithChairNumber']);
         Route::get('/complete-buying',[CartController::class, 'completeBuying']);
     });
     Route::group([
