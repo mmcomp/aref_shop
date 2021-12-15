@@ -156,6 +156,7 @@ class CartController extends Controller
             foreach($request->chairs as $chair) {
                $chair_price =ProductDetailChair::where('start','<=',$chair)
                 ->where('end','>=',$chair)
+                ->where('products_id', $products_id)
                 ->select('price')
                 ->first();
                 if($chair_price===null)                
