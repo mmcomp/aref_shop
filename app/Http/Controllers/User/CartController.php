@@ -179,7 +179,9 @@ class CartController extends Controller
             }
             $add_chair_price=self::updateVideoDetailChairPrice($orderDetail->id); 
         }
+        //dd($order->id);
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        //dd($sumOfOrderDetailPrices);
         $order->amount = $sumOfOrderDetailPrices;
         $order->save();
         return (new OrderResource($order))->additional([
@@ -416,7 +418,9 @@ class CartController extends Controller
         ])->response()->setStatusCode(200);
     }
     public function destroyChairMicroProduct($id)
-    {       
+    { 
+        $user_id=Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
         if( $orderChairDetail!==null)
         {
@@ -432,6 +436,14 @@ class CartController extends Controller
                 if ($count == 0) {
                     OrderDetail::whereId($orderDetailId)->delete();
                 }
+               $order_detail= OrderDetail::where('id', $orderDetailId)->first();
+               if($order_detail!==null)
+               {
+                $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order_detail->orders_id)->sum('total_price_with_coupon');
+                $order->amount = $sumOfOrderDetailPrices;
+                $order->save();
+               }
+                
             }
         }       
 
@@ -441,6 +453,8 @@ class CartController extends Controller
     }
     public function destroyChairMicroProductWithChairNumber($productId, $chairNumber)
     {
+        $user_id=Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $activeOrder = Order::where('users_id', Auth::user()->id)
                         ->where('status', 'waiting')
                         ->first();
@@ -456,8 +470,11 @@ class CartController extends Controller
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetail->id);
                 $count = OrderChairDetail::where('order_details_id', $orderDetail->id)->count();
                 if ($count == 0) {
-                OrderDetail::whereId($orderDetail->id)->delete();
+                    OrderDetail::whereId($orderDetail->id)->delete();
                 }
+                $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $orderDetail->orders_id)->sum('total_price_with_coupon');
+                $order->amount = $sumOfOrderDetailPrices;
+                $order->save();
 
        }
 
