@@ -304,6 +304,7 @@ Route::group([
     Route::put('/add-coupon/{orders_id}', [OrderController::class, 'addCouponToTheCart']);
     Route::put('/delete-coupon/{orders_id}', [OrderController::class, 'deleteCouponFromCart']);
     Route::delete('/micro-product/{orders_id}/{order_details_id}', [OrderController::class, 'destroyMicroProduct']);
+    Route::delete('/chair/{id}', [OrderController::class, 'destroyChairMicroProduct']);
     Route::post('/complete-buying/{orders_id}', [OrderController::class, 'completeBuying']);
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
