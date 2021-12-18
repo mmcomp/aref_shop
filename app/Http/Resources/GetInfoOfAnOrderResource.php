@@ -24,7 +24,8 @@ class GetInfoOfAnOrderResource extends JsonResource
                 'amount' => $this->amount,
                 'comment' => $this->comment,
                 'order_status' => $this->status,
-                'orderDetail' => (new GetInfoOfAnOrderDetailCollection($this->orderDetails)),
+                'orderDetail' => (new OrderDetailCollection($this->orderDetails)),
+                // 'orderDetail' => (new GetInfoOfAnOrderDetailCollection($this->orderDetails)),
                 'payments' => (new PaymentCollection($this->payments)),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at

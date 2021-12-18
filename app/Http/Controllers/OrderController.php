@@ -48,7 +48,7 @@ class OrderController extends Controller
      */
     public function getInfoOfAnOrder(int $id)
     {
-        $order = Order::find($id);
+        $order = Order::whereId($id)->with('orderDetails.orderChairDetails')->first();
         if ($order != null) {
             return (new GetInfoOfAnOrderResource($order))->additional([
                 'errors' => null,
