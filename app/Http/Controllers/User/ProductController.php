@@ -159,7 +159,7 @@ class ProductController extends Controller
         } else {
             $product_detail_chairs = $product_detail_chairs->paginate(env('PAGE_COUNT'));
         }
-        $reserved_chairs =self::GetListOfReservedChairs($id); //[13, 14];//self::GetListOfChairs($id);
+        $reserved_chairs =self::_GetListOfReservedChairs($id);
         $newCollection = [
             'chairs' => $product_detail_chairs,
             'reserved_chairs' => $reserved_chairs
@@ -169,14 +169,8 @@ class ProductController extends Controller
         ])->response()->setStatusCode(200);
 
     }
-    public function GetListOfReservedChairs($product_id)
-    {        
-        $result = $this->_GetListOfReservedChairs($product_id);
-  
-        return response()->json(["data"=>$result],200);
-    }
 
-    public function cleanProccessingOrders()
+    public static function cleanProccessingOrders()
     {
         $fiftheenMinutesAgo = date('Y-m-d H:i:s', strtotime('- 15 minutes'));
         Order::whereStatus('processing')
@@ -186,7 +180,7 @@ class ProductController extends Controller
             ]);
     }
 
-    public function _GetListOfReservedChairs($product_id)
+    public static function _GetListOfReservedChairs($product_id)
     {
         $result = DB::table('products')
             ->leftjoin('order_details','products.id','=','order_details.products_id')
