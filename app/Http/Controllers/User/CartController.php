@@ -213,10 +213,11 @@ class CartController extends Controller
 
     public function addCouponToTheCart(AddCouponToTheCartRequest $request)
     {
-
+        
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
+        $product = Product::find($coupon->products_id);
         $products_id = $coupon->products_id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
@@ -232,7 +233,7 @@ class CartController extends Controller
                 'errors' => ["expired" => ["The discount code has been expired"]],
             ])->response()->setStatusCode(406);
         }
-        if ($orderDetail->all_videos_buy) {
+        if ($orderDetail->all_videos_buy && $product->type==="video") {
 
             $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
@@ -429,8 +430,7 @@ class CartController extends Controller
             //dd($orderDetailId);
             //$chair_price=$orderChairDetail->price;       
             if($orderDetailId!==null)
-            {
-                
+            {                
                 OrderChairDetail::whereId($id)->delete();
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
                 $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();

@@ -20,6 +20,9 @@ use App\Models\ProductDetailPackage;
 use App\Models\Coupon;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
+use App\Models\ProductDetailChair;
+use App\Models\OrderChairDetail;
+
 use App\Http\Requests\AddCouponToTheCartRequest;
 use App\Http\Requests\CancelBuyingOfAMicroProductRequest;
 use App\Http\Requests\CompleteBuyingRequest;
@@ -142,11 +145,11 @@ class OrderController extends Controller
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request, $orders_id)
     {
-
+       // dd("the admin is running");
         $raiseError = new RaiseError;
         $products_id = $request->input('products_id');
-        $product_details_id = $request->input('product_details_id');
-        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+        $product_details_id = $request->input('product_details_id');       
+        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();        
         $orderDetail = OrderDetail::where('orders_id', $orders_id)->where('products_id', $products_id)->first();
         $order = Order::find($orders_id);
         if (!$orderDetail) {
@@ -164,7 +167,10 @@ class OrderController extends Controller
                 'errors' => ['added_before' => ['already added!']],
             ])->response()->setStatusCode(406);
         }
-        if ($product->type == 'video') {
+        //dd($product->type);
+        if ($product->type == 'video') 
+        { 
+            //dd("vedio");           
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
             $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
@@ -183,6 +189,37 @@ class OrderController extends Controller
             $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
             $orderDetail->price = $orderDetail->total_price_with_coupon;
             $orderDetail->save();
+        }
+        else if($product->type == 'chairs')
+        {
+            ///dd("chairs");
+            foreach($request->chairs as $chair) {
+                $chair_price =ProductDetailChair::where('start','<=',$chair)
+                 ->where('end','>=',$chair)
+                 ->where('products_id', $products_id)
+                 ->select('price')
+                 ->first();
+                // dd($chair_price);
+                 if($chair_price===null)                
+                     $chair_price=-1;
+                 else
+                     $chair_price =$chair_price["price"];
+ 
+                 if( $chair_price>-1) // in valid chair number insert in another table
+                 {
+                     $order_chair_detail= OrderChairDetail::firstOrCreate([
+                         "order_details_id" => $orderDetail->id,
+                         "chair_number"     => $chair,                    
+                     ],
+                     [                    
+                             "order_details_id" =>  $orderDetail->id,
+                             "chair_number"     => $chair,
+                             "price" => $chair_price                  
+                     ]);
+                     //dd( $order_chair_detail["id"]);
+                 } 
+             }
+             $add_chair_price=self::updateVideoDetailChairPrice($orderDetail->id); 
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $sumOfOrderDetailPrices;
@@ -420,6 +457,38 @@ class OrderController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+    public function destroyChairMicroProductWithChairNumber($productId, $chairNumber)
+    {
+        $user_id=Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        $activeOrder = Order::where('users_id', Auth::user()->id)
+                        ->where('status', 'waiting')
+                        ->first();
+        $orderDetail = OrderDetail::where('products_id', $productId)
+                        ->where('orders_id', $activeOrder->id)
+                        ->first();
+       // $price= updateVideoDetailChairPrice($order_detail_id,true);
+       if( $orderDetail!==null)
+       {
+               $order_chair_detail_deleted= OrderChairDetail::where('order_details_id', $orderDetail->id)
+                ->where('chair_number', $chairNumber)
+                ->delete();
+                $del_price_chair=self::updateVideoDetailChairPrice($orderDetail->id);
+                $count = OrderChairDetail::where('order_details_id', $orderDetail->id)->count();
+                if ($count == 0) {
+                    OrderDetail::whereId($orderDetail->id)->delete();
+                }
+                $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $orderDetail->orders_id)->sum('total_price_with_coupon');
+                $order->amount = $sumOfOrderDetailPrices;
+                $order->save();
+
+       }
+
+        
+        return response([
+            'errors' => null,
+        ])->setStatusCode(201);
+    }
     /**
      * complete buying
      *
@@ -549,5 +618,23 @@ class OrderController extends Controller
         return (new OrderResource(null))->additional([
             'errors' => ['not_found' => ['order not found']],
         ])->response()->setStatusCode(404);
+    }
+    public function updateVideoDetailChairPrice($order_detail_id,$flag=false)
+    {
+       
+        $total_price=OrderChairDetail::where('order_details_id','=',$order_detail_id)
+            ->sum('price');
+        //->get();
+        //dd($total_price);
+        $order_detail= OrderDetail::where('id',$order_detail_id)
+                ->first();
+               // dd( $order_detail["price"]);
+                if($order_detail!==null)
+                {
+                    $order_detail["price"]=$total_price;
+                    $order_detail["total_price_with_coupon"]=$total_price;
+                    $order_detail["total_price"]=$total_price;
+                    $order_detail->save();
+                }
     }
 }
