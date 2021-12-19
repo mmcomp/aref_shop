@@ -117,8 +117,9 @@ class ProductDetailChairsController extends Controller
 
             try {
                 $user_id=Auth::user()->id;
+                $adminLog= new AdminLog;
                 $product_detail_chair_tmp= $product_detail_chair->getTable()  .  $product_detail_chair;
-                $response=self::getDetails($user_id,(string)$product_detail_chair_tmp,"delete"); 
+                $response=$adminLog->addLog($user_id,(string)$product_detail_chair_tmp,"delete"); 
 
 
                 $product_detail_chair->delete();
@@ -163,15 +164,15 @@ class ProductDetailChairsController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
-    public function getDetails($user_id,$before,$after)
-    {
-       $audit=new AdminLog;
-       $user=User::whereId($user_id)->first();
-       // dd($user->first_name);
-       $user_fullName=$user->first_name . " " . $user->last_name;
-       //dd($user_fullName);
-       $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
-        return $log_result;
+    // public function getDetails($user_id,$before,$after)
+    // {
+    //    $audit=new AdminLog;
+    //    $user=User::whereId($user_id)->first();
+    //    // dd($user->first_name);
+    //    $user_fullName=$user->first_name . " " . $user->last_name;
+    //    //dd($user_fullName);
+    //    $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
+    //     return $log_result;
 
-    }
+    // }
 }

@@ -9,7 +9,7 @@ use App\Models\User;
 class Audit extends Model
 {
     use HasFactory;
-    protected $table="Audit";
+    //protected $table="Audit";
 
     protected $fillable=[
         "id",

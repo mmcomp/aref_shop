@@ -475,12 +475,13 @@ class OrderController extends Controller
             //$chair_price=$orderChairDetail->price;       
             if($orderDetailId!==null)
             {  
+                $adminLog= new AdminLog;
                 $OrderChairDetail=OrderChairDetail::whereId($id)->first();
                 //dd($OrderChairDetail->getTable());
-                /* these two line record user that deleted table record  
+                // these two line record user that deleted table record  
                     $OrderChairDetail= $OrderChairDetail->getTable()  .  $OrderChairDetail;
-                    $response=self::getDetails($user_id,(string)$OrderChairDetail,"delete");     
-                */
+                    $response=$adminLog->addLog($user_id,(string)$OrderChairDetail,"delete");     
+               
                //dd($response->id);         
                 OrderChairDetail::whereId($id)->delete();
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
@@ -691,15 +692,15 @@ class OrderController extends Controller
                     $order_detail->save();
                 }
     }
-    public function getDetails($user_id,$before,$after)
-    {
-       $audit=new AdminLog;
-       $user=User::whereId($user_id)->first();
-       // dd($user->first_name);
-       $user_fullName=$user->first_name . " " . $user->last_name;
-       //dd($user_fullName);
-       $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
-        return $log_result;
+    // public function getDetails($user_id,$before,$after)
+    // {
+    //    $audit=new AdminLog;
+    //    $user=User::whereId($user_id)->first();
+    //    // dd($user->first_name);
+    //    $user_fullName=$user->first_name . " " . $user->last_name;
+    //    //dd($user_fullName);
+    //    $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
+    //     return $log_result;
 
-    }
+    // }
 }
