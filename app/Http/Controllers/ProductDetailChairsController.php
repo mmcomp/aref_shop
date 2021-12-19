@@ -117,8 +117,8 @@ class ProductDetailChairsController extends Controller
 
             try {
                 $user_id=Auth::user()->id;
-                $product_detail_chair= $product_detail_chair->getTable()  .  $product_detail_chair;
-                $response=self::getDetails($user_id,(string)$product_detail_chair,"delete"); 
+                $product_detail_chair_tmp= $product_detail_chair->getTable()  .  $product_detail_chair;
+                $response=self::getDetails($user_id,(string)$product_detail_chair_tmp,"delete"); 
 
 
                 $product_detail_chair->delete();
