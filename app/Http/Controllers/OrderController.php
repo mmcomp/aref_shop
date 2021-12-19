@@ -486,6 +486,7 @@ class OrderController extends Controller
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
                 $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
                 if ($count == 0) {
+                    
                     OrderDetail::whereId($orderDetailId)->delete();
                 }
                $order_detail= OrderDetail::where('id', $orderDetailId)->first();

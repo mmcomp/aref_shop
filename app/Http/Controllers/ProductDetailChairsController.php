@@ -10,6 +10,8 @@ use App\Http\Resources\ProductDetailChairsResource;
 use App\Models\ProductDetailChair;
 use Exception;
 use Log;
+use App\Utils\AdminLog;
+use App\Models\User;
 
 class ProductDetailChairsController extends Controller
 {
@@ -113,6 +115,11 @@ class ProductDetailChairsController extends Controller
         if ($product_detail_chair != null) {
 
             try {
+                $user_id=Auth::user()->id;
+                $product_detail_chair= $product_detail_chair->getTable()  .  $product_detail_chair;
+                $response=self::getDetails($user_id,(string)$product_detail_chair,"delete"); 
+
+
                 $product_detail_chair->delete();
                 return (new ProductDetailChairsResource(null))->additional([
                     'errors' => null,
@@ -154,5 +161,16 @@ class ProductDetailChairsController extends Controller
         return (new ProductChairsCollection($product_detail_chairs))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+    public function getDetails($user_id,$before,$after)
+    {
+       $audit=new AdminLog;
+       $user=User::whereId($user_id)->first();
+       // dd($user->first_name);
+       $user_fullName=$user->first_name . " " . $user->last_name;
+       //dd($user_fullName);
+       $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
+        return $log_result;
+
     }
 }
