@@ -420,7 +420,7 @@ class CartController extends Controller
         ])->response()->setStatusCode(200);
     }
     public function destroyChairMicroProduct($id)
-    { 
+    {         
         $user_id=Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
@@ -435,19 +435,24 @@ class CartController extends Controller
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
                 $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
                 if ($count == 0) {
-                    OrderDetail::whereId($orderDetailId)->delete();
+                    OrderDetail::whereId($orderDetailId)->delete();  
                 }
                $order_detail= OrderDetail::where('id', $orderDetailId)->first();
                if($order_detail!==null)
                {
                 $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order_detail->orders_id)->sum('total_price_with_coupon');
                 $order->amount = $sumOfOrderDetailPrices;
-                $order->save();
+               // $order->save();
+               }
+               else
+               {
+                $order->amount = 0;
+                //$order->save();
                }
                 
             }
         }       
-
+        $order->save();
         return response([
             'errors' => null,
         ])->setStatusCode(201);

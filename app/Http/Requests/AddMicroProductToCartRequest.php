@@ -50,7 +50,10 @@ class AddMicroProductToCartRequest extends FormRequest
                 "nullable",
                 "array",
                 "required_if:type,chair",
-               // Rule::exist('product_detail_chairs','products_id')
+                // Rule::exists('product_detail_chairs')->where(function($query)
+                // {
+                //    return $query->where('start','<=','chairs.*')->where('end','>=','chairs.*');
+                // })
             ],
             "chairs.*" => [
                 "nullable",

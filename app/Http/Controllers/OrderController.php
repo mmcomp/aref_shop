@@ -31,6 +31,7 @@ use App\Http\Requests\DestroyWholeCartRequest;
 use App\Http\Requests\CancelBuyingOfARequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\UserCoupon;
+use App\Models\Audit;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -39,6 +40,8 @@ use App\Http\Resources\AdminOrderResource;
 use App\Http\Resources\GetInfoOfAnOrderResource;
 use App\Http\Resources\User\OrderResource;
 use App\Utils\Buying;
+use Illuminate\Http\Request;
+use App\Utils\AdminLog;
 
 class OrderController extends Controller
 {
@@ -460,9 +463,10 @@ class OrderController extends Controller
 
     public function destroyChairMicroProduct($id)
     { 
+       // dd("this should be changed");
         $user_id=Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'manual_waiting')->first();
-        //dd($order);
+       // dd($order->id);
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
         if( $orderChairDetail!==null)
         {
@@ -470,7 +474,14 @@ class OrderController extends Controller
             //dd($orderDetailId);
             //$chair_price=$orderChairDetail->price;       
             if($orderDetailId!==null)
-            {                
+            {  
+                $OrderChairDetail=OrderChairDetail::whereId($id)->first();
+                //dd($OrderChairDetail->getTable());
+                /* these two line record user that deleted table record  
+                    $OrderChairDetail= $OrderChairDetail->getTable()  .  $OrderChairDetail;
+                    $response=self::getDetails($user_id,(string)$OrderChairDetail,"delete");     
+                */
+               //dd($response->id);         
                 OrderChairDetail::whereId($id)->delete();
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
                 $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
@@ -483,12 +494,17 @@ class OrderController extends Controller
                {
                 $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order_detail->orders_id)->sum('total_price_with_coupon');
                 $order->amount = $sumOfOrderDetailPrices;
-                $order->save();
+                //$order->save();
+               }
+               else
+               {                  
+                    $order->amount = 0;
+                   // $order->save();
                }
                 
             }
         }       
-
+        $order->save();
         return response([
             'errors' => null,
         ])->setStatusCode(201);
@@ -673,5 +689,16 @@ class OrderController extends Controller
                     $order_detail["total_price"]=$total_price;
                     $order_detail->save();
                 }
+    }
+    public function getDetails($user_id,$before,$after)
+    {
+       $audit=new AdminLog;
+       $user=User::whereId($user_id)->first();
+       // dd($user->first_name);
+       $user_fullName=$user->first_name . " " . $user->last_name;
+       //dd($user_fullName);
+       $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
+        return $log_result;
+
     }
 }
