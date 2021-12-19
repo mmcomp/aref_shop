@@ -233,7 +233,7 @@ class CartController extends Controller
                 'errors' => ["expired" => ["The discount code has been expired"]],
             ])->response()->setStatusCode(406);
         }
-        if ($orderDetail->all_videos_buy && $product->type==="video") {
+        if (($orderDetail->all_videos_buy && $product->type==="video") || ($product->type!=="video")) {
 
             $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
@@ -271,7 +271,7 @@ class CartController extends Controller
             }
         }
         return (new OrderResource(null))->additional([
-            "errors" => ["all_videos_buy" => ["Coupon can not be used when you didn't buy all of a product!"]]
+            "errors" => ["all_videos_buy_1" => ["Coupon can not be used when you didn't buy all of a product!"]]
         ])->response()->setStatusCode(406);
     }
     public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
