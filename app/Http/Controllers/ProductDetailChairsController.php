@@ -8,6 +8,7 @@ use App\Http\Resources\ProductChairsCollection;
 use App\Http\Resources\ProductDetailChairsCollection;
 use App\Http\Resources\ProductDetailChairsResource;
 use App\Models\ProductDetailChair;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use Log;
 use App\Utils\AdminLog;
