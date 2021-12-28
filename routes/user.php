@@ -10,6 +10,9 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\TeamUserController;
+use App\Http\Controllers\User\TeamUserMemmberController;
+use App\Http\Controllers\User\TeamUserProductController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductDetailVideosController;
 use App\Http\Controllers\User\UserVideoSessionHomeWorkController;
@@ -201,6 +204,32 @@ Route::group(['middleware' => 'user'], function(){
     ], function ($router) {
         Route::get('/free', [VideoSessionsController::class, 'freeSessions']);
         Route::get('/today', [VideoSessionsController::class, 'todaySessions']);
+    });
+
+
+    Route::group([
+        'middleware' => ['auth:api'],       
+    ], function ($router) {
+        Route::get('/team_user', [TeamUserController::class, 'index']);
+        Route::post('/team_user', [TeamUserController::class, 'store']);
+        Route::put('/team_user{id}', [TeamUserController::class, 'update']);
+        Route::delete('/team_user{id}', [TeamUserController::class, 'delete']);
+    });
+    Route::group([
+        'middleware' => ['auth:api']        
+    ], function ($router) {
+        Route::get('/team_user_memmber', [TeamUserMemmberController::class, 'index']);
+        Route::post('/team_user_memmber', [TeamUserMemmberController::class, 'store']);
+        Route::put('/team_user_memmber/{id}', [TeamUserMemmberController::class, 'update']);
+        Route::delete('/team_user_memmber{id}', [TeamUserMemmberController::class, 'delete']);
+    });
+    Route::group([
+        'middleware' => ['auth:api']        
+    ], function ($router) {
+        Route::get('/team_user_product', [TeamUserProductController::class, 'showAll']);
+        Route::post('/team_user_product', [TeamUserProductController::class, 'add']);
+        Route::put('/team_user_product{id}', [TeamUserProductController::class, 'update']);
+        Route::delete('/team_user_product{id}', [TeamUserProductController::class, 'delete']);
     });
 
 });

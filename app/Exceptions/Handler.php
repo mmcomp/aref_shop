@@ -60,5 +60,10 @@ class Handler extends ExceptionHandler
         // else if($exception instanceof QueryException) {
         //     return response()->json(['error' => 'Server Error.'], 500);
         // }
+        // if($exception instanceof QueryException)
+        // {
+        //     return response()->json(['error' => 'Server Error.'], 501);
+        // }
     }
+    
 }
