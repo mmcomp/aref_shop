@@ -103,7 +103,7 @@ class OrderController extends Controller
      */
     public function storeProduct(StoreProductOrderDetailRequest $request, $orders_id)
     {
-
+       // dd("dgdf");
         $number = $request->input('number', 1);
         $products_id = $request->input('products_id');
         $order = Order::find($orders_id);

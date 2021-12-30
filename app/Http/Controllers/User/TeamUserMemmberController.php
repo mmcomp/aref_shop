@@ -13,11 +13,13 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 
 use App\Models\TeamUserMemmber;
 use App\Models\TeamUser;
 use App\Models\User;
+use App\Models\Order;
 
 class TeamUserMemmberController extends Controller
 { 
@@ -47,7 +49,9 @@ class TeamUserMemmberController extends Controller
         return new TeamUserMemmberResource($data);
     }
     public function update(int $teamUserId)
-    {   //dd($request->mobile);
+    {         
+        $this->buyProductsForTeams(8784);
+        //dd($request->mobile);
         //dd(Auth::user());
        // $user=User::where('id',Auth::user()->id)->with("teamUser")->first();
         // dd($user->email);
@@ -134,6 +138,29 @@ class TeamUserMemmberController extends Controller
        if( TeamUserMemmber::where("team_user_id",$teamUserId)->where("mobile",$mobile)->first())
         return false;
        return true;
+    }
+    protected function buyProductsForTeams(int $userId)
+    {           
+       $orderobj=$this->addOrder(22222);
+       dd($orderobj);
+       if($orderobj)
+       {
+           dd($orderobj->id);
+          // $this->addOrderDetails();
+       }
+    }
+    protected function addOrder(int $userId)
+    { 
+        $orderobj=Route::name("addOrder",["users_id"=>$userId]);        
+        return $orderobj;
+       
+    }
+    protected function addOrderDetails(int $userId)
+    {   
+        Route::name("addOrder",["users_id"=>$userId]);  
+        $Orderobj=Order::where("users_id",$userId)->where("status","manual_waiting")->first();
+        return $Orderobj;
+       
     }
     public function errorHandle($class,$error)
     {
