@@ -56,10 +56,19 @@ class TeamUserController extends Controller
     protected function getMyTeamAsMember(string $mobile) {
         //dd("just user memmber is run");
         $teamUsermembers = TeamUserMemmber::where("mobile", $mobile)->with('teamUser')->get()->toArray();
+       
+        if(count($teamUsermembers)===0)
+        {
+           // dd( $teamUsermembers );
+            return (new TeamUserWithoutMemmberResource(null));
+        }
+       
+        //dd($teamUsermembers);
        //dd($teamUsermembers[0]["team_user"]["user_id_creator"]);
        //dd($teamUsermembers[0]["team_user"]);
-        if(count($teamUsermembers)<=1)
-        {           
+        if(count($teamUsermembers)<=1 )
+        {  
+
             return $this->getMyTeamAsLeader($teamUsermembers[0]["team_user"]["user_id_creator"]);
         }
         else{

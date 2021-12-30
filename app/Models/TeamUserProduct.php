@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TeamUserProduct extends Model
 {
     use HasFactory;
+    use SoftDeletes;
     protected $fillable=
     [
         "user_id_creator",
