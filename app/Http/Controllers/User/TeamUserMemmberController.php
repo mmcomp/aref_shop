@@ -52,7 +52,7 @@ class TeamUserMemmberController extends Controller
         // dd($user);
         // dd($teamUserId);
          $teamUserMemmberobj=TeamUserMemmber::where("mobile",$request->mobile)->where("team_user_id",$teamUserId)->first();
-        //dd( $teamUserMemmberobj->toArray());
+       // dd( $teamUserMemmberobj->toArray());
         if($user && $teamUserId)
         {
                         //$team_user_id=$teamUserMemmberobj["team_user_id"];           
@@ -61,6 +61,7 @@ class TeamUserMemmberController extends Controller
                 $this->updateTeamUserMemmber($teamUserMemmberobj);               
             }
             else{
+                //dd("fsf");
                 $this->updateTeamUser($teamUserId);
             }            
             return response()->json($teamUserMemmberobj,200);            
@@ -101,12 +102,19 @@ class TeamUserMemmberController extends Controller
             //$teamUser=$teamUser->update();
             if(!$teamUser->update())
             {
+               // dd("fgfg");
               $this->errorHandle("TeamUser","fail to update");               
             }
             else
             {
-                $teamUserMemmber=TeamUserMemmber::where("team_user_id",$team_user_id)->where("is_verified",0)->get();
-                $teamUserMemmber->delete();
+                //dd("fddf");
+                $teamUserMemmbers=TeamUserMemmber::where("team_user_id",$team_user_id)->where("is_verified",0)->get();
+                foreach($teamUserMemmbers as $memmber)
+                {
+                    $memmber->delete();
+                }
+                //dd($teamUserMemmber->toArray());
+                
                // dd($teamUserMemmber);
             }
         }
