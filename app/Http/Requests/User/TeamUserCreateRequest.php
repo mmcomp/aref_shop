@@ -30,8 +30,8 @@ class TeamUserCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            "user_id_creator" => ["required", "int","unique:team_users,user_id_creator"],
-            "name" => ["required", "string"]
+            //"user_id_creator" => ["required", "int","unique:team_users,user_id_creator"],
+            "name" => ["required", "string","min:3","unique:team_users,name"]
             //"is_full" => ["required", "bool"],
         ];
     }

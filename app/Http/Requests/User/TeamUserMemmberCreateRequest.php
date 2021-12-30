@@ -29,35 +29,36 @@ class TeamUserMemmberCreateRequest extends FormRequest
      */
     public function rules()
     {
-       $count= TeamUserMemmber::where("team_user_id",$this->team_user_id)->count();
-       if($count >= 2)
-       {
-           return [ 
-               "team_user_id" => [
-                   Rule::in("greater than 2")
-               ]
-           ];
-       }
+    //    $count= TeamUserMemmber::where("team_user_id",$this->team_user_id)->count();
+    //    dd($this->mobile);
+    //    if($count >= 2)
+    //    {
+    //        return [ 
+    //            "team_user_id" => [
+    //                Rule::in("greater than 2")
+    //            ]
+    //        ];
+    //    }
         return [
-        "team_user_id" => [
-            "required",
-            "int"
-        //    Validator::extend("gsg",function($query){
-        //        $count= $query->where("team_user_id",$this->team_user_id)->count();
-        //        return ($count<2);
-        //     })
-         /*,"unique:team_user_members,team_user_id"*/
-        ],
+        // "team_user_id" => [
+        //     "required",
+        //     "int"
+        // //    Validator::extend("gsg",function($query){
+        // //        $count= $query->where("team_user_id",$this->team_user_id)->count();
+        // //        return ($count<2);
+        // //     })
+        //  /*,"unique:team_user_members,team_user_id"*/
+        // ],
             "mobile" => [
                 "required", 
                 "size:11",
                // "unique:team_user_members,mobile,NULL,id,team_user_id,".$request->id
-               Rule::unique('team_user_members')->where(function ($query)  {
-                return $query->where('mobile', $this->mobile)
-                ->where('team_user_id', $this->team_user_id);
-               })
-            ],
-            "is_verified" => ["required", "bool"],
+            //    Rule::unique('team_user_members')->where(function ($query)  {
+            //     return $query->where('mobile', $this->mobile)
+            //     ->where('team_user_id', $this->team_user_id);
+            //    })
+            ]//,
+            //"is_verified" => ["required", "bool"],
         ];
     }
     public function withValidator($validator)

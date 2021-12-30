@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-
+use Illuminate\Support\Facades\Auth;
 
 
 use App\Models\TeamUserMemmber;
@@ -29,45 +29,46 @@ class TeamUserMemmberController extends Controller
 
     public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
     {
-       // $count= TeamUserMemmber::where("team_user_id",$teamUserMemmber->team_user_id)->count();
-        //dd($count);
-        //dd("dfd");
+        $data="";
+        $user=User::where('id',Auth::user()->id)->with("teamUser")->first();      
         $teamUserMemmber["is_verified"]=false;
-        $leaderexist=User::where("email",$teamUserMemmber["mobile"])->first();
-        if( $leaderexist !==null)
+        $teamUserMemmber["team_user_id"]=$user->teamUser->id;
+        //$leaderexist=User::where("email",$teamUserMemmber["mobile"])->first();
+        if($user)
         {
-            $this->errorHandle("User","this mobile is a leadder so you can not add to your memmber");
-        }
-        $data=TeamUserMemmber::create($teamUserMemmber->toArray());
-        // dd($data['id']);
-        // if($data!==null)
-        // {
-
-        // }
+           if($this->avoidDuplicate($user->teamUser->id,$teamUserMemmber["mobile"]))
+           {
+            $data=TeamUserMemmber::create($teamUserMemmber->toArray());
+           }
+           else{
+            $this->errorHandle("User","this mobile has alreade been added");
+           }           
+        }       
         return new TeamUserMemmberResource($data);
     }
-    public function update(TeamUserMemmberEditRequest $teamUserMemmber,$team_user_memmber_id)
-    {
-        $teamUserMemmberobj=TeamUserMemmber::where("id",$team_user_memmber_id)->first();
-        
-        if($teamUserMemmberobj !==null && $teamUserMemmberobj["is_verified"]===0 && $teamUserMemmber["is_verified"]===1)
+    public function update(TeamUserMemmberEditRequest $request,int $teamUserId)
+    {   //dd($request->mobile);
+        $user=User::where('id',Auth::user()->id)->with("teamUser")->first();
+        // dd($user);
+        // dd($teamUserId);
+         $teamUserMemmberobj=TeamUserMemmber::where("mobile",$request->mobile)->where("team_user_id",$teamUserId)->first();
+        //dd( $teamUserMemmberobj->toArray());
+        if($user && $teamUserId)
         {
-            $team_user_id=$teamUserMemmberobj["team_user_id"];
-            $this->updateTeamUserMemmber($teamUserMemmberobj);
-            if(self::isCountToEnd($team_user_id))
+                        //$team_user_id=$teamUserMemmberobj["team_user_id"];           
+            if(!$this->isCountToEnd($teamUserId))
             {
-               $this->updateTeamUser($team_user_id);
+                $this->updateTeamUserMemmber($teamUserMemmberobj);               
             }
-            return response()->json($teamUserMemmber,200);            
+            else{
+                $this->updateTeamUser($teamUserId);
+            }            
+            return response()->json($teamUserMemmberobj,200);            
         }
         else
         { 
             //dd("sdf");           
-           $this->errorHandle("TeamUserMemmberResource","TeamUserMemmber not found or it is verified before");
-          // dd("gggg");
-            // return (new TeamUserMemmberResource(null))->additional([
-            //     'errors' => ['TeamUserMemmberResource' => ['TeamUserMemmber not found or it is verified before ']],
-            // ])->response()->setStatusCode(404);
+           $this->errorHandle("TeamUserMemmberResource","TeamUserMemmber not found or it is verified before");         
         }
     }
     public function destroyMemmber()
@@ -80,13 +81,10 @@ class TeamUserMemmberController extends Controller
         $updatetd=$teamUserMemmber->update();
         if(!$updatetd)
         {
-            $this->errorHandle("TeamUserMemmberResource","fail to update");
-            // return (new TeamUserMemmberResource(null))->additional([
-            //     'errors' => ['TeamUserMemmberUpdate' => ['fail to update']],
-            // ])->response()->setStatusCode(404);           
+            $this->errorHandle("TeamUserMemmberResource","fail to update");                     
         }
     }
-    public static function isCountToEnd($team_user_id)
+    protected  function isCountToEnd(int $team_user_id)
     {
         $teamUserCount=TeamUserMemmber::where("team_user_id",$team_user_id)->where("is_verified",1)->count();
         if($teamUserCount >=2)
@@ -103,10 +101,13 @@ class TeamUserMemmberController extends Controller
             //$teamUser=$teamUser->update();
             if(!$teamUser->update())
             {
-              $this->errorHandle("TeamUser","fail to update");
-                // return (new TeamUserMemmberResource(null))->additional([
-                //     'errors' => ['TeamUserUpdate' => ['fail to update']],
-                // ])->response()->setStatusCode(404);
+              $this->errorHandle("TeamUser","fail to update");               
+            }
+            else
+            {
+                $teamUserMemmber=TeamUserMemmber::where("team_user_id",$team_user_id)->where("is_verified",0)->get();
+                $teamUserMemmber->delete();
+               // dd($teamUserMemmber);
             }
         }
         else
@@ -117,6 +118,12 @@ class TeamUserMemmberController extends Controller
             // ])->response()->setStatusCode(404);
         }
         
+    }
+    protected function avoidDuplicate(int $teamUserId,string $mobile)
+    {
+       if( TeamUserMemmber::where("team_user_id",$teamUserId)->where("mobile",$mobile)->first())
+        return false;
+       return true;
     }
     public function errorHandle($class,$error)
     {

@@ -15,4 +15,9 @@ class TeamUser extends Model
         "name"
         //"is_full"
     ];
+
+    public function leader()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'user_id_creator')->select('id', 'email', 'first_name', 'last_name')->where('is_deleted', false);
+    }
 }

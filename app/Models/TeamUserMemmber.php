@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TeamUser;
 
 class TeamUserMemmber extends Model
 {
@@ -16,4 +17,14 @@ class TeamUserMemmber extends Model
         "mobile",
         "is_verified"
     ];
+
+    public function member()
+    {
+        return $this->hasOne('App\Models\User', 'email', 'mobile');
+    }
+
+    public function teamUser()
+    {
+        return $this->hasOne(TeamUser::class, 'id', 'team_user_id');
+    }
 }

@@ -112,4 +112,8 @@ class User extends Authenticatable implements JWTSubject
         }
         return $menus;
     }
+    public function teamUser()
+    {
+       return $this->belongsTo('App\Models\TeamUser',"id","user_id_creator");
+    }
 }

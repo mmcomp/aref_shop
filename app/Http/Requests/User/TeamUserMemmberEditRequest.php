@@ -24,9 +24,9 @@ class TeamUserMemmberEditRequest extends FormRequest
     public function rules()
     {
         return [
-        "team_user_id" => ["nullable", "int"/*,"unique:team_user_members,team_user_id"*/],
+        //"team_user_id" => ["nullable", "int"/*,"unique:team_user_members,team_user_id"*/],
             "mobile" => ["nullable", "size:11"],
-            "is_verified" => ["required", "bool"],
+            //"is_verified" => ["required", "bool"],
         ];
     }
 }
