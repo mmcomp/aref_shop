@@ -46,24 +46,26 @@ class TeamUserMemmberController extends Controller
         }       
         return new TeamUserMemmberResource($data);
     }
-    public function update(TeamUserMemmberEditRequest $request,int $teamUserId)
+    public function update(int $teamUserId)
     {   //dd($request->mobile);
-        $user=User::where('id',Auth::user()->id)->with("teamUser")->first();
-        // dd($user);
+        //dd(Auth::user());
+       // $user=User::where('id',Auth::user()->id)->with("teamUser")->first();
+        // dd($user->email);
         // dd($teamUserId);
-         $teamUserMemmberobj=TeamUserMemmber::where("mobile",$request->mobile)->where("team_user_id",$teamUserId)->first();
-       // dd( $teamUserMemmberobj->toArray());
-        if($user && $teamUserId)
+         $teamUserMemmberobj=TeamUserMemmber::where("mobile",Auth::user()->email)->where("team_user_id",$teamUserId)->first();
+        //dd( $teamUserMemmberobj);
+        if($teamUserMemmberobj)
         {
                         //$team_user_id=$teamUserMemmberobj["team_user_id"];           
-            if(!$this->isCountToEnd($teamUserId))
+            $this->updateTeamUserMemmber($teamUserMemmberobj);               
+            if($this->isCountToEnd($teamUserId))
             {
-                $this->updateTeamUserMemmber($teamUserMemmberobj);               
+                $this->updateTeamUser($teamUserId);         
             }
-            else{
-                //dd("fsf");
-                $this->updateTeamUser($teamUserId);
-            }            
+            // else{
+            //     //dd("fsf");
+            //     $this->updateTeamUser($teamUserId);
+            // }   
             return response()->json($teamUserMemmberobj,200);            
         }
         else

@@ -210,26 +210,26 @@ Route::group(['middleware' => 'user'], function(){
     Route::group([
         'middleware' => ['auth:api'],       
     ], function ($router) {
-        Route::get('/team_user', [TeamUserController::class, 'index']);
-        Route::post('/team_user', [TeamUserController::class, 'store']);
-        Route::put('/team_user{id}', [TeamUserController::class, 'update']);
-        Route::delete('/team_user{id}', [TeamUserController::class, 'delete']);
+        Route::get('/team-user', [TeamUserController::class, 'index']);
+        Route::post('/team-user', [TeamUserController::class, 'store']);
+        Route::put('/team-user{id}', [TeamUserController::class, 'update']);
+        Route::delete('/team-user{id}', [TeamUserController::class, 'delete']);
     });
     Route::group([
         'middleware' => ['auth:api']        
     ], function ($router) {
-        Route::get('/team_user_memmber', [TeamUserMemmberController::class, 'index']);
-        Route::post('/team_user_memmber', [TeamUserMemmberController::class, 'store']);
-        Route::put('/team_user_memmber/{id}', [TeamUserMemmberController::class, 'update']);
-        Route::delete('/team_user_memmber{id}', [TeamUserMemmberController::class, 'delete']);
+        Route::get('/team-user-memmber', [TeamUserMemmberController::class, 'index']);
+        Route::post('/team-user-memmber', [TeamUserMemmberController::class, 'store']);
+        Route::put('/verify-memmbership/{id}', [TeamUserMemmberController::class, 'update']);
+        Route::delete('/team-user-memmber{id}', [TeamUserMemmberController::class, 'delete']);
     });
     Route::group([
         'middleware' => ['auth:api']        
     ], function ($router) {
-        Route::get('/team_user_product', [TeamUserProductController::class, 'showAll']);
-        Route::post('/team_user_product', [TeamUserProductController::class, 'add']);
-        Route::put('/team_user_product{id}', [TeamUserProductController::class, 'update']);
-        Route::delete('/team_user_product{id}', [TeamUserProductController::class, 'delete']);
+        Route::get('/team-user-product', [TeamUserProductController::class, 'showAll']);
+        Route::post('/team-user-product', [TeamUserProductController::class, 'add']);
+        Route::put('/team_user-product{id}', [TeamUserProductController::class, 'update']);
+        Route::delete('/team-user-product{id}', [TeamUserProductController::class, 'delete']);
     });
 
 });

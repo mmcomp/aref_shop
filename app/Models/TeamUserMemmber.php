@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TeamUser;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TeamUserMemmber extends Model
 {
     use HasFactory;
+    use softDeletes;
     protected $table="team_user_members";
     protected $fillable=
     [
