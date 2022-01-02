@@ -161,18 +161,22 @@ class TeamUserMemmberController extends Controller
             }
         }
         $leaderAddOrder = $this->addOrder($userId);
-        $OrderDetail = [
-            "orders_id" =>  $leaderAddOrder->id,
-            "products_id" => $teamUserProductId,
-            "price" => 0,
-            "coupons_id" => 0,
-            "users_id" => $leaderAddOrder->users_id,
-            "all_videos_buy" => 1,
-            "number" => 1,
-            "total_price_with_coupon" => 0,
-            "total_price" => 0
-        ];
-        $this->orderDetailAdd($leaderAddOrder);
+        foreach ($teamUserProductIds as $teamUserProductId) {
+            $OrderDetail = [
+                "orders_id" =>  $leaderAddOrder->id,
+                "products_id" => $teamUserProductId,
+                "price" => 0,
+                "coupons_id" => 0,
+                "users_id" => $leaderAddOrder->users_id,
+                "all_videos_buy" => 1,
+                "number" => 1,
+                "total_price_with_coupon" => 0,
+                "total_price" => 0
+            ];
+            $this->orderDetailAdd($OrderDetail);
+        }
+       
+      //  $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);
         
         if ($leaderAddOrder) {
@@ -182,6 +186,7 @@ class TeamUserMemmberController extends Controller
     }
     protected function orderDetailAdd($OrderDetail)
     {
+       // dd($OrderDetail);
         return  OrderDetail::create($OrderDetail);
     }
     protected function addOrder(int $userId)
@@ -195,7 +200,7 @@ class TeamUserMemmberController extends Controller
     protected function addOrderDetails(int $userId)
     {    
         Route::name("addOrder", ["users_id" => $userId]);
-        $Orderobj = Order::where("users_id", $userId)->where("status", "manual_waiting")->first();
+        $Orderobj = Order::where("users_id", $userId)->where("status", "ok")->first();
         return $Orderobj;
     }
     protected static function getProductTeamId()

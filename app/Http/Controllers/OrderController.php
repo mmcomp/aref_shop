@@ -98,7 +98,7 @@ class OrderController extends Controller
                 $order = Order::create([
                     'users_id' => $users_id,
                     'saver_users_id' => Auth::user()->id,
-                    'status' => 'manual_waiting',
+                    'status' => ($addteamOrder==true ? "ok" : "manual_waiting"),
                     'comment' => $comment,
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
