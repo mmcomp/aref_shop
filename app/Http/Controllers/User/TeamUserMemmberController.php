@@ -25,9 +25,10 @@ use App\Models\TeamProductDefaults;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Utils\Buying;
 
 class TeamUserMemmberController extends Controller
-{
+{    
     private $privateOrderController;
     public function __construct(OrderController $orderController)
     {
@@ -136,7 +137,8 @@ class TeamUserMemmberController extends Controller
         return true;
     }
     protected function buyProductsForTeams(int $teamId, int $userId)
-    {        
+    {   
+        $buying = new Buying;
         //$teamUserId= $userId;
         $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();        
         $teamUserProductIds = self::getProductTeamId();
@@ -165,8 +167,10 @@ class TeamUserMemmberController extends Controller
                         "partial" =>0,
                     ];
                     $this->orderDetailAdd($OrderDetail);
-                   $this->userProductAdd($userProduct);
+                    
+                   //$this->userProductAdd($userProduct);
                 }
+                $buying->completeInsertAfterBuying(Order::find($order->id));
             }
         }
         $leaderAddOrder = $this->addOrder($userId);
@@ -189,8 +193,9 @@ class TeamUserMemmberController extends Controller
                 "partial" =>0,
             ];
             $this->userProductAdd($userProduct);
-            $this->orderDetailAdd($OrderDetail);
+           
         }
+        $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
        
       //  $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);
