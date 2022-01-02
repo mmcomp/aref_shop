@@ -35,7 +35,7 @@ class TeamUserMemmberController extends Controller
     private $smsObj;
     public function __construct(OrderController $orderController)
     {
-        $this->smsObj=new Sms;
+        //$this->smsObj=new Sms;
         $this->privateOrderController = $orderController;
     }
     public function index()
@@ -47,7 +47,7 @@ class TeamUserMemmberController extends Controller
     public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
     {
         //dd($teamUserMemmber["mobile"]);
-        
+        $smsObj=new Sms;
         $data = "";
         $user = User::where('id', Auth::user()->id)->with("teamUser")->first();       
         $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
@@ -58,7 +58,7 @@ class TeamUserMemmberController extends Controller
             if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
                 $data = TeamUserMemmber::create($teamUserMemmber->toArray());
                 $mobile=$teamUserMemmber["mobile"];               
-                $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                $smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
             } else {
                 $this->errorHandle("User", "this mobile has alreade been added");
             }
@@ -147,6 +147,7 @@ class TeamUserMemmberController extends Controller
     }
     protected function buyProductsForTeams(int $teamId, int $userId)
     {   
+        $smsObj=new Sms;
         $buying = new Buying;
         //$teamUserId= $userId;
         $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();        
@@ -154,6 +155,7 @@ class TeamUserMemmberController extends Controller
         foreach ($memmbers as $memmber) {
             //dump($memmber->member->id);
             $order = $this->addOrder($memmber->member->id);
+           
             if ($order) {
                 $OrderDetail = new OrderDetail;
                 foreach ($teamUserProductIds as $teamUserProductId) {
@@ -180,9 +182,10 @@ class TeamUserMemmberController extends Controller
                    //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
-                $this->smsObj($memmber->email,"زیست", "confirm-team-members");
+                $smsObj->sendCode($memmber->member->email,"زیست", "confirm-team-members");
             }
         }
+        
         $leaderAddOrder = $this->addOrder($userId);
         foreach ($teamUserProductIds as $teamUserProductId) {
             $OrderDetail = [
@@ -206,7 +209,7 @@ class TeamUserMemmberController extends Controller
            
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
-        $this->smsObj(User::find($userId)->email,"زیست", "confirm-team-members");
+        $smsObj->sendCode(User::find($userId)->email,"زیست", "confirm-team-members");
        
       //  $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);
