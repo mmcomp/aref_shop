@@ -14,15 +14,23 @@ use Illuminate\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\OrderController;
+use App\Http\Requests\InsertOrderForUserRequest;
 
 use App\Models\TeamUserMemmber;
 use App\Models\TeamUser;
+use App\Models\TeamUserProduct;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\OrderDetail;
 
-class TeamUserMemmberController extends Controller
+class TeamUserMemmberController extends Controller 
 { 
+   private $privateOrderController;
+   public function __construct(OrderController $orderController) 
+    {
+        $this->privateOrderController=$orderController;
+    }
     public function index()
     {
         $data= TeamUserMemmberResource::collection(TeamUserMemmber::all());
@@ -49,8 +57,8 @@ class TeamUserMemmberController extends Controller
         return new TeamUserMemmberResource($data);
     }
     public function update(int $teamUserId)
-    {         
-        $this->buyProductsForTeams(8784);
+    {               
+       // $this->buyProductsForTeams(8784);
         //dd($request->mobile);
         //dd(Auth::user());
        // $user=User::where('id',Auth::user()->id)->with("teamUser")->first();
@@ -85,11 +93,23 @@ class TeamUserMemmberController extends Controller
     public  function updateTeamUserMemmber(TeamUserMemmber $teamUserMemmber)
     {
         $teamUserMemmber["is_verified"]=true;
+       // dd( $teamUserMemmber);
         $updatetd=$teamUserMemmber->update();
         if(!$updatetd)
         {
             $this->errorHandle("TeamUserMemmberResource","fail to update");                     
         }
+          /////////////////////////////////           delete all of teams if this person in invited when the first invited avccept
+             $this->delteMySelfFromAllTeam ($teamUserMemmber); 
+
+    }
+    protected function delteMySelfFromAllTeam(TeamUserMemmber $teamUserMemmber)
+    {
+        $teamUserMemmbers=TeamUserMemmber::where("mobile",$teamUserMemmber->mobile)->where("is_verified",0)->get();
+          foreach($teamUserMemmbers as $memmber)
+          {
+              $memmber->delete();
+          }
     }
     protected  function isCountToEnd(int $team_user_id)
     {
@@ -99,7 +119,7 @@ class TeamUserMemmberController extends Controller
         return false; 
     }
     public function updateTeamUser($team_user_id)
-    {       
+    {             
         $teamUser= TeamUser::find($team_user_id);
         //dd( $teamUser);
         if($teamUser!==null)
@@ -112,15 +132,15 @@ class TeamUserMemmberController extends Controller
               $this->errorHandle("TeamUser","fail to update");               
             }
             else
-            {
-                //dd("fddf");
+            {///////////////////////////////////  delete all invitation for all people for this group if it is full /////////
+                //dd($teamUser->user_id_creator);
+                $this->buyProductsForTeams($teamUser->id,$teamUser->user_id_creator);
                 $teamUserMemmbers=TeamUserMemmber::where("team_user_id",$team_user_id)->where("is_verified",0)->get();
                 foreach($teamUserMemmbers as $memmber)
                 {
                     $memmber->delete();
-                }
-                //dd($teamUserMemmber->toArray());
-                
+                }            
+                //dd($teamUserMemmber->toArray());                
                // dd($teamUserMemmber);
             }
         }
@@ -139,28 +159,75 @@ class TeamUserMemmberController extends Controller
         return false;
        return true;
     }
-    protected function buyProductsForTeams(int $userId)
-    {           
-       $orderobj=$this->addOrder(22222);
-       dd($orderobj);
-       if($orderobj)
+    protected function buyProductsForTeams(int $teamId,int $userId)
+    { 
+        //dd($userId);
+        //$teamUserId= $userId;
+        $memmbers=TeamUserMemmber::where("team_user_id",$teamId)->with("member")->get();
+       //dd($memmbers[0]->member->id); 
+        $teamUserProductIds=self::getProductTeamId();
+        foreach($memmbers as $memmber)
+        {
+            //dump($memmber->member->id);
+           $order= $this->addOrder($memmber->member->id);
+           if( $order)
+           {
+               foreach($teamUserProductIds as $teamUserProductId)
+               {
+                OrderDetail::create([
+                    "orders_id" => $order->id,
+                    "products_id" => $teamUserProductId,
+                    "price" =>0,
+                    "coupons_id" => 0,
+                    "users_id" =>$memmbers[0]->member->id,
+                    "all_videos_buy" =>1,
+                    "number" => 1,
+                    "total_price_with_coupon" => 0,
+                    "total_price" => 0
+                ]);
+               }
+               
+           }
+        }   
+       $leaderAddOrder= $this->addOrder($userId);  
+      // $orderobj=$this->addOrder(4);
+    //    dd($orderobj->toArray());
+       if($leaderAddOrder)
        {
-           dd($orderobj->id);
-          // $this->addOrderDetails();
+          // dd($orderobj->id);
+           $this->addOrderDetails($leaderAddOrder->id);
        }
     }
     protected function addOrder(int $userId)
     { 
-        $orderobj=Route::name("addOrder",["users_id"=>$userId]);        
-        return $orderobj;
+       
+       // dd($teamUserProductIds);
+        // $req= new InsertOrderForUserRequest;
+        // $req->replace(["users_id" => $userId]);
+       // dd($req);
+       // $orderobj= $this->privateOrderController->store($req);
+       //dd();
+        $addMemmberOrder=$this->privateOrderController->_store($userId,true);
+        if(!$addMemmberOrder)
+        {
+            $this->errorHandle("user id $userId" ,"not found to add Order ");
+        }                  
+        return $addMemmberOrder;
        
     }
     protected function addOrderDetails(int $userId)
     {   
+        dd("order is don");
         Route::name("addOrder",["users_id"=>$userId]);  
         $Orderobj=Order::where("users_id",$userId)->where("status","manual_waiting")->first();
         return $Orderobj;
        
+    }
+    protected static function getProductTeamId()
+    {
+        $teamUserProduct=TeamUserProduct::all()->pluck("product_id");
+        //dd($teamUserProduct);
+        return($teamUserProduct);
     }
     public function errorHandle($class,$error)
     {

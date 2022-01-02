@@ -64,35 +64,56 @@ class OrderController extends Controller
             'errors' => ['order' => ['Order does not exist!']],
         ])->response()->setStatusCode(406);
     }
+    public function store(InsertOrderForUserRequest $request,bool $addteamOrder=false)
+    {
+        $users_id = $request->input('users_id');
+        $response= $this->_store($users_id,$addteamOrder);
+        if($response===null)
+        {
+            return (new AdminOrderResource(null))->additional([
+                'errors' => ['type' => ['The user type is invalid!']],
+            ])->response()->setStatusCode(406);
+        }
+        return (new AdminOrderResource($response))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+        
+    }
     /**
      * Insert factor for a user
      *
      * @param  \App\Http\Requests\InsertOrderForUserRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(InsertOrderForUserRequest $request)
+    public function _store( $users_id,$addteamOrder)
     {
-
-        $users_id = $request->input('users_id');
-        $user = User::where('is_deleted', false)->find($users_id);
+        //$users_id = $request->input('users_id');       
+        $user = User::where('is_deleted', false)->find($users_id); 
+        //dd($user);      
         if ($user->group->type == 'user') {
+            $comment = ($addteamOrder==true ? "خرید خودکار محصول برای اعضای تیم" : "");
+            
             $order = Order::where('users_id', $users_id)->where('status', 'manual_waiting')->first();
             if ($order == null) {
                 $order = Order::create([
                     'users_id' => $users_id,
                     'saver_users_id' => Auth::user()->id,
                     'status' => 'manual_waiting',
+                    'comment' => $comment,
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
             }
-            return (new AdminOrderResource($order))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(201);
+            //dd($order);
+            return $order;
+            // return (new AdminOrderResource($order))->additional([
+            //     'errors' => null,
+            // ])->response()->setStatusCode(201);
         }
-        return (new AdminOrderResource(null))->additional([
-            'errors' => ['type' => ['The user type is invalid!']],
-        ])->response()->setStatusCode(406);
+        return null;
+        // return (new AdminOrderResource(null))->additional([
+        //     'errors' => ['type' => ['The user type is invalid!']],
+        // ])->response()->setStatusCode(406);
     }
     /**
      * add orderDetail product
