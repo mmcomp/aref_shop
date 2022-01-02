@@ -15,13 +15,14 @@ class TeamUserWithMemmberResource extends JsonResource
      */
     public function toArray($request)
     {
-        //dd($this);
+        dd($this);
         return 
         [
+            "id" => $this->id,
             "teamName" => $this->name,
             "leaderFullName" => $this->leader->first_name . " " .$this->leader->last_name,
             // "leader" => $this["leader"],
-             "Memmbers" =>  TeamUserMemmberResource::collection($this->memmbers)
+             "memmbers" =>  TeamUserMemmberResource::collection($this->memmbers)
         ];
     }
 }

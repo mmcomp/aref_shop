@@ -172,24 +172,39 @@ class TeamUserMemmberController extends Controller
            $order= $this->addOrder($memmber->member->id);
            if( $order)
            {
+               $OrderDetail = new OrderDetail;
                foreach($teamUserProductIds as $teamUserProductId)
                {
-                OrderDetail::create([
-                    "orders_id" => $order->id,
-                    "products_id" => $teamUserProductId,
-                    "price" =>0,
-                    "coupons_id" => 0,
-                    "users_id" =>$memmbers[0]->member->id,
-                    "all_videos_buy" =>1,
-                    "number" => 1,
-                    "total_price_with_coupon" => 0,
-                    "total_price" => 0
-                ]);
+                    
+                    $OrderDetail=[
+                        "orders_id" => $order->id,
+                        "products_id" => $teamUserProductId,
+                        "price" =>0,
+                        "coupons_id" => 0,
+                        "users_id" =>$order->users_id,
+                        "all_videos_buy" =>1,
+                        "number" => 1,
+                        "total_price_with_coupon" => 0,
+                        "total_price" => 0
+                    ];
+                    $this-> orderDetailAdd($OrderDetail);                   
                }
                
            }
         }   
        $leaderAddOrder= $this->addOrder($userId);  
+       $OrderDetail=[
+        "orders_id" =>  $leaderAddOrder->id,
+        "products_id" => $teamUserProductId,
+        "price" =>0,
+        "coupons_id" => 0,
+        "users_id" => $leaderAddOrder->users_id,
+        "all_videos_buy" =>1,
+        "number" => 1,
+        "total_price_with_coupon" => 0,
+        "total_price" => 0
+    ];
+       $this-> orderDetailAdd($leaderAddOrder);
       // $orderobj=$this->addOrder(4);
     //    dd($orderobj->toArray());
        if($leaderAddOrder)
@@ -197,6 +212,10 @@ class TeamUserMemmberController extends Controller
           // dd($orderobj->id);
            $this->addOrderDetails($leaderAddOrder->id);
        }
+    } 
+    protected function orderDetailAdd($OrderDetail)
+    {
+       return  OrderDetail::create($OrderDetail);
     }
     protected function addOrder(int $userId)
     { 
