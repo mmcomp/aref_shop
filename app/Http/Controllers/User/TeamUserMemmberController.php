@@ -26,12 +26,16 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Utils\Buying;
+use App\Utils\Sms;
+
 
 class TeamUserMemmberController extends Controller
 {    
     private $privateOrderController;
+    private $smsObj;
     public function __construct(OrderController $orderController)
     {
+        $this->smsObj=new Sms;
         $this->privateOrderController = $orderController;
     }
     public function index()
@@ -42,14 +46,19 @@ class TeamUserMemmberController extends Controller
 
     public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
     {
+        //dd($teamUserMemmber["mobile"]);
+        
         $data = "";
-        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();
-        $teamUserMemmber["is_verified"] = false;
+        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();       
+        $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
+        $teamUserMemmber["is_verified"] = false;    
         $teamUserMemmber["team_user_id"] = $user->teamUser->id;
         //$leaderexist=User::where("email",$teamUserMemmber["mobile"])->first();
         if ($user) {
-            if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {
+            if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
                 $data = TeamUserMemmber::create($teamUserMemmber->toArray());
+                $mobile=$teamUserMemmber["mobile"];               
+                $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
             } else {
                 $this->errorHandle("User", "this mobile has alreade been added");
             }
@@ -171,6 +180,7 @@ class TeamUserMemmberController extends Controller
                    //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
+                $this->smsObj($memmber->email,"زیست", "confirm-team-members");
             }
         }
         $leaderAddOrder = $this->addOrder($userId);
@@ -196,6 +206,7 @@ class TeamUserMemmberController extends Controller
            
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
+        $this->smsObj(User::find($userId)->email,"زیست", "confirm-team-members");
        
       //  $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);
