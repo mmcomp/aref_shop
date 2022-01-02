@@ -20,6 +20,7 @@ use App\Http\Requests\InsertOrderForUserRequest;
 use App\Models\TeamUserMemmber;
 use App\Models\TeamUser;
 use App\Models\TeamUserProduct;
+use App\Models\UserProduct;
 use App\Models\TeamProductDefaults;
 use App\Models\User;
 use App\Models\Order;
@@ -157,7 +158,14 @@ class TeamUserMemmberController extends Controller
                         "total_price_with_coupon" => 0,
                         "total_price" => 0
                     ];
+                    $userProduct=
+                    [
+                        "products_id" => $teamUserProductId,
+                        "users_id" =>$order->users_id,
+                        "partial" =>0,
+                    ];
                     $this->orderDetailAdd($OrderDetail);
+                   $this->userProductAdd($userProduct);
                 }
             }
         }
@@ -174,6 +182,13 @@ class TeamUserMemmberController extends Controller
                 "total_price_with_coupon" => 0,
                 "total_price" => 0
             ];
+            $userProduct=
+            [
+                "products_id" => $teamUserProductId,
+                "users_id" =>$leaderAddOrder->users_id,
+                "partial" =>0,
+            ];
+            $this->userProductAdd($userProduct);
             $this->orderDetailAdd($OrderDetail);
         }
        
@@ -189,6 +204,11 @@ class TeamUserMemmberController extends Controller
     {
        // dd($OrderDetail);
         return  OrderDetail::create($OrderDetail);
+    } 
+    protected function userProductAdd($userProduct)
+    {
+       // dd($OrderDetail);
+        return  UserProduct::create($userProduct);
     }
     protected function addOrder(int $userId)
     {      
