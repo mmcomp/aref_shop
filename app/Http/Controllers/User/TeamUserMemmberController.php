@@ -20,6 +20,7 @@ use App\Http\Requests\InsertOrderForUserRequest;
 use App\Models\TeamUserMemmber;
 use App\Models\TeamUser;
 use App\Models\TeamUserProduct;
+use App\Models\TeamProductDefaults;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -205,7 +206,7 @@ class TeamUserMemmberController extends Controller
     }
     protected static function getProductTeamId()
     {
-        $teamUserProduct = TeamUserProduct::all()->pluck("product_id");       
+        $teamUserProduct = TeamProductDefaults::all()->pluck("product_id");       
         return ($teamUserProduct);
     }
     public function errorHandle($class, $error)
