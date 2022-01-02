@@ -110,8 +110,7 @@ class TeamUserController extends Controller
             //     $teams[$id]["teamName"] = $teammember["team_user"]["name"];
             //     $teams[$id]["leaderFullName"] = $userTeam->leader->first_name . " " . $userTeam->leader->last_name;
             //     $id++;
-            // }
-            //dd($teamUsermembers);
+            // }           
             return (new TeamUserWithoutMemmberResource($teams));
             // return[
             //     "teams" => $teams               
@@ -121,7 +120,6 @@ class TeamUserController extends Controller
 
     public function _index()
     {
-
         $user_id = Auth::user()->id;
         $user_name = Auth::user()->first_name . " " . Auth::user()->last_name;       
         $userTeam = TeamUser::where("user_id_creator", $user_id)->first();
@@ -140,19 +138,13 @@ class TeamUserController extends Controller
 
                         $user_name2 = User::where("email", $memmber)->select("first_name", "last_name")->get()->toArray();
                         $memmber_tmp["name"] = $user_name2[0]["first_name"] . " " . $user_name2[0]["last_name"];
-                        //dd($memmber_tmp["name"]);
-
                         $team_tmp["memmbers"][$id]["name"] = $memmber_tmp["name"];
                         $team_tmp["memmbers"][$id]["mobile"] = $memmber;
                        
                         $id++;
-                    }
-                    // dd($team_tmp);
-                    // User::where("email",)
+                    }                   
                     $team_tmp["memmbers"] = $userMemmbers;
-                }
-
-                // dd($userMemmber->toArray());
+                }              
             }
         } else {
             $team_tmp["team_name"] = "";

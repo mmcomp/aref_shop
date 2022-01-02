@@ -13,9 +13,7 @@ class TeamUserWithoutMemmberResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {
-        //dd($this);
-        
+    {   
         return 
         [
             // "teamName" => $this->resource["team_user"]["name"] ,           

@@ -14,8 +14,7 @@ class TeamUserWithMemmberResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {
-        dd($this);
+    {      
         return 
         [
             "id" => $this->id,

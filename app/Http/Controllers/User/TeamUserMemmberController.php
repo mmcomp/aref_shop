@@ -54,15 +54,9 @@ class TeamUserMemmberController extends Controller
         return new TeamUserMemmberResource($data);
     }
     public function update(int $teamUserId)
-    {
-        // $this->buyProductsForTeams(8784);
-        //dd($request->mobile);
-        //dd(Auth::user());
-        // $user=User::where('id',Auth::user()->id)->with("teamUser")->first();
-        // dd($user->email);
-        // dd($teamUserId);
+    {       
         $teamUserMemmberobj = TeamUserMemmber::where("mobile", Auth::user()->email)->where("team_user_id", $teamUserId)->first();
-        //dd( $teamUserMemmberobj);
+        
         if ($teamUserMemmberobj) {
             //$team_user_id=$teamUserMemmberobj["team_user_id"];           
             $this->updateTeamUserMemmber($teamUserMemmberobj);
@@ -70,12 +64,12 @@ class TeamUserMemmberController extends Controller
                 $this->updateTeamUser($teamUserId);
             }
             // else{
-            //     //dd("fsf");
+            //    
             //     $this->updateTeamUser($teamUserId);
             // }   
             return response()->json($teamUserMemmberobj, 200);
         } else {
-            //dd("sdf");           
+                    
             $this->errorHandle("TeamUserMemmberResource", "TeamUserMemmber not found or it is verified before");
         }
     }
@@ -84,8 +78,7 @@ class TeamUserMemmberController extends Controller
     }
     public  function updateTeamUserMemmber(TeamUserMemmber $teamUserMemmber)
     {
-        $teamUserMemmber["is_verified"] = true;
-        // dd( $teamUserMemmber);
+        $teamUserMemmber["is_verified"] = true;       
         $updatetd = $teamUserMemmber->update();
         if (!$updatetd) {
             $this->errorHandle("TeamUserMemmberResource", "fail to update");
@@ -110,7 +103,7 @@ class TeamUserMemmberController extends Controller
     public function updateTeamUser($team_user_id)
     {
         $teamUser = TeamUser::find($team_user_id);
-        //dd( $teamUser);
+        
         if ($teamUser !== null) {
             $teamUser["is_full"] = 1;
             //$teamUser=$teamUser->update();
@@ -141,11 +134,9 @@ class TeamUserMemmberController extends Controller
         return true;
     }
     protected function buyProductsForTeams(int $teamId, int $userId)
-    {
-        //dd($userId);
+    {        
         //$teamUserId= $userId;
-        $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();
-        //dd($memmbers[0]->member->id); 
+        $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();        
         $teamUserProductIds = self::getProductTeamId();
         foreach ($memmbers as $memmber) {
             //dump($memmber->member->id);
@@ -183,7 +174,7 @@ class TeamUserMemmberController extends Controller
         ];
         $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);
-        //    dd($orderobj->toArray());
+        
         if ($leaderAddOrder) {
             // dd($orderobj->id);
             $this->addOrderDetails($leaderAddOrder->id);
@@ -194,14 +185,7 @@ class TeamUserMemmberController extends Controller
         return  OrderDetail::create($OrderDetail);
     }
     protected function addOrder(int $userId)
-    {
-
-        // dd($teamUserProductIds);
-        // $req= new InsertOrderForUserRequest;
-        // $req->replace(["users_id" => $userId]);
-        // dd($req);
-        // $orderobj= $this->privateOrderController->store($req);
-        //dd();
+    {      
         $addMemmberOrder = $this->privateOrderController->_store($userId, true);
         if (!$addMemmberOrder) {
             $this->errorHandle("user id $userId", "not found to add Order ");
@@ -209,16 +193,14 @@ class TeamUserMemmberController extends Controller
         return $addMemmberOrder;
     }
     protected function addOrderDetails(int $userId)
-    {
-        //dd("order is don");
+    {    
         Route::name("addOrder", ["users_id" => $userId]);
         $Orderobj = Order::where("users_id", $userId)->where("status", "manual_waiting")->first();
         return $Orderobj;
     }
     protected static function getProductTeamId()
     {
-        $teamUserProduct = TeamUserProduct::all()->pluck("product_id");
-        //dd($teamUserProduct);
+        $teamUserProduct = TeamUserProduct::all()->pluck("product_id");       
         return ($teamUserProduct);
     }
     public function errorHandle($class, $error)

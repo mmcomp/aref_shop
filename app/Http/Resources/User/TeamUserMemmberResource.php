@@ -15,11 +15,7 @@ class TeamUserMemmberResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {
-        //dd($this->member->toArray()["first_name"]);
-        //$tmp=$this->member->toArray(); 
-        //dd($tmp["first_name"]);      
-        //$fullname= $tmp["first_name"];
+    {       
         if($this->resource != null){
             return 
             [
