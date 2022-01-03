@@ -65,7 +65,7 @@ class TeamUserController extends Controller
        
         if (count($teamUsermembers) === 0) {
           
-            return (new TeamUserWithoutMemmberResource(null));
+            return (new TeamUserWithoutMemmberResource(null)); 
         }
         if (count($teamUsermembers) <= 1) {
                                

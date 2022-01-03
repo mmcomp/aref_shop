@@ -35,7 +35,7 @@ class TeamUserMemmberController extends Controller
     private $smsObj;
     public function __construct(OrderController $orderController)
     {
-        //$this->smsObj=new Sms;
+        $this->smsObj=new Sms;
         $this->privateOrderController = $orderController;
     }
     public function index()
@@ -46,24 +46,39 @@ class TeamUserMemmberController extends Controller
 
     public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
     {
+        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();
+        $isLeader=$this->isLeader($user->id,$teamUserMemmber["mobile"]);
+        if($isLeader)
+        {
+            $this->errorHandle("User", "this mobile is a leader");
+        }
         //dd($teamUserMemmber["mobile"]);
-        $smsObj=new Sms;
+        //$smsObj=new Sms;
+        $exist=TeamUserMemmber::where("mobile",$teamUserMemmber["mobile"])->where("is_verified",1)->first();
+        if($exist)
+        {
+            $this->errorHandle("User", "this mobile has alreade been added");
+        }
         $data = "";
-        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();       
+        
+        //dd($user);      
         $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
-        $teamUserMemmber["is_verified"] = false;    
-        $teamUserMemmber["team_user_id"] = $user->teamUser->id;
+        $teamUserMemmber["is_verified"] = false; 
+        // if($user->teamuser!==null)   
+        
         //$leaderexist=User::where("email",$teamUserMemmber["mobile"])->first();
-        if ($user) {
+        if ($user && $user->teamuser!==null) {
+            $teamUserMemmber["team_user_id"] = $user->teamUser->id;
             if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
                 $data = TeamUserMemmber::create($teamUserMemmber->toArray());
                 $mobile=$teamUserMemmber["mobile"];               
-                $smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
             } else {
                 $this->errorHandle("User", "this mobile has alreade been added");
             }
         }
         return new TeamUserMemmberResource($data);
+       
     }
     public function update(int $teamUserId)
     {       
@@ -88,6 +103,12 @@ class TeamUserMemmberController extends Controller
     public function destroyMemmber()
     {
     }
+    public function isLeader(string $userId,string $mobile)
+    {
+        //dd($userId);
+        $response=TeamUser::where("user_id_creator",$userId)->with("leader")->first();
+       return ($response->leader->email===$mobile);
+    }
     public  function updateTeamUserMemmber(TeamUserMemmber $teamUserMemmber)
     {
         $teamUserMemmber["is_verified"] = true;       
@@ -110,7 +131,7 @@ class TeamUserMemmberController extends Controller
         $teamUserCount = TeamUserMemmber::where("team_user_id", $team_user_id)->where("is_verified", 1)->count();
         if ($teamUserCount >= 2)
             return true;
-        return false;
+        return false; 
     }
     public function updateTeamUser($team_user_id)
     {
@@ -147,7 +168,7 @@ class TeamUserMemmberController extends Controller
     }
     protected function buyProductsForTeams(int $teamId, int $userId)
     {   
-        $smsObj=new Sms;
+        //$smsObj=new Sms;
         $buying = new Buying;
         //$teamUserId= $userId;
         $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();        
@@ -182,11 +203,12 @@ class TeamUserMemmberController extends Controller
                    //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
-                $smsObj->sendCode($memmber->member->email,"زیست", "confirm-team-members");
+                $this->smsObj->sendCode($memmber->member->email,"زیست", "confirm-team-members");
             }
         }
         
         $leaderAddOrder = $this->addOrder($userId);
+        //dd($leaderAddOrder);
         foreach ($teamUserProductIds as $teamUserProductId) {
             $OrderDetail = [
                 "orders_id" =>  $leaderAddOrder->id,
@@ -205,11 +227,11 @@ class TeamUserMemmberController extends Controller
                 "users_id" =>$leaderAddOrder->users_id,
                 "partial" =>0,
             ];
-            $this->userProductAdd($userProduct);
-           
+            $this->orderDetailAdd($OrderDetail);
+            //$this->userProductAdd($userProduct);           
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
-        $smsObj->sendCode(User::find($userId)->email,"زیست", "confirm-team-members");
+        $this->smsObj->sendCode(User::find($userId)->email,"زیست", "confirm-team-members");
        
       //  $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);
