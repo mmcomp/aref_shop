@@ -171,11 +171,19 @@ class TeamUserController extends Controller
     {
         $user_id = Auth::user()->id;
         $request["is_full"] = false;
-        $request["user_id_creator"] = $user_id;       
+        $request["user_id_creator"] = $user_id; 
+       if( $this->userCanAddTeam($user_id))
+       {
+        $this->errorHandle("TeamUser", "fail to add there is one ");
+       }     
         //$data=Fault::Create($request->all());
         $data = TeamUser::create($request->all());
         return response()->json($data, 200);
     }
+   protected function  userCanAddTeam(int $user_id)
+   {
+       return (TeamUser::where("user_id_creator",$user_id)->first());
+   }
     public function update(TeamUserCreateRequest $request, TeamUser $teamUser)
     {
         $data = TeamUser::find($teamUser);
@@ -184,5 +192,14 @@ class TeamUserController extends Controller
         return response()->json($data, 200);
         // return response()->json($id,209);
         //  $validation=self::Validation($id);    
+    }
+    public function errorHandle($class, $error)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'errors' => ["$class" => ["$error"]],
+
+            ], 422)
+        );
     }
 }

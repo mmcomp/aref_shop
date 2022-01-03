@@ -125,7 +125,7 @@ class TeamUserMemmberController extends Controller
         foreach ($teamUserMemmbers as $memmber) {
             $memmber->delete();
         }
-    }
+    }   
     protected  function isCountToEnd(int $team_user_id)
     {
         $teamUserCount = TeamUserMemmber::where("team_user_id", $team_user_id)->where("is_verified", 1)->count();
