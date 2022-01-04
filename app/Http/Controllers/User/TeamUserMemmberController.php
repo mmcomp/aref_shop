@@ -72,7 +72,7 @@ class TeamUserMemmberController extends Controller
             if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
                 $data = TeamUserMemmber::create($teamUserMemmber->toArray());
                 $mobile=$teamUserMemmber["mobile"];               
-                $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                //$this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
             } else {
                 $this->errorHandle("User", "this mobile has alreade been added");
             }
@@ -203,7 +203,7 @@ class TeamUserMemmberController extends Controller
                    //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
-                $this->smsObj->sendCode($memmber->member->email,"زیست", "confirm-team-members");
+               // $this->smsObj->sendCode($memmber->member->email,"زیست", "confirm-team-members");
             }
         }
         
@@ -231,7 +231,7 @@ class TeamUserMemmberController extends Controller
             //$this->userProductAdd($userProduct);           
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
-        $this->smsObj->sendCode(User::find($userId)->email,"زیست", "confirm-team-members");
+        //$this->smsObj->sendCode(User::find($userId)->email,"زیست", "confirm-team-members");
        
       //  $this->orderDetailAdd($leaderAddOrder);
         // $orderobj=$this->addOrder(4);

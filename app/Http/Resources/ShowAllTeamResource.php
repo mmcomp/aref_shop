@@ -17,7 +17,7 @@ class ShowAllTeamResource extends JsonResource
         return 
         [
             // "id"=> $this->id,
-            // "teamName"=>$this->name,
+             //"teamName"=>$this->name,
             $this->resource
         ];
     }

@@ -5,14 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\ShowAllTeamResource;
 use App\Models\TeamUser;
+use App\Models\User;
 
 class ShowAllTeamUserController extends Controller
 {
     public function index()
     {  
-        $teams=
+       $allTeams= $this->getAllTeams();
+        return (new ShowAllTeamResource($allTeams));
+    }
+    protected function getAllTeams()
+    {
+        $team=
         [   
-            "team" => [],     
+            "teams" => [],     
         ]; 
         $team=
         [
@@ -22,35 +28,74 @@ class ShowAllTeamUserController extends Controller
             "members"=>[]
         ];
         $members=[
-            "id"=>"",
+            //"id"=>"",
             "mobile"=>"",
             "name"=>"",
-            "is_verified"=>"",
+            "isCreator" => ""
+            //"is_verified"=>"",
         ];
 
-        $allTeams=TeamUser::with("TeamMember.member")->get();
-        //dd($allTeams);
-        //$allTeams=TeamUser::all()->toArray();
-        //dd($allTeams);
-        //dd($allTeams[0]["team_member"][0]["member"]["first_name"]);
-        //dd($allTeams->team_member->member->first_name);
+        $allTeams=TeamUser::with("TeamMember.member")->get();       
         if(count($allTeams)>0)
         {
             $id=0;
             foreach($allTeams as $allTeam)
             {
-                //dd($allTeam);
+               // dd($allTeam["TeamMember"]);
                 $team["name"]=$allTeam["name"];
                 $team["is_full"]=$allTeam["is_full"];
                 $team["creator"]=$allTeam["user_id_creator"];
-                $teams["team"][]=$team;
-                $id++;
+                if($allTeam["user_id_creator"] !==null)
+                   $user=User::find($allTeam["user_id_creator"]);
+                  
+                if($allTeam["TeamMember"] !==null)
+                {
+                   $count=0;
+                    foreach($allTeam["TeamMember"] as $teamMember)
+                    {
+                        
+                        if($teamMember["member"] !==null)
+                        {
+                            $members["mobile"]=$teamMember["member"]["email"];
+                            $members["name"]=$teamMember["member"]["first_name"]." ".$teamMember["member"]["last_name"];
+                            $members["isCreator"]=0;
+                           // dump($members["mobile"] . "- " .$members["name"] );
+                        }
+                        else
+                        {
+                            $members["mobile"]=null;
+                            $members["name"]=null;
+                            $members["isCreator"]=0;
+                           // dump($members["mobile"] . "- " .$members["name"] );
+                        }
+                       // dump($members["mobile"] . "- " .$members["name"] );                      
+                       // dump($members);
+                        // $members["is_verified"]=$teamMember["member"]["is_verified"];
+                        $team["members"][$count]=$members;
+                        //dd($teamMember["member"]["first_name"]);
+                        //$members=null;
+                        $count++;
+                    }
+                    /////////////////// for leader //////////////////////
+                        if($user)
+                        {
+                            $members["mobile"]=$user->email;
+                            $members["name"]=$user->first_name ."-". $user->last_name;
+                            $members["isCreator"]=1;
+                        }
+                        else
+                        {
+                            $members["mobile"]=null;
+                            $members["name"]=null;
+                            $members["isCreator"]=1; 
+                        }
+                        $team["members"][$count]=$members;                                
+                }                        
+                $teams["teams"][]=$team;
+                //$id++;
             }
-            dd($teams);
-        }
-       
+            //dd("ebd dump");          
+        }       
         //dd($allTeam);
-        return (ShowAllTeamResource::collection($team));
-
     }
 }
