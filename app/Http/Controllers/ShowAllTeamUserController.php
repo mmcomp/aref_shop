@@ -46,7 +46,7 @@ class ShowAllTeamUserController extends Controller
                 $team["is_full"]=$allTeam["is_full"];
                 $team["creator"]=$allTeam["user_id_creator"];
                 if($allTeam["user_id_creator"] !==null)
-                   $user=User::find($allTeam["user_id_creator"]);
+                    $user=User::find($allTeam["user_id_creator"]);
                   
                 if($allTeam["TeamMember"] !==null)
                 {
@@ -61,6 +61,7 @@ class ShowAllTeamUserController extends Controller
     }
     protected function getMembers($teamMembers)
     {
+        $user=User::find($allTeam["user_id_creator"]);
         $count=0;
         foreach($teamMembers as $teamMember)
         {            
@@ -99,7 +100,7 @@ class ShowAllTeamUserController extends Controller
                 $members["name"]=null;
                 $members["isCreator"]=1; 
             }
-            $team["members"][$count]=$this->getLeader()$members;   
+            $team["members"][$count]=$this->getLeader();//$members;   
     }
     protected function getLeader()
     {
