@@ -50,46 +50,7 @@ class ShowAllTeamUserController extends Controller
                   
                 if($allTeam["TeamMember"] !==null)
                 {
-                   $count=0;
-                    foreach($allTeam["TeamMember"] as $teamMember)
-                    {
-                        
-                        if($teamMember["member"] !==null)
-                        {
-                            $members["mobile"]=$teamMember["member"]["email"];
-                            $members["name"]=$teamMember["member"]["first_name"]." ".$teamMember["member"]["last_name"];
-                            $members["isCreator"]=0;
-                           // dump($members["mobile"] . "- " .$members["name"] );
-                        }
-                        else
-                        {
-                            $members["mobile"]=null;
-                            $members["name"]=null;
-                            $members["isCreator"]=0;
-                           // dump($members["mobile"] . "- " .$members["name"] );
-                        }
-                       // dump($members["mobile"] . "- " .$members["name"] );                      
-                       // dump($members);
-                        // $members["is_verified"]=$teamMember["member"]["is_verified"];
-                        $team["members"][$count]=$members;
-                        //dd($teamMember["member"]["first_name"]);
-                        //$members=null;
-                        $count++;
-                    }
-                    /////////////////// for leader //////////////////////
-                        if($user)
-                        {
-                            $members["mobile"]=$user->email;
-                            $members["name"]=$user->first_name ."-". $user->last_name;
-                            $members["isCreator"]=1;
-                        }
-                        else
-                        {
-                            $members["mobile"]=null;
-                            $members["name"]=null;
-                            $members["isCreator"]=1; 
-                        }
-                        $team["members"][$count]=$members;                                
+                      $mem=$this->getMembers($allTeam["TeamMember"]);                         
                 }                        
                 $teams["teams"][]=$team;
                 //$id++;
@@ -97,5 +58,51 @@ class ShowAllTeamUserController extends Controller
             //dd("ebd dump");          
         }       
         //dd($allTeam);
+    }
+    protected function getMembers($teamMembers)
+    {
+        $count=0;
+        foreach($teamMembers as $teamMember)
+        {            
+            if($teamMember["member"] !==null)
+            {
+                $members["mobile"]=$teamMember["member"]["email"];
+                $members["name"]=$teamMember["member"]["first_name"]." ".$teamMember["member"]["last_name"];
+                $members["isCreator"]=0;
+                // dump($members["mobile"] . "- " .$members["name"] );
+            }
+            else
+            {
+                $members["mobile"]=null;
+                $members["name"]=null;
+                $members["isCreator"]=0;
+                // dump($members["mobile"] . "- " .$members["name"] );
+            }
+            // dump($members["mobile"] . "- " .$members["name"] );                      
+            // dump($members);
+            // $members["is_verified"]=$teamMember["member"]["is_verified"];
+            $team["members"][$count]=$members;
+            //dd($teamMember["member"]["first_name"]);
+            //$members=null;
+            $count++;
+        }
+        /////////////////// for leader //////////////////////
+            if($user)
+            {
+                $members["mobile"]=$user->email;
+                $members["name"]=$user->first_name ."-". $user->last_name;
+                $members["isCreator"]=1;
+            }
+            else
+            {
+                $members["mobile"]=null;
+                $members["name"]=null;
+                $members["isCreator"]=1; 
+            }
+            $team["members"][$count]=$this->getLeader()$members;   
+    }
+    protected function getLeader()
+    {
+
     }
 }

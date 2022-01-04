@@ -50,14 +50,16 @@ class TeamUserMemmberController extends Controller
         $isLeader=$this->isLeader($user->id,$teamUserMemmber["mobile"]);
         if($isLeader)
         {
-            $this->errorHandle("User", "this mobile is a leader");
+            $this->deleteTeam( $teamUserMemmber["team_user_id"]);
+            $this->errorHandle("User", "این شماره برای سرگروه می باشد.");
         }
         //dd($teamUserMemmber["mobile"]);
         //$smsObj=new Sms;
         $exist=TeamUserMemmber::where("mobile",$teamUserMemmber["mobile"])->where("is_verified",1)->first();
         if($exist)
         {
-            $this->errorHandle("User", "this mobile has alreade been added");
+            $this->deleteTeam( $teamUserMemmber["team_user_id"]);
+            $this->errorHandle("User", "این شماره موبایل قبلا به عنوان عضو درج شده");
         }
         $data = "";
         
@@ -74,7 +76,8 @@ class TeamUserMemmberController extends Controller
                 $mobile=$teamUserMemmber["mobile"];               
                 //$this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
             } else {
-                $this->errorHandle("User", "this mobile has alreade been added");
+                $this->deleteTeam( $teamUserMemmber["team_user_id"]);
+                $this->errorHandle("User", "شماره موبایل تکراری است");
             }
         }
         return new TeamUserMemmberResource($data);
@@ -270,6 +273,10 @@ class TeamUserMemmberController extends Controller
     {
         $teamUserProduct = TeamProductDefaults::all()->pluck("product_id");       
         return ($teamUserProduct);
+    }
+    protected function deleteTeam($team_user_id)
+    {
+       return TeamUser::find($team_user_id)->delete();
     }
     public function errorHandle($class, $error)
     {
