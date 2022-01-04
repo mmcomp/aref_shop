@@ -173,8 +173,10 @@ class TeamUserMemmberController extends Controller
         //$teamUserId= $userId;
         $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();        
         $teamUserProductIds = self::getProductTeamId();
+        dd($memmbers);
         foreach ($memmbers as $memmber) {
             //dump($memmber->member->id);
+
             $order = $this->addOrder($memmber->member->id);
            
             if ($order) {
