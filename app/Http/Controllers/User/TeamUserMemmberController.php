@@ -46,11 +46,11 @@ class TeamUserMemmberController extends Controller
 
     public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
     {
-        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();
-        $isLeader=$this->isLeader($user->id,$teamUserMemmber["mobile"]);
+        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();      
+        $isLeader=$this->isLeader($user->id,$teamUserMemmber["mobile"]);        
         if($isLeader)
         {
-            $this->deleteTeam( $teamUserMemmber["team_user_id"]);
+            $this->deleteTeam($user->teamUser->id);
             $this->errorHandle("User", "این شماره برای سرگروه می باشد.");
         }
         //dd($teamUserMemmber["mobile"]);
@@ -58,7 +58,7 @@ class TeamUserMemmberController extends Controller
         $exist=TeamUserMemmber::where("mobile",$teamUserMemmber["mobile"])->where("is_verified",1)->first();
         if($exist)
         {
-            $this->deleteTeam( $teamUserMemmber["team_user_id"]);
+            $this->deleteTeam($user->teamUser->id);
             $this->errorHandle("User", "این شماره موبایل قبلا به عنوان عضو درج شده");
         }
         $data = "";
@@ -76,7 +76,7 @@ class TeamUserMemmberController extends Controller
                 $mobile=$teamUserMemmber["mobile"];               
                 //$this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
             } else {
-                $this->deleteTeam( $teamUserMemmber["team_user_id"]);
+                $this->deleteTeam($user->teamUser->id);
                 $this->errorHandle("User", "شماره موبایل تکراری است");
             }
         }
@@ -274,9 +274,9 @@ class TeamUserMemmberController extends Controller
         $teamUserProduct = TeamProductDefaults::all()->pluck("product_id");       
         return ($teamUserProduct);
     }
-    protected function deleteTeam($team_user_id)
+    protected function deleteTeam($id)
     {
-       return TeamUser::find($team_user_id)->delete();
+       return TeamUser::whereId($id)->delete();
     }
     public function errorHandle($class, $error)
     {
