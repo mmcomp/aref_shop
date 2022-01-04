@@ -92,12 +92,12 @@ class OrderController extends Controller
         //dd($user);      
         if ($user->group->type == 'user') {
             $comment = ($addteamOrder==true ? "خرید خودکار محصول برای اعضای تیم" : "");
-            
+            $saverUsersId=($addteamOrder==true ? $users_id : Auth::user()->id);
             $order = Order::where('users_id', $users_id)->where('status', 'manual_waiting')->first();
             if ($order == null) {
                 $order = Order::create([
                     'users_id' => $users_id,
-                    'saver_users_id' => Auth::user()->id,
+                    'saver_users_id' => $saverUsersId,
                     'status' => ($addteamOrder==true ? "ok" : "manual_waiting"),
                     'comment' => $comment,
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
