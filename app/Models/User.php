@@ -78,6 +78,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\OrderDetail', 'users_id', 'id');
     }
+    public function teamUser()
+    {
+       return $this->belongsTo('App\Models\TeamUser','id','user_id_creator');
+    }
     public function menus()
     {
         $groupMenus = $this->group()->first()->menus()->with('menu')->get();
@@ -112,8 +116,5 @@ class User extends Authenticatable implements JWTSubject
         }
         return $menus;
     }
-    public function teamUser()
-    {
-       return $this->belongsTo('App\Models\TeamUser',"id","user_id_creator");
-    }
+    
 }

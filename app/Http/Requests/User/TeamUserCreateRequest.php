@@ -7,11 +7,13 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 
 class TeamUserCreateRequest extends FormRequest
 {
+    use SoftDeletes;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,7 +33,7 @@ class TeamUserCreateRequest extends FormRequest
     {
         return [
             //"user_id_creator" => ["required", "int","unique:team_users,user_id_creator"],
-            "name" => ["required", "string","min:3","unique:team_users,name"]
+            "name" => ["required", "string","min:3",'unique:team_users,name,NULL,id,deleted_at,NULL']
             //"is_full" => ["required", "bool"],
         ];
     }

@@ -367,5 +367,6 @@ Route::group([
 ], function ($router) {
     
    Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);  
+   Route::post('/report/any-team',[ShowAllTeamUserController::class, 'filter']);  
 });
 

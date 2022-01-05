@@ -46,33 +46,45 @@ class TeamUserMemmberController extends Controller
 
     public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
     {
-        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();      
-        $isLeader=$this->isLeader($user->id,$teamUserMemmber["mobile"]);        
-        if($isLeader)
-        {
-            $this->deleteTeam($user->teamUser->id);
-            $this->errorHandle("User", "این شماره برای سرگروه می باشد.");
-        }        
-        $exist=TeamUserMemmber::where("mobile",$teamUserMemmber["mobile"])->where("is_verified",1)->first();
-        if($exist)
-        {
-            $this->deleteTeam($user->teamUser->id);
-            $this->errorHandle("User", "این شماره موبایل قبلا به عنوان عضو درج شده");
-        }
-        $data = ""; 
-        $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
-        $teamUserMemmber["is_verified"] = false; 
        
-        if ($user && $user->teamuser!==null) {
-            $teamUserMemmber["team_user_id"] = $user->teamUser->id;
-            if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
-                $data = TeamUserMemmber::create($teamUserMemmber->toArray());
-                $mobile=$teamUserMemmber["mobile"];               
-                $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
-            } else {
+        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();      
+        $isLeader=$this->isLeader($teamUserMemmber["mobile"]); 
+        //dd($isLeader);            
+        if($isLeader)
+        {            
+           if($user->teamUser)
+           {
                 $this->deleteTeam($user->teamUser->id);
-                $this->errorHandle("User", "شماره موبایل تکراری است");
+           }             
+           $this->errorHandle("Leader", " شماره ".$teamUserMemmber["mobile"]."برای سرگروه می باشد.");
+        } 
+        if($user->teamuser!==null)
+        {
+            $exist=TeamUserMemmber::where("mobile",$teamUserMemmber["mobile"])->where("is_verified",1)->first();       
+            if($exist)
+            {
+                $this->deleteTeam($user->teamUser->id);
+                $this->errorHandle("TeamUser", " شماره ".$teamUserMemmber["mobile"]." قبلا به عنوان عضو درج شده");
             }
+            $data = ""; 
+            $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
+            $teamUserMemmber["is_verified"] = false; 
+        
+            if ($user && $user->teamuser!==null) {
+                $teamUserMemmber["team_user_id"] = $user->teamUser->id;
+                if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
+                    $data = TeamUserMemmber::create($teamUserMemmber->toArray());
+                    $mobile=$teamUserMemmber["mobile"];               
+                    $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                } else {
+                    $this->deleteTeam($user->teamUser->id);
+                    $this->errorHandle("User", "شماره ".$teamUserMemmber['mobile']." تکراری است");
+                }
+            }
+        } 
+        else
+        {
+            $this->errorHandle("TeamUser", "لطفا ابتدا تیم را ایجاد کنید.");
         }
         return new TeamUserMemmberResource($data);       
     }
@@ -99,10 +111,26 @@ class TeamUserMemmberController extends Controller
     public function destroyMemmber()
     {
     }
-    public function isLeader(string $userId,string $mobile)
-    {       
-        $response=TeamUser::where("user_id_creator",$userId)->with("leader")->first();
-       return ($response->leader->email===$mobile);
+    public function isLeader(string $mobile)
+    { 
+       $user=User::where("email",$mobile)->first();
+       
+       if($user!==null)      
+       {           
+            $response=TeamUser::where("user_id_creator",$user->id)->with("leader")->first();            
+            if($response)
+            {
+                    return true;
+            }
+            return false;
+       }
+       else
+       {            
+            return false;
+       }
+      
+       //dd($response);
+       
     }
     public  function updateTeamUserMemmber(TeamUserMemmber $teamUserMemmber)
     {
@@ -255,7 +283,15 @@ class TeamUserMemmberController extends Controller
     }
     protected function deleteTeam($id)
     {
-       return TeamUser::whereId($id)->delete();
+       if(TeamUser::find($id)->delete())
+       {
+          $teamMembers= TeamUserMemmber::where("team_user_id",$id)->get();
+           foreach($teamMembers as $member)
+           {
+                 $member->delete();
+           }
+       }
+
     }
     public function errorHandle($class, $error)
     {
