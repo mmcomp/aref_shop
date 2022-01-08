@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\ShowAllTeamResource;
 use App\Http\Requests\ShowFilteredTeamUserRequest;
-
+use App\Http\Resources\ShowFilteredTeamResource;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Models\TeamUser;
 use App\Models\TeamUserMemmber;
 use App\Models\User;
@@ -20,34 +21,64 @@ class ShowAllTeamUserController extends Controller
         ])->response()->setStatusCode(200);
     }
     public function filter(ShowFilteredTeamUserRequest $request)
-    { 
-        $member=TeamUserMemmber::where("mobile",$request->mobile)->with("teamUser.leader")->with("teamUser.TeamMember.member")->first();
-        $leader=User::where("email",$request->mobile)->with("teamUser.member")->first();
-        //dd($member);
-        if($member)
-        {
-            return($member);
-        }
-        if($leader)
-        {
-            return($leader);
-        }
-        // $leader= TeamUser::with("leader")->whereHas("leader",function($query) use ($request){           
-        //     $query->where("email",$request->mobile);
-        // })->get();  
-        // if($leader)   
+    {
+        $team=
+        [
+            "name" =>"",
+            "is_full"=>'',
+            "creator" => "",
+            "members"=>[]
+        ];     
+         $user=User::where("email",$request->mobile)->with("teamUser.TeamMember.member")->first();  
+         //dd($user);       
+         if($user)
+         {
+             //it is only  user that registered
+           
+                
+             if($user->teamUser)// a user has a team so it is leader
+             {
+
+               dd($user->teamUser->TeamMember->toArray());
+                $team["name"]=$user["name"];           
+                $team["creator"]=$user["id"];  
+                $team["members"]=$this->getMembers($user["id"],$user->teamUser->TeamMember->toArray()); 
+             }
+             else//it isn't  a leader user just registerd   
+             {
+                $member=TeamUserMemmber::where("mobile",$request->mobile)->with("teamUser.leader")->with("teamUser.TeamMember.member")->first();
+               // dd($member);
+             }
+             
+         }
+         else ///this user is not registered yet 
+         {
+            $this->errorHandle("User", "this user is not registered yet ");
+         }
+        
+        // $team["leader"]=$leader;
+        
+        // //dd($member);
+        // $team["member"]=$member;
+        //return (new ShowFilteredTeamResource($team));
+      
+        // $teams=null;                
+        // if(count($leader)>0)
         // {
-        //     ///find member
-        // }
-        // {
-        //     //find member 
-        //     //ifmember exist then find leader
-        // }     
-        // dd($leader);
+            
+        //     if($leader["TeamMember"] !==null)
+        //     {
+        //         $team["members"]=$this->getMembers($allTeam["user_id_creator"],$allTeam["TeamMember"]);                         
+        //     }                        
+        //     $teams["teams"][]=$team;                
+                               
+        // } 
+        return $team ;    
+        
     }
     protected function getAllTeams()
     {
-        // $team=
+        // $team= 
         // [   
         //     "teams" => [],     
         // ]; 
@@ -59,8 +90,7 @@ class ShowAllTeamUserController extends Controller
             "members"=>[]
         ];     
         $teams=null;
-    $allTeams=TeamUser::with("TeamMember.member")->orderBy('id',"Asc")->paginate(env('PAGE_COUNT')); 
-         
+        $allTeams=TeamUser::with("TeamMember.member")->orderBy('id',"Asc")->paginate(env('PAGE_COUNT'));          
         if(count($allTeams)>0)
         {
             $id=0;
@@ -135,5 +165,14 @@ class ShowAllTeamUserController extends Controller
                 $members["isCreator"]=1; 
             }
             return $members;
+    }
+    public function errorHandle($class, $error)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'errors' => ["$class" => ["$error"]],
+
+            ], 422)
+        );
     }
 }
