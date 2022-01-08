@@ -15,7 +15,7 @@ class RemoveUniqueFiled extends Migration
     {
         Schema::table('team_users', function (Blueprint $table)
         {
-            $table->dropUnique('user_id_creator','name');
+            $table->dropUnique(['user_id_creator','name']);
         });
     }
 
