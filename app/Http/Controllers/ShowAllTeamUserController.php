@@ -29,22 +29,19 @@ class ShowAllTeamUserController extends Controller
             "creator" => "",
             "members"=>[]
         ];     
-         $user=User::where("email",$request->mobile)->with("teamUser.TeamMember.member")->first();  
-         //dd($user);       
+         $user=User::where("email",$request->mobile)->with("teamUser.TeamMember.member")->first(); 
          if($user)
          {
              //it is only  user that registered
              if($user->teamUser)// a user has a team so it is leader
-             {
-                //dd($user->teamUser->TeamMember->toArray());
+             {               
                 $team["name"]=$user->teamUser->name;           
                 $team["is_full"]=$user->teamUser->is_full;          
                 $team["creator"]=$user->teamUser->user_id_creator;  
                 $team["members"]=$this->getMembers($user["id"],$user->teamUser->TeamMember); 
              }
              else//it isn't  a leader user just registerd   
-             {
-                //$this->errorHandle("User", "this user doesn't have any teams.");
+             {               
                 $member=TeamUserMemmber::where("mobile",$request->mobile)->with("teamUser.leader")->with("teamUser.TeamMember.member")->first();
                if($member!==null)  //because i dont have leader in $member->teamUser->TeamMember and finally i get leader seperatelly and put in the last member insdex
                {
@@ -57,43 +54,17 @@ class ShowAllTeamUserController extends Controller
                else{
                     $this->errorHandle("User", "this user doesn't have any team.");
                }
-               
-              
-               // dd(count($team["members"]));
-             }
-             
+             }             
          }
          else ///this user is not registered yet 
          {
             $this->errorHandle("User", "this user is not registered yet ");
-         }
-        
-        // $team["leader"]=$leader;
-        
-        // //dd($member);
-        // $team["member"]=$member;
-        //return (new ShowFilteredTeamResource($team));
-      
-        // $teams=null;                
-        // if(count($leader)>0)
-        // {
-            
-        //     if($leader["TeamMember"] !==null)
-        //     {
-        //         $team["members"]=$this->getMembers($allTeam["user_id_creator"],$allTeam["TeamMember"]);                         
-        //     }                        
-        //     $teams["teams"][]=$team;                
-                               
-        // } 
+         }        
         return $team ;    
         
     }
     protected function getAllTeams()
-    {
-        // $team= 
-        // [   
-        //     "teams" => [],     
-        // ]; 
+    {       
         $team=
         [
             "name" =>"",
@@ -107,8 +78,7 @@ class ShowAllTeamUserController extends Controller
         {
             $id=0;
             foreach($allTeams as $allTeam)
-            {
-               // dd($allTeam["TeamMember"]);
+            {              
                 $team["name"]=$allTeam["name"];
                 $team["is_full"]=$allTeam["is_full"];
                 $team["creator"]=$allTeam["user_id_creator"];  
@@ -120,23 +90,14 @@ class ShowAllTeamUserController extends Controller
                 $teams["teams"][]=$team;                
             }                    
         } 
-        return $teams ;     
-        //dd($allTeam);
+        return $teams ;   
     }
     protected function getMembers(int $userId,$teamMembers)
     {       
-        $members=null;
-        // $members=[            
-        //     "mobile"=>"",
-        //     "name"=>"",
-        //     "isCreator" => "" ,
-        //     "isVerified" =>"",
-        // ];
-        $count=0;
-        //dd($teamMembers);
+        $members=null;      
+        $count=0;       
         foreach($teamMembers as $teamMember)
-        {
-            //dump($teamMember);            
+        {                   
             if($teamMember["member"] !==null)
             {
                 $members["mobile"]=$teamMember["member"]["email"];
