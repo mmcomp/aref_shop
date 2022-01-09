@@ -25,7 +25,7 @@ class ShowAllTeamUserController extends Controller
         $team=
         [
             "name" =>"",
-            "is_full"=>'',
+            "is_full"=>"",
             "creator" => "",
             "members"=>[]
         ];     
@@ -34,20 +34,32 @@ class ShowAllTeamUserController extends Controller
          if($user)
          {
              //it is only  user that registered
-           
-                
              if($user->teamUser)// a user has a team so it is leader
              {
-
-               dd($user->teamUser->TeamMember->toArray());
-                $team["name"]=$user["name"];           
-                $team["creator"]=$user["id"];  
-                $team["members"]=$this->getMembers($user["id"],$user->teamUser->TeamMember->toArray()); 
+                //dd($user->teamUser->TeamMember->toArray());
+                $team["name"]=$user->teamUser->name;           
+                $team["is_full"]=$user->teamUser->is_full;          
+                $team["creator"]=$user->teamUser->user_id_creator;  
+                $team["members"]=$this->getMembers($user["id"],$user->teamUser->TeamMember); 
              }
              else//it isn't  a leader user just registerd   
              {
+                //$this->errorHandle("User", "this user doesn't have any teams.");
                 $member=TeamUserMemmber::where("mobile",$request->mobile)->with("teamUser.leader")->with("teamUser.TeamMember.member")->first();
-               // dd($member);
+               if($member!==null)  //because i dont have leader in $member->teamUser->TeamMember and finally i get leader seperatelly and put in the last member insdex
+               {
+                $team["name"]= $member->teamUser->name;           
+                $team["is_full"]= $member->teamUser->is_full;          
+                $team["creator"]= $member->teamUser->user_id_creator;  
+                $team["members"]=$this->getMembers( $member["id"], $member->teamUser->TeamMember); 
+                $team["members"][count($team["members"])-1]=$this->getLeader($member->teamUser->user_id_creator);
+               }
+               else{
+                    $this->errorHandle("User", "this user doesn't have any team.");
+               }
+               
+              
+               // dd(count($team["members"]));
              }
              
          }
@@ -112,7 +124,7 @@ class ShowAllTeamUserController extends Controller
         //dd($allTeam);
     }
     protected function getMembers(int $userId,$teamMembers)
-    {
+    {       
         $members=null;
         // $members=[            
         //     "mobile"=>"",
@@ -134,7 +146,7 @@ class ShowAllTeamUserController extends Controller
             }
             else
             {
-                $members["mobile"]=null;
+                $members["mobile"]=$teamMember["mobile"];
                 $members["name"]=null;
                 $members["isVerified"]=null;
                 $members["isCreator"]=0;               
