@@ -130,15 +130,15 @@ class ShowAllTeamUserController extends Controller
             if($user)
             {
                 $members["mobile"]=$user->email;
-                $members["name"]=$user->first_name ."-". $user->last_name;
-                $members["isVerified"]=null;
+                $members["name"]=$user->first_name ." ". $user->last_name;
+                $members["isVerified"]=1;
                 $members["isCreator"]=1;
             }
             else
             {
                 $members["mobile"]=null;
                 $members["name"]=null;
-                $members["isVerified"]=null;
+                $members["isVerified"]=1;
                 $members["isCreator"]=1; 
             }
             return $members;
