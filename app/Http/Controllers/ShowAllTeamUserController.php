@@ -75,7 +75,7 @@ class ShowAllTeamUserController extends Controller
             "members"=>[]
         ];     
         $teams=null;
-        $allTeams=TeamUser::with("TeamMember.member")->orderBy('id',"Asc")->paginate(env('PAGE_COUNT'));          
+        $allTeams=TeamUser::with("TeamMember.member")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT'));          
         if(count($allTeams)>0)
         {
             $id=0;
