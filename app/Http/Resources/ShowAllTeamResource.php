@@ -14,9 +14,6 @@ class ShowAllTeamResource extends JsonResource
      */
     public function toArray($request)
     {       
-        return 
-        [        
-            $this->resource
-        ];
+        return $this->resource;        
     }
 }

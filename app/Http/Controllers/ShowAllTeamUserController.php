@@ -67,9 +67,11 @@ class ShowAllTeamUserController extends Controller
     {       
         $team=
         [
+            "id" =>"",
             "name" =>"",
             "is_full"=>'',
             "creator" => "",
+            "created_at" => "",
             "members"=>[]
         ];     
         $teams=null;
@@ -78,10 +80,12 @@ class ShowAllTeamUserController extends Controller
         {
             $id=0;
             foreach($allTeams as $allTeam)
-            {              
+            { 
+                $team["id"]=$allTeam["id"];             
                 $team["name"]=$allTeam["name"];
                 $team["is_full"]=$allTeam["is_full"];
                 $team["creator"]=$allTeam["user_id_creator"];  
+                $team["created_at"]=date('Y-m-d H:i:s', strtotime($allTeam["created_at"]));  
                   
                 if($allTeam["TeamMember"] !==null)
                 {
