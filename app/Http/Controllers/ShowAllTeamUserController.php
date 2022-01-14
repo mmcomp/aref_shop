@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\ShowAllTeamResource;
 use App\Http\Requests\ShowFilteredTeamUserRequest;
+use App\Http\Requests\ReplaceTeamMemberRequest;
+
 use App\Http\Resources\ShowFilteredTeamResource;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Models\TeamUser;
@@ -13,6 +15,17 @@ use App\Models\User;
 
 class ShowAllTeamUserController extends Controller
 {
+    public function replaceTeamMember(ReplaceTeamMemberRequest $teamMember)
+    {       
+        $team=TeamUser::where("id",$teamMember)->where("is_full",false)->with("TeamMember")->get();
+        if($team)
+        {
+            //dd($teamMember->active_mobile);
+          $responsde= app('App\Http\Controllers\User\TeamUserMemmberController')->store($teamMember->active_mobile);
+          dd($responsde);
+        }
+
+    }
     public function index()
     {  
        $allTeams= $this->getAllTeams();

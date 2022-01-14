@@ -368,5 +368,6 @@ Route::group([
     
    Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);  
    Route::post('/report/any-team',[ShowAllTeamUserController::class, 'filter']);  
+   Route::post('/replace/team-mobile',[ShowAllTeamUserController::class, 'replaceTeamMember']);  
 });
 
