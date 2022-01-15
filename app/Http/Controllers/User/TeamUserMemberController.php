@@ -73,8 +73,9 @@ class TeamUserMemberController extends Controller
                 $teamUserMember["team_user_id"] = $user->teamUser->id;
                 if ($this->avoidDuplicate($user->teamUser->id, $teamUserMember["mobile"])) {                
                     $data = TeamUserMember::create($teamUserMember->toArray());
-                    $mobile=$teamUserMember["mobile"];               
-                    $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                    $this->notifyToNotApprovedMembers($user->teamUser->id);
+                    // $mobile=$teamUserMember["mobile"];               
+                    // $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
                 } else {
                     $this->deleteTeam($user->teamUser->id);
                     $this->errorHandle("User", "شماره ".$teamUserMember['mobile']." تکراری است");
@@ -292,6 +293,28 @@ class TeamUserMemberController extends Controller
        }
 
     }
+    protected function notifyToNotApprovedMembers(int $teamUserId)
+    {
+      $allNotApprovedMembers=TeamUserMember::where("team_user_id",$teamUserId)
+      ->with("member")
+      ->where("is_verified",0)
+      ->get();
+      if(count($allNotApprovedMembers)>=2)
+      {
+        $userFullNmae=str_replace(' ',"-",$allNotApprovedMembers->first_name ."-". $allNotApprovedMembers->last_name);
+        foreach($allNotApprovedMembers as $allNotApprovedMember)
+        {
+            $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullNmae, 'verify-team-member');
+        }
+        return true;
+      }
+      else{
+        //$this->errorHandle("TeamUserMember", "fail to update");
+        return false;
+      }
+      
+    }
+   // $this->teamIsFull($user->teamUser->id);
     public function errorHandle($class, $error)
     {
         throw new HttpResponseException(

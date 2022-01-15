@@ -19,7 +19,9 @@ class ShowAllTeamUserController extends Controller
 {
     public function replaceTeamMember(ReplaceTeamMemberRequest $teamMember)
     { 
-        $user = User::where('id', Auth::user()->id)->with("teamUser")->first();    
+       $user= TeamUser::where("id",$teamMember->team_user_id)->with("leader")->with("leader.teamUser.TeamMember")->first();
+       //dd($user);
+       // $user = User::where('id', $teamMember->team_user_id)->with("teamUser")->first();    
         $adminUser=$this->isAdmin(); 
         //dd($isAdmin); 
         if(!$adminUser)    
@@ -37,43 +39,40 @@ class ShowAllTeamUserController extends Controller
       
         $isLeader=$this->isLeader($teamMember->active_mobile);                   
         if($isLeader)
-        {            
-            // if($user->teamUser)
-            // {
-            //         //$this->deleteTeam($user->teamUser->id);
-            // }             
-            $this->errorHandle("Leader", " شماره ".$teamMember->active_mobile."برای سرگروه می باشد.");
-            } 
-            if($user->teamuser!==null)
-            {
-                $exist=TeamUserMember::where("mobile",$teamMember->active_mobile)->where("is_verified",1)->first();       
-                if($exist)
-                {                    
-                    $this->errorHandle("TeamUser", " شماره ".$teamMember->active_mobile." قبلا به عنوان عضو درج شده");
+        { 
+            $this->errorHandle("TeamUser", " شماره ".$teamMember->active_mobile." قبلا به عنوان عضو درج شده");
+        } 
+        if($user->teamuser!==null)
+        {
+            $exist=TeamUserMember::where("mobile",$teamMember->active_mobile)->where("is_verified",1)->first();       
+            if($exist)
+            {                    
+                $this->errorHandle("TeamUser", " شماره ".$teamMember->active_mobile." قبلا به عنوان عضو درج شده");
+            }
+            $data = ""; 
+            $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
+            $teamUserMember["is_verified"] = false; 
+        
+            if ($user && $user->teamuser!==null) {
+                $teamUserMember["team_user_id"] = $user->teamUser->id;
+                $teamUserMember["mobile"] = $teamMember->active_mobile;
+
+                if ($this->avoidDuplicate($user->teamUser->id, $teamMember->active_mobile)) {                
+                    $data = TeamUserMember::create($teamUserMember);
+                    $this->notifyToNotApprovedMembers($user->teamUser->id);
+                    //$mobile=$teamMember->active_mobile;               
+                    // $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                } else {
+                    // $this->deleteTeam($user->teamUser->id);
+                    $this->errorHandle("User", "شماره ".$teamUserMember['mobile']." تکراری است");
                 }
-                $data = ""; 
-                $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
-                $teamUserMember["is_verified"] = false; 
-            
-                if ($user && $user->teamuser!==null) {
-                    $teamUserMember["team_user_id"] = $user->teamUser->id;
-                    if ($this->avoidDuplicate($user->teamUser->id, $teamMember->active_mobile)) {                
-                        $data = TeamUserMember::create($teamUserMember->toArray());
-                        $mobile=$teamMember->active_mobile;               
-                        $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
-                    } else {
-                        $this->deleteTeam($user->teamUser->id);
-                        $this->errorHandle("User", "شماره ".$teamUserMember['mobile']." تکراری است");
-                    }
-                }
-            } 
+            }
+        } 
         else
         {
             $this->errorHandle("TeamUser", "لطفا ابتدا تیم را ایجاد کنید.");
         }
-        return new TeamUserMemberResource($data);   
-       
-
+        return new TeamUserMemberResource($data);  
     }
     public function index()
     {  
@@ -137,7 +136,7 @@ class ShowAllTeamUserController extends Controller
             "members"=>[]
         ];     
         $teams=null;
-        return TeamUser::with("TeamMember.member")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
+        return TeamUser::with("TeamMember.member")->with("leader")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
         // $allTeams=TeamUser::with("TeamMember.member")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));          
         // if(count($allTeams)>0)
         // {
@@ -250,5 +249,32 @@ class ShowAllTeamUserController extends Controller
     {
        $isAdmin= User::where('id', Auth::user()->id)->where("groups_id",1)->with("teamUser")->first(); 
        return $isAdmin;
+    }
+    protected function avoidDuplicate(int $teamUserId, string $mobile)
+    {
+        if (TeamUserMember::where("team_user_id", $teamUserId)->where("mobile", $mobile)->first())
+            return false;
+        return true;
+    }
+    protected function notifyToNotApprovedMembers(int $teamUserId)
+    {
+      $allNotApprovedMembers=TeamUserMember::where("team_user_id",$teamUserId)
+      ->with("member")
+      ->where("is_verified",0)
+      ->get();
+      if(count($allNotApprovedMembers)>=2)
+      {
+        $userFullNmae=str_replace(' ',"-",$allNotApprovedMembers->first_name ."-". $allNotApprovedMembers->last_name);
+        foreach($allNotApprovedMembers as $allNotApprovedMember)
+        {
+            $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullNmae, 'verify-team-member');
+        }
+        return true;
+      }
+      else{
+        //$this->errorHandle("TeamUserMember", "fail to update");
+        return false;
+      }
+      
     }
 }
