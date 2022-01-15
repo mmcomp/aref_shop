@@ -13,7 +13,11 @@ class ShowAllTeamResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {       
-        return $this->resource;        
+    {     
+        
+         return $this->resource;        
+        // return [
+        //     "id" => $this->id,p
+        // ];
     }
 }

@@ -3,14 +3,14 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\TeamUserMemmber;
+use App\Models\TeamUserMember;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Validation\Validator;
 
-class TeamUserMemmberCreateRequest extends FormRequest
+class TeamUserMemberCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,7 +29,7 @@ class TeamUserMemmberCreateRequest extends FormRequest
      */
     public function rules()
     {
-    //    $count= TeamUserMemmber::where("team_user_id",$this->team_user_id)->count();
+    //    $count= TeamUserMember::where("team_user_id",$this->team_user_id)->count();
     //    dd($this->mobile);
     //    if($count >= 2)
     //    {

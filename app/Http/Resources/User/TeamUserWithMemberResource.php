@@ -3,9 +3,9 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\User\TeamUserMemmberResource;
+use App\Http\Resources\User\TeamUserMemberResource;
 
-class TeamUserWithMemmberResource extends JsonResource
+class TeamUserWithMemberResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,7 +21,7 @@ class TeamUserWithMemmberResource extends JsonResource
             "teamName" => $this->name,
             "leaderFullName" => $this->leader->first_name . " " .$this->leader->last_name,
             // "leader" => $this["leader"],
-             "memmbers" =>  TeamUserMemmberResource::collection($this->memmbers)
+             "members" =>  TeamUserMemberResource::collection($this->members)
         ];
     }
 }

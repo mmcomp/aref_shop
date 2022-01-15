@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\TeamUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TeamUserMemmber extends Model
+class TeamUserMember extends Model
 {
     use HasFactory;
     use softDeletes;

@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\TeamUserCreateRequest;
 use App\Http\Requests\User\TeamUserEditRequest;
 use App\Http\Resources\User\TeamUserResource;
-use App\Http\Resources\User\TeamUserMemmberResource;
-use App\Http\Resources\User\TeamUserWithMemmberResource;
-use App\Http\Resources\User\TeamUserWithoutMemmberResource;
+use App\Http\Resources\User\TeamUserMemberResource;
+use App\Http\Resources\User\TeamUserWithMemberResource;
+use App\Http\Resources\User\TeamUserWithoutMemberResource;
 
 use App\Models\TeamUser;
 use App\Models\User;
-use App\Models\TeamUserMemmber;
+use App\Models\TeamUserMember;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -23,19 +23,19 @@ class TeamUserController extends Controller
         $userId = Auth::user()->id;
         $ownTeam = $this->getMyTeamAsLeader($userId);     
         if ($ownTeam === null) {
-            $userMemmbers = TeamUserMemmber::where("mobile", Auth::user()->email)->with('member')->get();
+            $userMembers = TeamUserMember::where("mobile", Auth::user()->email)->with('member')->get();
            
-            if (count($userMemmbers) >0 && $userMemmbers[0]["is_verified"] == 1) { 
+            if (count($userMembers) >0 && $userMembers[0]["is_verified"] == 1) { 
                 return $this->getMyTeamAsMember(Auth::user()->email);
             } else {
                 return $this->showLeadersAsGhost(Auth::user()->email);
             }
         }
-        //return (new TeamUserWithMemmberResource($ownTeam));
+        //return (new TeamUserWithMemberResource($ownTeam));
         return $ownTeam;
         // throw new HttpResponseException(
         //     response()->json([
-        //         'errors' => ["error" => ["this is users memmber"]],
+        //         'errors' => ["error" => ["this is users Member"]],
 
         //     ],422)
         // );
@@ -48,24 +48,24 @@ class TeamUserController extends Controller
             return null;
         }
 
-        $userMemmbers = TeamUserMemmber::where("team_user_id", $userTeam->id)->with('member')->get();
-        $userTeam["memmbers"] = $userMemmbers;
+        $userMembers = TeamUserMember::where("team_user_id", $userTeam->id)->with('member')->get();
+        $userTeam["Members"] = $userMembers;
        
-        return (new TeamUserWithMemmberResource($userTeam));
+        return (new TeamUserWithMemberResource($userTeam));
         // return [
         //     "userTeam" => $userTeam,
-        //     "userMemmbers" => $userMemmbers,
+        //     "userMembers" => $userMembers,
         // ];
     }
 
 
     protected function getMyTeamAsMember(string $mobile)
     {       
-        $teamUsermembers = TeamUserMemmber::where("mobile", $mobile)->with('teamUser')->where("is_verified", 1)->get()->toArray();
+        $teamUsermembers = TeamUserMember::where("mobile", $mobile)->with('teamUser')->where("is_verified", 1)->get()->toArray();
        
         if (count($teamUsermembers) === 0) {
           
-            return (new TeamUserWithoutMemmberResource(null)); 
+            return (new TeamUserWithoutMemberResource(null)); 
         }
         if (count($teamUsermembers) <= 1) {
                                
@@ -84,15 +84,15 @@ class TeamUserController extends Controller
                 $teams["teams"][] = $team;
             }
 
-            return (new TeamUserWithoutMemmberResource($teams));
+            return (new TeamUserWithoutMemberResource($teams));
         }
     }
     protected function showLeadersAsGhost(string $mobile)
     {       
-        $teamUsermembers = TeamUserMemmber::where("mobile", $mobile)->where("is_verified", 0)->with('teamUser')->get()->toArray();
+        $teamUsermembers = TeamUserMember::where("mobile", $mobile)->where("is_verified", 0)->with('teamUser')->get()->toArray();
       
         if (count($teamUsermembers) === 0) {           
-            return (new TeamUserWithoutMemmberResource(null));
+            return (new TeamUserWithoutMemberResource(null));
         } else { ///////////////////////////////////////////////////               just userrrrrr is not member
            // $id = 0;
             $teams = [];
@@ -111,7 +111,7 @@ class TeamUserController extends Controller
             //     $teams[$id]["leaderFullName"] = $userTeam->leader->first_name . " " . $userTeam->leader->last_name;
             //     $id++;
             // }           
-            return (new TeamUserWithoutMemmberResource($teams));
+            return (new TeamUserWithoutMemberResource($teams));
             // return[
             //     "teams" => $teams               
             // ] ;         
@@ -126,33 +126,33 @@ class TeamUserController extends Controller
         if ($userTeam) {
             $team_tmp["team_name"] = $userTeam->name;
             $team_tmp["creator_name"] = $user_name;
-            $team_tmp["memmbers"] = array();
+            $team_tmp["Members"] = array();
             if ($userTeam->id !== null) {
-                $userMemmbers = TeamUserMemmber::where("team_user_id", $userTeam["id"])->pluck("mobile")->toArray();
+                $userMembers = TeamUserMember::where("team_user_id", $userTeam["id"])->pluck("mobile")->toArray();
                
-                if (isset($userMemmbers)) {
+                if (isset($userMembers)) {
                     $id = 0;
-                    // $memmber["name"]="";
-                    // $memmber["mobile"]="";
-                    foreach ($userMemmbers as $memmber) {
+                    // $Member["name"]="";
+                    // $Member["mobile"]="";
+                    foreach ($userMembers as $Member) {
 
-                        $user_name2 = User::where("email", $memmber)->select("first_name", "last_name")->get()->toArray();
-                        $memmber_tmp["name"] = $user_name2[0]["first_name"] . " " . $user_name2[0]["last_name"];
-                        $team_tmp["memmbers"][$id]["name"] = $memmber_tmp["name"];
-                        $team_tmp["memmbers"][$id]["mobile"] = $memmber;
+                        $user_name2 = User::where("email", $Member)->select("first_name", "last_name")->get()->toArray();
+                        $Member_tmp["name"] = $user_name2[0]["first_name"] . " " . $user_name2[0]["last_name"];
+                        $team_tmp["Members"][$id]["name"] = $Member_tmp["name"];
+                        $team_tmp["Members"][$id]["mobile"] = $Member;
                        
                         $id++;
                     }                   
-                    $team_tmp["memmbers"] = $userMemmbers;
+                    $team_tmp["Members"] = $userMembers;
                 }              
             }
         } else {
             $team_tmp["team_name"] = "";
             $team_tmp["creator_name"] = "";
-            $team_tmp["memmbers"] = [];
+            $team_tmp["Members"] = [];
         }       
 
-        $tmp = new TeamUserWithMemmberResource($team_tmp);       
+        $tmp = new TeamUserWithMemberResource($team_tmp);       
         return $tmp;        
         $data = TeamUserResource::collection($userTeam);
         //$data=TeamUserResource::

@@ -3,10 +3,10 @@
 namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\User\TeamUserMemmberGetUserDetailsResource;
+use App\Http\Resources\User\TeamUserMemberGetUserDetailsResource;
 
 
-class TeamUserMemmberResource extends JsonResource
+class TeamUserMemberResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -23,7 +23,7 @@ class TeamUserMemmberResource extends JsonResource
                 //"team_user_id" => $this->team_user_id,
                 "mobile" =>$this->mobile,
                 "is_verified" =>$this->is_verified,
-                "memmberFullName"  =>  new TeamUserMemmberGetUserDetailsResource($this->member)
+                "memberFullName"  =>  new TeamUserMemberGetUserDetailsResource($this->member)
             ];
         }
     }

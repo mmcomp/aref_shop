@@ -11,7 +11,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\TeamUserController;
-use App\Http\Controllers\User\TeamUserMemmberController;
+use App\Http\Controllers\User\TeamUserMemberController;
 use App\Http\Controllers\User\TeamUserProductController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProductDetailVideosController;
@@ -218,10 +218,10 @@ Route::group(['middleware' => 'user'], function(){
     Route::group([
         'middleware' => ['auth:api']        
     ], function ($router) {
-        Route::get('/team-user-memmber', [TeamUserMemmberController::class, 'index']);
-        Route::post('/team-user-memmber', [TeamUserMemmberController::class, 'store']);
-        Route::put('/verify-memmbership/{id}', [TeamUserMemmberController::class, 'update']);
-        Route::delete('/team-user-memmber{id}', [TeamUserMemmberController::class, 'delete']);
+        Route::get('/team-user-member', [TeamUserMemberController::class, 'index']);
+        Route::post('/team-user-member', [TeamUserMemberController::class, 'store']);
+        Route::put('/verify-membership/{id}', [TeamUserMemberController::class, 'update']);
+        Route::delete('/team-user-member{id}', [TeamUserMemberController::class, 'delete']);
     });
     Route::group([
         'middleware' => ['auth:api']        

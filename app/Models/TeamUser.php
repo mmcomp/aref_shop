@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\TeamUserMemmber;
+use App\Models\TeamUserMember;
 
 class TeamUser extends Model
 {
     use HasFactory;
     use softDeletes;
-    //use TeamUserMemmber;
+    //use TeamUserMember;
     protected $table="team_users";
     protected $fillable=
     [
@@ -26,6 +26,6 @@ class TeamUser extends Model
     }
     public function TeamMember()
     {
-        return $this->hasMany('App\Models\TeamUserMemmber',"team_user_id","id");
+        return $this->hasMany('App\Models\TeamUserMember',"team_user_id","id");
     }
 }

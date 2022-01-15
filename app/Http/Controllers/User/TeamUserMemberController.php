@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\TeamUserMemmberCreateRequest;
-use App\Http\Requests\User\TeamUserMemmberEditRequest;
-use App\Http\Resources\User\TeamUserMemmberResource;
+use App\Http\Requests\User\TeamUserMemberCreateRequest;
+use App\Http\Requests\User\TeamUserMemberEditRequest;
+use App\Http\Resources\User\TeamUserMemberResource;
 use App\Http\Resources\User\TeamUserResource;
-use App\Http\Resources\User\TeamUserMemmberErrorResource;
+use App\Http\Resources\User\TeamUserMemberErrorResource;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Requests\InsertOrderForUserRequest;
 
-use App\Models\TeamUserMemmber;
+use App\Models\TeamUserMember;
 use App\Models\TeamUser;
 use App\Models\TeamUserProduct;
 use App\Models\UserProduct;
@@ -29,7 +29,7 @@ use App\Utils\Buying;
 use App\Utils\Sms;
 
 
-class TeamUserMemmberController extends Controller
+class TeamUserMemberController extends Controller
 {    
     private $privateOrderController;
     private $smsObj;
@@ -40,45 +40,44 @@ class TeamUserMemmberController extends Controller
     }
     public function index()
     {
-        $data = TeamUserMemmberResource::collection(TeamUserMemmber::all());
+        $data = TeamUserMemberResource::collection(TeamUserMember::all());
         return $data;
     }
 
-    public function store(TeamUserMemmberCreateRequest $teamUserMemmber)
-    {
-       
+    public function store(TeamUserMemberCreateRequest $teamUserMember)
+    {       
         $user = User::where('id', Auth::user()->id)->with("teamUser")->first();      
-        $isLeader=$this->isLeader($teamUserMemmber["mobile"]); 
-        //dd($isLeader);            
+        $isLeader=$this->isLeader($teamUserMember["mobile"]);                   
         if($isLeader)
         {            
            if($user->teamUser)
            {
                 $this->deleteTeam($user->teamUser->id);
            }             
-           $this->errorHandle("Leader", " شماره ".$teamUserMemmber["mobile"]."برای سرگروه می باشد.");
+           //$this->errorHandle("Leader", " شماره ".$teamUserMember["mobile"]."برای سرگروه می باشد.");
+           $this->errorHandle("TeamUser", " شماره ".$teamUserMember["mobile"]." قبلا به عنوان عضو درج شده");
         } 
         if($user->teamuser!==null)
         {
-            $exist=TeamUserMemmber::where("mobile",$teamUserMemmber["mobile"])->where("is_verified",1)->first();       
+            $exist=TeamUserMember::where("mobile",$teamUserMember["mobile"])->where("is_verified",1)->first();       
             if($exist)
             {
                 $this->deleteTeam($user->teamUser->id);
-                $this->errorHandle("TeamUser", " شماره ".$teamUserMemmber["mobile"]." قبلا به عنوان عضو درج شده");
+                $this->errorHandle("TeamUser", " شماره ".$teamUserMember["mobile"]." قبلا به عنوان عضو درج شده");
             }
             $data = ""; 
             $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
-            $teamUserMemmber["is_verified"] = false; 
+            $teamUserMember["is_verified"] = false; 
         
             if ($user && $user->teamuser!==null) {
-                $teamUserMemmber["team_user_id"] = $user->teamUser->id;
-                if ($this->avoidDuplicate($user->teamUser->id, $teamUserMemmber["mobile"])) {                
-                    $data = TeamUserMemmber::create($teamUserMemmber->toArray());
-                    $mobile=$teamUserMemmber["mobile"];               
+                $teamUserMember["team_user_id"] = $user->teamUser->id;
+                if ($this->avoidDuplicate($user->teamUser->id, $teamUserMember["mobile"])) {                
+                    $data = TeamUserMember::create($teamUserMember->toArray());
+                    $mobile=$teamUserMember["mobile"];               
                     $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
                 } else {
                     $this->deleteTeam($user->teamUser->id);
-                    $this->errorHandle("User", "شماره ".$teamUserMemmber['mobile']." تکراری است");
+                    $this->errorHandle("User", "شماره ".$teamUserMember['mobile']." تکراری است");
                 }
             }
         } 
@@ -86,15 +85,15 @@ class TeamUserMemmberController extends Controller
         {
             $this->errorHandle("TeamUser", "لطفا ابتدا تیم را ایجاد کنید.");
         }
-        return new TeamUserMemmberResource($data);       
+        return new TeamUserMemberResource($data);       
     }
     public function update(int $teamUserId)
     {       
-        $teamUserMemmberobj = TeamUserMemmber::where("mobile", Auth::user()->email)->where("team_user_id", $teamUserId)->first();
+        $teamUserMemberobj = TeamUserMember::where("mobile", Auth::user()->email)->where("team_user_id", $teamUserId)->first();
         
-        if ($teamUserMemmberobj) {
-            //$team_user_id=$teamUserMemmberobj["team_user_id"];           
-            $this->updateTeamUserMemmber($teamUserMemmberobj);
+        if ($teamUserMemberobj) {
+            //$team_user_id=$teamUserMemberobj["team_user_id"];           
+            $this->updateTeamUserMember($teamUserMemberobj);
             if ($this->isCountToEnd($teamUserId)) {
                 $this->updateTeamUser($teamUserId);
             }
@@ -102,13 +101,13 @@ class TeamUserMemmberController extends Controller
             //    
             //     $this->updateTeamUser($teamUserId);
             // }   
-            return response()->json($teamUserMemmberobj, 200);
+            return response()->json($teamUserMemberobj, 200);
         } else {
                     
-            $this->errorHandle("TeamUserMemmberResource", "TeamUserMemmber not found or it is verified before");
+            $this->errorHandle("TeamUserMemberResource", "TeamUserMember not found or it is verified before");
         }
     }
-    public function destroyMemmber()
+    public function destroyMember()
     {
     }
     public function isLeader(string $mobile)
@@ -132,26 +131,26 @@ class TeamUserMemmberController extends Controller
        //dd($response);
        
     }
-    public  function updateTeamUserMemmber(TeamUserMemmber $teamUserMemmber)
+    public  function updateTeamUserMember(TeamUserMember $teamUserMember)
     {
-        $teamUserMemmber["is_verified"] = true;       
-        $updatetd = $teamUserMemmber->update();
+        $teamUserMember["is_verified"] = true;       
+        $updatetd = $teamUserMember->update();
         if (!$updatetd) {
-            $this->errorHandle("TeamUserMemmberResource", "fail to update");
+            $this->errorHandle("TeamUserMemberResource", "fail to update");
         }
         /////////////////////////////////           delete all of teams if this person in invited when the first invited avccept
-        $this->delteMySelfFromAllTeam($teamUserMemmber);
+        $this->delteMySelfFromAllTeam($teamUserMember);
     }
-    protected function delteMySelfFromAllTeam(TeamUserMemmber $teamUserMemmber)
+    protected function delteMySelfFromAllTeam(TeamUserMember $teamUserMember)
     {
-        $teamUserMemmbers = TeamUserMemmber::where("mobile", $teamUserMemmber->mobile)->where("is_verified", 0)->get();
-        foreach ($teamUserMemmbers as $memmber) {
-            $memmber->delete();
+        $teamUserMembers = TeamUserMember::where("mobile", $teamUserMember->mobile)->where("is_verified", 0)->get();
+        foreach ($teamUserMembers as $Member) {
+            $Member->delete();
         }
     }   
     protected  function isCountToEnd(int $team_user_id)
     {
-        $teamUserCount = TeamUserMemmber::where("team_user_id", $team_user_id)->where("is_verified", 1)->count();
+        $teamUserCount = TeamUserMember::where("team_user_id", $team_user_id)->where("is_verified", 1)->count();
         if ($teamUserCount >= 2)
             return true;
         return false; 
@@ -167,9 +166,9 @@ class TeamUserMemmberController extends Controller
             } else { ///////////////////////////////////  delete all invitation for all people for this group if it is full /////////
                
                 $this->buyProductsForTeams($teamUser->id, $teamUser->user_id_creator);
-                $teamUserMemmbers = TeamUserMemmber::where("team_user_id", $team_user_id)->where("is_verified", 0)->get();
-                foreach ($teamUserMemmbers as $memmber) {
-                    $memmber->delete();
+                $teamUserMembers = TeamUserMember::where("team_user_id", $team_user_id)->where("is_verified", 0)->get();
+                foreach ($teamUserMembers as $Member) {
+                    $Member->delete();
                 }               
             }
         } else {
@@ -181,18 +180,18 @@ class TeamUserMemmberController extends Controller
     }
     protected function avoidDuplicate(int $teamUserId, string $mobile)
     {
-        if (TeamUserMemmber::where("team_user_id", $teamUserId)->where("mobile", $mobile)->first())
+        if (TeamUserMember::where("team_user_id", $teamUserId)->where("mobile", $mobile)->first())
             return false;
         return true;
     }
     protected function buyProductsForTeams(int $teamId, int $userId)
     {           
         $buying = new Buying;       
-        $memmbers = TeamUserMemmber::where("team_user_id", $teamId)->with("member")->get();        
+        $Members = TeamUserMember::where("team_user_id", $teamId)->with("member")->get();        
         $teamUserProductIds = self::getProductTeamId();       
-        foreach ($memmbers as $memmber) {
+        foreach ($Members as $Member) {
           
-            $order = $this->addOrder($memmber->member->id);           
+            $order = $this->addOrder($Member->member->id);           
             if ($order) {
                 $OrderDetail = new OrderDetail;
                 foreach ($teamUserProductIds as $teamUserProductId) {
@@ -219,7 +218,7 @@ class TeamUserMemmberController extends Controller
                    //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
-                $this->smsObj->sendCode($memmber->member->email,"زیست", "confirm-team-members");
+                $this->smsObj->sendCode($Member->member->email,"زیست", "confirm-team-members");
             }
         }
         
@@ -264,11 +263,11 @@ class TeamUserMemmberController extends Controller
     }
     protected function addOrder(int $userId)
     {      
-        $addMemmberOrder = $this->privateOrderController->_store($userId, true);
-        if (!$addMemmberOrder) {
+        $addMemberOrder = $this->privateOrderController->_store($userId, true);
+        if (!$addMemberOrder) {
             $this->errorHandle("user id $userId", "not found to add Order ");
         }
-        return $addMemmberOrder;
+        return $addMemberOrder;
     }
     protected function addOrderDetails(int $userId)
     {    
@@ -285,7 +284,7 @@ class TeamUserMemmberController extends Controller
     {
        if(TeamUser::find($id)->delete())
        {
-          $teamMembers= TeamUserMemmber::where("team_user_id",$id)->get();
+          $teamMembers= TeamUserMember::where("team_user_id",$id)->get();
            foreach($teamMembers as $member)
            {
                  $member->delete();

@@ -4,7 +4,7 @@ namespace App\Http\Resources\User;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TeamUserWithoutMemmberResource extends JsonResource
+class TeamUserWithoutMemberResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

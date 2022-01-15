@@ -32,7 +32,11 @@ class User extends Authenticatable implements JWTSubject
         'cities_id',
         'groups_id'
     ];
-
+    protected $hidden=[
+        'pass_txt',
+        'password',
+        'groups_id'
+    ];
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
