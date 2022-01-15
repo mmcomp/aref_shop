@@ -172,7 +172,7 @@ class TeamUserController extends Controller
         $user_id = Auth::user()->id;
         $request["is_full"] = false;
         $request["user_id_creator"] = $user_id; 
-       if( $this->userCanAddTeam($user_id))
+       if($this->userCanAddTeam($user_id))
        {
         $this->errorHandle("TeamUser", "fail to add there is one ");
        }     

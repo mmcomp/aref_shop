@@ -66,7 +66,7 @@ class TeamUserMemberController extends Controller
                 $this->errorHandle("TeamUser", " شماره ".$teamUserMember["mobile"]." قبلا به عنوان عضو درج شده");
             }
             $data = ""; 
-            $userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
+            //$userFullNmae=str_replace(' ',"-",$user->first_name ."-". $user->last_name);
             $teamUserMember["is_verified"] = false; 
         
             if ($user && $user->teamuser!==null) {
@@ -298,13 +298,16 @@ class TeamUserMemberController extends Controller
       $allNotApprovedMembers=TeamUserMember::where("team_user_id",$teamUserId)
       ->with("member")
       ->where("is_verified",0)
-      ->get();
+      ->get();      
       if(count($allNotApprovedMembers)>=2)
       {
-        $userFullNmae=str_replace(' ',"-",$allNotApprovedMembers->first_name ."-". $allNotApprovedMembers->last_name);
+        if(isset($allNotApprovedMembers->first_name))
+            $userFullName=str_replace(' ',"-",$allNotApprovedMembers->first_name ."-". $allNotApprovedMembers->last_name);
+        else
+        $userFullName="";
         foreach($allNotApprovedMembers as $allNotApprovedMember)
         {
-            $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullNmae, 'verify-team-member');
+            $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullName, 'verify-team-member');
         }
         return true;
       }

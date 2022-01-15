@@ -15,7 +15,7 @@ class TeamUserMemberResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {       
+    {          
         if($this->resource != null){
             return 
             [

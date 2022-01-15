@@ -89,6 +89,7 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
+        dd($token);
         $this->userToRedis($user, $token);
         return $this->createNewToken($token);
     }
