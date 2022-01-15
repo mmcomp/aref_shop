@@ -20,8 +20,9 @@ class TeamUserController extends Controller
 {
     public function index()
     {
-        $userId = Auth::user()->id;
-        $ownTeam = $this->getMyTeamAsLeader($userId);     
+        $userId = Auth::user()->id;       
+        $ownTeam = $this->getMyTeamAsLeader($userId);   
+        //dd($ownTeam);  
         if ($ownTeam === null) {
             $userMembers = TeamUserMember::where("mobile", Auth::user()->email)->with('member')->get();
            
@@ -31,8 +32,8 @@ class TeamUserController extends Controller
                 return $this->showLeadersAsGhost(Auth::user()->email);
             }
         }
-        //return (new TeamUserWithMemberResource($ownTeam));
-        return $ownTeam;
+        return (new TeamUserWithMemberResource($ownTeam));
+       // return $ownTeam;
         // throw new HttpResponseException(
         //     response()->json([
         //         'errors' => ["error" => ["this is users Member"]],
