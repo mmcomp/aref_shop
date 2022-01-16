@@ -13,8 +13,7 @@ class ShowFilteredTeamResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {
-       
+    {       
         return [
             "leader"=>$this->resource["leader"],
             "members"=>$this->resource["member"]

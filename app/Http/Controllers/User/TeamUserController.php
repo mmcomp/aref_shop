@@ -19,21 +19,19 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class TeamUserController extends Controller
 {
     public function index()
-    {
+    {        
         $userId = Auth::user()->id;       
-        $ownTeam = $this->getMyTeamAsLeader($userId);   
-        //dd($ownTeam);  
+        $ownTeam = $this->getMyTeamAsLeader($userId);         
         if ($ownTeam === null) {
-            $userMembers = TeamUserMember::where("mobile", Auth::user()->email)->with('member')->get();
-           
+            $userMembers = TeamUserMember::where("mobile", Auth::user()->email)->with('member')->get();         
             if (count($userMembers) >0 && $userMembers[0]["is_verified"] == 1) { 
-                return $this->getMyTeamAsMember(Auth::user()->email);
-            } else {
-                return $this->showLeadersAsGhost(Auth::user()->email);
+                return(new TeamUserWithMemberResource($this->getMyTeamAsMember(Auth::user()->email)));
+            } else { 
+                return (new TeamUserWithMemberResource($this->showLeadersAsGuest(Auth::user()->email)));
             }
         }
         return (new TeamUserWithMemberResource($ownTeam));
-       // return $ownTeam;
+        //return $ownTeam;
         // throw new HttpResponseException(
         //     response()->json([
         //         'errors' => ["error" => ["this is users Member"]],
@@ -41,78 +39,79 @@ class TeamUserController extends Controller
         //     ],422)
         // );
     }
-
     protected function getMyTeamAsLeader(int $userId)
-    {
-        $userTeam = TeamUser::where("user_id_creator", $userId)->with('leader')->first();       
-        if ($userTeam === null) {            
-            return null;
-        }
-
-        $userMembers = TeamUserMember::where("team_user_id", $userTeam->id)->with('member')->get();
-        $userTeam["Members"] = $userMembers;
-       
-        return (new TeamUserWithMemberResource($userTeam));
-        // return [
-        //     "userTeam" => $userTeam,
-        //     "userMembers" => $userMembers,
-        // ];
-    }
-
-
-    protected function getMyTeamAsMember(string $mobile)
     {       
-        $teamUsermembers = TeamUserMember::where("mobile", $mobile)->with('teamUser')->where("is_verified", 1)->get()->toArray();
-       
-        if (count($teamUsermembers) === 0) {
-          
-            return (new TeamUserWithoutMemberResource(null)); 
-        }
-        if (count($teamUsermembers) <= 1) {
-                               
-            return $this->getMyTeamAsLeader($teamUsermembers[0]["team_user"]["user_id_creator"]);
-        } else {
-            $teams = [
-                "id"    => $teamUsermembers->team_user_id,
-                "teams" => [],
-            ];
-            foreach ($teamUsermembers as $teammember) {
-                $userTeam = TeamUser::where("user_id_creator", $teammember["team_user"]["user_id_creator"])->with('leader')->first();
-                $team = [
-                    "teamName" => $teammember["team_user"]["name"],
-                    "leaderFullName" => $userTeam->leader->first_name . " " . $userTeam->leader->last_name,
-                ];
-                $teams["teams"][] = $team;
-            }
+        $userTeam = TeamUser::where("user_id_creator", $userId)->with("TeamMember.member")->with("leader")->first();  
+        return ($userTeam);     
+    //     if ($userTeam === null) {            
+    //         return null;
+    //     }
 
-            return (new TeamUserWithoutMemberResource($teams));
-        }
+    //     $userMembers = TeamUserMember::where("team_user_id", $userTeam->id)->with('member')->get();
+    //     $userTeam["Members"] = $userMembers;
+    //    return $userTeam;       
     }
-    protected function showLeadersAsGhost(string $mobile)
+    protected function getMyTeamAsMember(string $mobile)
+    {   
+        // $getAllTeamAsMember=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->get();
+        //     return (new TeamUserWithoutMemberResource($getAllTeamAsGuest));
+        $teamUsermembers = TeamUserMember::where("mobile", $mobile)->with('member.teamUser')->where("is_verified", 1)->get()->toArray();
+        $teamUsermembers=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->get();
+        return ($teamUsermembers);
+        // if (count($teamUsermembers) === 0) {
+        //   return null;
+        //     return (new TeamUserWithoutMemberResource(null)); 
+        // }
+        // if (count($teamUsermembers) <= 1) { 
+
+        //     $getLeaderDetails=$this->getMyTeamAsLeader($teamUsermembers[0]["team_user"]["user_id_creator"]);           
+        //     return $getLeaderDetails;
+        // } else {
+        //     $teams = [
+        //         "id"    => $teamUsermembers->team_user_id,
+        //         "teams" => [],
+        //     ];
+        //     foreach ($teamUsermembers as $teammember) {
+        //         $userTeam = TeamUser::where("user_id_creator", $teammember["team_user"]["user_id_creator"])->with('leader')->first();
+        //         $team = [
+        //             "teamName" => $teammember["team_user"]["name"],
+        //             "leaderFullName" => $userTeam->leader->first_name . " " . $userTeam->leader->last_name,
+        //         ];
+        //         $teams["teams"][] = $team;
+        //     }
+
+        //     return (new TeamUserWithoutMemberResource($teams));
+        // }
+    }
+    protected function showLeadersAsGuest(string $mobile)
     {       
         $teamUsermembers = TeamUserMember::where("mobile", $mobile)->where("is_verified", 0)->with('teamUser')->get()->toArray();
-      
+       // dd($teamUsermembers);
         if (count($teamUsermembers) === 0) {           
             return (new TeamUserWithoutMemberResource(null));
         } else { ///////////////////////////////////////////////////               just userrrrrr is not member
-           // $id = 0;
-            $teams = [];
-            foreach ($teamUsermembers as $teammember) {
-                $userTeam = TeamUser::where("user_id_creator", $teammember["team_user"]["user_id_creator"])->with('leader')->first();
-                $team = [
-                    "teamName" => $teammember["team_user"]["name"],
-                    "leaderFullName" => $userTeam->leader->first_name . " " . $userTeam->leader->last_name,
-                    "id" => $userTeam->id,
-                ];
-                $teams[] = $team;
-            }
+       
+            $getAllTeamAsGuest=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->get();
+            return (new TeamUserWithoutMemberResource($getAllTeamAsGuest));
+            //dd($getAllTeamAsGuest);
+            //    // $id = 0;
+            //     $teams = [];
+            //     foreach ($teamUsermembers as $teammember) {
+            //         $userTeam = TeamUser::where("user_id_creator", $teammember["team_user"]["user_id_creator"])->with('leader')->first();
+            //         $team = [
+            //             "teamName" => $teammember["team_user"]["name"],
+            //             "leaderFullName" => $userTeam->leader->first_name . " " . $userTeam->leader->last_name,
+            //             "id" => $userTeam->id,
+            //         ];
+            //         $teams[] = $team;
+            //     }
             // foreach ($teamUsermembers as $teammember) {
             //     $userTeam = TeamUser::where("user_id_creator", $teammember["team_user"]["user_id_creator"])->with('leader')->first();
             //     $teams[$id]["teamName"] = $teammember["team_user"]["name"];
             //     $teams[$id]["leaderFullName"] = $userTeam->leader->first_name . " " . $userTeam->leader->last_name;
             //     $id++;
             // }           
-            return (new TeamUserWithoutMemberResource($teams));
+            
             // return[
             //     "teams" => $teams               
             // ] ;         

@@ -16,11 +16,11 @@ class TeamUserMemberResource extends JsonResource
      */
     public function toArray($request)
     {  
-        return $this->resource;        
+        //return $this->resource;        
         if($this->resource != null){
             return 
             [
-                //"id" => $this->id,
+               // "id" => $this->id,
                 //"team_user_id" => $this->team_user_id,
                 "mobile" =>$this->mobile,
                 "is_verified" =>$this->is_verified,

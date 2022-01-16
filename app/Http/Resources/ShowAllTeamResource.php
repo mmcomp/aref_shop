@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\TeamMemberCollection;
 
 class ShowAllTeamResource extends JsonResource
 {
@@ -13,11 +14,15 @@ class ShowAllTeamResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {     
-        
-         return $this->resource;        
-        // return [
-        //     "id" => $this->id,p
-        // ];
+    {       
+        return [
+            "id" => $this->id,
+            "user_id_creator" =>$this->user_id_creator,
+            "name" =>$this->name,
+            "is_full" => $this->is_full,
+            // "team_member" =>(new TeamMemberCollection($this->team_member)),
+            "team_member" =>(new TeamMemberCollection($this->TeamMember)),
+            "leader" => $this->leader
+        ];
     }
 }

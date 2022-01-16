@@ -88,8 +88,7 @@ class BaseAuthController extends Controller
             return (new UserResource(null))->additional([
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
-        }
-        dd($token);
+        }       
         $this->userToRedis($user, $token);
         return $this->createNewToken($token);
     }
@@ -102,7 +101,6 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
-
 
         $twoMinBefore = date("Y-m-d H:i:s", strtotime("-1 minutes"));
         $smsValidation = SmsValidation::where("mobile", $request->input("email"))->whereType("login")->first();
@@ -121,7 +119,6 @@ class BaseAuthController extends Controller
                 'errors' => ['OTP' => ['OTP is incorrect!']],
             ])->response()->setStatusCode(406);
         }
-
         $smsValidation->delete();
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
