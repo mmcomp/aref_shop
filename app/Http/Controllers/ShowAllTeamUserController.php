@@ -287,7 +287,7 @@ class ShowAllTeamUserController extends Controller
         foreach($allNotApprovedMembers as $allNotApprovedMember)
         {
             //var_dump($allNotApprovedMember->mobile. " " . $userFullName . " " );
-           $this->mobile->sendCode($allNotApprovedMember->mobile,"", 'verify-team-member');
+           $this->mobile->sendCode($allNotApprovedMember->mobile,$userFullName, 'verify-team-member');
         }
         return true;
       }
