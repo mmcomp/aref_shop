@@ -7,6 +7,11 @@ use App\Http\Resources\User\TeamUserMemberResource;
 
 class TeamUserWithMemberResource extends JsonResource
 {
+    // protected $type;
+    // public function setType(string $type)
+    // {
+    //     $this->type=$type;
+    // }
     /**
      * Transform the resource into an array.
      *
@@ -15,9 +20,11 @@ class TeamUserWithMemberResource extends JsonResource
      */
     public function toArray($request)
     {            
-        return  $this->resource;  
-        if($this->resource !==null)
-        {
+        return $this->resource;
+        
+        // return  $this->resource;  
+        // if($this->resource !==null)
+        // {
             // return 
             //     [
             //         "id" => $this->id,
@@ -26,8 +33,8 @@ class TeamUserWithMemberResource extends JsonResource
             //         // "leader" => $this["leader"],
             //         "members" =>  TeamUserMemberResource::collection(($this->members))
             //     ];
-        }
-        return null;
+        // }
+        // return null;
         
     }
 }

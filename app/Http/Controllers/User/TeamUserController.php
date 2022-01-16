@@ -8,6 +8,7 @@ use App\Http\Requests\User\TeamUserEditRequest;
 use App\Http\Resources\User\TeamUserResource;
 use App\Http\Resources\User\TeamUserMemberResource;
 use App\Http\Resources\User\TeamUserWithMemberResource;
+use App\Http\Resources\User\TeamUserWithoutMemberCollection;
 use App\Http\Resources\User\TeamUserWithoutMemberResource;
 
 use App\Models\TeamUser;
@@ -19,18 +20,23 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class TeamUserController extends Controller
 {
     public function index()
-    {        
+    {       
         $userId = Auth::user()->id;       
         $ownTeam = $this->getMyTeamAsLeader($userId);         
         if ($ownTeam === null) {
             $userMembers = TeamUserMember::where("mobile", Auth::user()->email)->with('member')->get();         
             if (count($userMembers) >0 && $userMembers[0]["is_verified"] == 1) { 
-                return(new TeamUserWithMemberResource($this->getMyTeamAsMemberVerified(Auth::user()->email)));
+                $res = (new TeamUserWithMemberResource($this->getMyTeamAsMemberVerified(Auth::user()->email)));
+                return ["data" => $res, "type" => "team"];
             } else { 
-                return (new TeamUserWithMemberResource($this->getMyTeamAsMemberNotVerified(Auth::user()->email)));
+                $teamUsermembers = $this->getMyTeamAsMemberNotVerified(Auth::user()->email);
+                // return (new TeamUserWithoutMemberResource($teamUsermembers));
+                $res = (new TeamUserWithoutMemberCollection($teamUsermembers));
+                return ["data" => $res, "type" => "offers"];
             }
         }
-        return (new TeamUserWithMemberResource($ownTeam));
+        $res = (new TeamUserWithMemberResource($ownTeam));
+        return ["data" => $res, "type" => "team"];
         //return $ownTeam;
         // throw new HttpResponseException(
         //     response()->json([
@@ -87,7 +93,9 @@ class TeamUserController extends Controller
     protected function getMyTeamAsMemberNotVerified(string $mobile)
     {   
         $teamUsermembers = TeamUserMember::where("mobile", $mobile)->where("is_verified", 0)->with('teamUser')->get();
-        return (new TeamUserWithoutMemberResource($teamUsermembers));
+        return $teamUsermembers;
+        
+        // return ( TeamUserWithoutMemberResource::collection($teamUsermembers->toArray()));
         // if (count($teamUsermembers) === 0) {  
         //     //dd("show all teams to offer member");         
         //     return (new TeamUserWithoutMemberResource(null));
