@@ -27,14 +27,8 @@ class ReplaceTeamMemberRequest extends FormRequest
     public function rules()
     {
         return [
-            "team_user_id" => ["required" , "int"],
-            "inactive_mobile" => [
-                "required" ,
-                 "string",
-                 "size:11",
-                 //Rule::Exists(-)
-                ],
-            "active_mobile" => ["required" , "string","size:11"]
+            "team_user_id" => ["required" , "int"],            
+            "mobile" => ["required" , "string","size:11"]
         ];
     }
     public function handleError($validation)

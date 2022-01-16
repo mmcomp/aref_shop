@@ -368,6 +368,7 @@ Route::group([
     
    Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);  
    Route::post('/report/any-team',[ShowAllTeamUserController::class, 'filter']);  
-   Route::post('/replace/team-mobile',[ShowAllTeamUserController::class, 'replaceTeamMember']);  
+   Route::post('/team-mobile',[ShowAllTeamUserController::class, 'addTeamMember']);  
+   Route::delete('/team-mobile/{teamUserMemberId}',[ShowAllTeamUserController::class, 'deleteTeamMember']);  
 });
 
