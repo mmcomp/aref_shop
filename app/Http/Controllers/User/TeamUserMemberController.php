@@ -105,7 +105,7 @@ class TeamUserMemberController extends Controller
             return response()->json($teamUserMemberobj, 200);
         } else {
                     
-            $this->errorHandle("TeamUserMemberResource", "TeamUserMember not found or it is verified before");
+            $this->errorHandle("TeamUserMemberResource", " شخص مورد نظر پیدا نشد یا اینکه قبلا عضو یک تیم بوده است.");
         }
     }
     public function destroyMember()
@@ -137,7 +137,7 @@ class TeamUserMemberController extends Controller
         $teamUserMember["is_verified"] = true;       
         $updatetd = $teamUserMember->update();
         if (!$updatetd) {
-            $this->errorHandle("TeamUserMemberResource", "fail to update");
+            $this->errorHandle("TeamUserMemberResource", "ویرایش اطلاعات با موفقیت همراه نبود.");
         }
         /////////////////////////////////           delete all of teams if this person in invited when the first invited avccept
         $this->delteMySelfFromAllTeam($teamUserMember);
@@ -163,7 +163,7 @@ class TeamUserMemberController extends Controller
         if ($teamUser !== null) {
             $teamUser["is_full"] = 1;          
             if (!$teamUser->update()) {               
-                $this->errorHandle("TeamUser", "fail to update");
+                $this->errorHandle("TeamUser", "ویرایش اطلاعات با موفقیت همراه نبود.");
             } else { ///////////////////////////////////  delete all invitation for all people for this group if it is full /////////
                
                 $this->buyProductsForTeams($teamUser->id, $teamUser->user_id_creator);
@@ -173,7 +173,7 @@ class TeamUserMemberController extends Controller
                 }               
             }
         } else {
-            $this->errorHandle("TeamUser", "not found");
+            $this->errorHandle("TeamUser", "تیم مورد نظر یافت نشد.");
             // return (new TeamUserResource(null))->additional([
             //     "errors"=>["teamuser" => ["not found"]],
             // ])->response()->setStatusCode(404);
@@ -266,7 +266,7 @@ class TeamUserMemberController extends Controller
     {      
         $addMemberOrder = $this->privateOrderController->_store($userId, true);
         if (!$addMemberOrder) {
-            $this->errorHandle("user id $userId", "not found to add Order ");
+            $this->errorHandle("user id $userId", "عضو مورد نظر برای درج سفارش یافت نشد.");
         }
         return $addMemberOrder;
     }

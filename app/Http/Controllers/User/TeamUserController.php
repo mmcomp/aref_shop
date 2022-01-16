@@ -56,7 +56,8 @@ class TeamUserController extends Controller
         // $getAllTeamAsMember=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->get();
         //     return (new TeamUserWithoutMemberResource($getAllTeamAsGuest));
         $teamUsermembers = TeamUserMember::where("mobile", $mobile)->with('member.teamUser')->where("is_verified", 1)->get()->toArray();
-        $teamUsermembers=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->get();
+        $teamUsermembers=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->with("leader")->get();
+       
         return ($teamUsermembers);
         // if (count($teamUsermembers) === 0) {
         //   return null;
@@ -174,7 +175,7 @@ class TeamUserController extends Controller
         $request["user_id_creator"] = $user_id; 
        if($this->userCanAddTeam($user_id))
        {
-        $this->errorHandle("TeamUser", "fail to add there is one ");
+        $this->errorHandle("TeamUser", "شما نمیتوانید تیم جدید ایجاد کنید.");
        }     
         //$data=Fault::Create($request->all());
         $data = TeamUser::create($request->all());
