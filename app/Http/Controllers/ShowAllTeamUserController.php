@@ -163,8 +163,7 @@ class ShowAllTeamUserController extends Controller
         //  ->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
          //dd($query);
         // ->with("TeamMember.member")        
-        // ->get();
-        // dd($query);
+        // ->get();      
         //$allteams= TeamUser::with("TeamMember.member")->with("leader")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
         $allteams= TeamUser::whereIn("id",$res)
         ->with("TeamMember.member")
