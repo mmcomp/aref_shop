@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 class ShowAllTeamUserController extends Controller
 {
     private $mobile;
+    //"there is a comment"
     public function __construct(OrderController $orderController)
     {
         $this->mobile=new Sms;
@@ -171,8 +172,7 @@ class ShowAllTeamUserController extends Controller
         ->with("leader")
         ->orderBy('created_at',"desc")
         ->paginate(env('PAGE_COUNT', 15));
-        return($allteams);
-        //return($allteams);
+        return($allteams);       
         // $allTeams=TeamUser::with("TeamMember.member")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));          
         // if(count($allTeams)>0)
         // {
