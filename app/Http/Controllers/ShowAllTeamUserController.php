@@ -20,11 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class ShowAllTeamUserController extends Controller
 {
-    private $mobile;
-    //"there is a comment"
-    //"there is a comment2"
-    //"there is a comment3"
-    //"there is a comment4"
+    private $mobile;   
     public function __construct(OrderController $orderController)
     {
         $this->mobile=new Sms;
