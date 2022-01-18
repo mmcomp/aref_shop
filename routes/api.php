@@ -366,9 +366,9 @@ Route::group([
     'prefix' => 'team-users',
 ], function ($router) {
     
-   Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);  
-   Route::post('/report/any-team',[ShowAllTeamUserController::class, 'filter']);  
+   Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);     
    Route::post('/team-mobile',[ShowAllTeamUserController::class, 'addTeamMember']);  
    Route::delete('/team-mobile/{teamUserMemberId}',[ShowAllTeamUserController::class, 'deleteTeamMember']);  
+   Route::delete('/{teamUserId}',[ShowAllTeamUserController::class, 'deleteTeam']);  
 });
 

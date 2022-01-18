@@ -19,25 +19,7 @@ class TeamUserWithoutMemberResource extends JsonResource
      */
     public function toArray($request)
     { 
-        // return [
-        //     'data' => $this->resource,
-        //     'type' => $this->type,
-        // ];
-
-       return  $this->resource  ;
-    //    if($this->resource!==null)
-    //    {
-    //         return 
-    //         [
-    //             "id"=>$this->id,
-    //             "user_id_creator" => $this->user_id_creator
-    //         ]; 
-    //    }         
-       // [
-            // "teamName" => $this->resource["team_user"]["name"] ,           
-            // "leaderFullName" => $this->resource ,     
-          
-       // ];
+       return  $this->resource  ;   
     }
 
 }
