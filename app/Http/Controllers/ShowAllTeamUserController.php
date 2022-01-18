@@ -320,7 +320,7 @@ class ShowAllTeamUserController extends Controller
       if(!$this->checkTeamMemberIsNotVerified($teamUserId))
       {
          // return false;
-         $this->errorHandle("TeamUser", "نمی توانید تیم را حذف کنید به دلیل اینکه دارای اعضای فعال می باشد.");
+         $this->errorHandle("TeamUser", "تیم فعال را نمی توانید حذف کنید.");
       }
       return true;
       
@@ -328,8 +328,9 @@ class ShowAllTeamUserController extends Controller
     protected function checkTeamMemberIsNotVerified(int $teamUserId)
     {     
        $cadDeleteTeam=true; 
-       $teamMembers=TeamUserMember::where("team_user_id",$teamUserId)->where("is_verified",1)->get();
-       if(count($teamMembers)>0)
+      // $teamMembers=TeamUserMember::where("team_user_id",$teamUserId)->where("is_verified",1)->get();
+       $teamMembers=TeamUser::where("id",$teamUserId)->where("is_full",1)->first();
+       if($teamMembers)
        {
           $cadDeleteTeam=false;
        }
