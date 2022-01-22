@@ -324,9 +324,9 @@ class UserController extends Controller
             if($user->update())
             {
                $blockeUsers=User::where("blocked",">", $now)->pluck("id");
-               $blocketUsers["blockedUser"]=$blockeUsers->toArray();
+               $blocketUsers["blocked_users"]=$blockeUsers->toArray();
                //$redis->set('blockedUser',json_encode($blocketUser));
-              if($this->putBlockedUserToRedis($blocketUsers["blockedUser"]))
+              if($this->putBlockedUserToRedis($blocketUsers["blocked_users"]))
               {
                 return $blocketUsers;
               }                
@@ -341,10 +341,10 @@ class UserController extends Controller
     public function putBlockedUserToRedis($blocketUsers)
     {
        
-        Redis::del('blockedUser');
+        Redis::del('blocked_users');
         $redis = Redis::connection();
        // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
-        $redis->set('blockedUser',json_encode($blocketUsers));
+        $redis->set('blocked_users',json_encode($blocketUsers));
         //return $blocketUsers;
         // foreach($blocketUsers as $blocketUser)
         // {
