@@ -13,6 +13,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Hash;
 use App\Utils\UploadImage;
 use Illuminate\Support\Facades\Auth;
 use Exception;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use Carbon\Carbon;
 use Log;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UserController extends Controller
 {
@@ -299,16 +301,81 @@ class UserController extends Controller
      * @param  \Illuminate\Http\BlockAUserRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function block(BlockAUserRequest $request)
-    {
+    // public function block(BlockAUserRequest $request)
+    // {
         
-        $users_id = $request->input('users_id');
-        $value = Redis::get('block_user_'. $users_id);
-        if($value != null) {
-            Redis::setex('block_user_'.$users_id, 10800, "block");
+    //     $users_id = $request->input('users_id');
+    //     $value = Redis::get('block_user_'. $users_id);
+    //     if($value != null) {
+    //         Redis::setex('block_user_'.$users_id, 10800, "block");
+    //     }
+    //     return (new UserResource(null))->additional([
+    //         'errors' => null,
+    //     ])->response()->setStatusCode(200);
+    // }
+    public function userBlock(int $userId)
+    {        
+       $now=now()->format('Y-m-d H:i:s');       
+       $blocketTime=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');          
+        $user=User::find($userId);        
+        if( $user)
+        {
+            $user->blocked=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
+            if($user->update())
+            {
+               $blockeUsers=User::where("blocked",">", $now)->pluck("id");
+               $blocketUsers["blockedUser"]=$blockeUsers->toArray();
+               //$redis->set('blockedUser',json_encode($blocketUser));
+              if($this->putBlockedUserToRedis($blocketUsers["blockedUser"]))
+              {
+                return $blocketUsers;
+              }                
+            }
+            return "";
         }
-        return (new UserResource(null))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(200);
+        else
+        {
+            $this->errorHandle("User", "کاربر معتبر نمی باشد.");
+        }
+    }
+    public function putBlockedUserToRedis($blocketUsers)
+    {
+       
+        Redis::del('blockedUser');
+        $redis = Redis::connection();
+       // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
+        $redis->set('blockedUser',json_encode($blocketUsers));
+        //return $blocketUsers;
+        // foreach($blocketUsers as $blocketUser)
+        // {
+        //     //die($blocketUser);
+        //     Redis::hSet('blockedUser',$blocketUser, "blocked");
+        // }
+        return true;
+        
+    }
+    public function userUnblock(int $userId)
+    {
+        $user=User::find($userId);
+        //dd($user);
+        if( $user)
+        {
+            $user->blocked=NULL;
+            $user->update();
+            return "";
+        }
+        else
+        {
+            $this->errorHandle("User", "کاربر معتبر نمی باشد.");
+        }
+    }
+    public function errorHandle($class, $error)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'errors' => ["$class" => ["$error"]],
+
+            ], 422)
+        );
     }
 }

@@ -17,6 +17,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\Sms;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ShowAllTeamUserController extends Controller
 {
@@ -28,7 +29,7 @@ class ShowAllTeamUserController extends Controller
     public function addTeamMember(ReplaceTeamMemberRequest $teamMember)
     { 
        $team= TeamUser::where("id",$teamMember->team_user_id)->with("leader")->with("leader.teamUser.TeamMember")->first();
-      // dd($team->leader->last_name);
+       //dd($team);
        // $user = User::where('id', $teamMember->team_user_id)->with("teamUser")->first();    
         $adminUser=$this->isAdmin(); 
         
@@ -90,10 +91,10 @@ class ShowAllTeamUserController extends Controller
            $this->deleteNotVerifiedTeam($teamUserId);
            return response()->json(["successfull"=>true],201);
       }
-      else
-      {
-        $this->errorHandle("TeamUser", "نمی توانید تیم را حذف کنید به دلیل اینکه دارای اعضای فعال می باشد.");
-      }           
+    //   else
+    //   {
+    //     $this->errorHandle("TeamUser", "نمی توانید تیم را حذف کنید به دلیل اینکه دارای اعضای فعال می باشد.");
+    //   }           
     } 
     
     protected function deleteTeamMember(int $teamUserMemberId)
@@ -345,5 +346,5 @@ class ShowAllTeamUserController extends Controller
     { 
        $team=TeamUser::where("id",$teamUserId)->delete();
        return $team;
-    }
+    }   
 }
