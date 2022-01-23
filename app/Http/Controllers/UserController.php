@@ -340,8 +340,8 @@ class UserController extends Controller
             $user->blocked=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
             if($user->update())
             {
-               $blockedUsers=User::where("blocked",">", $now)->pluck("id");
-               $blockedUsers["blocked_users"]=$blockedUsers->toArray();
+               $users=User::where("blocked",">", $now)->pluck("id");
+               $blockedUsers["blocked_users"]=$users->toArray();
                //$redis->set('blockedUser',json_encode($blocketUser));
               if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
               {
