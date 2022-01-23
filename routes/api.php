@@ -70,6 +70,8 @@ Route::group([
 ], function ($router) {
     Route::get('/', [UserController::class, 'index']);
     Route::get('/block/{id}', [UserController::class, 'userBlock']);
+    Route::get('/unblock/{id}', [UserController::class, 'userUnblock']);
+    Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);    
     Route::post('/add', [UserController::class, 'store']);
     Route::get('/get/{id}', [UserController::class, 'show']);
     Route::put('/edit', [UserController::class, 'update']);

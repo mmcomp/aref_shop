@@ -313,8 +313,25 @@ class UserController extends Controller
     //         'errors' => null,
     //     ])->response()->setStatusCode(200);
     // }
+    public function showAllUserBlock()
+    {  
+       $now=now()->format('Y-m-d H:i:s');  
+       $users=User::where("blocked",">", $now)->pluck("id");
+       //dd($blockedUsers); 
+       $blockedUsers["blocked_users"]=$users->toArray();               
+        if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
+        {
+           return $blockedUsers;
+        }           
+        $this->errorHandle("User", " به روز رسانی کاربران بلاک شده با مشکل مواجه شد.");
+    }   
     public function userBlock(int $userId)
-    {        
+    {  
+       if($this->isAdmin($userId))
+        {
+            $this->errorHandle("User", "امکان مسدود کردن کاربر دارای دسترسی مدیریت وجود ندارد.");
+        }
+      
        $now=now()->format('Y-m-d H:i:s');       
        $blocketTime=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');          
         $user=User::find($userId);        
@@ -323,12 +340,12 @@ class UserController extends Controller
             $user->blocked=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
             if($user->update())
             {
-               $blockeUsers=User::where("blocked",">", $now)->pluck("id");
-               $blocketUsers["blocked_users"]=$blockeUsers->toArray();
+               $blockedUsers=User::where("blocked",">", $now)->pluck("id");
+               $blockedUsers["blocked_users"]=$blockedUsers->toArray();
                //$redis->set('blockedUser',json_encode($blocketUser));
-              if($this->putBlockedUserToRedis($blocketUsers["blocked_users"]))
+              if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
               {
-                return $blocketUsers;
+                return $blockedUsers;
               }                
             }
             return "";
@@ -337,6 +354,27 @@ class UserController extends Controller
         {
             $this->errorHandle("User", "کاربر معتبر نمی باشد.");
         }
+    }
+    public function userUnblock(int $userId)
+    {
+        $user=User::find($userId); 
+        if( $user)
+        {
+           
+            $user->blocked=NULL;
+            $user->update();
+           return $this->showAllUserBlock();
+            //return "";
+        }
+        else
+        {
+            $this->errorHandle("User", "کاربر معتبر نمی باشد.");
+        }
+    }
+    public function isAdmin(int $userId)
+    {
+       $isAdmin= User::where('id', $userId)->where("groups_id",1)->first(); 
+       return $isAdmin;
     }
     public function putBlockedUserToRedis($blocketUsers)
     {
@@ -353,22 +391,7 @@ class UserController extends Controller
         // }
         return true;
         
-    }
-    public function userUnblock(int $userId)
-    {
-        $user=User::find($userId);
-        //dd($user);
-        if( $user)
-        {
-            $user->blocked=NULL;
-            $user->update();
-            return "";
-        }
-        else
-        {
-            $this->errorHandle("User", "کاربر معتبر نمی باشد.");
-        }
-    }
+    }    
     public function errorHandle($class, $error)
     {
         throw new HttpResponseException(
