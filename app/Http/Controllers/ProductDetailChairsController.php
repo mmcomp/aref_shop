@@ -10,7 +10,7 @@ use App\Http\Resources\ProductDetailChairsResource;
 use App\Models\ProductDetailChair;
 use Illuminate\Support\Facades\Auth;
 use Exception;
-use Log;
+use Illuminate\Support\Facades\Log;
 use App\Utils\AdminLog;
 use App\Models\User;
 
