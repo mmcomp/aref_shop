@@ -15,7 +15,7 @@ use App\Models\User;
         $log_result=self::createLog($user->id,$user_fullName,$before,$after);     
         return $log_result;
      }
-     public function createLog($user_id,$user_fullName,$before,$after)//($user_id,$before,$after)
+     public static function createLog($user_id,$user_fullName,$before,$after)//($user_id,$before,$after)
      {
         $data=[
             "user_id" => $user_id,
