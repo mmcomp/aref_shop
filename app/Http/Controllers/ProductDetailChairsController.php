@@ -126,8 +126,7 @@ class ProductDetailChairsController extends Controller
                 return (new ProductDetailChairsResource(null))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(204);
-            } catch (Exception $e) {
-                dd($e);
+            } catch (Exception $e) {               
             Log::info('failed in ProductDetailChairsController/destory',$e /*json_encode($e)*/);
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailChairsResource(null))->additional([
