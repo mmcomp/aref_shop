@@ -119,8 +119,7 @@ class ProductDetailChairsController extends Controller
                 $user_id=Auth::user()->id;
                 $adminLog= new AdminLog;
                 $product_detail_chair_tmp= $product_detail_chair->getTable()  .  $product_detail_chair;
-                $response=$adminLog->addLog($user_id,(string)$product_detail_chair_tmp,"delete"); 
-
+                //$response=$adminLog->addLog($user_id,(string)$product_detail_chair_tmp,"delete"); 
 
                 $product_detail_chair->delete();
                 return (new ProductDetailChairsResource(null))->additional([

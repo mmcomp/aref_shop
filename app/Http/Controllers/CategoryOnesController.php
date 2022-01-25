@@ -114,7 +114,7 @@ class CategoryOnesController extends Controller
                     'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
-                Log::info('failed in CategoryOnesController/destory', json_encode($e));
+                Log::info('failed in CategoryOnesController/destory'. json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CategoryOnesResource(null))->additional([
                         'errors' => ['fail' => ['CategoryOnes deleting failed!' . json_encode($e)]],
