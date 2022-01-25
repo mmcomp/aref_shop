@@ -22,14 +22,22 @@ class Buying
             $product = $orderDetail->products_id;
             $user = $order->users_id;
             $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
-            if (!$found_user_product) {
-                $orderDetail->product->type == 'video'
-                    ?
-                    UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy])
-                    :
-                    UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
+            if (!$found_user_product && ($orderDetail->product->type !== 'video')) {
+                UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
+                // $orderDetail->product->type == 'video'
+                //     ?
+                //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy])
+                //     :
+                //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
             }
             if ($orderDetail->product->type == 'video') {
+                if (!$found_user_product){
+                    UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
+                }
+                else if($found_user_product && $found_user_product->partial === 1 && $orderDetail->all_videos_buy===1 ){
+                    $found_user_product->partial=0;
+                    $found_user_product->update();
+                }
                 if ($orderDetail->all_videos_buy) {
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
                 } else {

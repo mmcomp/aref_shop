@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Models\User;
+use Illuminate\Support\Facades\Redis;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,7 +27,34 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->call(function(){
+            $now=now()->format('Y-m-d H:i:s');  
+            $users=User::where("blocked",">", $now)->pluck("id");
+            //dd($blockedUsers); 
+            $blockedUsers["blocked_users"]=$users->toArray();               
+            if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
+            {
+                return $blockedUsers;
+            } 
+            return "";
+        })->everyFifteenMinutes();     
     }
+    public function putBlockedUserToRedis($blocketUsers)
+    {
+       
+        Redis::del('blocked_users');
+        $redis = Redis::connection();
+       // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
+        $redis->set('blocked_users',json_encode($blocketUsers));
+        //return $blocketUsers;
+        // foreach($blocketUsers as $blocketUser)
+        // {
+        //     //die($blocketUser);
+        //     Redis::hSet('blockedUser',$blocketUser, "blocked");
+        // }
+        return true;
+        
+    }    
 
     /**
      * Register the commands for the application.
