@@ -12,7 +12,7 @@ use App\Models\User;
      {
         $user=User::whereId($user_id)->first();
         $user_fullName=$user->first_name . " " . $user->last_name;
-        $log_result=self::createLog($user->id,$user_fullName,$before,$after);
+        $log_result=self::createLog($user->id,$user_fullName,$before,$after);     
         return $log_result;
      }
      public function createLog($user_id,$user_fullName,$before,$after)//($user_id,$before,$after)

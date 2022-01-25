@@ -111,17 +111,16 @@ class ProductDetailChairsController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
-    {
+    {     
         $product_detail_chair = ProductDetailChair::where('is_deleted', false)->find($id);
         if ($product_detail_chair != null) {
-
-            try {
+            try {   
                 $user_id=Auth::user()->id;
                 $adminLog= new AdminLog;
-                $product_detail_chair_tmp= $product_detail_chair->getTable()  .  $product_detail_chair;
-                //$response=$adminLog->addLog($user_id,(string)$product_detail_chair_tmp,"delete"); 
-
+                $product_detail_chair_tmp= $product_detail_chair->getTable()  .  $product_detail_chair;             
+                $response=$adminLog->addLog($user_id,(string)$product_detail_chair_tmp,"delete");                
                 $product_detail_chair->delete();
+               
                 return (new ProductDetailChairsResource(null))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(204);
