@@ -43,7 +43,8 @@ class ProductDetailPackagesEditRequest extends FormRequest
                 }),
                 //new isNotPackage
             ],
-            'price' => 'required|integer'
+            'price' => 'required|integer',
+            "group" => "nullable"
         ];
     }
      /**

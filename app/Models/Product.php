@@ -73,5 +73,9 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\ProductComment', 'products_id', 'id')->orderBy('created_at', 'desc');
     }
+    public function OrderPackageDetail()
+    {
+        return $this->hasMany('App\Models\OrderPackageDetail', 'order_details_id', 'id');
+    }
 
 }

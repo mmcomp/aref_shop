@@ -9,12 +9,16 @@ use App\Http\Requests\User\DeleteProductFromCartRequest;
 use App\Http\Requests\User\DeleteMicroProductFromCartRequest;
 use App\Http\Requests\User\AddMicroProductToCartRequest;
 use App\Http\Requests\User\DeleteCouponFromCartRequest;
+use App\Http\Requests\User\StoreProductPackageRequest;
 use App\Http\Resources\User\OrderResource;
+use App\Http\Resources\User\OrderPackageDetailResource;
+
 use App\Models\Order;
 use App\Models\Temp;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
 use App\Models\OrderChairDetail;
+use App\Models\OrderPackageDetail;
 use App\Models\Product;
 use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
@@ -718,4 +722,22 @@ class CartController extends Controller
     //             }
     //             return false;
     // }
+   public function  StoreProductPackage(StoreProductPackageRequest $request)
+   {
+       foreach($request->child_product_ids as $child_product_id)
+       {product_id
+           $data=[
+                "order_details_id"=>$request->order_details_id,
+                "product_child_id"=>$child_product_id
+           ];
+            if(!OrderPackageDetail::create($data))
+            {
+                return (new OrderPackageDetailResource($data))->additional([
+                    'errors' => ['OrderPackageDetail' => ['there is an error in data']],
+                     ])->response()->setStatusCode(406);
+            }
+           
+       }
+      
+   }
 }

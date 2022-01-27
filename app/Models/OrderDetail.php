@@ -50,6 +50,10 @@ class OrderDetail extends Model
     {
         return $this->hasMany('App\Models\OrderChairDetail', 'order_details_id', 'id');
     }
+    public function OrderPackageDetail()
+    {
+        return $this->hasMany('App\Models\OrderPackageDetail', 'order_details_id', 'id');
+    }
     public function refund()
     {
         return $this->hasOne('App\Models\Refund', 'order_details_id', 'id');

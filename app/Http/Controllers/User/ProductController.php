@@ -10,12 +10,15 @@ use App\Http\Resources\User\ProductOfUserCollection;
 use App\Http\Resources\User\ListOfVideosOfAProductResource;
 use App\Http\Resources\User\ListOfVideosOfAProductCollection;
 use App\Http\Resources\ProductDetailPackagesCollection;
+use App\Http\Resources\ProductDetailPackagesCollectionCollection;
 use App\Http\Resources\ProductDetailPackagesResource;
 use App\Utils\GetNameOfSessions;
 use App\Utils\RaiseError;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\ProductDetailChair;
+use App\Models\ProductDetailPackage;
+
 use App\Http\Resources\UserProductChairsResource;
 use App\Http\Resources\GetListOfChairsResource;
 use Illuminate\Database\Eloquent\Collection;
@@ -146,6 +149,56 @@ class ProductController extends Controller
         return (new ProductDetailPackagesResource(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
+    }
+
+    public function ListOfGroupPackagesOfAProduct(GetPerPageRequest $request, $id)
+    {
+       
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->where('published', true)->find($id);
+        $product_detail_packages = [];
+        if ($product != null) 
+        {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+          $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+          $allgroup=[];
+          $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+       
+         foreach($groups as $group)
+         {
+            //dd($groups[0].$groups[1].$groups[2]);
+            $id=0;
+            foreach($product_detail_package_items as $product_detail_package_item)
+            {               
+               if($product_detail_package_item->group===$group)
+               {                   
+                   $allgroup["$group"][]=$product_detail_package_item;
+                   $id++;
+               }
+            }
+         }
+     // return($allgroup);
+            // return ((new  ProductDetailPackagesCollection($allgroup)))->additional([
+            //     'errors' => null,
+            // ])->response()->setStatusCode(200);
+            return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+                //        dd($allgroup);
+            //         return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
+            //             'errors' => null,
+            //         ])->response()->setStatusCode(200);
+            //     }
+            //     return (new ProductDetailPackagesResource(null))->additional([
+            //         'errors' => ['product' => ['Product not found!']],
+            //     ])->response()->setStatusCode(404);
+        }
     }
 
     public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id)

@@ -73,6 +73,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/getProduct/{id}',[ProductController::class,'show']);
         Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
+        Route::get('/get-packages-in-group/{id}',[ProductController::class, 'ListOfGroupPackagesOfAProduct'])->middleware('can:product-packages-of-user');
         Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/getallChairs',[ProductController::class, 'GetListOfChairs']);
     });
@@ -107,6 +108,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/', [CartController::class, 'index']);
         Route::post('/add', [CartController::class, 'store']);
         Route::post('/add-micro-product', [CartController::class, 'StoreMicroProduct']);
+        Route::post('/add-package-product', [CartController::class, 'StoreProductPackage']);
         Route::get('/get-whole-cart', [CartController::class, 'getWholeCart']);
         Route::delete('/destroy-whole-cart', [CartController::class, 'destroyWholeCart']);
         Route::put('/edit/{id}', [CartController::class, 'update']);
