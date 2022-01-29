@@ -177,9 +177,10 @@ class ProductController extends Controller
             foreach($product_detail_package_items as $product_detail_package_item)
             {               
                if($product_detail_package_item->group===$group)
-               {                   
-                   $allgroup["$group"][]=$product_detail_package_item;
-                   $id++;
+               {  
+                  $tmpGroup= !isset($group) ? "others":$group;                  
+                  $allgroup[$tmpGroup][]=$product_detail_package_item;
+                  $id++;
                }
             }
          }

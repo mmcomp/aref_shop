@@ -370,8 +370,7 @@ class CartController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id, DeleteProductFromCartRequest $request)
-    {
-
+    {     
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $orderDetail = OrderDetail::where('id', $id)->first();
@@ -383,10 +382,9 @@ class CartController extends Controller
                 OrderVideoDetail::where('order_details_id', $id)->delete();               
             }
         }
-        if ($orderDetail->product->type == 'package') {
-            if (!$orderDetail->all_videos_buy) {              
-                OrderPackageDetail::where('order_details_id', $id)->delete();
-            }
+       
+        if ($orderDetail->product->type ==='package') {                        
+           OrderPackageDetail::where('order_details_id', $id)->delete();           
         }
         $order = Order::where('id', $orderDetail->orders_id)->first();
         $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
