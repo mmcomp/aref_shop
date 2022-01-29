@@ -13,13 +13,16 @@ class OrderPackageDetailResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {
+    {       
         if ($this->resource != null) {
-            return [
-                "id" => $this->id,
+            return [               
                 "order_details_id" => $this->order_details_id,
                 "product_child_id" =>$this->product_child_id
             ];
+        }
+        else
+        {
+            return true;
         }
     }
 }
