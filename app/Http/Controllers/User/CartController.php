@@ -59,7 +59,10 @@ class CartController extends Controller
      */
     public function store(AddProductToCartRequest $request)
     {
-        $this->addToOrder($request);
+       $order= $this->addToOrder($request);
+       return (new OrderResource($order))->additional([
+        'errors' => null,
+     ])->response()->setStatusCode(201);
         // $user_id = Auth::user()->id;
         // $number = $request->input('number', 1);
         // $products_id = $request->input('products_id');
@@ -178,13 +181,11 @@ class CartController extends Controller
                             "order_details_id" =>  $orderDetail->id,
                             "chair_number"     => $chair,
                             "price" => $chair_price                  
-                    ]);
-                    //dd( $order_chair_detail["id"]);
+                    ]);                  
                 } 
             }
             $add_chair_price=self::updateVideoDetailChairPrice($orderDetail->id); 
-        }
-        //dd($order->id);
+        }       
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         //dd($sumOfOrderDetailPrices);
         $order->amount = $sumOfOrderDetailPrices;
@@ -727,26 +728,24 @@ class CartController extends Controller
     // }
    public function  storeProductPackage(StoreProductPackageRequest $request)
    {
-       $this->addToOrder($request);
-       $order_Detail_id=OrderDetail::where("products_id" ,$request->products_id)->first();
-       //dd($order_Detail_id->id);
+       $data=$this->addToOrder($request);
+       $order_id=$data->id;       
+       $order_Detail_id=OrderDetail::where("products_id" ,$request->products_id)->where("orders_id",$order_id)->first();             
        if($order_Detail_id)
-       {
-           //dd($order_Detail_id->id);
+       {          
             foreach($request->child_product_ids as $child_product_id)
             {
                 $data=[
                     "order_details_id"=>$order_Detail_id->id,
                     "product_child_id"=>$child_product_id
                 ];
-               // dd($data);
+              
                 if(!OrderPackageDetail::create($data))
                 {
                     return (new OrderPackageDetailResource($data))->additional([
                         'errors' => ['OrderPackageDetail' => ['there is an error in data']],
                         ])->response()->setStatusCode(406);
-                }
-                
+                }                
             }
             return (new OrderPackageDetailResource(null));
        }
@@ -797,9 +796,8 @@ class CartController extends Controller
         }
         $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $orderDetailPricesArraySum;
-        $order->save();
-        return (new OrderResource($order))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(201);
+        $order->save();   
+        return $order;    
+        
     }
 }

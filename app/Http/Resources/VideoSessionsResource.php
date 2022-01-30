@@ -24,6 +24,7 @@ class VideoSessionsResource extends JsonResource
                 'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
                 'video_link' => $this->video_link,
+                'is_aparat' => $this->is_aparat,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

@@ -276,6 +276,7 @@ class VideoSessionsController extends Controller
             'price' => $request->input('price'),
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
+            'is_aparat' => $request->input('is_aparat'),
         ]);
         ProductDetailVideo::create([
             "single_purchase" => $request->input('single_purchase') ? $request->input('single_purchase') : 0,
@@ -387,7 +388,8 @@ class VideoSessionsController extends Controller
                 'end_time' => $request->input('to_time'),
                 'price' => $request->input('price'),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
-                'video_link' => $request->input('video_link')
+                'video_link' => $request->input('video_link'),
+                'is_aparat' => $request->input('is_aparat'),
             ]);
         }
         $raiseError->ValidationError(!$product_detail_video->videoSession, ['extraordinary' => ['No video Session is saved for the product']]);

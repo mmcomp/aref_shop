@@ -152,8 +152,7 @@ class ProductController extends Controller
     }
 
     public function ListOfGroupPackagesOfAProduct(GetPerPageRequest $request, $id)
-    {
-       
+    {       
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->where('published', true)->find($id);
@@ -171,8 +170,7 @@ class ProductController extends Controller
           $groups= ProductDetailPackage::groupBy("group")->pluck("group");
        
          foreach($groups as $group)
-         {
-            //dd($groups[0].$groups[1].$groups[2]);
+         {           
             $id=0;
             foreach($product_detail_package_items as $product_detail_package_item)
             {               
@@ -183,22 +181,10 @@ class ProductController extends Controller
                   $id++;
                }
             }
-         }
-     // return($allgroup);
-            // return ((new  ProductDetailPackagesCollection($allgroup)))->additional([
-            //     'errors' => null,
-            // ])->response()->setStatusCode(200);
+         }    
             return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
                 'errors' => null,
-            ])->response()->setStatusCode(200);
-                //        dd($allgroup);
-            //         return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
-            //             'errors' => null,
-            //         ])->response()->setStatusCode(200);
-            //     }
-            //     return (new ProductDetailPackagesResource(null))->additional([
-            //         'errors' => ['product' => ['Product not found!']],
-            //     ])->response()->setStatusCode(404);
+            ])->response()->setStatusCode(200);               
         }
     }
 
