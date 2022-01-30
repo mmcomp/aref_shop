@@ -21,7 +21,7 @@ class VideoSessionForSingleSessionsResource extends JsonResource
      */
     public function toArray($request)
     {
-        if($this->resource != null){
+        if($this->resource != null){ 
             return [
                 'videoSessionId' => $this->id,
                 'start_date' => $this->start_date,
@@ -29,6 +29,7 @@ class VideoSessionForSingleSessionsResource extends JsonResource
                 'end_time' => date('H:i', strtotime($this->end_time)),
                 'videoSessionType' => $this->video_session_type,
                 'video_link' => $this->checkToShowUrlOrNot ? base64_encode($this->video_link) : null,
+                'is_aparat' => $this->is_aparat,
             ];
         }
     }
