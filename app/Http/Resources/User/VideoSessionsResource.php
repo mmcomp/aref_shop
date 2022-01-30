@@ -32,6 +32,7 @@ class VideoSessionsResource extends JsonResource
                 // 'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
                 'video_link' => $this->checkToShowUrlOrNot ? base64_encode($this->video_link) : null,
+                "is_aparat" => $this->is_aparat,
                 'currentTime' => Carbon::now()->format('H:i:s')
                 // 'created_at' => $this->created_at,
                 // 'updated_at' => $this->updated_at
