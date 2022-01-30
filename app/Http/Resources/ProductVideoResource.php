@@ -46,6 +46,7 @@ class ProductVideoResource extends JsonResource
                 //'product' => new ProductResource($this->product),
                 'video_session_type' => $this->videoSession ? $this->videoSession->video_session_type : null,
                 'video_link' => $this->videoSession ? $this->videoSession->video_link : null,
+                'is_aparat' => $this->videoSession ? $this->videoSession->is_aparat : null,
                 'extraordinary' => $this->extraordinary,
                 'single_purchase' => $this->single_purchase,
                 'is_hidden' => $this->is_hidden,
