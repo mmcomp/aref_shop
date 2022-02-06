@@ -71,7 +71,7 @@ class Buying
                         'created_at' => $now,
                         'updated_at' => $now
                     ];
-                    $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                    $p = Product::where('is_deleted', false)->where('id',$child_product_id/* $child_product*/)->first();
                     //echo ($p->type);
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
