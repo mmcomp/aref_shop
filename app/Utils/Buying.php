@@ -64,7 +64,7 @@ class Buying
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
-                         $child_product_id= ProductDetailPackage::where("id",$child_product)->pluck("child_products_id")->first();
+                         $child_product_id= ProductDetailPackage::where("id",$child_product)->pluck("child_products_id");
                     $childData[] = [
                         'users_id' => $user,
                         'products_id' =>  $child_product_id,//$child_product,
@@ -89,8 +89,7 @@ class Buying
                                     'updated_at' => $now
                                 ];
                             }
-                        }
-                       // dd($data);
+                        }                       
 
                     }
                 }
