@@ -60,21 +60,20 @@ class Buying
                 //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
                 $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
                 // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
-                var_dump($child_products);
+
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
                     //$child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
                     $tmp = ProductDetailPackage::where("id", $child_product)->first();
-                    // echo("product id is: " .$child_product . "\n");
-                    // var_dump($tmp);
+
                     $childData[] = [
                         'users_id' => $user,
                         'products_id' =>  $tmp->child_products_id, //$child_product,
                         'created_at' => $now,
                         'updated_at' => $now
                     ];
-                    var_dump($childData);
+
                     $p = Product::where('is_deleted', false)->where('id', $tmp->child_products_id/* $child_product*/)->first();
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
@@ -93,8 +92,9 @@ class Buying
                         }
                     }
                 }
+
                 UserProduct::insert($childData);
-                //UserVideoSession::insert($data);
+                UserVideoSession::insert($data);
             }
         }
         UserVideoSession::insert($data);
