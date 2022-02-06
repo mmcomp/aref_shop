@@ -64,22 +64,23 @@ class Buying
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
+                         $child_product_id= ProductDetailPackage::where("id",$child_product)->plunck("child_products_id")->first();
                     $childData[] = [
                         'users_id' => $user,
-                        'products_id' => $child_product,
+                        'products_id' =>  $child_product_id,//$child_product,
                         'created_at' => $now,
                         'updated_at' => $now
                     ];
                     $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
-                    echo ($p->type);
+                    //echo ($p->type);
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
-                       echo("videoSessionIds is : \n");
-                        var_dump($videoSessionIds );
+                       //echo("videoSessionIds is : \n");
+                        //var_dump($videoSessionIds );
                         foreach ($videoSessionIds as $video_session_id) {
                             $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
-                            echo("ound_user_video_session is : \n");
-                            var_dump($found_user_video_session);
+                           // echo("ound_user_video_session is : \n");
+                           // var_dump($found_user_video_session);
                             if(!$found_user_video_session) {
                                 $data[] = [
                                     'users_id' => $user,
@@ -89,7 +90,7 @@ class Buying
                                 ];
                             }
                         }
-                        dd($data);
+                       // dd($data);
 
                     }
                 }
