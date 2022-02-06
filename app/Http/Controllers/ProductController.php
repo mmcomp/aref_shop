@@ -132,7 +132,7 @@ class ProductController extends Controller
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $orderDetails = OrderDetail::get();
             foreach ($orderDetails as $orderDetail) {
-                if ($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                if (isset($orderDetail->order) && $orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
                     $ids[] = $orderDetail->product->id;
                 }
             }
