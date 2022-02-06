@@ -94,7 +94,7 @@ class Buying
                     }
                 }
                 UserProduct::insert($childData);
-                UserVideoSession::insert($data);
+                //UserVideoSession::insert($data);
             }
         }
         UserVideoSession::insert($data);
