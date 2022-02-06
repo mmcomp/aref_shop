@@ -31,11 +31,10 @@ class Buying
                 //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
             }
             if ($orderDetail->product->type == 'video') {
-                if (!$found_user_product){
+                if (!$found_user_product) {
                     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
-                }
-                else if($found_user_product && $found_user_product->partial === 1 && $orderDetail->all_videos_buy===1 ){
-                    $found_user_product->partial=0;
+                } else if ($found_user_product && $found_user_product->partial === 1 && $orderDetail->all_videos_buy === 1) {
+                    $found_user_product->partial = 0;
                     $found_user_product->update();
                 }
                 if ($orderDetail->all_videos_buy) {
@@ -59,29 +58,28 @@ class Buying
             }
             if ($orderDetail->product->type == 'package') {
                 //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
-                $child_products= $orderDetail->OrderPackageDetail->pluck('product_child_id');                           
-               // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
+                $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
+                // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
-                         $child_product_id= ProductDetailPackage::where("id",$child_product)->pluck("child_products_id");
+                    $child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
+                    echo("product id is: " .$child_product . "\n");
+                    var_dump($child_product_id);
                     $childData[] = [
                         'users_id' => $user,
-                        'products_id' =>  $child_product_id,//$child_product,
+                        'products_id' =>  $child_product_id, //$child_product,
                         'created_at' => $now,
                         'updated_at' => $now
                     ];
-                    $p = Product::where('is_deleted', false)->where('id',$child_product_id/* $child_product*/)->first();
-                    //echo ($p->type);
+                    $p = Product::where('is_deleted', false)->where('id', $child_product_id/* $child_product*/)->first();
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
-                       //echo("videoSessionIds is : \n");
-                        //var_dump($videoSessionIds );
+
                         foreach ($videoSessionIds as $video_session_id) {
                             $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
-                           // echo("ound_user_video_session is : \n");
-                           // var_dump($found_user_video_session);
-                            if(!$found_user_video_session) {
+
+                            if (!$found_user_video_session) {
                                 $data[] = [
                                     'users_id' => $user,
                                     'video_sessions_id' => $video_session_id,
@@ -89,8 +87,7 @@ class Buying
                                     'updated_at' => $now
                                 ];
                             }
-                        }                       
-
+                        }
                     }
                 }
                 UserProduct::insert($childData);
