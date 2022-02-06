@@ -403,7 +403,6 @@ class CartController extends Controller
      */
     public function destroyMicroProduct($id, DeleteMicroProductFromCartRequest $request)
     {
-
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
@@ -732,14 +731,25 @@ class CartController extends Controller
        $order_id=$data->id;       
        $order_Detail_id=OrderDetail::where("products_id" ,$request->products_id)->where("orders_id",$order_id)->first();             
        if($order_Detail_id)
-       {          
+       {             
             foreach($request->child_product_ids as $child_product_id)
             {
                 $data=[
                     "order_details_id"=>$order_Detail_id->id,
                     "product_child_id"=>$child_product_id
                 ];
-              
+                $orderDetailIds=OrderPackageDetail::where("order_details_id",$order_Detail_id->id)
+                ->where("product_child_id",$child_product_id)
+                ->get();                
+                if(Count($orderDetailIds)>0)
+                {
+                   if(!$this->deleteAllOrderPackageDetails($orderDetailIds))
+                   {
+                        return response([
+                            "errors" => "can not delete $child_product_id product",
+                        ])->setStatusCode(406);
+                   }
+                 }
                 if(!OrderPackageDetail::create($data))
                 {
                     return (new OrderPackageDetailResource($data))->additional([
@@ -755,6 +765,10 @@ class CartController extends Controller
                 ])->response()->setStatusCode(404);
        }
       
+   }
+   public function deleteAllOrderPackageDetails($orderDetailIds)
+   {
+        return OrderPackageDetail::find($orderDetailIds[0]->id)->delete();
    }
    public function addToOrder($request)
    {      

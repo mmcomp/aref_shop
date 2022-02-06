@@ -58,7 +58,9 @@ class Buying
                 }
             }
             if ($orderDetail->product->type == 'package') {
-                $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
+                //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
+                $child_products= $orderDetail->OrderPackageDetail->pluck('product_child_id') ;
+               // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
