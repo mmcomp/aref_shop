@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use App\Rules\CheckDateValidation;
+use log;
 
 class AddVideosAccordingToUserInputsRequest extends FormRequest
 {
@@ -25,12 +27,20 @@ class AddVideosAccordingToUserInputsRequest extends FormRequest
      * @return array
      */
     public function rules()
-    {
+    {  
         return [
             'days' => 'required|array',
             'days.*' => 'required|string|max:255|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday',
-            'from_date' => 'required|date',
-            'to_date' => 'required|date|after:from_date',
+            'from_date' => [
+                'required',
+                'date'      ],
+            //'to_date' => 'required|date|after:from_date',
+            'to_date' => [
+                "required",
+                "date",
+                "after:from_date",
+                new CheckDateValidation($this->from_date)
+            ],
             'from_time' => 'required|date_format:H:i',
             'to_time' => 'required|date_format:H:i|after:from_time',
             'per_price' => 'required|integer',
@@ -53,11 +63,12 @@ class AddVideosAccordingToUserInputsRequest extends FormRequest
     public function withValidator($validator)
     {
         if ($validator->fails()) {
-            $errors = (new ValidationException($validator))->errors();
+            $errors = (new ValidationException($validator))->errors() ;
 
             throw new HttpResponseException(
-                response()->json(['errors' => $errors], 422)
+                response()->json(['errors' => $errors ], 422)
             );
         }
-    }
+    }    
+    
 }

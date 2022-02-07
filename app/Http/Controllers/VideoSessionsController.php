@@ -162,8 +162,7 @@ class VideoSessionsController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function AddVideosAccordingToUserInputs(AddVideosAccordingToUserInputsRequest $request)
-    {
-
+    {          
         $date = $request->input('from_date');
         $to_date = $request->input('to_date');
         $days = $request->input('days');
