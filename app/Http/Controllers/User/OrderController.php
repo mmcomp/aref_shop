@@ -106,15 +106,15 @@ class OrderController extends Controller
         $user_video_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
             $query->where('type', 'video');
         })->pluck('products_id')->toArray();
-        $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
-            $query->where('type', 'package');
-        })->get();
+        // $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
+        //     $query->where('type', 'package');
+        // })->get();
         $package_child_products = [];
-        foreach ($user_package_products as $package) {
-            foreach ($package->product->productDetailPackages as $productDetailPackage) {
-                $package_child_products[] = $productDetailPackage->child_products_id;
-            }
-        }
+        // foreach ($user_package_products as $package) {
+        //     foreach ($package->product->productDetailPackages as $productDetailPackage) {
+        //         $package_child_products[] = $productDetailPackage->child_products_id;
+        //     }
+        // }
         $needed_product_ids = array_values(array_unique(array_merge($package_child_products, $user_video_products)));
         $products = Product::where('is_deleted', false)->whereIn('id', $needed_product_ids)->get();
         return (new ProductForSingleSessionsCollection($products))->additional([
