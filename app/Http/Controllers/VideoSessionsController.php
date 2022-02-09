@@ -162,7 +162,7 @@ class VideoSessionsController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function AddVideosAccordingToUserInputs(AddVideosAccordingToUserInputsRequest $request)
-    {          
+    {
         $date = $request->input('from_date');
         $to_date = $request->input('to_date');
         $days = $request->input('days');
@@ -275,7 +275,7 @@ class VideoSessionsController extends Controller
             'price' => $request->input('price'),
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
-            'is_aparat' => $request->input('is_aparat'),
+            'is_aparat' => (($request->input('is_aparat') !== null) ? $request->input('is_aparat') : 0),
         ]);
         ProductDetailVideo::create([
             "single_purchase" => $request->input('single_purchase') ? $request->input('single_purchase') : 0,
