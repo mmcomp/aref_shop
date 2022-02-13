@@ -42,12 +42,14 @@ class ProductController extends Controller
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
         $products = Product::where('is_deleted', false)->where('published', true)->with('userProducts.user')
-            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
+            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id)
+            {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
                 if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
             })
-            ->orderBy('id', 'desc');
+            //->orderBy('id', 'desc');
+            ->orderBy('order_date', 'desc');
         if ($per_page == "all") {
             $products = $products->get();
         } else {

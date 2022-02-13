@@ -30,6 +30,7 @@ class Product extends Model
        'published',
        'type',
        'special',
+       "order_date",
        'education_system',
        'start_date',
        'days',
