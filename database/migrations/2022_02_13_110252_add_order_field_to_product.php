@@ -14,7 +14,7 @@ class AddOrderFieldToProduct extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->date("order_date")->after("special")->index();
+            $table->date("order_date")->after("special")->index()->nullable();
         });
     }
 
