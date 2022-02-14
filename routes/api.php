@@ -300,6 +300,7 @@ Route::group([
 ], function ($router) {
     Route::get('/get-info-of-an-order/{id}', [OrderController::class, 'getInfoOfAnOrder']);
     Route::post('/add', [OrderController::class, 'store'])->name("addOrder");
+    Route::post('/add-orderdetail-product-bymobilelist', [OrderController::class, 'storeProductByMobileList']);
     Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct'])->name("addStoreProduct");
     Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
     Route::get('/get-cart/{orders_id}', [OrderController::class, 'getWholeCart']);

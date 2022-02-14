@@ -14,6 +14,7 @@ class VideoSessionForStudentSessionsResource extends JsonResource
      */
     public function toArray($request)
     {
+      if ($this->resource !== null) {
         return [
           'id' => $this->id,
           'start_date' => $this->start_date,
@@ -21,5 +22,6 @@ class VideoSessionForStudentSessionsResource extends JsonResource
           'end_time' => $this->end_time,
           'video_session_type' => $this->video_session_type,
         ];
+      }
     }
 }

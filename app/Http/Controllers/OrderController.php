@@ -8,6 +8,7 @@ use App\Http\Requests\StoreProductOrderDetailRequest;
 use App\Http\Requests\DeleteMicroProductFromCartRequest;
 use App\Http\Requests\DeleteProductFromCartRequest;
 use App\Http\Requests\AddMicroProductToCartRequest;
+use App\Http\Requests\storeProductByMobileListRequest;
 use App\Utils\RaiseError;
 use App\Models\Order;
 use App\Models\User;
@@ -63,6 +64,23 @@ class OrderController extends Controller
         return (new GetInfoOfAnOrderResource(null))->additional([
             'errors' => ['order' => ['Order does not exist!']],
         ])->response()->setStatusCode(406);
+    }
+    public function storeProductByMobileList(storeProductByMobileListRequest $request)
+    {
+       
+        // dd("this is runs");
+        // $users_id = $request->input('users_id');
+        // $response= $this->_store($users_id,$addteamOrder);
+        // if($response===null)
+        // {
+        //     return (new AdminOrderResource(null))->additional([
+        //         'errors' => ['type' => ['The user type is invalid!']],
+        //     ])->response()->setStatusCode(406);
+        // }
+        // return (new AdminOrderResource($response))->additional([
+        //     'errors' => null,
+        // ])->response()->setStatusCode(201);
+        
     }
     public function store(InsertOrderForUserRequest $request,bool $addteamOrder=false)
     {

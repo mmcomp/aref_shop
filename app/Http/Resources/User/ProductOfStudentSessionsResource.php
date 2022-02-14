@@ -14,11 +14,14 @@ class ProductOfStudentSessionsResource extends JsonResource
      */
     public function toArray($request)
     {
+        if ($this->resource != null) 
+        {
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'thumbnail' => $this->main_image_thumb_path
+            ];
+        }
         
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'thumbnail' => $this->main_image_thumb_path
-        ];
     }
 }

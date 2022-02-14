@@ -161,24 +161,33 @@ class OrderController extends Controller
             $video_sessions_id_arr[] = $item->id;
         }
         for($i = 0; $i < count($free_sessions); $i++) {
+           
             $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
             for($j = 0; $j < count($output); $j++) {
                 if($output[$j]->id == $free_sessions[$i]->id) {
                     $free_sessions[$i] = $output[$j];
                 }
-            }
+            }            
         }
-        $product_detail_videos = ProductDetailVideo::where('is_deleted', false)->whereIn('products_id', $user_products )->whereIn('video_sessions_id', $video_sessions_id_arr)->get();
+        $product_detail_videos = ProductDetailVideo::where('is_deleted', false)
+        ->whereIn('products_id', $user_products )
+        ->whereIn('video_sessions_id', $video_sessions_id_arr)
+        ->with(["product" => function($query){
+            $query->where("id",'>',0);
+        }])->whereHas('product')       
+        ->get();       
         for($i = 0; $i < count($product_detail_videos); $i++) {
+            
             $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product, Auth::user()->id);
+            
             for($j = 0; $j < count($output); $j++) {
                 if($output[$j]->id == $product_detail_videos[$i]->id) {
                     $product_detail_videos[$i] = $output[$j];
                 }
-            }
-        }
-
-        $merged = $product_detail_videos->merge($free_sessions);
+            }        
+           
+        }       
+        $merged = $product_detail_videos->merge($free_sessions);     
         return ((new ProductDetailVideosForShowingToStudentsCollection($merged))->foo($saturday_and_friday))->additional([
             'errors' => null,
             'saturday' => $saturday_and_friday['saturday'],

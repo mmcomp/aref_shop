@@ -21,7 +21,8 @@ class ProductDetailVideosForShowingToStudentsResource extends JsonResource
      */
     public function toArray($request)
     {
-        if ($this->resource != null) {
+        
+        if ($this->resource !== null) {
             return [
                 'id' => $this->id,
                 'product' => new ProductOfStudentSessionsResource($this->product),
