@@ -43,6 +43,7 @@ class ProductResource extends JsonResource
                 'published' => $this->published,
                 'type' => $this->type,
                 'special' => $this->special,
+                'order_date' => $this->order_date,
                 'education_system' => $this->education_system,
                 'hour' => $this->hour,
                 'days' => $this->days,
