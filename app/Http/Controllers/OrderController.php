@@ -41,6 +41,7 @@ use App\Http\Resources\AdminOrderResource;
 use App\Http\Resources\GetInfoOfAnOrderResource;
 use App\Http\Resources\User\OrderResource;
 use App\Utils\Buying;
+use App\Utils\AddToOrder;
 use Illuminate\Http\Request;
 use App\Utils\AdminLog;
 
@@ -67,7 +68,14 @@ class OrderController extends Controller
     }
     public function storeProductByMobileList(storeProductByMobileListRequest $request)
     {
+       $user_ids=$this->convertUserMobileToId($request->mobile_list);
+       $addtoorder=new AddToOrder;
+       foreach($user_ids["exist"] as $user_id)
+       {
+            $addorder[]=$addtoorder->AddToOrder($user_id,$request->products_id,1,"خرید محصول با استفاده از موبایل کاربر");
+       }
        
+       dd($addorder);
         // dd("this is runs");
         // $users_id = $request->input('users_id');
         // $response= $this->_store($users_id,$addteamOrder);
@@ -80,7 +88,27 @@ class OrderController extends Controller
         // return (new AdminOrderResource($response))->additional([
         //     'errors' => null,
         // ])->response()->setStatusCode(201);
-        
+
+    }
+    public function convertUserMobileToId($mobiles)
+    {
+        $notexist=array();
+        $exists=array();
+        $total=array();
+
+        foreach($mobiles as $mobile)
+        {
+           $isFounded=User::where("email",$mobile)->first();
+           if(!$isFounded)
+           {
+               $notexist[]=$mobile;
+               continue;
+           }
+           $exists[]=$isFounded->id;
+        }
+        $total["exist"]=$exists;
+        $total["notexist"]=$notexist;
+        return $total;
     }
     public function store(InsertOrderForUserRequest $request,bool $addteamOrder=false)
     {
@@ -95,7 +123,7 @@ class OrderController extends Controller
         return (new AdminOrderResource($response))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
-        
+
     }
     /**
      * Insert factor for a user
@@ -105,9 +133,9 @@ class OrderController extends Controller
      */
     public function _store( $users_id,$addteamOrder)
     {
-        //$users_id = $request->input('users_id');       
-        $user = User::where('is_deleted', false)->find($users_id); 
-        //dd($user);      
+        //$users_id = $request->input('users_id');
+        $user = User::where('is_deleted', false)->find($users_id);
+        //dd($user);
         if ($user->group->type == 'user') {
             $comment = ($addteamOrder==true ? "خرید خودکار محصول برای اعضای تیم" : "");
             $saverUsersId=($addteamOrder==true ? $users_id : Auth::user()->id);
@@ -190,8 +218,8 @@ class OrderController extends Controller
        // dd("the admin is running");
         $raiseError = new RaiseError;
         $products_id = $request->input('products_id');
-        $product_details_id = $request->input('product_details_id');       
-        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();        
+        $product_details_id = $request->input('product_details_id');
+        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
         $orderDetail = OrderDetail::where('orders_id', $orders_id)->where('products_id', $products_id)->first();
         $order = Order::find($orders_id);
         if (!$orderDetail) {
@@ -210,9 +238,9 @@ class OrderController extends Controller
             ])->response()->setStatusCode(406);
         }
         //dd($product->type);
-        if ($product->type == 'video') 
-        { 
-            //dd("vedio");           
+        if ($product->type == 'video')
+        {
+            //dd("vedio");
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
             $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
@@ -242,26 +270,26 @@ class OrderController extends Controller
                  ->select('price')
                  ->first();
                 // dd($chair_price);
-                 if($chair_price===null)                
+                 if($chair_price===null)
                      $chair_price=-1;
                  else
                      $chair_price =$chair_price["price"];
- 
+
                  if( $chair_price>-1) // in valid chair number insert in another table
                  {
                      $order_chair_detail= OrderChairDetail::firstOrCreate([
                          "order_details_id" => $orderDetail->id,
-                         "chair_number"     => $chair,                    
+                         "chair_number"     => $chair,
                      ],
-                     [                    
+                     [
                              "order_details_id" =>  $orderDetail->id,
                              "chair_number"     => $chair,
-                             "price" => $chair_price                  
+                             "price" => $chair_price
                      ]);
                      //dd( $order_chair_detail["id"]);
-                 } 
+                 }
              }
-             $add_chair_price=self::updateVideoDetailChairPrice($orderDetail->id); 
+             $add_chair_price=self::updateVideoDetailChairPrice($orderDetail->id);
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $sumOfOrderDetailPrices;
@@ -501,7 +529,7 @@ class OrderController extends Controller
     }
 
     public function destroyChairMicroProduct($id)
-    { 
+    {
        // dd("this should be changed");
         $user_id=Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'manual_waiting')->first();
@@ -511,22 +539,22 @@ class OrderController extends Controller
         {
             $orderDetailId = $orderChairDetail->order_details_id;
             //dd($orderDetailId);
-            //$chair_price=$orderChairDetail->price;       
+            //$chair_price=$orderChairDetail->price;
             if($orderDetailId!==null)
-            {  
+            {
                 $adminLog= new AdminLog;
                 $OrderChairDetail=OrderChairDetail::whereId($id)->first();
                 //dd($OrderChairDetail->getTable());
-                // these two line record user that deleted table record  
+                // these two line record user that deleted table record
                     $OrderChairDetail= $OrderChairDetail->getTable()  .  $OrderChairDetail;
-                    $response=$adminLog->addLog($user_id,(string)$OrderChairDetail,"delete");     
-               
-               //dd($response->id);         
+                    $response=$adminLog->addLog($user_id,(string)$OrderChairDetail,"delete");
+
+               //dd($response->id);
                 OrderChairDetail::whereId($id)->delete();
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
                 $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
                 if ($count == 0) {
-                    
+
                     OrderDetail::whereId($orderDetailId)->delete();
                 }
                $order_detail= OrderDetail::where('id', $orderDetailId)->first();
@@ -538,13 +566,13 @@ class OrderController extends Controller
                 //$order->save();
                }
                else
-               {                  
+               {
                     $order->amount = 0;
                    // $order->save();
                }
-                
+
             }
-        }       
+        }
         $order->save();
         return response([
             'errors' => null,
@@ -578,7 +606,7 @@ class OrderController extends Controller
 
        }
 
-        
+
         return response([
             'errors' => null,
         ])->setStatusCode(201);
@@ -715,7 +743,7 @@ class OrderController extends Controller
     }
     public function updateVideoDetailChairPrice($order_detail_id,$flag=false)
     {
-       
+
         $total_price=OrderChairDetail::where('order_details_id','=',$order_detail_id)
             ->sum('price');
         //->get();
