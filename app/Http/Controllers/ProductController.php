@@ -167,7 +167,7 @@ class ProductController extends Controller
       
        $user_product= UserProduct::where("products_id",$id)->first();     
        if($user_product)
-       {
+       {       
             return (new ProductResource(null))->additional([
                 'errors' => ['fail' => ['you can not delete this product the user buy it before' ]],
             ])->response()->setStatusCode(400);
