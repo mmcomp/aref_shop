@@ -28,22 +28,27 @@ class storeProductByMobileListRequest extends FormRequest
     {
         return [
            "products_id" => 
-           [
+            [
+                "array",
+                "required"                
+            ],
+            "products_id.*" => 
+            [
                 "required",
                 "integer",
-                Rule::exists("products","id")->where("id",$this->products_id)->where("is_deleted",false)
-           ],
+                Rule::exists("products","id")->where("id",$this->products_id)->where("is_deleted",false)              
+            ],           
            "mobile_list" =>
-           [
+            [
                "array",
                "required"
-           ],
+            ],
            "mobile_list.*" =>
-           [
+            [
                "size:11",
                "required",
                "distinct"
-           ]
+            ]
         ];
     }
     public function withValidator($validator)

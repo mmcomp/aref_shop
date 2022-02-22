@@ -41,7 +41,7 @@ use App\Http\Resources\AdminOrderResource;
 use App\Http\Resources\GetInfoOfAnOrderResource;
 use App\Http\Resources\User\OrderResource;
 use App\Utils\Buying;
-use App\Utils\AddToOrder;
+use App\Utils\buyProductsAccordingUserMobile;
 use Illuminate\Http\Request;
 use App\Utils\AdminLog;
 
@@ -67,28 +67,89 @@ class OrderController extends Controller
         ])->response()->setStatusCode(406);
     }
     public function storeProductByMobileList(storeProductByMobileListRequest $request)
-    {
+    {    
        $user_ids=$this->convertUserMobileToId($request->mobile_list);
-       $addtoorder=new AddToOrder;
-       foreach($user_ids["exist"] as $user_id)
-       {
-            $addorder[]=$addtoorder->AddToOrder($user_id,$request->products_id,1,"خرید محصول با استفاده از موبایل کاربر");
-       }
-       
-       dd($addorder);
-        // dd("this is runs");
-        // $users_id = $request->input('users_id');
-        // $response= $this->_store($users_id,$addteamOrder);
-        // if($response===null)
-        // {
-        //     return (new AdminOrderResource(null))->additional([
-        //         'errors' => ['type' => ['The user type is invalid!']],
-        //     ])->response()->setStatusCode(406);
-        // }
-        // return (new AdminOrderResource($response))->additional([
-        //     'errors' => null,
-        // ])->response()->setStatusCode(201);
+        $buyed=array();           
+        $beforBuyed=array();
+        $notRegistered=array();
+        $result=array();
+        $id=5;
+       $utilObject=new buyProductsAccordingUserMobile;
+       foreach($request->products_id as $product_id)
+       { 
+           $id++;         
+            foreach($user_ids["exist"] as $user_id)
+            {
+                $found_user_product_zeroPartial= $this->checkUserProduct($user_id,$product_id,0);
+                if($found_user_product_zeroPartial)
+                {
+                    $beforBuyed[]=$user_id;
+                    continue;
+                }
+                // $addorder[]=$user_id;
+                $order=$utilObject->AddToOrder($user_id,$product_id,1,"خرید محصول با استفاده از موبایل کاربر");
+            
+                if(!$order){
+                    $notRegistered[]=$user_id;
+                    continue;
+                    // return (new AdminOrderResource(null))->additional([
+                    //     'errors' => ['order' => ['The order can not registered! maybe user is admin.']],
+                    // ])->response()->setStatusCode(406);
+                }
+    
+                $orderDetails=$utilObject->orderDetails($product_id,$order->id);
+                if(!$orderDetails)
+                { 
+                    $notRegistered[]=$user_id;
+                    continue;
+                    // return (new AdminOrderResource(null))->additional([
+                    //     'errors' => ['orderDetails' => ['The order can not registered!']],
+                    // ])->response()->setStatusCode(406); 
+                    
+                } 
+                $found_user_product_partial= $this->checkUserProduct($user_id,$product_id,1);
+                if($found_user_product_partial)
+                {
+                    $found_user_product_partial->delete(); /// delete if user buy one  session of a product
+                }
+                $resultOrder=$utilObject->completeBuying($order->id,0,"test a buying");
+                if(!$resultOrder)
+                {
+                    $notRegistered[]=$user_id;
+                    continue;
+                    // return (new AdminOrderResource(null))->additional([
+                    //     'errors' => ['complete buying' => ['The complete buying can not registered!']],
+                    // ])->response()->setStatusCode(406); 
+                }
+                $buyed[]=$user_id;
+            }
+    
+            $user_mobiles["buyed"]=$this->convertUserIdToMobile($buyed);
+            $user_mobiles["beforBuyed"]=$this->convertUserIdToMobile($beforBuyed);
+            $user_mobiles["notRegistered"]=$this->convertUserIdToMobile($notRegistered);
 
+            //$result=array($product_id => array("buyed" =>  $user_mobiles["buyed"]->toArray()));
+            $result[$id]["buyed"]=$user_mobiles["buyed"]->toArray();//$buyed;
+            $result[$id]["notexists"]=$user_ids["notexist"];
+            $result[$id]["notRegistered"]=$user_mobiles["notRegistered"]->toArray();// $notRegistered;
+            $result[$id]["beforBuyed"]=$user_mobiles["beforBuyed"]->toArray();
+       }   
+       
+       return $result;        
+
+    }
+    public function convertUserIdToMobile(array $user_ids)
+    {
+       $user_mobile= User::whereIn("id",$user_ids)->pluck("email");
+       return $user_mobile;
+    }
+    public function checkUserProduct(int $user_id,int $product_id,int $partial)
+    {
+        $found_user_product = UserProduct::where('users_id', $user_id)
+                    ->where('products_id', $product_id)
+                    ->where('partial',$partial)
+                    ->first(); 
+                    return $found_user_product;
     }
     public function convertUserMobileToId($mobiles)
     {
@@ -169,8 +230,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function storeProduct(StoreProductOrderDetailRequest $request, $orders_id)
-    {
-       // dd("dgdf");
+    {      
         $number = $request->input('number', 1);
         $products_id = $request->input('products_id');
         $order = Order::find($orders_id);

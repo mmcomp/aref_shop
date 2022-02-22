@@ -13,6 +13,8 @@ use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
 use App\Http\Resources\ProductDetailPackagesCollection;
 use App\Models\Product;
+use App\Models\UserProduct;
+
 use App\Models\ProductDetailPackage;
 use App\Models\OrderDetail;
 use App\Utils\RaiseError;
@@ -161,11 +163,20 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
-    {
+    {        
+       $user=Auth::user();
+       $user_product= UserProduct::where("users_id",$user->id)->where("products_id",$id)->first();     
+       if($user_product)
+       {
+            return (new ProductResource(null))->additional([
+                'errors' => ['fail' => ['you can not delete this product the user buy it before' ]],
+            ])->response()->setStatusCode(400);
+       }
         $product = Product::where('is_deleted', false)->find($id);
         if ($product != null) {
             $product->is_deleted = 1;
             try {
+                  ProductDetailPackage::where("child_products_id",$id)->delete();
                 $product->save();
                 return (new ProductResource(null))->additional([
                     'errors' => null,
