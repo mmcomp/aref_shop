@@ -163,9 +163,9 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
-    {        
-       $user=Auth::user();
-       $user_product= UserProduct::where("users_id",$user->id)->where("products_id",$id)->first();     
+    {       
+      
+       $user_product= UserProduct::where("products_id",$id)->first();     
        if($user_product)
        {
             return (new ProductResource(null))->additional([
