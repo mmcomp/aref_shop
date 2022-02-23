@@ -27,7 +27,7 @@ class storeProductPackageRequest extends FormRequest
     public function rules()
     {
         return [           
-            "products_id" =>[
+            "product_id" =>[
                 "required",
                 "integer",
                  Rule::Exists("products","id")//->where(function($query){

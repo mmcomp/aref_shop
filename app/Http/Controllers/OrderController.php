@@ -829,57 +829,35 @@ class OrderController extends Controller
 
     // }
     public function storeProductPackage(storeProductPackageRequest $request)
-    { 
-       
-       $utilObject=new buyProductsAccordingUserMobile;
-           
-        foreach($user_ids["exist"] as $user_id)
-        {
-            $found_user_product_zeroPartial= $this->checkUserProduct($user_id,$product_id,0);
-            if($found_user_product_zeroPartial)
+    {        
+       $user=Auth::user();      
+       $utilObject=new buyProductsAccordingUserMobile;           
+       // foreach($request->child_product_ids as $product_id)
+        //{
+            $product_before_buyed= $this->checkUserProduct($request->user_id,$request->product_id,0);
+            if($product_before_buyed)
             {
-                $beforBuyed[]=$user_id;
-                continue;
+                return (new OrderResource(null))->additional([
+                    'errors' => ["product" => " this product buyed before!"],
+                ])->response()->setStatusCode(200);     
             }
-            // $addorder[]=$user_id;
-            $order=$utilObject->AddToOrder($user_id,$product_id,1,"خرید محصول با استفاده از موبایل کاربر");
-        
-            if(!$order){
-                $notRegistered[]=$user_id;
-                continue;
-                // return (new AdminOrderResource(null))->additional([
-                //     'errors' => ['order' => ['The order can not registered! maybe user is admin.']],
-                // ])->response()->setStatusCode(406);
+            $order=$utilObject->AddToOrder($request->user_id,$request->product_id,1,"خرید محصول  توسط مدیر " .$user->first_name . "  ". $user->last_name );
+            $orderDetails=$utilObject->orderDetails($request->product_id,$order->id);   
+                   
+           
+            $productPartialBuyed= $this->checkUserProduct($request->user_id,$request->product_id,1);
+            if($productPartialBuyed)
+            {
+                $productPartialBuyed->delete(); /// delete if user buy one  session of a product
             }
 
-            $orderDetails=$utilObject->orderDetails($product_id,$order->id);
-            if(!$orderDetails)
-            { 
-                $notRegistered[]=$user_id;
-                continue;
-                // return (new AdminOrderResource(null))->additional([
-                //     'errors' => ['orderDetails' => ['The order can not registered!']],
-                // ])->response()->setStatusCode(406); 
-                
-            } 
-            $found_user_product_partial= $this->checkUserProduct($user_id,$product_id,1);
-            if($found_user_product_partial)
-            {
-                $found_user_product_partial->delete(); /// delete if user buy one  session of a product
-            }
             $resultOrder=$utilObject->completeBuying($order->id,0,"test a buying");
-            if(!$resultOrder)
-            {
-                $notRegistered[]=$user_id;
-                continue;
-                // return (new AdminOrderResource(null))->additional([
-                //     'errors' => ['complete buying' => ['The complete buying can not registered!']],
-                // ])->response()->setStatusCode(406); 
-            }
-            $buyed[]=$user_id;
-        }  
+            
+       // }  
           
-       return $result;        
+        return (new OrderResource($order))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);     
 
     }
     
