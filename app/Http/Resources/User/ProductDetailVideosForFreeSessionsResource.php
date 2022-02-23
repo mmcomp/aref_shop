@@ -26,7 +26,7 @@ class ProductDetailVideosForFreeSessionsResource extends JsonResource
         if ($this->resource != null) {
             $number = new Number2Word;
             $num = 0;
-            //dd($this->numName);
+            
             if($this->numName != null) {
                 $persianAlphabetNum = $number->numberToWords($this->numName); 
                 if($this->name == null){

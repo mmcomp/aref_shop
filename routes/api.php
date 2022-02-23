@@ -302,6 +302,7 @@ Route::group([
     Route::post('/add', [OrderController::class, 'store'])->name("addOrder");    
     Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct'])->name("addStoreProduct");
     Route::post('/add-orderdetail-product-bymobilelist', [OrderController::class, 'storeProductByMobileList']);
+    Route::post('/add-package-product', [OrderController::class, 'storeProductPackage']);
     
     Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
     Route::get('/get-cart/{orders_id}', [OrderController::class, 'getWholeCart']);
@@ -318,7 +319,7 @@ Route::group([
 Route::get('/publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
-    //dd($values);
+   
     Redis::publish('test-channel', json_encode([
         "Type" => "MESSAGE",
         "Token" => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYyNzIxMDQwMywiZXhwIjoxNjI3MjE0MDAzLCJuYmYiOjE2MjcyMTA0MDMsImp0aSI6InVBU2VtTEVWcG1QRTZUcGYiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vUYPZR5FlT0UIbdL-RJlFssSWC6cPnXODwBUULwzs9E",
@@ -331,7 +332,7 @@ Route::get('/publish', function () {
 Route::get('/new-publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
-    //dd($values);
+   
     Redis::publish('absence-presence-channel', json_encode([
         "type" => "online",
         "product_detail_videos_id" => 21,

@@ -317,7 +317,7 @@ class UserController extends Controller
     {  
        $now=now()->format('Y-m-d H:i:s');  
        $users=User::where("blocked",">", $now)->pluck("id");
-       //dd($blockedUsers); 
+      
        $blockedUsers["blocked_users"]=$users->toArray();               
         if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
         {
@@ -386,7 +386,7 @@ class UserController extends Controller
         //return $blocketUsers;
         // foreach($blocketUsers as $blocketUser)
         // {
-        //     //die($blocketUser);
+        //     
         //     Redis::hSet('blockedUser',$blocketUser, "blocked");
         // }
         return true;

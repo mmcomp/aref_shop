@@ -27,9 +27,9 @@ use App\Models\User;
         return $logCreated;
         // $audit=new AdminLog;
         // $user=User::whereId($user_id)->first();
-        // // dd($user->first_name);
+        // 
         // $user_fullName=$user->first_name . " " . $user->last_name;
-        // //dd($user_fullName);
+        // 
         // $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
         //  return $log_result;
  

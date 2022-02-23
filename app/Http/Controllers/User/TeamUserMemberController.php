@@ -128,8 +128,6 @@ class TeamUserMemberController extends Controller
        {            
             return false;
        }
-      
-       //dd($response);
        
     }
     public  function updateTeamUserMember(TeamUserMember $teamUserMember)
@@ -248,18 +246,18 @@ class TeamUserMemberController extends Controller
         $this->smsObj->sendCode(User::find($userId)->email,"زیست", "confirm-team-members");
        
         if ($leaderAddOrder) {
-            // dd($orderobj->id);
+           
             $this->addOrderDetails($leaderAddOrder->id);
         }
     }
     protected function orderDetailAdd($OrderDetail)
     {
-       // dd($OrderDetail);
+     
         return  OrderDetail::create($OrderDetail);
     } 
     protected function userProductAdd($userProduct)
     {
-       // dd($OrderDetail);
+      
         return  UserProduct::create($userProduct);
     }
     protected function addOrder(int $userId)

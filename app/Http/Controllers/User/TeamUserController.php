@@ -97,13 +97,13 @@ class TeamUserController extends Controller
         
         // return ( TeamUserWithoutMemberResource::collection($teamUsermembers->toArray()));
         // if (count($teamUsermembers) === 0) {  
-        //     //dd("show all teams to offer member");         
+        //        
         //     return (new TeamUserWithoutMemberResource(null));
         // } else { ///////////////////////////////////////////////////               just userrrrrr is not member
        
         //     $getAllTeamAsGuest=TeamUser::where("id",$teamUsermembers[0]["team_user_id"])->with("TeamMember.member")->with("leader")->get();
         //     return (new TeamUserWithoutMemberResource($getAllTeamAsGuest));
-        //     //dd($getAllTeamAsGuest);
+        //    
         //     //    // $id = 0;
         //     //     $teams = [];
         //     //     foreach ($teamUsermembers as $teammember) {

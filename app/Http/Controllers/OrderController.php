@@ -9,6 +9,8 @@ use App\Http\Requests\DeleteMicroProductFromCartRequest;
 use App\Http\Requests\DeleteProductFromCartRequest;
 use App\Http\Requests\AddMicroProductToCartRequest;
 use App\Http\Requests\storeProductByMobileListRequest;
+use App\Http\Requests\storeProductPackageRequest;
+
 use App\Utils\RaiseError;
 use App\Models\Order;
 use App\Models\User;
@@ -138,6 +140,7 @@ class OrderController extends Controller
        return $result;        
 
     }
+
     public function convertUserIdToMobile(array $user_ids)
     {
        $user_mobile= User::whereIn("id",$user_ids)->pluck("email");
@@ -195,8 +198,7 @@ class OrderController extends Controller
     public function _store( $users_id,$addteamOrder)
     {
         //$users_id = $request->input('users_id');
-        $user = User::where('is_deleted', false)->find($users_id);
-        //dd($user);
+        $user = User::where('is_deleted', false)->find($users_id);       
         if ($user->group->type == 'user') {
             $comment = ($addteamOrder==true ? "خرید خودکار محصول برای اعضای تیم" : "");
             $saverUsersId=($addteamOrder==true ? $users_id : Auth::user()->id);
@@ -211,7 +213,7 @@ class OrderController extends Controller
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
             }
-            //dd($order);
+            
             return $order;
             // return (new AdminOrderResource($order))->additional([
             //     'errors' => null,
@@ -274,8 +276,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request, $orders_id)
-    {
-       // dd("the admin is running");
+    {      
         $raiseError = new RaiseError;
         $products_id = $request->input('products_id');
         $product_details_id = $request->input('product_details_id');
@@ -297,10 +298,10 @@ class OrderController extends Controller
                 'errors' => ['added_before' => ['already added!']],
             ])->response()->setStatusCode(406);
         }
-        //dd($product->type);
+        
         if ($product->type == 'video')
         {
-            //dd("vedio");
+            
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
             $found_order_video_detail = OrderVideoDetail::where('order_details_id', $orderDetail->id)->where('product_details_videos_id', $product_details_id)->first();
@@ -322,14 +323,14 @@ class OrderController extends Controller
         }
         else if($product->type == 'chairs')
         {
-            ///dd("chairs");
+            
             foreach($request->chairs as $chair) {
                 $chair_price =ProductDetailChair::where('start','<=',$chair)
                  ->where('end','>=',$chair)
                  ->where('products_id', $products_id)
                  ->select('price')
                  ->first();
-                // dd($chair_price);
+               
                  if($chair_price===null)
                      $chair_price=-1;
                  else
@@ -346,7 +347,7 @@ class OrderController extends Controller
                              "chair_number"     => $chair,
                              "price" => $chair_price
                      ]);
-                     //dd( $order_chair_detail["id"]);
+                    
                  }
              }
              $add_chair_price=self::updateVideoDetailChairPrice($orderDetail->id);
@@ -590,26 +591,24 @@ class OrderController extends Controller
 
     public function destroyChairMicroProduct($id)
     {
-       // dd("this should be changed");
+      
         $user_id=Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'manual_waiting')->first();
-       // dd($order->id);
+      
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
         if( $orderChairDetail!==null)
         {
-            $orderDetailId = $orderChairDetail->order_details_id;
-            //dd($orderDetailId);
+            $orderDetailId = $orderChairDetail->order_details_id;          
             //$chair_price=$orderChairDetail->price;
             if($orderDetailId!==null)
             {
                 $adminLog= new AdminLog;
                 $OrderChairDetail=OrderChairDetail::whereId($id)->first();
-                //dd($OrderChairDetail->getTable());
+                
                 // these two line record user that deleted table record
                     $OrderChairDetail= $OrderChairDetail->getTable()  .  $OrderChairDetail;
                     $response=$adminLog->addLog($user_id,(string)$OrderChairDetail,"delete");
-
-               //dd($response->id);
+            
                 OrderChairDetail::whereId($id)->delete();
                 $del_price_chair=self::updateVideoDetailChairPrice($orderDetailId);
                 $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
@@ -617,8 +616,7 @@ class OrderController extends Controller
 
                     OrderDetail::whereId($orderDetailId)->delete();
                 }
-               $order_detail= OrderDetail::where('id', $orderDetailId)->first();
-              // dd($order_detail->orders_id);
+               $order_detail= OrderDetail::where('id', $orderDetailId)->first();            
                if($order_detail!==null)
                {
                 $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order_detail->orders_id)->sum('total_price_with_coupon');
@@ -807,10 +805,10 @@ class OrderController extends Controller
         $total_price=OrderChairDetail::where('order_details_id','=',$order_detail_id)
             ->sum('price');
         //->get();
-        //dd($total_price);
+      
         $order_detail= OrderDetail::where('id',$order_detail_id)
                 ->first();
-               // dd( $order_detail["price"]);
+              
                 if($order_detail!==null)
                 {
                     $order_detail["price"]=$total_price;
@@ -823,11 +821,66 @@ class OrderController extends Controller
     // {
     //    $audit=new AdminLog;
     //    $user=User::whereId($user_id)->first();
-    //    // dd($user->first_name);
+    //    
     //    $user_fullName=$user->first_name . " " . $user->last_name;
-    //    //dd($user_fullName);
+    //   
     //    $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
     //     return $log_result;
 
     // }
+    public function storeProductPackage(storeProductPackageRequest $request)
+    { 
+       
+       $utilObject=new buyProductsAccordingUserMobile;
+           
+        foreach($user_ids["exist"] as $user_id)
+        {
+            $found_user_product_zeroPartial= $this->checkUserProduct($user_id,$product_id,0);
+            if($found_user_product_zeroPartial)
+            {
+                $beforBuyed[]=$user_id;
+                continue;
+            }
+            // $addorder[]=$user_id;
+            $order=$utilObject->AddToOrder($user_id,$product_id,1,"خرید محصول با استفاده از موبایل کاربر");
+        
+            if(!$order){
+                $notRegistered[]=$user_id;
+                continue;
+                // return (new AdminOrderResource(null))->additional([
+                //     'errors' => ['order' => ['The order can not registered! maybe user is admin.']],
+                // ])->response()->setStatusCode(406);
+            }
+
+            $orderDetails=$utilObject->orderDetails($product_id,$order->id);
+            if(!$orderDetails)
+            { 
+                $notRegistered[]=$user_id;
+                continue;
+                // return (new AdminOrderResource(null))->additional([
+                //     'errors' => ['orderDetails' => ['The order can not registered!']],
+                // ])->response()->setStatusCode(406); 
+                
+            } 
+            $found_user_product_partial= $this->checkUserProduct($user_id,$product_id,1);
+            if($found_user_product_partial)
+            {
+                $found_user_product_partial->delete(); /// delete if user buy one  session of a product
+            }
+            $resultOrder=$utilObject->completeBuying($order->id,0,"test a buying");
+            if(!$resultOrder)
+            {
+                $notRegistered[]=$user_id;
+                continue;
+                // return (new AdminOrderResource(null))->additional([
+                //     'errors' => ['complete buying' => ['The complete buying can not registered!']],
+                // ])->response()->setStatusCode(406); 
+            }
+            $buyed[]=$user_id;
+        }  
+          
+       return $result;        
+
+    }
+    
 }

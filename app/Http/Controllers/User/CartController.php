@@ -189,7 +189,7 @@ class CartController extends Controller
             $add_chair_price = self::updateVideoDetailChairPrice($orderDetail->id);
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
-        //dd($sumOfOrderDetailPrices);
+       
         $order->amount = $sumOfOrderDetailPrices;
         $order->save();
         return (new OrderResource($order))->additional([
@@ -435,7 +435,7 @@ class CartController extends Controller
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
         if ($orderChairDetail !== null) {
             $orderDetailId = $orderChairDetail->order_details_id;
-            //dd($orderDetailId);
+           
             //$chair_price=$orderChairDetail->price;       
             if ($orderDetailId !== null) {
                 OrderChairDetail::whereId($id)->delete();
@@ -692,10 +692,10 @@ class CartController extends Controller
         $total_price = OrderChairDetail::where('order_details_id', '=', $order_detail_id)
             ->sum('price');
         //->get();
-        //dd($total_price);
+       
         $order_detail = OrderDetail::where('id', $order_detail_id)
             ->first();
-        // dd( $order_detail["price"]);
+     
         if ($order_detail !== null) {
             $order_detail["price"] = $total_price;
             $order_detail["total_price_with_coupon"] = $total_price;
@@ -707,7 +707,7 @@ class CartController extends Controller
     // {
     //     $order_detail= OrderDetail::where('id',$order_detail_id)
     //             ->first();
-    //            // dd( $order_detail["price"]);
+    //         
     //             if($order_detail!==null)
     //             {
     //                 $order_detail["price"]=$order_detail["price"] - $chair_price;

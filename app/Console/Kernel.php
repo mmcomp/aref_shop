@@ -29,8 +29,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->call(function(){
             $now=now()->format('Y-m-d H:i:s');  
-            $users=User::where("blocked",">", $now)->pluck("id");
-            //dd($blockedUsers); 
+            $users=User::where("blocked",">", $now)->pluck("id");            
             $blockedUsers["blocked_users"]=$users->toArray();               
             if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
             {
@@ -49,7 +48,7 @@ class Kernel extends ConsoleKernel
         //return $blocketUsers;
         // foreach($blocketUsers as $blocketUser)
         // {
-        //     //die($blocketUser);
+        //    
         //     Redis::hSet('blockedUser',$blocketUser, "blocked");
         // }
         return true;

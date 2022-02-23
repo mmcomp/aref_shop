@@ -77,7 +77,7 @@ class VideoSessionsController extends Controller
 
             $today_sessions[$j]->buyed_before = in_array($today_sessions[$j]->video_sessions_id, $bouth_video_sessions);
         }
-        //dd($today_sessions);
+       
         return (new ProductDetailVideosForTodaySessionsCollection($today_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);

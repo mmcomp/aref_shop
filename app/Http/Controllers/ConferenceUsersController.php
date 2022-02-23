@@ -31,7 +31,7 @@ class ConferenceUsersController extends Controller
     }
     public function index()
     { 
-        //dd("ghgh");
+       
 //         SELECT distinct `conference_users`.`product_detail_videos_id`,`product_detail_videos`.`name` FROM `conference_users`
 // left join `product_detail_videos` on (`product_detail_videos`.id=`conference_users`.`product_detail_videos_id`)
 

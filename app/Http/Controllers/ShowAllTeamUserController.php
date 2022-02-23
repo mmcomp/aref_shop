@@ -29,7 +29,7 @@ class ShowAllTeamUserController extends Controller
     public function addTeamMember(ReplaceTeamMemberRequest $teamMember)
     { 
        $team= TeamUser::where("id",$teamMember->team_user_id)->with("leader")->with("leader.teamUser.TeamMember")->first();
-       //dd($team);
+      
        // $user = User::where('id', $teamMember->team_user_id)->with("teamUser")->first();    
         $adminUser=$this->isAdmin(); 
         
@@ -137,18 +137,18 @@ class ShowAllTeamUserController extends Controller
         // ->distinct()
         // ->get()
         // ->toArray();
-        //dd($query);
+        
        $query2=TeamUserMember::where("mobile" ,"like" ,"%$mobile%")
        ->select("team_user_id AS team_user_id")
        ->distinct()
        ->get()
        ->toArray();
         $res=array_merge($query2,$query);
-        //dd($res);
+      
         $res=collect($res)->map(function ($item, $key) {
             return $item["team_user_id"];
         });
-       //dd($res);
+      
         // SELECT team_users.id FROM `team_users`
         // left join users on (users.id=user_id_creator)
         // where users.email like '%09155193106%';
@@ -162,10 +162,10 @@ class ShowAllTeamUserController extends Controller
         //  //->orWhere("mobile","$mobile")
         //  //->get();
         //  ->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
-         //dd($query);
+      
         // ->with("TeamMember.member")        
         // ->get();
-        // dd($query);
+       
         //$allteams= TeamUser::with("TeamMember.member")->with("leader")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
         $allteams= TeamUser::whereIn("id",$res)
         ->with("TeamMember.member")
@@ -267,9 +267,6 @@ class ShowAllTeamUserController extends Controller
        {            
             return false;
        }
-      
-       //dd($response);
-       
     }
     public function validTeam(int $teamUserId)
     {
@@ -299,7 +296,7 @@ class ShowAllTeamUserController extends Controller
       ->with("member")      
       ->where("is_verified",0)
       ->get();
-      //dd($allNotApprovedMembers);
+      
       if(count($allNotApprovedMembers)>=2)
       {        
             $userFullName=str_replace(' ',"-",$leader->first_name ."-". $leader->last_name);
