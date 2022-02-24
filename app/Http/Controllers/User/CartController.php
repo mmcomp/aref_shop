@@ -581,6 +581,7 @@ class CartController extends Controller
             }
             if (!$order->amount) {
                 $order->status = "ok";
+                $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $order->save();
                 $buying->completeInsertAfterBuying($order);
                 return (new OrderResource($order))->additional([
@@ -671,6 +672,7 @@ class CartController extends Controller
                             $sw = 1;
                             $payment->status = "success";
                             $order->status = "ok";
+                            $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                             $buying->completeInsertAfterBuying($order);
                         }
                     }

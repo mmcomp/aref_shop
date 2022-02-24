@@ -38,13 +38,13 @@ class UserProductController extends Controller
         if ($mode != "product") {
             $orders = null;
             if ($from_date) {
-                $orders = Order::whereRaw('date(created_at) >= ?', [$from_date]);
+                $orders = Order::whereRaw('date(updated_at) >= ?', [$from_date]);
             }
             if ($to_date) {
                 if ($orders) {
-                    $orders = $orders->whereRaw('date(created_at) <= ?', [$to_date]);
+                    $orders = $orders->whereRaw('date(updated_at) <= ?', [$to_date]);
                 } else {
-                    $orders = Order::whereRaw('date(created_at) <= ?', [$to_date]);
+                    $orders = Order::whereRaw('date(updated_at) <= ?', [$to_date]);
                 }
             }
             if ($users_id) {
