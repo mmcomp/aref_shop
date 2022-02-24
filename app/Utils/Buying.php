@@ -66,7 +66,10 @@ class Buying
                 foreach ($child_products as $child_product) {
                     //$child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
                     $tmp = ProductDetailPackage::where("id", $child_product)->first();
-
+                    if(!$tmp)
+                    {
+                        continue;
+                    }
                     $childData[] = [
                         'users_id' => $user,
                         'products_id' =>  $tmp->child_products_id, //$child_product,
