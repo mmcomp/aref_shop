@@ -19,6 +19,7 @@ class ProductDetailPackagesResource extends JsonResource
                 'id' => $this->id,
                 'child_product' => new ProductResource($this->childproduct),
                 'package_price' => $this->price,
+                'group' => $this->group,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
