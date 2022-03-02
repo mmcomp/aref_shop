@@ -12,6 +12,8 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
 use App\Http\Resources\ProductDetailPackagesCollection;
+use App\Http\Resources\ProductDetailPackagesCollectionCollection;
+
 use App\Models\Product;
 use App\Models\UserProduct;
 
@@ -469,11 +471,35 @@ class ProductController extends Controller
                     $product_detail_packages[] = $product->productDetailPackages[$indx];
                 }
             }
+            // $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            // return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
+            //     'errors' => null,
+            // ])->response()->setStatusCode(200);
+
+
             $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
-            return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
+            $allgroup=[];
+            $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+         
+           foreach($groups as $group)
+           {           
+              $id=0;
+              foreach($product_detail_package_items as $product_detail_package_item)
+              {               
+                 if($product_detail_package_item->group===$group)
+                 {  
+                    $tmpGroup= !isset($group) ? "others":$group;                  
+                    $allgroup[$tmpGroup][]=$product_detail_package_item;
+                    $id++;
+                 }
+              }
+           }    
+              return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+                  'errors' => null,
+              ])->response()->setStatusCode(200);  
         }
+
+
         return (new ProductDetailPackagesCollection(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
