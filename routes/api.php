@@ -99,6 +99,7 @@ Route::group([
     Route::post('/search', [ProductController::class, 'search']);
     Route::get('/get-videos/{id}', [ProductController::class, 'ListOfVideosOfAProduct']);
     Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct']);
+    Route::get('/get-packages-in-group/{id}', [ProductController::class, 'listOfPackagesOfProductGroup']);
     Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct']);
 });
 Route::group([

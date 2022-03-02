@@ -494,6 +494,54 @@ class ProductController extends Controller
         //          }
         //       }
         //    }    
+            //   return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+            //       'errors' => null,
+            //   ])->response()->setStatusCode(200);  
+        }
+
+
+        return (new ProductDetailPackagesCollection(null))->additional([
+            'errors' => ['product' => ['Product not found!']],
+        ])->response()->setStatusCode(404);
+    }
+
+    public function listOfPackagesOfProductGroup(GetPerPageRequest $request, $id)
+    {
+
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);
+        $product_detail_packages = [];
+        if ($product != null) {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+            // $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            // return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
+            //     'errors' => null,
+            // ])->response()->setStatusCode(200);
+
+
+            $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            $allgroup=[];
+            $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+         
+           foreach($groups as $group)
+           {           
+              $id=0;
+              foreach($product_detail_package_items as $product_detail_package_item)
+              {               
+                 if($product_detail_package_item->group===$group)
+                 {  
+                    $tmpGroup= !isset($group) ? "others":$group;                  
+                    $allgroup[$tmpGroup][]=$product_detail_package_item;
+                    $id++;
+                 }
+              }
+           }    
               return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
                   'errors' => null,
               ])->response()->setStatusCode(200);  
