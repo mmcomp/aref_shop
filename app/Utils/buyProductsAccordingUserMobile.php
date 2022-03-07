@@ -91,9 +91,7 @@ use UserProduct;
         // return $order;
     }
     public function orderDetails(array $child_product_ids,int $products_id,int $orders_id, int $number=1)
-    {      
-        //$number = $request->input('number', 1);
-        //$products_id = $request->input('products_id');
+    {  
         $order = Order::find($orders_id);
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
@@ -127,12 +125,7 @@ use UserProduct;
         return $order;
     }   
     public function orderDetailsPackages(array $child_product_ids,int $order_Detail_id, int $product_id)
-    {
-        // $child_product_ids=ProductDetailPackage::
-        // where('is_deleted', false)
-        // ->where('products_id', $product_id)
-        // ->pluck("child_products_id");
-
+    {       
         foreach ($child_product_ids as $child_product_id) {
             $data = [
                 "order_details_id" => $order_Detail_id,
