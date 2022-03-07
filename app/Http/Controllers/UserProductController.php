@@ -56,7 +56,9 @@ class UserProductController extends Controller
             }
             $orders = $orders->where(function ($query) {
                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
-            })->get();
+            })
+            ->orderBy("updated_at", "desc")
+            ->get();
             return (new ReportSaleOrderCollection($orders))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
