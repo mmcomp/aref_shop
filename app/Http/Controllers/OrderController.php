@@ -828,7 +828,7 @@ class OrderController extends Controller
     //     return $log_result;
 
     // }
-    public function storeProductPackage(storeProductPackageRequest $request)
+    public function storeProductPackage(storeProductPackageRequest $request,$order_id)
     {        
        $user=Auth::user();      
        $utilObject=new buyProductsAccordingUserMobile;           
@@ -839,7 +839,7 @@ class OrderController extends Controller
             {
                 return (new OrderResource(null))->additional([
                     'errors' => ["product" => " this product buyed before!"],
-                ])->response()->setStatusCode(200);     
+                ])->response()->setStatusCode(403);     
             }
             $order=$utilObject->AddToOrder($request->user_id,$request->product_id,1,"خرید محصول  توسط مدیر " .$user->first_name . "  ". $user->last_name );
             $orderDetails=$utilObject->orderDetails($request->product_id,$order->id);   
