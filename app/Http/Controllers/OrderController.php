@@ -828,7 +828,7 @@ class OrderController extends Controller
     //     return $log_result;
 
     // }
-    public function storeProductPackage(storeProductPackageRequest $request,$order_id)
+    public function storeProductPackage(storeProductPackageRequest $request)
     {        
        $user=Auth::user();      
        $utilObject=new buyProductsAccordingUserMobile;           
