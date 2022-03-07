@@ -90,7 +90,7 @@ use UserProduct;
         // $order->save();
         // return $order;
     }
-    public function orderDetails(int $products_id,int $orders_id, int $number=1)
+    public function orderDetails(array $child_product_ids,int $products_id,int $orders_id, int $number=1)
     {      
         //$number = $request->input('number', 1);
         //$products_id = $request->input('products_id');
@@ -120,18 +120,19 @@ use UserProduct;
             ]);
            
         }
-        $this->orderDetailsPackages($orderDetail->id, $products_id);
+        $this->orderDetailsPackages($child_product_ids,$orderDetail->id, $products_id);
         $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
         $order->amount = $orderDetailPricesArraySum;
         $order->save();
         return $order;
     }   
-    public function orderDetailsPackages(int $order_Detail_id, int $product_id)
+    public function orderDetailsPackages(array $child_product_ids,int $order_Detail_id, int $product_id)
     {
-        $child_product_ids=ProductDetailPackage::
-        where('is_deleted', false)
-        ->where('products_id', $product_id)
-        ->pluck("child_products_id");
+        // $child_product_ids=ProductDetailPackage::
+        // where('is_deleted', false)
+        // ->where('products_id', $product_id)
+        // ->pluck("child_products_id");
+
         foreach ($child_product_ids as $child_product_id) {
             $data = [
                 "order_details_id" => $order_Detail_id,

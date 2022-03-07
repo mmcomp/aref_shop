@@ -841,7 +841,7 @@ class OrderController extends Controller
                 ])->response()->setStatusCode(403);     
             }
             $order=$utilObject->AddToOrder($request->user_id,$request->product_id,1,"خرید محصول  توسط مدیر " .$user->first_name . "  ". $user->last_name );
-            $orderDetails=$utilObject->orderDetails($request->product_id,$order->id);   
+            $orderDetails=$utilObject->orderDetails($request->child_product_ids,$request->product_id,$order->id);   
                    
            
             $productPartialBuyed= $this->checkUserProduct($request->user_id,$request->product_id,1);

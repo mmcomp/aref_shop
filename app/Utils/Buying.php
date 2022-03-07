@@ -30,7 +30,6 @@ class Buying
                 //     :
                 //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
             } 
-            echo "type of product: " .  $orderDetail->product->type . "<br>"; 
             if ($orderDetail->product->type == 'video') {
                 if (!$found_user_product) {
                     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
@@ -64,11 +63,9 @@ class Buying
                 
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
-                foreach ($child_products as $child_product) {
-                    echo "child product is :" . $child_product . "\n";
+                foreach ($child_products as $child_product) {                   
                     //$child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
-                    $tmp = ProductDetailPackage::where("id", $child_product)->first();
-                   var_dump($tmp);
+                    $tmp = ProductDetailPackage::where("id", $child_product)->first();                  
                     if(!$tmp)
                     {
                         continue;
@@ -98,8 +95,6 @@ class Buying
                         }
                     }
                 }
-                echo "<br>add childData to user product"."<br>";
-                var_dump($childData);
                 UserProduct::insert($childData);
                 UserVideoSession::insert($data);
             }
