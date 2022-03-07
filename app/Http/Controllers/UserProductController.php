@@ -72,7 +72,7 @@ class UserProductController extends Controller
                     $query->where("product_details_videos_id", $product_details_id);
                 });
             }
-            $orderDetails = $orderDetails->orderBy("created_at", "desc")/*->with("order.orderDetails")*/
+            $orderDetails = $orderDetails->orderBy("updated_at", "desc")/*->with("order.orderDetails")*/
                             ->with("user")->get();
             return (new OrderDetailCollection($orderDetails))->additional([
                 'errors' => null,
