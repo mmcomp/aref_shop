@@ -61,7 +61,7 @@ class Buying
                 //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
                 $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
                 // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
-                dd( $child_products);
+                
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
@@ -96,7 +96,8 @@ class Buying
                         }
                     }
                 }
-
+                echo "add childData to user product"."<br>";
+                var_dump($childData);
                 UserProduct::insert($childData);
                 UserVideoSession::insert($data);
             }
