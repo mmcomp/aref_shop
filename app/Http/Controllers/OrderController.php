@@ -851,7 +851,7 @@ class OrderController extends Controller
                 $productPartialBuyed->delete(); /// delete if user buy one  session of a product
             }
 
-            $resultOrder=$utilObject->completeBuying($order->id,0,"test a buying");
+            //$resultOrder=$utilObject->completeBuying($order->id,0,"test a buying");
             
        // }  
           
