@@ -832,8 +832,7 @@ class OrderController extends Controller
     {        
        $user=Auth::user();      
        $utilObject=new buyProductsAccordingUserMobile;           
-       // foreach($request->child_product_ids as $product_id)
-        //{
+       
             $product_before_buyed= $this->checkUserProduct($request->user_id,$request->product_id,0);
             if($product_before_buyed)
             {
@@ -849,12 +848,8 @@ class OrderController extends Controller
             if($productPartialBuyed)
             {
                 $productPartialBuyed->delete(); /// delete if user buy one  session of a product
-            }
+            }           
 
-            //$resultOrder=$utilObject->completeBuying($order->id,0,"test a buying");
-            
-       // }  
-          
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);     

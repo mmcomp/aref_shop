@@ -29,7 +29,8 @@ class Buying
                 //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy])
                 //     :
                 //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
-            }
+            } 
+            echo "type of product: " .  $orderDetail->product->type . "<br>"; 
             if ($orderDetail->product->type == 'video') {
                 if (!$found_user_product) {
                     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
@@ -60,7 +61,7 @@ class Buying
                 //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
                 $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
                 // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
-
+                dd( $child_products);
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
                 foreach ($child_products as $child_product) {
