@@ -838,7 +838,7 @@ class OrderController extends Controller
             if($product_before_buyed)
             {
                 return (new OrderResource(null))->additional([
-                    'errors' => ["product" => " this product buyed before!"],
+                    'errors' => ["product" => "this product buyed before!"],
                 ])->response()->setStatusCode(403);     
             }
             $order=$utilObject->AddToOrder($request->user_id,$request->product_id,1,"خرید محصول  توسط مدیر " .$user->first_name . "  ". $user->last_name );
