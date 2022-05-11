@@ -27,6 +27,7 @@ class RegisterLoginRequest extends FormRequest
     {
         return [
             'email' => 'required|string|max:11',
+            'product_detail_videos_id' => 'nullable',
         ];
     }
      /**

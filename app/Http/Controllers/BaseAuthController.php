@@ -77,18 +77,18 @@ class BaseAuthController extends Controller
     {
 
         $user = User::where('email', $request->input('email'))->first();
-        
+
         if ($user) {
             $this->check($request->input('password'), $user->password);
         }
 
         $validated = $request->validated();
         if (!$token = auth('api')->attempt($validated)) {
-            
+
             return (new UserResource(null))->additional([
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
-        }       
+        }
         $this->userToRedis($user, $token);
         return $this->createNewToken($token);
     }
@@ -165,7 +165,7 @@ class BaseAuthController extends Controller
 
         $smsValidation->delete();
 
-        Log::info("Before_Sync".Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT'))->format("YYYY/mm/dd H:i:s") );
+        Log::info("Before_Sync" . Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT'))->format("YYYY/mm/dd H:i:s"));
         //SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(now());
 
@@ -213,6 +213,7 @@ class BaseAuthController extends Controller
     public function registerLogin(RegisterLoginRequest $request)
     {
         $email = $request->input("email");
+        $product_detail_videos_id = $request->input("product_detail_videos_id");
         $code = rand(1000, 9999);
         $type = "register";
         if (User::whereEmail($email)->first()) {
@@ -232,6 +233,7 @@ class BaseAuthController extends Controller
                 "code" => $code,
                 "user_info" => "{}",
                 "type" => $type,
+                "product_detail_videos_id" => $product_detail_videos_id
             ]
         );
         $sms = new Sms;

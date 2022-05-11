@@ -19,5 +19,6 @@ class SmsValidation extends Model
         'code',
         'user_info',
         'type',
+        'product_detail_videos_id'
     ];
 }
