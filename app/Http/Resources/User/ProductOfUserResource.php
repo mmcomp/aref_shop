@@ -30,17 +30,18 @@ class ProductOfUserResource extends JsonResource
                 }
             }
             if($this->userProducts != null){
-                foreach($this->userProducts as $product) {
-                    if($product->user) {
+                foreach($this->userProducts as $product) { 
+                    if($product->user && ($product->created_at >= env('USER_PRODUCT_DATE') )) {
                         if($product->user->id == Auth::user()->id) {
                             $arrOfBoughtProducts[] = new ProductOfUserResource($product);
                         }
                     } 
                 }
             }
+
             return [
                 'id' => $this->id,
-                'buyed_before' => count($arrOfBoughtProducts) ? true : false,
+                'buyed_before' =>  count($arrOfBoughtProducts) ? true : false,
                 'name' => $this->name,
                 'short_description' => $this->short_description,
                 'long_description' => $this->long_description,
