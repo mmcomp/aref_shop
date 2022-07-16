@@ -103,7 +103,8 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $user_video_products = UserProduct::where('users_id', $user_id)       
+        $user_video_products = UserProduct::where('users_id', $user_id) 
+        ->where('created_at','>=',env('USER_PRODUCT_DATE'))      
         ->where('partial', 0)
         ->whereHas('product', function ($query) {
             $query->where('type', 'video');
@@ -120,7 +121,7 @@ class OrderController extends Controller
         $needed_product_ids = array_values(array_unique(array_merge($package_child_products, $user_video_products)));
         $products = Product::where('is_deleted', false)
         ->whereIn('id', $needed_product_ids)
-        ->where('order_date','>=' , env('ORDER_DATE'))    
+        //->where('order_date','>=' , env('ORDER_DATE'))    
         ->get();
         return (new ProductForSingleSessionsCollection($products))->additional([
             'error' => null,
