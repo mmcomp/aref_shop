@@ -766,9 +766,7 @@ class CartController extends Controller
     public function addToOrder($request)
     {
         $user_id = Auth::user()->id;
-        $number = 0;
-        if (isset($request->number))
-            $number = $request->input('number', 1);
+        $number = intval($request->input('number', "1"));
         $products_id = $request->input('products_id');
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
