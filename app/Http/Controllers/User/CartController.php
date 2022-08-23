@@ -31,6 +31,7 @@ use App\Models\Payment;
 use App\Models\ProductDetailChair;
 use App\Utils\Buying;
 use App\Utils\MellatPayment;
+use App\Utils\ZarinpalPayment;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Log;
 use Exception;
+use App\Utils\Zarinpal;
 
 class CartController extends Controller
 {
@@ -588,7 +590,13 @@ class CartController extends Controller
                     'errors' => null,
                 ])->response()->setStatusCode(201);
             } else {
-                return MellatPayment::pay($order);
+                $ZARINPAL_ENABLED =(int) env('ZARINPAL_ENABLED');
+                if($ZARINPAL_ENABLED==1){
+                    return ZarinpalPayment::pay($order);
+                }
+                else{
+                    return MellatPayment::pay($order);
+                }
             }
         }
 
@@ -676,6 +684,65 @@ class CartController extends Controller
                             $buying->completeInsertAfterBuying($order);
                         }
                     }
+                }
+                $payment->save();
+                $order->save();
+                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL') . '/' . $order->id . '/' . $sw);
+            }
+            Log::info('order not exists');
+            return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
+        }
+        Log::info('payment not exists');
+        return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
+    }
+
+    /**
+     * return from zarinpal
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function zarinpal(Request $request)
+    {
+
+        Temp::create([
+            'output' => json_encode($request->all()),
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+        $buying = new Buying;
+        $sw = 0;
+        $ResCode = $request->input('Authority');
+        $Status = $request->input('Status');
+        $payment = Payment::where('is_deleted', false)->where('res_code', $ResCode)->first();
+
+        if ($payment) {
+            $order = Order::where('status', 'processing')->find($payment->orders_id);
+            if ($order) {
+                $payment->bank_returned = json_encode($request->all());
+
+                $MerchantID 	= env('ZARINPAL_ID');
+                $Amount 		= (int)$payment->price / 10;
+                $ZarinGate 		= false;
+                $SandBox 		= false;
+                $zp 	= new Zarinpal();
+                $result = $zp->verify($MerchantID, $Amount, $ResCode, $SandBox, $ZarinGate);
+                if ($Status == "NOK"){
+                    $payment->status = "error";
+                    $order->status = "cancel";
+                }
+                else if (isset($result["Status"]) && $result["Status"] == 100)
+                {
+                    // Success
+                    $sw = 1;
+                    $payment->ref_id = $result["RefID"];
+                    $payment->status = "success";
+                    $order->status = "ok";
+                    $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+                    $buying->completeInsertAfterBuying($order);
+                }
+                else {
+                    $payment->status = "error";
+                    $order->status = "waiting";
                 }
                 $payment->save();
                 $order->save();

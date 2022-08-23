@@ -132,6 +132,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/show-specific-factor-of-user/{id}',[OrderController::class, 'showSpecificOrderOfAuthUser']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
+    Route::get('/cart/zarinpal', [CartController::class, 'zarinpal']);
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'provinces',
