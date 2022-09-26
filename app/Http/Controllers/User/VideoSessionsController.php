@@ -26,7 +26,9 @@ class VideoSessionsController extends Controller
 
         $final_arr = [];
         $getNameOfSessions = new GetNameOfSessions;
-        $free_sessions = ProductDetailVideo::where('is_deleted', false)->where(function ($query) {
+        $free_sessions = ProductDetailVideo::where('is_deleted', false)
+        ->where('created_at','>=',env('USER_PRODUCT_DATE'))
+        ->where(function ($query) {
             $query->orWhere(function ($q1) {
                 $q1->where('price', 0)->whereHas('videoSession', function ($q2) {
                     $q2->where('is_deleted', false);
