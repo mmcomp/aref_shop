@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ChairUniqueRange;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -27,6 +28,8 @@ class ProductDetailChairsCreateRequest extends FormRequest
      */
     public function rules()
     {
+        $chairUniqueRange = new ChairUniqueRange();
+        $chairUniqueRange->setProductId($this->products_id);
         return [
             'products_id' => [
                 'required',
@@ -35,13 +38,22 @@ class ProductDetailChairsCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
-            'start' => 'required|integer',
-            'end' => 'required|integer|gt:start',
+            'start' => [
+                'required',
+                'integer',
+                $chairUniqueRange
+            ],
+            'end' => [
+                'required',
+                'integer',
+                'gt:start',
+                $chairUniqueRange
+            ],
             'price' => 'required|integer',
             'description' => 'required|string|max:1000'
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

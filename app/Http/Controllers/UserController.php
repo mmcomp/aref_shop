@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BlockAUserRequest;
+use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
@@ -10,7 +12,10 @@ use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Hash;
 use App\Utils\UploadImage;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use Carbon\Carbon;
 use Log;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UserController extends Controller
 {
@@ -30,16 +36,16 @@ class UserController extends Controller
     public function index(UserIndexRequest $request)
     {
         $sort = "id";
-        $type = "desc";
-        if ($request->get('type') != null && $request->get('sort') != null) {
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $type = $request->get('type');
+            $sort_dir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->get();
+            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
 
         } else {
-            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new UserCollection($paginated_users))->additional([
             'errors' => null,
@@ -75,7 +81,8 @@ class UserController extends Controller
     public function store(UserCreateRequest $request)
     {
 
-        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => ""]);
+        $saver_users_id = Auth::user()->id;
+        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
 
         $user = User::create($userData);
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
@@ -223,14 +230,14 @@ class UserController extends Controller
                         'errors' => null,
                     ])->response()->setStatusCode(204);
                 } catch (Exception $e) {
-                    Log::info("fails in saving image delete avater in UserController " . json_encode($e));
+                    Log::info("fails in delete avater in UserController " . json_encode($e));
                     if (env('APP_ENV') == "development") {
                         return (new UserResource(null))->additional([
-                            'errors' => ["fail" => ["fails in saving image delete avater in UserController " . json_encode($e)]],
+                            'errors' => ["fail" => ["fails in delete avater in UserController " . json_encode($e)]],
                         ])->response()->setStatusCode(500);
                     } elseif (env('APP_ENV') == "production") {
                         return (new UserResource(null))->additional([
-                            'errors' => ["fail" => ["fails in saving image delete avater in UserController "]],
+                            'errors' => ["fail" => ["fails in delete avater in UserController "]],
                         ])->response()->setStatusCode(500);
                     }
                 }
@@ -255,12 +262,18 @@ class UserController extends Controller
     /**
      * Search users according to name,last_name,phone
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\SearchRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function search(Request $request)
+    public function search(SearchRequest $request)
     {
 
+        $sort = "id";
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $sort_dir = $request->get('sort_dir');
+        }
         $phone = trim(request()->email);
         $fullName = trim(request()->name);
         $users_builder = User::where('is_deleted', false)
@@ -270,16 +283,122 @@ class UserController extends Controller
                 }
             })->where(function ($query) use ($fullName) {
             if ($fullName != null) {
-                $query->where(DB::raw('CONCAT(first_name, " ", last_Name)'), 'like', '%' . $fullName . '%');
+                $query->where(DB::raw("CONCAT(IFNULL(first_name, ''), IFNULL(CONCAT(' ', last_name), ''))"), 'like', '%' . $fullName . '%');
             }
         });
         if ($request->per_page == "all") {
-            $users = $users_builder->get();
+            $users = $users_builder->orderBy($sort, $sort_dir)->get();
         } else {
-            $users = $users_builder->paginate(env('PAGE_COUNT'));
+            $users = $users_builder->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new UserCollection($users))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+    /**
+     * block a user for chats
+     *
+     * @param  \Illuminate\Http\BlockAUserRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    // public function block(BlockAUserRequest $request)
+    // {
+        
+    //     $users_id = $request->input('users_id');
+    //     $value = Redis::get('block_user_'. $users_id);
+    //     if($value != null) {
+    //         Redis::setex('block_user_'.$users_id, 10800, "block");
+    //     }
+    //     return (new UserResource(null))->additional([
+    //         'errors' => null,
+    //     ])->response()->setStatusCode(200);
+    // }
+    public function showAllUserBlock()
+    {  
+       $now=now()->format('Y-m-d H:i:s');  
+       $users=User::where("blocked",">", $now)->pluck("id");
+      
+       $blockedUsers["blocked_users"]=$users->toArray();               
+        if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
+        {
+           return $blockedUsers;
+        }           
+        $this->errorHandle("User", " به روز رسانی کاربران بلاک شده با مشکل مواجه شد.");
+    }   
+    public function userBlock(int $userId)
+    {  
+       if($this->isAdmin($userId))
+        {
+            $this->errorHandle("User", "امکان مسدود کردن کاربر دارای دسترسی مدیریت وجود ندارد.");
+        }
+      
+       $now=now()->format('Y-m-d H:i:s');       
+       $blocketTime=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');          
+        $user=User::find($userId);        
+        if( $user)
+        {
+            $user->blocked=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
+            if($user->update())
+            {
+               $users=User::where("blocked",">", $now)->pluck("id");
+               $blockedUsers["blocked_users"]=$users->toArray();
+               //$redis->set('blockedUser',json_encode($blocketUser));
+              if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
+              {
+                return $blockedUsers;
+              }                
+            }
+            return "";
+        }
+        else
+        {
+            $this->errorHandle("User", "کاربر معتبر نمی باشد.");
+        }
+    }
+    public function userUnblock(int $userId)
+    {
+        $user=User::find($userId); 
+        if( $user)
+        {
+           
+            $user->blocked=NULL;
+            $user->update();
+           return $this->showAllUserBlock();
+            //return "";
+        }
+        else
+        {
+            $this->errorHandle("User", "کاربر معتبر نمی باشد.");
+        }
+    }
+    public function isAdmin(int $userId)
+    {
+       $isAdmin= User::where('id', $userId)->where("groups_id",1)->first(); 
+       return $isAdmin;
+    }
+    public function putBlockedUserToRedis($blocketUsers)
+    {
+       
+        Redis::del('blocked_users');
+        $redis = Redis::connection();
+       // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
+        $redis->set('blocked_users',json_encode($blocketUsers));
+        //return $blocketUsers;
+        // foreach($blocketUsers as $blocketUser)
+        // {
+        //     
+        //     Redis::hSet('blockedUser',$blocketUser, "blocked");
+        // }
+        return true;
+        
+    }    
+    public function errorHandle($class, $error)
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'errors' => ["$class" => ["$error"]],
+
+            ], 422)
+        );
     }
 }

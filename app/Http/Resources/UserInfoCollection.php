@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\User;
+namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class VideoSessionsResourceForShowingToStudentsCollection extends ResourceCollection
+class UserInfoCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.

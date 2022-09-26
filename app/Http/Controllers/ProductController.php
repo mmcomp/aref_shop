@@ -12,18 +12,26 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\ProductVideoCollection;
 use App\Http\Resources\ProductVideoResource;
 use App\Http\Resources\ProductDetailPackagesCollection;
+use App\Http\Resources\ProductDetailPackagesCollectionCollection;
+
 use App\Models\Product;
+use App\Models\UserProduct;
+
 use App\Models\ProductDetailPackage;
 use App\Models\OrderDetail;
 use App\Utils\RaiseError;
 use App\Utils\UploadImage;
+use App\Utils\GetNameOfSessions;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
-use Log;
+use App\Jobs\SynchronizeProductsWithCrmJob;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -35,16 +43,17 @@ class ProductController extends Controller
      */
     public function index(ProductIndexRequest $request)
     {
-
         $per_page = $request->get('per_page');
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
+        $searchName = $request->input('search_name');
         $products = Product::where('is_deleted', false)
-            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
+            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id, $searchName) {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
                 if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
+                if ($searchName != null) $query->where('name', 'like','%'.$searchName.'%');
             })
             ->orderBy('id', 'desc');
         if ($per_page == "all") {
@@ -70,6 +79,7 @@ class ProductController extends Controller
         try {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $product->save();
+            SynchronizeProductsWithCrmJob::dispatch($product)->delay(Carbon::now()->addSecond(env('CRM_ADD_PRODUCT_TIMEOUT')));
             return (new ProductResource($product))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(201);
@@ -126,7 +136,7 @@ class ProductController extends Controller
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             $orderDetails = OrderDetail::get();
             foreach ($orderDetails as $orderDetail) {
-                if ($orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+                if (isset($orderDetail->order) && $orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
                     $ids[] = $orderDetail->product->id;
                 }
             }
@@ -155,11 +165,20 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
-    {
+    {       
+      
+       $user_product= UserProduct::where("products_id",$id)->first();     
+       if($user_product)
+       {       
+            return (new ProductResource(null))->additional([
+                'errors' => ['fail' => ['you can not delete this product the user buy it before' ]],
+            ])->response()->setStatusCode(400);
+       }
         $product = Product::where('is_deleted', false)->find($id);
         if ($product != null) {
             $product->is_deleted = 1;
             try {
+                  ProductDetailPackage::where("child_products_id",$id)->delete();
                 $product->save();
                 return (new ProductResource(null))->additional([
                     'errors' => null,
@@ -291,11 +310,11 @@ class ProductController extends Controller
                 Log::info("fails in saving image " . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in saving second image" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image"]],
+                        'errors' => ["fail" => ["fails in saving second image"]],
                     ])->response()->setStatusCode(500);
                 }
             }
@@ -405,22 +424,25 @@ class ProductController extends Controller
     public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        $getNameOfSessions = new GetNameOfSessions;
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'video', ['type' => ['You should get a product with type video']]);
-            $numArray = [];
-            $i = 1;
-            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
-                $v = $product->productDetailVideos[$indx];
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
-                $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
-            }
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product, Auth::user()->id);
+            // $numArray = [];
+            // $i = 1;
+            // for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
+            //     $v = $product->productDetailVideos[$indx];
+            //     $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
+            //     $i = $numArray[$v->id] ? $i + 1 : $i;
+            //     $product_detail_videos[] = $product->productDetailVideos[$indx];
+            // }
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
-            return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
+            $productArr = ["name" => $product->name, "thumbnail" => $product->main_image_thumb_path];
+            return ((new ProductVideoCollection($product_detail_video_items))->foo($productArr))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
@@ -440,7 +462,7 @@ class ProductController extends Controller
 
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->find($id);        
+        $product = Product::where('is_deleted', false)->find($id);
         $product_detail_packages = [];
         if ($product != null) {
             $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
@@ -453,9 +475,88 @@ class ProductController extends Controller
             return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
+
+
+        //     $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+        //     $allgroup=[];
+        //     $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+         
+        //    foreach($groups as $group)
+        //    {           
+        //       $id=0;
+        //       foreach($product_detail_package_items as $product_detail_package_item)
+        //       {               
+        //          if($product_detail_package_item->group===$group)
+        //          {  
+        //             $tmpGroup= !isset($group) ? "others":$group;                  
+        //             $allgroup[$tmpGroup][]=$product_detail_package_item;
+        //             $id++;
+        //          }
+        //       }
+        //    }    
+            //   return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+            //       'errors' => null,
+            //   ])->response()->setStatusCode(200);  
         }
+
+
         return (new ProductDetailPackagesCollection(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
+    }
+
+    public function listOfPackagesOfProductGroup(GetPerPageRequest $request, $id)
+    {
+
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);
+        $product_detail_packages = [];
+        if ($product != null) {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+            // $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            // return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
+            //     'errors' => null,
+            // ])->response()->setStatusCode(200);
+
+
+            $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            $allgroup=[];
+            $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+         
+           foreach($groups as $group)
+           {           
+              $id=0;
+              foreach($product_detail_package_items as $product_detail_package_item)
+              {               
+                 if($product_detail_package_item->group===$group)
+                 {  
+                    $tmpGroup= !isset($group) ? "others":$group;                  
+                    $allgroup[$tmpGroup][]=$product_detail_package_item;
+                    $id++;
+                 }
+              }
+           }    
+              return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+                  'errors' => null,
+              ])->response()->setStatusCode(200);  
+        }
+
+
+        return (new ProductDetailPackagesCollection(null))->additional([
+            'errors' => ['product' => ['Product not found!']],
+        ])->response()->setStatusCode(404);
+    }
+
+    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id){
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->find($id);
+        return [];
     }
 }

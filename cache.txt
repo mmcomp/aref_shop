@@ -1,0 +1,3 @@
+php artisan config:cache //flush all cached env variable
+php artisan config:clear   //repopulate all the env variable
+php artisan cache:clear    //flush all the cached content

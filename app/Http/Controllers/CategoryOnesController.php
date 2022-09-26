@@ -24,10 +24,11 @@ class CategoryOnesController extends Controller
     {
 
         $per_page = request()->get('per_page');
+        $category_ones_builder = CategoryOne::where('is_deleted', false)->orderBy('ordering', 'asc');
         if ($per_page == "all") {
-            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->get();
+            $category_ones = $category_ones_builder->get();
         } else {
-            $category_ones = CategoryOne::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $category_ones = $category_ones_builder->paginate(env('PAGE_COUNT'));
         }
         return (new CategoryOnesCollection($category_ones))->additional([
             'errors' => null,
@@ -45,6 +46,8 @@ class CategoryOnesController extends Controller
 
         $category_one = CategoryOne::create([
             'name' => $request->name,
+            'ordering' => $request->ordering,
+            'published' => $request->published
         ]);
         return (new CategoryOnesResource($category_one))->additional([
             'errors' => null,
@@ -111,7 +114,7 @@ class CategoryOnesController extends Controller
                     'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
-                Log::info('failed in CategoryOnesController/destory', json_encode($e));
+                Log::info('failed in CategoryOnesController/destory'. json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new CategoryOnesResource(null))->additional([
                         'errors' => ['fail' => ['CategoryOnes deleting failed!' . json_encode($e)]],

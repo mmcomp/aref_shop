@@ -27,8 +27,9 @@ class ProductDetailVideoIndexRequest extends FormRequest
     {
         return [
             'sort' => 'required_with:type|in:id,name,products_id,price,video_sessions_id',
-            'type' => 'required_with:sort|in:asc,desc',
+            'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
+            
         ];
     }
     /**

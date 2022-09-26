@@ -16,11 +16,12 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
 
-        if($this->resource != null){
+        if ($this->resource != null) {
+
             return [
                 'id' => $this->id,
                 'email' => $this->email,
-                'first_name' => $this->first_name,
+                'first_name' => $this->first_name == null ? "" : $this->first_name,
                 'last_name' => $this->last_name,
                 'avatar_path' => $this->avatar_path,
                 'referrer_user' => new UserResource($this->referrerUser),
@@ -29,7 +30,7 @@ class UserResource extends JsonResource
                 'city' => new CityResource($this->city),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-                'group' => new GroupResource($this->group),
+                'group' => new GroupResource($this->group)
             ];
         }
     }

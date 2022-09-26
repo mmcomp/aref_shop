@@ -43,6 +43,7 @@ class InsertSingleSessionRequest extends FormRequest
             'single_purchase' => 'required|in:0,1', 
             'is_hidden' => 'in:0,1',
             'video_link' => 'nullable|url',
+            'is_aparat' =>  'nullable',
             'video_session_type' => 'nullable|in:online,offline'
         ];
     }

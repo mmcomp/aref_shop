@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ForgetPasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\RegisterLoginRequest;
+use App\Http\Requests\RegisterWithOPTRequest;
 use App\Http\Requests\VerifyForgetPasswordRequest;
 use App\Http\Requests\VerifyRegisterRequest;
 use App\Http\Resources\UserResource;
@@ -14,13 +16,15 @@ use App\Utils\Sms;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Hautelook\Phpass\PasswordHash;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 use MikeMcLin\WpPassword\WpPassword;
 
 class BaseAuthController extends Controller
 {
-    
+
     /**
      * Create a new AuthController instance.
      *
@@ -28,22 +32,40 @@ class BaseAuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify', 'forgetPassword', 'verifyForgetPassword']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verify', 'forgetPassword', 'verifyForgetPassword', 'registerLogin', 'registerWithOTP', 'loginWithOTP']]);
     }
 
     public function check($value, $hashedValue, array $options = [])
     {
-        if (Hash::needsRehash($hashedValue)) 
-        {
-            $p = new PasswordHash(null,null);
+        if (Hash::needsRehash($hashedValue)) {
+            $p = new PasswordHash(null, null);
             $wpPassword = new WpPassword($p);
-            if ($wpPassword->check($value, $hashedValue)) 
-            {
+            if ($wpPassword->check($value, $hashedValue)) {
                 $newHashedValue = (new \Illuminate\Hashing\BcryptHasher)->make($value, $options);
-                \Illuminate\Support\Facades\DB::update('UPDATE users SET `password` = "' . $newHashedValue . '", `pass_txt` = "'.$value.'" WHERE `password` = "' . $hashedValue . '"');
+                \Illuminate\Support\Facades\DB::update('UPDATE users SET `password` = "' . $newHashedValue . '", `pass_txt` = "' . $value . '" WHERE `password` = "' . $hashedValue . '"');
                 $hashedValue = $newHashedValue;
             }
         }
+    }
+
+    public function userToRedis($user, string $token)
+    {
+        Log::info("Start Redis : " . json_encode($user));
+        $value = Redis::hGet('user', $user->id);
+        // if($value != $token) {
+        //    $res = Redis::publish('node', json_encode([
+        //     'id' => $user->id,
+        //     'old_token' => $value,
+        //     'new_token' => $token
+        //    ]));
+        //    Log::info("Pub : " . json_encode($res));
+        // }
+        Redis::hSet('user', $user->id, $token);
+        $first_name = $user->first_name == null ? '' : $user->first_name;
+        $last_name = $user->last_name == null ? '' : $user->last_name;
+        Redis::hSet('name', $user->id, $first_name . ' ' . $last_name);
+        Redis::hSet('expires_in', $user->id, Carbon::now()->addDays(7));
+        $value = Redis::hGet('user', $user->id);
     }
 
     /**
@@ -55,6 +77,7 @@ class BaseAuthController extends Controller
     {
 
         $user = User::where('email', $request->input('email'))->first();
+
         if ($user) {
             $this->check($request->input('password'), $user->password);
         }
@@ -66,8 +89,39 @@ class BaseAuthController extends Controller
                 'errors' => ['authentication' => ['Unauthorized']],
             ])->response()->setStatusCode(401);
         }
+        $this->userToRedis($user, $token);
+        return $this->createNewToken($token);
+    }
 
+    public function loginWithOTP(RegisterLoginRequest $request)
+    {
+        $user = User::where('email', $request->input('email'))->first();
+        if (!$user) {
+            return (new UserResource(null))->additional([
+                'errors' => ['authentication' => ['Unauthorized']],
+            ])->response()->setStatusCode(401);
+        }
 
+        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-1 minutes"));
+        $smsValidation = SmsValidation::where("mobile", $request->input("email"))->whereType("login")->first();
+        if (!$smsValidation) {
+            return (new UserResource(null))->additional([
+                'errors' => ['OTP' => ['otp does not exist']],
+            ])->response()->setStatusCode(406);
+        }
+        if (strtotime($smsValidation->created_at) <= strtotime($twoMinBefore)) {
+            return (new UserResource(null))->additional([
+                'errors' => ['OTP' => ['one minutes time out']],
+            ])->response()->setStatusCode(406);
+        }
+        if ($smsValidation->code !== $request->input("otp")) {
+            return (new UserResource(null))->additional([
+                'errors' => ['OTP' => ['OTP is incorrect!']],
+            ])->response()->setStatusCode(406);
+        }
+        $smsValidation->delete();
+        $token = auth('api')->login($user);
+        $this->userToRedis($user, $token);
         return $this->createNewToken($token);
     }
 
@@ -76,6 +130,50 @@ class BaseAuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    public function registerWithOTP(RegisterWithOPTRequest $request)
+    {
+        $request->validated();
+        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-1 minutes"));
+        $smsValidation = SmsValidation::where("mobile", $request->input("email"))->whereType("register")->first();
+        if (!$smsValidation) {
+            return (new UserResource(null))->additional([
+                'errors' => ['OTP' => ['otp does not exist']],
+            ])->response()->setStatusCode(406);
+        }
+        if (strtotime($smsValidation->created_at) <= strtotime($twoMinBefore)) {
+            return (new UserResource(null))->additional([
+                'errors' => ['OTP' => ['you may wait more than one minutes']],
+            ])->response()->setStatusCode(406);
+        }
+        if ($smsValidation->code !== $request->input("otp")) {
+            return (new UserResource(null))->additional([
+                'errors' => ['OTP' => ['OTP is incorrect!']],
+            ])->response()->setStatusCode(406);
+        }
+        $userData["email"] = $request->email;
+        $userData["last_name"] = $request->last_name;
+        $userData["first_name"] = "";
+        $userData["avatar_path"] = "";
+        $userData["referrer_users_id"] = 0;
+        $userData["password"] = null;
+        $userData["pass_txt"] = null;
+        $userData["address"] = "";
+        $userData["postall"] = "";
+        $userData["cities_id"] = 0;
+        $userData["groups_id"] = 2;
+        $user = User::create($userData);
+
+        $smsValidation->delete();
+
+        Log::info("Before_Sync" . Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT'))->format("YYYY/mm/dd H:i:s"));
+        //SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
+        SynchronizeUsersWithCrmJob::dispatch($user)->delay(now());
+
+        $token = auth('api')->login($user);
+        $this->userToRedis($user, $token);
+        return $this->createNewToken($token);
+    }
+
     public function register(RegisterRequest $request)
     {
         $validated = $request->validated();
@@ -93,6 +191,7 @@ class BaseAuthController extends Controller
         $userData["groups_id"] = 2;
 
         $code = rand(1000, 9999);
+        SmsValidation::where('mobile', $userData["email"])->delete();
         SmsValidation::updateOrCreate(
             [
                 "mobile" => $userData["email"],
@@ -110,9 +209,39 @@ class BaseAuthController extends Controller
         return (new UserResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
-
     }
-
+    public function registerLogin(RegisterLoginRequest $request)
+    {
+        $email = $request->input("email");
+        $product_detail_videos_id = $request->input("product_detail_videos_id");
+        $code = rand(1000, 9999);
+        $type = "register";
+        if (User::whereEmail($email)->first()) {
+            $type  = "login";
+        }
+        $twoMinBefore = date("Y-m-d H:i:s", strtotime("-1 minutes"));
+        $canSendSms = SmsValidation::where('mobile', $email)->first();
+        if ($canSendSms && strtotime($canSendSms->created_at) > strtotime($twoMinBefore)) {
+            return (new UserResource(null))->additional([
+                'errors' => ['soon_request' => ['you may wait more than one minutes']],
+            ])->response()->setStatusCode(406);
+        }
+        SmsValidation::where('mobile', $email)->delete();
+        SmsValidation::create(
+            [
+                "mobile" => $email,
+                "code" => $code,
+                "user_info" => "{}",
+                "type" => $type,
+                "product_detail_videos_id" => $product_detail_videos_id
+            ]
+        );
+        $sms = new Sms;
+        $sms->sendCode($email, $code);
+        return response([
+            "data" => ["type" => $type]
+        ])->setStatusCode(201);
+    }
     /**
      * Register a User.
      *
@@ -135,6 +264,7 @@ class BaseAuthController extends Controller
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
 
         $token = auth('api')->login($user);
+        $this->userToRedis($user, $token);
         return $this->createNewToken($token);
     }
 
@@ -150,7 +280,6 @@ class BaseAuthController extends Controller
         return (new UserResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-
     }
 
     /**
@@ -174,7 +303,6 @@ class BaseAuthController extends Controller
         return (new UserResource(auth('api')->user()))->additional([
             'errors' => null,
         ]);
-
     }
 
     /**
@@ -191,9 +319,10 @@ class BaseAuthController extends Controller
             'data' => [
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth('api')->factory()->getTTL() * 60,
+                'expires_in' => auth('api')->factory()->getTTL() * 24 * 7,
                 'menus' => auth('api')->getUser()->menus(),
                 'group' => auth('api')->getUser()->group,
+                'user_id' => auth('api')->getUser()->id,
                 'first_name'  => auth('api')->getUser()->first_name,
                 'last_name' => auth('api')->getUser()->last_name,
                 'phone' => auth('api')->getUser()->email,
@@ -213,6 +342,7 @@ class BaseAuthController extends Controller
         $userData = $request->validated();
 
         $code = rand(1000, 9999);
+        SmsValidation::where('mobile', $userData["email"])->delete();
         SmsValidation::updateOrCreate(
             [
                 "mobile" => $userData["email"],
@@ -233,7 +363,6 @@ class BaseAuthController extends Controller
         return (new UserResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-
     }
     /**
      *
@@ -276,5 +405,16 @@ class BaseAuthController extends Controller
         return (new UserResource(null))->additional([
             'errors' => ['user' => ['User not found!']],
         ])->response()->setStatusCode(404);
+    }
+    public function synchronizeUsers()
+    {
+
+        $users = User::where('is_deleted', false)->get();
+        foreach ($users as $user) {
+            SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
+        }
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

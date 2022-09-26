@@ -5,6 +5,8 @@ namespace App\Utils;
 use App\Models\Order;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
+use App\Models\ProductDetailPackage;
+use App\Models\Product;
 use Carbon\Carbon;
 use Log;
 
@@ -16,8 +18,8 @@ class UpdatePreviousByers
         $sw = 0;
         $product_detail_video = null;
         if (!$found) {
-            $product_detail_video = $request->input('video_sessions_id') == null ? ProductDetailVideo::create(array_merge($request->all(), ['video_sessions_id' => $video_sessions_id])):ProductDetailVideo::create($request->all()); 
-            $completed_orders = Order::where('status', 'ok')->get();
+            $product_detail_video = $request->input('video_sessions_id') == null ? ProductDetailVideo::create(array_merge($request->all(), ['video_sessions_id' => $video_sessions_id])):ProductDetailVideo::create($request->all());
+            $completed_orders = Order::where('status', 'ok')->orWhere('status', 'manual_ok')->get();
             $data = [];
             foreach ($completed_orders as $order) {
                 foreach ($order->orderDetails as $orderDetail) {
@@ -31,6 +33,26 @@ class UpdatePreviousByers
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                             ];
                         }
+                    }
+                    if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->product->type == 'package') {
+                        $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+                        foreach ($child_products as $child_product) {
+                            $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                            if ($p->type == 'video') {
+                                $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
+                                foreach ($videoSessionIds as $video_session_id) {
+                                    $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $video_session_id)->first();
+                                    if(!$found_user_video_session) {
+                                        $data[] = [
+                                            'users_id' => $order->users_id,
+                                            'video_sessions_id' => $video_session_id
+                                        ];
+                                    }
+
+                                }
+                            }
+                        }
+                        UserVideoSession::insert($data);
                     }
                 }
             }

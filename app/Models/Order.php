@@ -17,11 +17,16 @@ class Order extends Model
         'users_id',
         'amount',
         'comment',
-        'status'
+        'status',
+        'saver_users_id'
     ];
     public function user()
     {
         return $this->belongsTo('App\Models\User','users_id', 'id');
+    }
+    public function saverUser()
+    {
+        return $this->belongsTo('App\Models\User','saver_users_id', 'id');
     }
     public function orderDetails()
     {
@@ -30,5 +35,9 @@ class Order extends Model
     public function payments()
     {
         return $this->hasMany('App\Models\Payment', 'orders_id', 'id')->where('is_deleted', false)->where('status', 'success');
+    }
+    public function refunds()
+    {
+        return $this->hasMany('App\Models\Refund', 'orders_id', 'id')->where('is_deleted', false);
     }
 }

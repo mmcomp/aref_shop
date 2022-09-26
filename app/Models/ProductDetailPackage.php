@@ -16,7 +16,8 @@ class ProductDetailPackage extends Model
     protected $fillable = [
         'products_id',
         'child_products_id', 
-        'price'         
+        'price' ,
+        'group'        
      ];
     public function product()
     {

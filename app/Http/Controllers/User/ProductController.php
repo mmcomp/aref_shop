@@ -3,25 +3,29 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ListOfVideosOfAProductRequest;
+use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
-use App\Http\Requests\ProductCreateRequest;
-use App\Http\Requests\ProductEditRequest;
-use App\Http\Requests\ProductImageRequest;
-use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\User\ProductOfUserCollection;
-use App\Http\Resources\User\ProductVideoCollection;
-use App\Http\Resources\User\ProductVideoResource;
+use App\Http\Resources\User\ListOfVideosOfAProductResource;
+use App\Http\Resources\User\ListOfVideosOfAProductCollection;
+use App\Http\Resources\ProductDetailPackagesCollection;
+use App\Http\Resources\ProductDetailPackagesCollectionCollection;
+use App\Http\Resources\ProductDetailPackagesResource;
+use App\Utils\GetNameOfSessions;
+use App\Utils\RaiseError;
 use App\Models\Product;
-use App\Utils\UploadImage;
-use Exception;
+use App\Models\Order;
+use App\Models\ProductDetailChair;
+use App\Models\ProductDetailPackage;
+
+use App\Http\Resources\UserProductChairsResource;
+use App\Http\Resources\GetListOfChairsResource;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Storage;
-use Log;
+use Illuminate\Support\Facades\Auth;
+use DB;
 
 class ProductController extends Controller
 {
@@ -37,52 +41,24 @@ class ProductController extends Controller
         $category_ones_id = $request->input('category_ones_id');
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
-        $products = Product::where('is_deleted', false)->with('userProducts.user')
-            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
+        $products = Product::where('is_deleted', false)->where('published', true)->with('userProducts.user')
+            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id)
+            {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
                 if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
             })
-            ->orderBy('id', 'desc');
+            //->orderBy('id', 'desc');
+            ->orderBy('order_date', 'desc');
         if ($per_page == "all") {
             $products = $products->get();
         } else {
             $products = $products->paginate(env('PAGE_COUNT'));
         }
-        
+
         return (new ProductOfUserCollection($products))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-    }
-
-    /**
-     * Create and Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\ProductCreateRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function store(ProductCreateRequest $request)
-    {
-
-        $product = Product::create($request->all());
-        try {
-            $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
-            $product->save();
-            return (new ProductResource($product))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(201);
-        } catch (Exception $e) {
-            Log::info("fails in create a new product" . json_encode($e));
-            if (env('APP_ENV') == 'development') {
-                return (new ProductResource(null))->additional([
-                    'errors' => ["fail" => ["fails in create a new product" . json_encode($e)]],
-                ])->response()->setStatusCode(500);
-            } else if (env('APP_ENV') == 'production') {
-                return (new ProductResource(null))->additional([
-                    'errors' => ["fail" => ["fails in create a new product"]],
-                ])->response()->setStatusCode(500);
-            }
-        }
     }
 
     /**
@@ -94,7 +70,7 @@ class ProductController extends Controller
     public function show($id)
     {
 
-        $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
+        $product = Product::where('is_deleted', false)->where('published', true)->with('productFiles.file')->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
                 'errors' => null,
@@ -103,262 +79,6 @@ class ProductController extends Controller
         return (new ProductResource($product))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  App\Http\Requests\ProductEditRequest  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update($id, ProductEditRequest $request)
-    {
-
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
-            $product->update($request->except('sale_price'));
-
-            return (new ProductResource(null))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
-        }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy($id)
-    {
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            $product->is_deleted = 1;
-            try {
-                $product->save();
-                return (new ProductResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(204);
-            } catch (Exception $e) {
-                Log::info('fail in ProductController/destroy' . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ['fail' => ['fail in ProductController/destroy' . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ['fail' => ['fail in ProductController/destroy']],
-                    ])->response()->setStatusCode(500);
-                }
-            }
-        }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
-    }
-    /**
-     * Set main image for product
-     *
-     * @param  App\Http\Requests\ProductImageRequest  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function setMainImage(ProductImageRequest $request, $id)
-    {
-
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            $upload_image = new UploadImage;
-            if ($request->file('main_image_path')) {
-                $upload_image->imageNullablility($product->main_image_path);
-                $upload_image->imageNullablility($product->main_image_thumb_path);
-                $product->main_image_path = $upload_image->getImage($request->file('main_image_path'), "public/uploads", "main");
-                $product->main_image_thumb_path = $upload_image->createThumbnail($request->file('main_image_path'));
-            }
-            try {
-                $product->save();
-                return (new ProductResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(201);
-            } catch (Exception $e) {
-                Log::info("fails in saving main image " . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image"]],
-                    ])->response()->setStatusCode(500);
-                }
-            }
-        }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
-    }
-    /**
-     * Delete main image for product
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function deleteMainImage($id)
-    {
-
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            if ($product->main_image_path != null) {
-                $main_image_path = str_replace("storage", "public", $product->main_image_path);
-                $main_image_thumb_path = str_replace("storage", "public", $product->main_image_thumb_path);
-                $product->main_image_path = null;
-                $product->main_image_thumb_path = null;
-                if (Storage::exists($main_image_path)) {
-                    Storage::delete($main_image_path);
-                    Storage::delete($main_image_thumb_path);
-                }
-            }
-            try {
-                $product->save();
-                return (new ProductResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(204);
-            } catch (Exception $e) {
-                Log::info('fail in ProductController delete main image' . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ['fail in ProductController delete main image' . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ['fail in ProductController destroy main image']],
-                    ])->response()->setStatusCode(500);
-                }
-            }
-        }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
-    }
-    /**
-     * Set second image for product
-     *
-     * @param  App\Http\Requests\ProductImageRequest  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function setSecondImage(ProductImageRequest $request, $id)
-    {
-
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            $upload_image = new UploadImage;
-            if ($request->file('second_image_path')) {
-                $upload_image->imageNullablility($product->second_image_path);
-                $product->second_image_path = $upload_image->getImage($request->file('second_image_path'), "public/uploads", "second");
-            }
-            try {
-                $product->save();
-                return (new ProductResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(201);
-            } catch (Exception $e) {
-                Log::info("fails in saving image " . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image" . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ["fail" => ["fails in saving main image"]],
-                    ])->response()->setStatusCode(500);
-                }
-            }
-        }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
-    }
-    /**
-     * Delete second image for product
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function deleteSecondImage($id)
-    {
-
-        $product = Product::where('is_deleted', false)->find($id);
-        if ($product != null) {
-            if ($product->second_image_path != null) {
-                $second_image_path = str_replace("storage", "public", $product->second_image_path);
-                $product->second_image_path = null;
-                if (Storage::exists($second_image_path)) {
-                    Storage::delete($second_image_path);
-                }
-            }
-            try {
-                $product->save();
-                return (new ProductResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(204);
-            } catch (Exception $e) {
-                Log::info('fail in ProductController delete second image' . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ['fail' => ['fail in ProductController delete second image' . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new ProductResource(null))->additional([
-                        'errors' => ['fail' => ['fail in ProductController destroy second image']],
-                    ])->response()->setStatusCode(500);
-                }
-            }
-        }
-        return (new ProductResource(null))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
-    }
-    /**
-     * Search products according to name,type,published_at
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function search(Request $request)
-    {
-
-        $name = trim($request->name);
-        $type = trim($request->type);
-        $published = trim($request->published);
-        $products_builder = Product::where('is_deleted', false)
-            ->where(function ($query) use ($name) {
-                if ($name != null) {
-                    $query->where('name', 'like', '%' . $name . '%');
-                }
-            })->where(function ($query) use ($type) {
-                if ($type != null) {
-                    $query->where('type', 'like', '%' . $type . '%');
-                }
-            })->where(function ($query) use ($published) {
-                if ($published != null) {
-                    $query->where('published', $published);
-                }
-            });
-        if ($request->per_page == "all") {
-            $products = $products_builder->get();
-        } else {
-            $products = $products_builder->paginate(env('PAGE_COUNT'));
-        }
-        return (new ProductCollection($products))->additional([
-            'errors' => null,
-        ])->response()->setStatusCode(200);
     }
     /**
      * paginate function for array
@@ -380,31 +100,146 @@ class ProductController extends Controller
      * list videos of a product
      *
      * @param  int  $id
-     * @param  \App\Http\Requests\ListOfVideosOfAProductRequest  $request
+     * @param  \App\Http\Requests\GetPerPageRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ListOfVideosOfAProduct(ListOfVideosOfAProductRequest $request, $id)
+    public function ListOfVideosOfAProduct(GetPerPageRequest $request, $id)
     {
 
+        $getNameOfSessions = new GetNameOfSessions;
         $per_page = $request->get('per_page');
-        $product = Product::where('is_deleted', false)->with('productDetailVideos.videoSession')->find($id);
+        $product = Product::where('is_deleted', false)->where('published', true)->with('productDetailVideos.videoSession')->find($id);
         $product_detail_videos = [];
         if ($product != null) {
-            $numArray = [];
-            $i = 1;
-            for ($indx = 0; $indx < count($product->productDetailVideos); $indx++) {
-                $v = $product->productDetailVideos[$indx];
-                $numArray[$v->id] = $v != null && $product->productDetailVideos[$indx]->extraordinary ? 0 : $i;
-                $i = $numArray[$v->id] ? $i + 1 : $i;
-                $product_detail_videos[] = $product->productDetailVideos[$indx];
-            }
+            $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product, Auth::user()->id);
             $product_detail_video_items = $per_page == "all" ? $product_detail_videos : $this->paginate($product_detail_videos, env('PAGE_COUNT'));
-            return ((new ProductVideoCollection($product_detail_video_items))->foo($numArray))->additional([
+            $productArr = ["name" => $product->name, "thumbnail" => $product->main_image_thumb_path];
+            return ((new ListOfVideosOfAProductCollection($product_detail_video_items))->foo($productArr))->additional([
+                'errors' => null
+            ])->response()->setStatusCode(200);
+        }
+        return (new ListOfVideosOfAProductResource(null))->additional([
+            'errors' => ['product' => ['Product not found!']],
+        ])->response()->setStatusCode(404);
+    }
+    /**
+     * get packages of a product that is package
+     *
+     * @param  int  $id
+     * @param  \App\Http\Requests\GetPerPageRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ListOfPackagesOfAProduct(GetPerPageRequest $request, $id)
+    {
+
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->where('published', true)->find($id);
+        $product_detail_packages = [];
+        if ($product != null) {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+            $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            return ((new ProductDetailPackagesCollection($product_detail_package_items)))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
-        return (new ProductVideoResource(null))->additional([
+        return (new ProductDetailPackagesResource(null))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
+    }
+
+    public function ListOfGroupPackagesOfAProduct(GetPerPageRequest $request, $id)
+    {       
+        $raiseError = new RaiseError;
+        $per_page = $request->get('per_page');
+        $product = Product::where('is_deleted', false)->where('published', true)->find($id);
+        $product_detail_packages = [];
+        if ($product != null) 
+        {
+            $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
+            if ($product->productDetailPackages) {
+                for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
+                    $product_detail_packages[] = $product->productDetailPackages[$indx];
+                }
+            }
+          $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+          $allgroup=[];
+          $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+       
+         foreach($groups as $group)
+         {           
+            $id=0;
+            foreach($product_detail_package_items as $product_detail_package_item)
+            {               
+               if($product_detail_package_item->group===$group)
+               {  
+                  $tmpGroup= !isset($group) ? "others":$group;                  
+                  $allgroup[$tmpGroup][]=$product_detail_package_item;
+                  $id++;
+               }
+            }
+         }    
+            return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);               
+        }
+    }
+
+    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id)
+    {
+        $per_page = request()->get('per_page');
+        $product_detail_chairs = ProductDetailChair::where('is_deleted', false)
+            ->whereProductsId($id)
+            ->orderBy('start', 'asc');
+        if ($per_page == "all") {
+            $product_detail_chairs = $product_detail_chairs->get();
+        } else {
+            $product_detail_chairs = $product_detail_chairs->paginate(env('PAGE_COUNT'));
+        }
+        $reserved_chairs =self::_GetListOfReservedChairs($id);
+        $newCollection = [
+            'chairs' => $product_detail_chairs,
+            'reserved_chairs' => $reserved_chairs
+        ];
+        return (new UserProductChairsResource($newCollection))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+
+    }
+
+    public static function cleanProccessingOrders()
+    {
+        $fiftheenMinutesAgo = date('Y-m-d H:i:s', strtotime('- 15 minutes'));
+        Order::whereStatus('processing')
+            ->where('updated_at', '<=', $fiftheenMinutesAgo)
+            ->update([
+                'status' => 'waiting',
+            ]);
+    }
+
+    public static function _GetListOfReservedChairs($product_id)
+    {
+        $result = DB::table('products')
+            ->leftjoin('order_details','products.id','=','order_details.products_id')
+            ->leftjoin('orders','orders.id','=','order_details.orders_id')
+            ->leftjoin('order_chair_details','order_chair_details.order_details_id','=','order_details.id')
+            ->select('chair_number') 
+            ->where('products.id',$product_id)
+            ->whereIn('orders.status',['ok', 'processing'])
+            ->orderby('chair_number')
+            ->get()        
+            ->filter(function ($item, $key) {
+                return $item->chair_number;
+            })
+            ->map(function ($item, $key) {
+                return $item->chair_number;
+            });
+
+        return $result;
     }
 }

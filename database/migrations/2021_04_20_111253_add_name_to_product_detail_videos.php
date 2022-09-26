@@ -14,7 +14,9 @@ class AddNameToProductDetailVideos extends Migration
     public function up()
     {
         Schema::table('product_detail_videos', function (Blueprint $table) {
-            $table->string('name', 255);
+            if (!Schema::hasColumn('product_detail_videos', 'name')){
+                $table->string('name', 255);
+            }
         });
     }
 

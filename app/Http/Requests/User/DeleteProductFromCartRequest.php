@@ -5,6 +5,7 @@ namespace App\Http\Requests\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class DeleteProductFromCartRequest extends FormRequest
 {
@@ -30,7 +31,15 @@ class DeleteProductFromCartRequest extends FormRequest
                 'required',
                 'integer',
                 'exists:order_details,id'
-            ]
+            ],
+            // 'users_id' =>
+            // [
+            //     'required',
+            //     'integer',
+            //     Rule::exists('users', 'id')->where(function ($query) {
+            //         return $query->where('is_deleted', false);
+            //     }),
+            // ],
         ];
     }
     public function all($keys = null)

@@ -17,11 +17,11 @@ class ProductDetailVideosResource extends JsonResource
     public function toArray($request)
     {
         $files = [];
-       
+
         if ($this->resource != null) {
-            if($this->videoSession){
-                foreach($this->videoSession->videoSessionFiles as $file){
-                    if($file->file != null) {
+            if ($this->videoSession) {
+                foreach ($this->videoSession->videoSessionFiles as $file) {
+                    if ($file->file != null) {
                         $files[] = new FileResource($file->file);
                     }
                 }
@@ -38,6 +38,9 @@ class ProductDetailVideosResource extends JsonResource
                 'single_purchase' => $this->single_purchase,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
+                'free_conference_start_mode' => $this->free_conference_start_mode,
+                'free_conference_description' => $this->free_conference_description,
+                'free_conference_before_start_text' => $this->free_conference_before_start_text,
             ];
         }
     }

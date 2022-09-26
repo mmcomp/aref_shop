@@ -17,10 +17,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\Sms;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ShowAllTeamUserController extends Controller
 {
-    private $mobile;
+    private $mobile;   
+
     public function __construct(OrderController $orderController)
     {
         $this->mobile=new Sms;
@@ -28,7 +30,7 @@ class ShowAllTeamUserController extends Controller
     public function addTeamMember(ReplaceTeamMemberRequest $teamMember)
     { 
        $team= TeamUser::where("id",$teamMember->team_user_id)->with("leader")->with("leader.teamUser.TeamMember")->first();
-      // dd($team->leader->last_name);
+
        // $user = User::where('id', $teamMember->team_user_id)->with("teamUser")->first();    
         $adminUser=$this->isAdmin(); 
         
@@ -90,10 +92,7 @@ class ShowAllTeamUserController extends Controller
            $this->deleteNotVerifiedTeam($teamUserId);
            return response()->json(["successfull"=>true],201);
       }
-      else
-      {
-        $this->errorHandle("TeamUser", "نمی توانید تیم را حذف کنید به دلیل اینکه دارای اعضای فعال می باشد.");
-      }           
+
     } 
     
     protected function deleteTeamMember(int $teamUserMemberId)
@@ -136,18 +135,20 @@ class ShowAllTeamUserController extends Controller
         // ->distinct()
         // ->get()
         // ->toArray();
-        //dd($query);
+
        $query2=TeamUserMember::where("mobile" ,"like" ,"%$mobile%")
        ->select("team_user_id AS team_user_id")
        ->distinct()
        ->get()
        ->toArray();
         $res=array_merge($query2,$query);
-        //dd($res);
+
+      
         $res=collect($res)->map(function ($item, $key) {
             return $item["team_user_id"];
         });
-       //dd($res);
+      
+
         // SELECT team_users.id FROM `team_users`
         // left join users on (users.id=user_id_creator)
         // where users.email like '%09155193106%';
@@ -161,9 +162,7 @@ class ShowAllTeamUserController extends Controller
         //  //->orWhere("mobile","$mobile")
         //  //->get();
         //  ->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
-         //dd($query);
-        // ->with("TeamMember.member")        
-        // ->get();      
+
         //$allteams= TeamUser::with("TeamMember.member")->with("leader")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
         $allteams= TeamUser::whereIn("id",$res)
         ->with("TeamMember.member")
@@ -265,9 +264,7 @@ class ShowAllTeamUserController extends Controller
        {            
             return false;
        }
-      
-       //dd($response);
-       
+
     }
     public function validTeam(int $teamUserId)
     {
@@ -297,7 +294,7 @@ class ShowAllTeamUserController extends Controller
       ->with("member")      
       ->where("is_verified",0)
       ->get();
-      //dd($allNotApprovedMembers);
+
       if(count($allNotApprovedMembers)>=2)
       {        
             $userFullName=str_replace(' ',"-",$leader->first_name ."-". $leader->last_name);
@@ -319,7 +316,8 @@ class ShowAllTeamUserController extends Controller
       if(!$this->checkTeamMemberIsNotVerified($teamUserId))
       {
          // return false;
-         $this->errorHandle("TeamUser", "نمی توانید تیم را حذف کنید به دلیل اینکه دارای اعضای فعال می باشد.");
+         $this->errorHandle("TeamUser", "تیم فعال را نمی توانید حذف کنید.");
+
       }
       return true;
       
@@ -327,8 +325,10 @@ class ShowAllTeamUserController extends Controller
     protected function checkTeamMemberIsNotVerified(int $teamUserId)
     {     
        $cadDeleteTeam=true; 
-       $teamMembers=TeamUserMember::where("team_user_id",$teamUserId)->where("is_verified",1)->get();
-       if(count($teamMembers)>0)
+      // $teamMembers=TeamUserMember::where("team_user_id",$teamUserId)->where("is_verified",1)->get();
+       $teamMembers=TeamUser::where("id",$teamUserId)->where("is_full",1)->first();
+       if($teamMembers)
+
        {
           $cadDeleteTeam=false;
        }
@@ -343,5 +343,6 @@ class ShowAllTeamUserController extends Controller
     { 
        $team=TeamUser::where("id",$teamUserId)->delete();
        return $team;
-    }
+    }   
+
 }

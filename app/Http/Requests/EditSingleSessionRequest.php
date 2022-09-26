@@ -44,10 +44,14 @@ class EditSingleSessionRequest extends FormRequest
                 }),
             ],
             'extraordinary' => 'in:0,1',
-            'single_purchase' => 'in:0,1', 
+            'single_purchase' => 'in:0,1',
             'is_hidden' => 'in:0,1',
-            'video_link' => 'nullable|url',
-            'video_session_type' => 'nullable|in:online,offline'
+            'video_link' => "nullable",//'nullable|url',
+            'is_aparat' =>  "nullable | boolean",
+            'video_session_type' => 'nullable|in:online,offline',
+            'free_conference_start_mode' => 'in:playPage,productPage',
+            'free_conference_description' => 'nullable|string',
+            'free_conference_before_start_text' => 'nullable|string',
         ];
     }
     public function all($keys = null)
@@ -57,7 +61,7 @@ class EditSingleSessionRequest extends FormRequest
         $data['id'] = $this->route('id');
         return $data;
     }
-      /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator

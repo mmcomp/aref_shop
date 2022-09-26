@@ -16,6 +16,7 @@ class OrderChairDetail extends Model
     protected $fillable = [
         'order_details_id', 
         'chair_number',
+        'price',
         'status'
     ];
     public function orderDetail()

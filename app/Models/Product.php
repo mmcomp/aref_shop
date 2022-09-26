@@ -30,6 +30,7 @@ class Product extends Model
        'published',
        'type',
        'special',
+       "order_date",
        'education_system',
        'start_date',
        'days',
@@ -52,6 +53,7 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\ProductDetailVideo', 'products_id', 'id')->join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')->select("product_detail_videos.*")->where('product_detail_videos.is_deleted', false)->where('video_sessions.is_deleted', false)->orderBy('video_sessions.start_date', 'asc')->orderBy('video_sessions.start_time', 'asc');
     }
+   
     public function productDetailPackages()
     {
         return $this->hasMany('App\Models\ProductDetailPackage', 'products_id', 'id')->where('is_deleted', false);
@@ -67,6 +69,14 @@ class Product extends Model
     public function orderDetail()
     {
         return $this->hasOne('App\Models\OrderDetail', 'products_id', 'id');
+    }
+    public function comments()
+    {
+        return $this->hasMany('App\Models\ProductComment', 'products_id', 'id')->orderBy('created_at', 'desc');
+    }
+    public function OrderPackageDetail()
+    {
+        return $this->hasMany('App\Models\OrderPackageDetail', 'order_details_id', 'id');
     }
 
 }

@@ -12,7 +12,6 @@ class UserVideoSession extends Model
     protected $fillable = [
         'video_sessions_id',
         'users_id',
-        'partial',
     ];
     public function videoSession()
     {

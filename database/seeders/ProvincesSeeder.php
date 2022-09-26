@@ -16,7 +16,7 @@ class ProvincesSeeder extends Seeder
     public function run()
     {
         $names = [
-            "خراسان رضوی",
+            "آذربایجان شرقی",
             "تهران",
             "اردبیل",
             "اصفهان",
@@ -26,7 +26,7 @@ class ProvincesSeeder extends Seeder
             "آذربایجان غربی",
             "چهارمحال وبختیاری",
             "خراسان جنوبی",
-            "آذربایجان شرقی",
+            "خراسان رضوی",
             "خراسان شمالی",
             "خوزستان",
             "زنجان",

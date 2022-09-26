@@ -18,23 +18,36 @@ class OrderDetailResource extends JsonResource
     public function toArray($request)
     {
         if ($this->resource != null) {
+            $productDetails = [];
             $items = [];
-            foreach ($this->orderVideoDetails as $item) {                
-                $items[] = $item;
+            if($this->product->type=='video') {
+                foreach ($this->orderVideoDetails as $item) {
+                    $items[] = $item;
+                }
+                $productDetails = new OrderVideoDetailCollection($items);
+            } else if ($this->product->type=='chairs') {
+                foreach ($this->orderChairDetails as $item) {
+                    $items[] = $item;
+                }
+                $productDetails = $items;
             }
             return [
                 'id' => $this->id,
                 'product' => new ProductForOrderDetailResource($this->product),
-                'productDetails' => (new OrderVideoDetailCollection($items)),
+                'productDetails' => $productDetails,
                 'price' => $this->price,
-                'coupon' => new CouponResource($this->coupon),
+                'coupons_name' => $this->coupon ? $this->coupon->name : '',
+                'coupons_id' => $this->coupons_id,
+                'coupons_amount' => $this->coupons_amount,
+                'coupons_type' => $this->coupons_type,
                 'user' => new UserResource($this->user),
                 'all_videos_buy' => $this->all_videos_buy,
                 'number' => $this->number,
                 'total_price' => $this->total_price,
                 'total_price_with_coupon' => $this->total_price_with_coupon,
                 'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at
+                'updated_at' => $this->updated_at,
+                'orders_id' => $this->orders_id
             ];
         }
     }

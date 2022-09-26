@@ -25,19 +25,25 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'avatar_path',
         'referrer_users_id',
+        'saver_users_id',
         'pass_txt',
         'address',
         'postall',
         'cities_id',
         'groups_id'
     ];
-
+    protected $hidden=[
+        'pass_txt',
+        'password',
+        'groups_id'
+    ];
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
      */
-    public function getJWTIdentifier() {
+    public function getJWTIdentifier()
+    {
         return $this->getKey();
     }
 
@@ -46,22 +52,27 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return array
      */
-    public function getJWTCustomClaims() {
+    public function getJWTCustomClaims()
+    {
         return [];
     }
 
     public function group()
     {
-        return $this->hasOne('App\Models\Group', 'id', 'groups_id')->where('is_deleted',false);
+        return $this->hasOne('App\Models\Group', 'id', 'groups_id')->where('is_deleted', false);
     }
 
     public function city()
     {
-        return $this->hasOne('App\Models\City','id','cities_id')->where('is_deleted',false);
+        return $this->hasOne('App\Models\City', 'id', 'cities_id')->where('is_deleted', false);
     }
     public function referrerUser()
     {
-        return $this->hasOne('App\Models\User','id','referrer_users_id')->select('id','email','first_name','last_name')->where('is_deleted',false);
+        return $this->hasOne('App\Models\User', 'id', 'referrer_users_id')->select('id', 'email', 'first_name', 'last_name')->where('is_deleted', false);
+    }
+    public function saverUser()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'saver_users_id')->select('id', 'email', 'first_name', 'last_name')->where('is_deleted', false);
     }
     public function usersyncs()
     {
@@ -71,13 +82,17 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\OrderDetail', 'users_id', 'id');
     }
+    public function teamUser()
+    {
+       return $this->belongsTo('App\Models\TeamUser','id','user_id_creator');
+    }
     public function menus()
     {
         $groupMenus = $this->group()->first()->menus()->with('menu')->get();
         $menus = [];
         $menuIndex = [];
         foreach ($groupMenus as $groupMenu) {
-            if ($groupMenu->menu && $groupMenu->menu->parent_id==null) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id == null) {
                 $menuIndex[$groupMenu->menu->id] = count($menus);
                 $groupMenu->menu->elements = [];
                 unset($groupMenu->menu->created_at);
@@ -87,7 +102,7 @@ class User extends Authenticatable implements JWTSubject
             }
         }
         foreach ($groupMenus as $groupMenu) {
-            if ($groupMenu->menu && $groupMenu->menu->parent_id!=null) {
+            if ($groupMenu->menu && $groupMenu->menu->parent_id != null) {
                 $parent_id = $groupMenu->menu->parent_id;
                 if (!isset($menuIndex[$parent_id])) {
                     $menuIndex[$parent_id] = count($menus);
@@ -105,4 +120,5 @@ class User extends Authenticatable implements JWTSubject
         }
         return $menus;
     }
+    
 }

@@ -9,18 +9,27 @@ use App\Http\Requests\User\DeleteProductFromCartRequest;
 use App\Http\Requests\User\DeleteMicroProductFromCartRequest;
 use App\Http\Requests\User\AddMicroProductToCartRequest;
 use App\Http\Requests\User\DeleteCouponFromCartRequest;
+use App\Http\Requests\User\StoreProductPackageRequest;
 use App\Http\Resources\User\OrderResource;
+use App\Http\Resources\User\OrderPackageDetailResource;
+
 use App\Models\Order;
 use App\Models\Temp;
 use App\Models\OrderDetail;
 use App\Models\OrderVideoDetail;
+use App\Models\OrderChairDetail;
+use App\Models\OrderPackageDetail;
 use App\Models\Product;
+use App\Models\VideoSession;
 use App\Models\ProductDetailVideo;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
 use App\Models\Coupon;
 use App\Models\UserCoupon;
+use App\Models\ProductDetailPackage;
 use App\Models\Payment;
+use App\Models\ProductDetailChair;
+use App\Utils\Buying;
 use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
@@ -50,47 +59,50 @@ class CartController extends Controller
      */
     public function store(AddProductToCartRequest $request)
     {
-
-        $user_id = Auth::user()->id;
-        $number = $request->input('number', 1);
-        $products_id = $request->input('products_id');
-        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-        if (!$order) {
-            $order = Order::create([
-                'users_id' => $user_id,
-                'status' => 'waiting',
-            ]);
-        }
-        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
-        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        if ($orderDetail && $product->type == 'normal') {
-            $orderDetail->number += $number;
-            $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
-            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
-            $orderDetail->save();
-        } else if ($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy) {
-            $orderDetail->all_videos_buy = 1;
-            OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
-            $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
-            $orderDetail->save();
-        } else if (!$orderDetail) {
-            $orderDetail = OrderDetail::create([
-                'orders_id' => $order->id,
-                'products_id' => $products_id,
-                'price' => $product->sale_price,
-                'users_id' => $user_id,
-                'all_videos_buy' => 1,
-                'number' => $product->type != 'normal' ? 1 : $number,
-                'total_price' => DB::raw('number * price'),
-                'total_price_with_coupon' => DB::raw('number * price')
-            ]);
-        }
-        $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
-        $order->amount = $orderDetailPricesArraySum;
-        $order->save();
+        $order = $this->addToOrder($request);
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+        // $user_id = Auth::user()->id;
+        // $number = $request->input('number', 1);
+        // $products_id = $request->input('products_id');
+        // $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        // if (!$order) {
+        //     $order = Order::create([
+        //         'users_id' => $user_id,
+        //         'status' => 'waiting',
+        //     ]);
+        // }
+        // $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+        // $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        // if ($orderDetail && $product->type == 'normal') {
+        //     $orderDetail->number += $number;
+        //     $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
+        //     $orderDetail->total_price_with_coupon = $orderDetail->total_price;
+        //     $orderDetail->save();
+        // } else if ($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy) {
+        //     $orderDetail->all_videos_buy = 1;
+        //     OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
+        //     $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        //     $orderDetail->save();
+        // } else if (!$orderDetail) {
+        //     $orderDetail = OrderDetail::create([
+        //         'orders_id' => $order->id,
+        //         'products_id' => $products_id,
+        //         'price' => $product->sale_price,
+        //         'users_id' => $user_id,
+        //         'all_videos_buy' => 1,
+        //         'number' => $product->type != 'normal' ? 1 : $number,
+        //         'total_price' => DB::raw('number * price'),
+        //         'total_price_with_coupon' => DB::raw('number * price')
+        //     ]);
+        // }
+        // $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        // $order->amount = $orderDetailPricesArraySum;
+        // $order->save();
+        // return (new OrderResource($order))->additional([
+        //     'errors' => null,
+        // ])->response()->setStatusCode(201);
     }
     /**
      * add a microProduct to the cart
@@ -100,7 +112,6 @@ class CartController extends Controller
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request)
     {
-
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $products_id = $request->input('products_id');
@@ -148,8 +159,37 @@ class CartController extends Controller
             $orderDetail->total_price_with_coupon = $sumOfOrderVideoDetailPrices;
             $orderDetail->price = $orderDetail->total_price_with_coupon;
             $orderDetail->save();
+        } else if ($product->type == 'chairs') {
+            foreach ($request->chairs as $chair) {
+                $chair_price = ProductDetailChair::where('start', '<=', $chair)
+                    ->where('end', '>=', $chair)
+                    ->where('products_id', $products_id)
+                    ->select('price')
+                    ->first();
+                if ($chair_price === null)
+                    $chair_price = -1;
+                else
+                    $chair_price = $chair_price["price"];
+
+                if ($chair_price > -1) // in valid chair number insert in another table
+                {
+                    $order_chair_detail = OrderChairDetail::firstOrCreate(
+                        [
+                            "order_details_id" => $orderDetail->id,
+                            "chair_number"     => $chair,
+                        ],
+                        [
+                            "order_details_id" =>  $orderDetail->id,
+                            "chair_number"     => $chair,
+                            "price" => $chair_price
+                        ]
+                    );
+                }
+            }
+            $add_chair_price = self::updateVideoDetailChairPrice($orderDetail->id);
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+       
         $order->amount = $sumOfOrderDetailPrices;
         $order->save();
         return (new OrderResource($order))->additional([
@@ -166,7 +206,7 @@ class CartController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails')->first();
+        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails.orderChairDetails')->first();
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -184,11 +224,12 @@ class CartController extends Controller
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
+        $product = Product::find($coupon->products_id);
         $products_id = $coupon->products_id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
+        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
         $user_coupon = UserCoupon::where('users_id', $user_id)->where('coupons_id', $coupon->id)->first();
         if ($user_coupon) {
             return (new OrderResource(null))->additional([
@@ -199,7 +240,7 @@ class CartController extends Controller
                 'errors' => ["expired" => ["The discount code has been expired"]],
             ])->response()->setStatusCode(406);
         }
-        if ($orderDetail->all_videos_buy) {
+        if (($orderDetail->all_videos_buy && $product->type === "video") || ($product->type !== "video")) {
 
             $orderDetail->coupons_id = $coupon->id;
             if ($coupon->type == 'amount') {
@@ -227,17 +268,17 @@ class CartController extends Controller
                 Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
-                        'errors' =>["fail" => ["fails in addCouponToTheCart in User/CartController" . json_encode($e)]],
+                        'errors' => ["fail" => ["fails in addCouponToTheCart in User/CartController" . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new OrderResource(null))->additional([
-                        'errors' =>["fail" => ["fails in addCouponToTheCart in User/CartController"]],
+                        'errors' => ["fail" => ["fails in addCouponToTheCart in User/CartController"]],
                     ])->response()->setStatusCode(500);
                 }
             }
         }
         return (new OrderResource(null))->additional([
-            "errors" => ["all_videos_buy" => ["Coupon can not be used when you didn't buy all of a product!"]]
+            "errors" => ["all_videos_buy_1" => ["Coupon can not be used when you didn't buy all of a product!"]]
         ])->response()->setStatusCode(406);
     }
     public function deleteCouponFromCart(DeleteCouponFromCartRequest $request)
@@ -250,7 +291,7 @@ class CartController extends Controller
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
-        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for...']]);
+        $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
         if ($orderDetail->coupons_id && $orderDetail->coupons_amount != null) {
             $orderDetail->coupons_id = 0;
             $orderDetail->total_price_with_coupon = $orderDetail->total_price;
@@ -296,7 +337,6 @@ class CartController extends Controller
      */
     public function destroyWholeCart()
     {
-
         $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         $order->status = 'cancel';
@@ -304,6 +344,7 @@ class CartController extends Controller
             foreach ($order->orderDetails as $item) {
                 $item->where('orders_id', $order->id)->delete();
                 OrderVideoDetail::where('order_details_id', $item->id)->delete();
+                OrderPackageDetail::where('order_details_id', $item->id)->delete();
             }
         }
         try {
@@ -333,7 +374,6 @@ class CartController extends Controller
      */
     public function destroy($id, DeleteProductFromCartRequest $request)
     {
-
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $orderDetail = OrderDetail::where('id', $id)->first();
@@ -344,6 +384,10 @@ class CartController extends Controller
             if (!$orderDetail->all_videos_buy) {
                 OrderVideoDetail::where('order_details_id', $id)->delete();
             }
+        }
+
+        if ($orderDetail->product->type === 'package') {
+            OrderPackageDetail::where('order_details_id', $id)->delete();
         }
         $order = Order::where('id', $orderDetail->orders_id)->first();
         $order->amount = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
@@ -361,7 +405,6 @@ class CartController extends Controller
      */
     public function destroyMicroProduct($id, DeleteMicroProductFromCartRequest $request)
     {
-
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $product_details_id = $request->input('product_details_id');
@@ -385,47 +428,140 @@ class CartController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
-    /**
-     * insert into user_video_sessions and user_products when buying is completed
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function completeInsertAfterBuying($order)
+    public function destroyChairMicroProduct($id)
     {
-
-        $user = 0;
-        $product = null;
-        $data = [];
-        foreach ($order->orderDetails as $orderDetail) {
-            $product = $orderDetail->products_id;
-            $user = $order->users_id;
-            $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
-            if (!$found_user_product) {
-                $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
-            }
-            if ($orderDetail->product->type == 'video') {
-                if ($orderDetail->all_videos_buy) {
-                    $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
-                } else {
-                    if ($orderDetail->orderVideoDetails) {
-                        foreach ($orderDetail->orderVideoDetails as $orderVideoDetail) {
-                            $videoSessionIds[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
-                        }
-                    }
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        $orderChairDetail = OrderChairDetail::whereId($id)->first();
+        if ($orderChairDetail !== null) {
+            $orderDetailId = $orderChairDetail->order_details_id;
+           
+            //$chair_price=$orderChairDetail->price;       
+            if ($orderDetailId !== null) {
+                OrderChairDetail::whereId($id)->delete();
+                $del_price_chair = self::updateVideoDetailChairPrice($orderDetailId);
+                $count = OrderChairDetail::where('order_details_id', $orderDetailId)->count();
+                if ($count == 0) {
+                    OrderDetail::whereId($orderDetailId)->delete();
                 }
-                foreach ($videoSessionIds as $videoSessionId) {
-                    $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
-                    if (!$found_user_video_session) {
-                        $data[] = [
-                            "video_sessions_id" => $videoSessionId,
-                            "users_id" => $user
-                        ];
-                    }
+                $order_detail = OrderDetail::where('id', $orderDetailId)->first();
+                if ($order_detail !== null) {
+                    $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order_detail->orders_id)->sum('total_price_with_coupon');
+                    $order->amount = $sumOfOrderDetailPrices;
+                    // $order->save();
+                } else {
+                    $order->amount = 0;
+                    //$order->save();
                 }
             }
         }
-        UserVideoSession::insert($data);
+        $order->save();
+        return response([
+            'errors' => null,
+        ])->setStatusCode(201);
     }
+    public function destroyChairMicroProductWithChairNumber($productId, $chairNumber)
+    {
+        $user_id = Auth::user()->id;
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        $activeOrder = Order::where('users_id', Auth::user()->id)
+            ->where('status', 'waiting')
+            ->first();
+        $orderDetail = OrderDetail::where('products_id', $productId)
+            ->where('orders_id', $activeOrder->id)
+            ->first();
+        // $price= updateVideoDetailChairPrice($order_detail_id,true);
+        if ($orderDetail !== null) {
+            $order_chair_detail_deleted = OrderChairDetail::where('order_details_id', $orderDetail->id)
+                ->where('chair_number', $chairNumber)
+                ->delete();
+            $del_price_chair = self::updateVideoDetailChairPrice($orderDetail->id);
+            $count = OrderChairDetail::where('order_details_id', $orderDetail->id)->count();
+            if ($count == 0) {
+                OrderDetail::whereId($orderDetail->id)->delete();
+            }
+            $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $orderDetail->orders_id)->sum('total_price_with_coupon');
+            $order->amount = $sumOfOrderDetailPrices;
+            $order->save();
+        }
+
+
+        return response([
+            'errors' => null,
+        ])->setStatusCode(201);
+    }
+    // /**
+    //  * insert into user_video_sessions and user_products when buying is completed
+    //  *
+    //  * @return \Illuminate\Http\JsonResponse
+    //  */
+    // public function completeInsertAfterBuying($order)
+    // {
+
+    //     $user = 0;
+    //     $product = null;
+    //     $data = [];
+    //     foreach ($order->orderDetails as $orderDetail) {
+    //         $product = $orderDetail->products_id;
+    //         $user = $order->users_id;
+    //         $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
+    //         if (!$found_user_product) {
+    //             $orderDetail->product->type == 'video' ? UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]) : UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
+    //             if($orderDetail->product->type == "package"){
+    //                 $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+    //                 foreach($child_products as $child_product) {
+    //                     $data = [
+    //                        'users_id' => $user,
+    //                        'products_id' => $child_product
+    //                     ];
+    //                 }
+    //                 UserProduct::insert($data);
+    //             }
+    //         }
+    //         if ($orderDetail->product->type == 'video') {
+    //             if ($orderDetail->all_videos_buy) {
+    //                 $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
+    //             } else {
+    //                 if ($orderDetail->orderVideoDetails) {
+    //                     foreach ($orderDetail->orderVideoDetails as $orderVideoDetail) {
+    //                         $videoSessionIds[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
+    //                     }
+    //                 }
+    //             }
+    //             foreach ($videoSessionIds as $videoSessionId) {
+    //                 $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
+    //                 if (!$found_user_video_session) {
+    //                     $data[] = [
+    //                         "video_sessions_id" => $videoSessionId,
+    //                         "users_id" => $user
+    //                     ];
+    //                 }
+    //             }
+    //         }
+    //         if ($orderDetail->product->type == 'package') {
+    //             $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->pluck('child_products_id');
+    //             foreach($child_products as $child_product) {
+    //                 $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+    //                 if($p->type == 'video') {
+    //                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p)->pluck('video_sessions_id')->toArray();
+    //                     foreach($videoSessionIds as $video_session_id) {
+    //                         $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
+    //                         if(!$found_user_video_session) {
+    //                             $data[] = [
+    //                                 'users_id' => $user,
+    //                                 'video_sessions_id' => $video_session_id
+    //                              ];
+    //                         }
+
+    //                     }
+
+    //                 }
+    //             }
+    //             UserVideoSession::insert($data);
+    //         }
+    //     }
+    //     UserVideoSession::insert($data);
+    // }
     /**
      * complete buying
      *
@@ -433,14 +569,21 @@ class CartController extends Controller
      */
     public function completeBuying()
     {
-
         $user_id = Auth::user()->id;
+        $buying = new Buying;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if ($order) {
+            $validation = $this->validateOrderChairs($order);
+            if (!$validation) {
+                return response([
+                    'errors' => 'some chairs are taken',
+                ])->setStatusCode(406);
+            }
             if (!$order->amount) {
                 $order->status = "ok";
+                $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $order->save();
-                $this->completeInsertAfterBuying($order);
+                $buying->completeInsertAfterBuying($order);
                 return (new OrderResource($order))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(201);
@@ -448,7 +591,35 @@ class CartController extends Controller
                 return MellatPayment::pay($order);
             }
         }
+
+        return response([
+            'errors' => 'order not found',
+        ])->setStatusCode(404);
     }
+
+    public function validateOrderChairs($order)
+    {
+        $orderDetails = $order->orderDetails()->with('product')->with('orderChairDetails')->get()->where('product.type', 'chairs');
+        if (count($orderDetails) > 0) {
+            ProductController::cleanProccessingOrders();
+        }
+        foreach ($orderDetails as $orderDetail) {
+            $productId = $orderDetail->products_id;
+            $chairs = [];
+            foreach ($orderDetail->orderChairDetails as $orderChairDetails) {
+                $chairs[] = $orderChairDetails->chair_number;
+            }
+            if (count($chairs) > 0) {
+                $reserved = ProductController::_GetListOfReservedChairs($productId)->toArray();
+
+                if (count(array_intersect($chairs, $reserved)) > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * return from mellat bank
      *
@@ -462,6 +633,7 @@ class CartController extends Controller
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
+        $buying = new Buying;
         $sw = 0;
         $SaleOrderId = $request->input('SaleOrderId');
         $ResCode = $request->input('ResCode');
@@ -500,13 +672,14 @@ class CartController extends Controller
                             $sw = 1;
                             $payment->status = "success";
                             $order->status = "ok";
-                            $this->completeInsertAfterBuying($order);  
+                            $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+                            $buying->completeInsertAfterBuying($order);
                         }
                     }
                 }
                 $payment->save();
                 $order->save();
-                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL').'/'.$order->id.'/'.$sw);
+                return redirect(env('APP_URL') . env('BANK_REDIRECT_URL') . '/' . $order->id . '/' . $sw);
             }
             Log::info('order not exists');
             return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
@@ -514,6 +687,121 @@ class CartController extends Controller
         Log::info('payment not exists');
         return redirect(env('APP_URL') . env('BANK_REDIRECT_URL'));
     }
-    
 
+    public function updateVideoDetailChairPrice($order_detail_id, $flag = false)
+    {
+
+        $total_price = OrderChairDetail::where('order_details_id', '=', $order_detail_id)
+            ->sum('price');
+        //->get();
+       
+        $order_detail = OrderDetail::where('id', $order_detail_id)
+            ->first();
+     
+        if ($order_detail !== null) {
+            $order_detail["price"] = $total_price;
+            $order_detail["total_price_with_coupon"] = $total_price;
+            $order_detail["total_price"] = $total_price;
+            $order_detail->save();
+        }
+    }
+    // public function minusChairPrice($order_detail_id,$chair_price)
+    // {
+    //     $order_detail= OrderDetail::where('id',$order_detail_id)
+    //             ->first();
+    //         
+    //             if($order_detail!==null)
+    //             {
+    //                 $order_detail["price"]=$order_detail["price"] - $chair_price;
+    //                 $order_detail["total_price_with_coupon"]=$order_detail["total_price_with_coupon"] - $chair_price;
+    //                 $order_detail["total_price"]=$order_detail["total_price"] - $chair_price;
+    //                 $order_detail->save();
+    //                 return true;
+    //             }
+    //             return false;
+    // }
+    public function  storeProductPackage(StoreProductPackageRequest $request)
+    {
+        $user_id = Auth::user()->id;
+        $data = $this->addToOrder($request);
+        $order_id = $data->id;
+        $order_Detail_id = OrderDetail::where("products_id", $request->products_id)->where("orders_id", $order_id)->first();
+        if ($order_Detail_id) {
+            foreach ($request->child_product_ids as $child_product_id) {
+                $data = [
+                    "order_details_id" => $order_Detail_id->id,
+                    "product_child_id" => $child_product_id
+                ];
+                $orderDetailIds = OrderPackageDetail::where("order_details_id", $order_Detail_id->id)
+                    ->where("product_child_id", $child_product_id)
+                    ->get();
+                if (Count($orderDetailIds) > 0) {
+                    if (!$this->deleteAllOrderPackageDetails($orderDetailIds)) {
+                        return response([
+                            "errors" => "can not delete $child_product_id product",
+                        ])->setStatusCode(406);
+                    }
+                }
+                if (!OrderPackageDetail::create($data)) {
+                    return (new OrderPackageDetailResource($data))->additional([
+                        'errors' => ['OrderPackageDetail' => ['there is an error in data']],
+                    ])->response()->setStatusCode(406);
+                }
+            }
+            $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+            return (new OrderResource($order))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(201);
+           // return (new OrderPackageDetailResource(null));
+        } else {
+            return (new OrderPackageDetailResource(null))->additional([
+                'errors' => ['order_Detail_id' => ['order_Detail_id is not exist']],
+            ])->response()->setStatusCode(404);
+        }
+    }
+    public function deleteAllOrderPackageDetails($orderDetailIds)
+    {
+        return OrderPackageDetail::find($orderDetailIds[0]->id)->delete();
+    }
+    public function addToOrder($request)
+    {
+        $user_id = Auth::user()->id;
+        $number = intval($request->input('number', "1"));
+        $products_id = $request->input('products_id');
+        $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        if (!$order) {
+            $order = Order::create([
+                'users_id' => $user_id,
+                'status' => 'waiting',
+            ]);
+        }
+        $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
+        $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        if ($orderDetail && $product->type == 'normal') {
+            $orderDetail->number += $number;
+            $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
+            $orderDetail->total_price_with_coupon = $orderDetail->total_price;
+            $orderDetail->save();
+        } else if ($orderDetail && $product->type == 'video' && !$orderDetail->all_videos_buy) {
+            $orderDetail->all_videos_buy = 1;
+            OrderVideoDetail::where('order_details_id', $orderDetail->id)->delete();
+            $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+            $orderDetail->save();
+        } else if (!$orderDetail) {
+            $orderDetail = OrderDetail::create([
+                'orders_id' => $order->id,
+                'products_id' => $products_id,
+                'price' => $product->sale_price,
+                'users_id' => $user_id,
+                'all_videos_buy' => 1,
+                'number' => $product->type != 'normal' ? 1 : $number,
+                'total_price' => DB::raw('number * price'),
+                'total_price_with_coupon' => DB::raw('number * price')
+            ]);
+        }
+        $orderDetailPricesArraySum = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
+        $order->amount = $orderDetailPricesArraySum;
+        $order->save();
+        return $order;
+    }
 }

@@ -12,7 +12,11 @@ use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
 use App\Models\Order;
 use App\Models\VideoSession;
+use App\Models\UserProduct;
+use App\Utils\Buying;
 use App\Models\ProductDetailVideo;
+use App\Models\ProductDetailPackage;
+use App\Models\Product;
 use App\Models\UserVideoSession;
 use Carbon\Carbon;
 use App\Utils\RaiseError;
@@ -20,6 +24,9 @@ use App\Utils\UpdatePreviousByers;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Log;
+use App\Http\Requests\DisableChatRequest;
+use App\Http\Resources\ChatMessageResource;
+use Illuminate\Support\Facades\Redis;
 
 class VideoSessionsController extends Controller
 {
@@ -33,15 +40,15 @@ class VideoSessionsController extends Controller
     {
 
         $sort = "id";
-        $type = "desc";
-        if ($request->get('type') != null && $request->get('sort') != null) {
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $type = $request->get('type');
+            $sort_dir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->get();
+            $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
         } else {
-            $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $type)->paginate(env('PAGE_COUNT'));
+            $videoSessions = VideoSession::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
         return (new VideoSessionsCollection($videoSessions))->additional([
             'errors' => null,
@@ -156,7 +163,6 @@ class VideoSessionsController extends Controller
      */
     public function AddVideosAccordingToUserInputs(AddVideosAccordingToUserInputsRequest $request)
     {
-
         $date = $request->input('from_date');
         $to_date = $request->input('to_date');
         $days = $request->input('days');
@@ -181,17 +187,54 @@ class VideoSessionsController extends Controller
                 $video_session_ids[] = $v->id;
             }
         }
-        $completed_orders = Order::where('status', 'ok')->get();
+        //$completed_orders = Order::where('status', 'ok')->get();
         $data = [];
-        foreach ($completed_orders as $order) {
-            foreach ($order->orderDetails as $orderDetail) {
-                if ($orderDetail->product->id == $request->input('products_id') && $orderDetail->all_videos_buy && $orderDetail->product->type == 'video') {
-                    foreach ($video_session_ids as $vs_id) {
-                        $found_user_video_session = UserVideoSession::where('users_id', $order->users_id)->where('video_sessions_id', $vs_id)->first();
+        $data1 = [];
+        $userIds = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'video')->where('is_deleted', false);
+        })->where('partial', 0)->pluck('users_id');
+        foreach ($userIds as $id) {
+            foreach ($video_session_ids as $video_session_id) {
+                $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session_id)->first();
+                if (!$found_user_video_session) {
+                    $data[] = [
+                        'users_id' => $id,
+                        'video_sessions_id' => $video_session_id,
+                        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                        'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                    ];
+                }
+            }
+        }
+        UserVideoSession::insert($data);
+        $user_product_packages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'package')->where('is_deleted', false);
+        })->where('partial', 0)->pluck('products_id');
+        $child_products = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $user_product_packages)->pluck('child_products_id');
+        $userIdsForPackages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'package')->where('is_deleted', false);
+        })->where('partial', 0)->pluck('users_id');
+        $childData = [];
+        foreach ($userIdsForPackages as $userId) {
+            foreach ($child_products as $child_product) {
+                $found_product = UserProduct::where('users_id', $userId)->where('products_id', $child_product)->first();
+                if (!$found_product) {
+                    $childData[] = [
+                        'users_id' => $userId,
+                        'products_id' => $child_product,
+                        'created_at' => date("Y-m-d H:i:s"),
+                        'updated_at' => date("Y-m-d H:i:s")
+                    ];
+                }
+                $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                if ($p->type == 'video') {
+                    $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
+                    foreach ($videoSessionIds as $video_session_id) {
+                        $found_user_video_session = UserVideoSession::where('users_id', $userId)->where('video_sessions_id', $video_session_id)->first();
                         if (!$found_user_video_session) {
-                            $data[] = [
-                                'video_sessions_id' => $vs_id,
-                                'users_id' => $order->users_id,
+                            $data1[] = [
+                                'users_id' => $userId,
+                                'video_sessions_id' => $video_session_id,
                                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                                 'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                             ];
@@ -200,7 +243,9 @@ class VideoSessionsController extends Controller
                 }
             }
         }
-        UserVideoSession::insert($data);
+
+        UserProduct::insert($childData);
+        UserVideoSession::insert($data1);
         return (new VideoSessionsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -230,11 +275,69 @@ class VideoSessionsController extends Controller
             'price' => $request->input('price'),
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
+            'is_aparat' => (($request->input('is_aparat') !== null) ? $request->input('is_aparat') : 0),
+        ]);
+        ProductDetailVideo::create([
+            "single_purchase" => $request->input('single_purchase') ? $request->input('single_purchase') : 0,
+            "price" => $request->input("price"),
+            "products_id" => $request->input("products_id"),
+            "video_sessions_id" => $video_session->id,
         ]);
         $found_product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id', $request->input('video_sessions_id'))->where('video_sessions_id', $video_session->id)->first();
         $raiseError->validationError($found_product_detail_video, ['product_detail_video' => ['The product_detail_video is already recorded!']]);
-        $updatePreviousBuyers = new UpdatePreviousByers;
-        $updatePreviousBuyers->create(false, $request, $video_session->id);
+        //$updatePreviousBuyers = new UpdatePreviousByers;
+        //$updatePreviousBuyers->create(false, $request, $video_session->id);
+        $data = [];
+        $userIds = UserProduct::where('products_id', $request->input('products_id'))->where('partial', 0)->pluck('users_id');
+        foreach ($userIds as $id) {
+            $found_user_video_session = UserVideoSession::where('users_id', $id)->where('video_sessions_id', $video_session->id)->first();
+            if (!$found_user_video_session) {
+                $data[] = [
+                    'users_id' => $id,
+                    'video_sessions_id' => $video_session->id,
+                    'created_at' =>  Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' =>  Carbon::now()->format('Y-m-d H:i:s')
+                ];
+            }
+        }
+        UserVideoSession::insert($data);
+
+        $child_products = ProductDetailPackage::where('is_deleted', false)->where('products_id', $request->input('products_id'))->pluck('child_products_id');
+        $userIdsForPackages = UserProduct::where('products_id', $request->input('products_id'))->whereHas('product', function ($query) {
+            $query->where('type', 'package')->where('is_deleted', false);
+        })->where('partial', 0)->pluck('users_id');
+        $childData = [];
+        $data1 = [];
+        foreach ($userIdsForPackages as $userId) {
+            foreach ($child_products as $child_product) {
+                $found_product = UserProduct::where('users_id', $userId)->where('products_id', $child_product)->first();
+                if (!$found_product) {
+                    $childData[] = [
+                        'users_id' => $userId,
+                        'products_id' => $child_product,
+                        'created_at' => date("Y-m-d H:i:s"),
+                        'updated_at' => date("Y-m-d H:i:s")
+                    ];
+                }
+                $p = Product::where('is_deleted', false)->where('id', $child_product)->first();
+                if ($p->type == 'video') {
+                    $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
+                    foreach ($videoSessionIds as $video_session_id) {
+                        $found_user_video_session = UserVideoSession::where('users_id', $userId)->where('video_sessions_id', $video_session_id)->first();
+                        if (!$found_user_video_session) {
+                            $data1[] = [
+                                'users_id' => $userId,
+                                'video_sessions_id' => $video_session_id,
+                                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+        UserProduct::insert($childData);
+        UserVideoSession::insert($data1);
         return (new VideoSessionsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -274,6 +377,9 @@ class VideoSessionsController extends Controller
                 "single_purchase" => $request->input('single_purchase'),
                 "extraordinary" => $request->input('extraordinary'),
                 "is_hidden" => $request->input("is_hidden") ? $request->input("is_hidden") : 0,
+                "free_conference_start_mode" => $request->input('free_conference_start_mode'),
+                "free_conference_description" => $request->input('free_conference_description'),
+                "free_conference_before_start_text" => $request->input('free_conference_before_start_text'),
             ]);
             $video_sesssion->update([
                 'start_date' => $request->input('date'),
@@ -281,12 +387,27 @@ class VideoSessionsController extends Controller
                 'end_time' => $request->input('to_time'),
                 'price' => $request->input('price'),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
-                'video_link' => $request->input('video_link')
+                'video_link' => $request->input('video_link'),
+                'is_aparat' => $request->input('is_aparat'),
             ]);
         }
         $raiseError->ValidationError(!$product_detail_video->videoSession, ['extraordinary' => ['No video Session is saved for the product']]);
         return (new VideoSessionsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+    public function disabledVideoSessions()
+    {
+
+        $video_sessions = Redis::hGetAll('disable_video_session');
+        $disabled_video_sessions = [];
+        if ($video_sessions) {
+            foreach ($video_sessions as $index => $item) {
+                $disabled_video_sessions[] = VideoSession::where('is_deleted', false)->find($index);
+            }
+        }
+        return (new VideoSessionsCollection($disabled_video_sessions))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

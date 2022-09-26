@@ -43,7 +43,8 @@ class ProductDetailPackagesCreateRequest extends FormRequest
                     return $query->where('is_deleted', false)->where('type', '!=', 'package');
                 }),
             ], 
-            'price' => 'required|integer'
+            'price' => 'required|integer',
+            "group" => "nullable"
         ];
     }
      /**
