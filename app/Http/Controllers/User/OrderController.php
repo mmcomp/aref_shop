@@ -86,6 +86,7 @@ class OrderController extends Controller
             $product_detail_video = ProductDetailVideo::where('is_deleted', false)
             ->where('created_at','>=',env('USER_PRODUCT_DATE'))
             ->find($orderVideoDetail->product_details_videos_id);
+            if(!$product_detail_video) continue;
             $found_user_videoSession = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
             $price = $product_detail_video->price != null ? $product_detail_video->price : $product_detail_video->videoSession->price;
             $checkPriceAndUserVideoSession = (!$price || $found_user_videoSession);
