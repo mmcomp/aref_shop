@@ -1,6 +1,9 @@
-<?php 
+<?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Teacher\UserDescriptionsController;
+use App\Http\Controllers\Teacher\ProductController;
+use App\Http\Controllers\Teacher\ProductDetailVideosController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,4 +24,23 @@ Route::group([
     Route::get('/show/{id}', [UserDescriptionsController::class, 'show']);
     Route::put('/edit/{id}', [UserDescriptionsController::class, 'update']);
     Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
+});
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'products',
+
+], function ($router) {
+    Route::get('/', [ProductController::class, 'index'])->middleware('can:product-of-teacher');
+    // Route::get('/getProduct/{id}',[ProductController::class,'show']);
+    // Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
+    // Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
+    // Route::get('/get-packages-in-group/{id}',[ProductController::class, 'ListOfGroupPackagesOfAProduct'])->middleware('can:product-packages-of-user');
+    // Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
+    // Route::get('/getallChairs',[ProductController::class, 'GetListOfChairs']);
+});
+Route::group([
+    'middleware' => ['auth:api',/*'can:product-detail-video-of-user'*/],
+    'prefix' => 'product-detail-videos',
+], function ($router) {
+    Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
 });

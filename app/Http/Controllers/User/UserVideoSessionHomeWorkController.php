@@ -91,5 +91,5 @@ class UserVideoSessionHomeWorkController extends Controller
         return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-    }
+    } 
 }

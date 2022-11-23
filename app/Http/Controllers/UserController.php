@@ -21,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeUsersWithCrmJob;
+use App\Models\Group;
 use Carbon\Carbon;
 use Log;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -82,7 +83,9 @@ class UserController extends Controller
     {
 
         $saver_users_id = Auth::user()->id;
-        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => 2, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
+        $user_registered=2; // student and AREF clients
+        $user_type=isset($request->groups_id) ? $request->groups_id : $user_registered ;
+        $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => $user_type, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
 
         $user = User::create($userData);
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
