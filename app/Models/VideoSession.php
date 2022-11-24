@@ -32,4 +32,6 @@ class VideoSession extends Model
     {
         return $this->hasOne("App\Models\UserVideoSession", "video_sessions_id", "id");
     }
+
+    
 }
