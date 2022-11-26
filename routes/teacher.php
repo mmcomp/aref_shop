@@ -31,7 +31,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ProductController::class, 'index'])->middleware('can:product-of-teacher');
-    // Route::get('/getProduct/{id}',[ProductController::class,'show']);
+    //Route::get('/getProduct/{id}',[ProductController::class,'show'])->middleware('can:get-a-product-by-teacher');
     // Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
     // Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
     // Route::get('/get-packages-in-group/{id}',[ProductController::class, 'ListOfGroupPackagesOfAProduct'])->middleware('can:product-packages-of-user');
@@ -43,4 +43,5 @@ Route::group([
     'prefix' => 'product-detail-videos',
 ], function ($router) {
     Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
+    Route::get('/get_one_by_product_id/{id}', [ProductDetailVideosController::class, 'getOne']);
 });

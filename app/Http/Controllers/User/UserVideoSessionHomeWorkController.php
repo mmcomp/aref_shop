@@ -7,15 +7,46 @@ use App\Http\Requests\User\ConcatHomeworkRequest;
 use App\Http\Requests\User\DeleteHomeworkRequest;
 use App\Http\Requests\User\AddDescriptionRequest;
 use App\Http\Resources\UserVideoSessionHomeWorkResource;
+use App\Http\Resources\UserVideoSessionHomeWorkGetAllCollection;
+
 use App\Models\UserVideoSessionHomework;
 use App\Models\UserDescription;
 use App\Models\UserVideoSession;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\UploadImage;
+use Illuminate\Http\Request;
 
 class UserVideoSessionHomeWorkController extends Controller
 {
+
+    public function getAllHomework(Request $request)
+    {
+        //dd($request->input("product_id"));
+        $per_page = $request->get('per_page');
+
+        $getAllHomework = UserVideoSession::where('users_id', Auth::user()->id)
+            ->with('userVideoSessionHomework')
+            ->with('productDetailVideo')
+            ->whereHas('productDetailVideo.product', function ($query) use ($request) {
+                if ($request->input("product_id") != -1) {
+                    $query->where('id', $request->input("product_id"));
+                }
+                return true;
+            })
+            ->with('productDetailVideo.product');
+            //->get();
+            if ($per_page == "all") {
+                $getAllHomework = $getAllHomework->get();
+            } else {
+                $getAllHomework = $getAllHomework->paginate(env('PAGE_COUNT'));
+            }
+
+        //return $getAllHomework;
+        return (new UserVideoSessionHomeWorkGetAllCollection($getAllHomework))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
 
     /**
      * concat homework to video_session
@@ -60,7 +91,7 @@ class UserVideoSessionHomeWorkController extends Controller
             Storage::delete($file);
         }
         $user_description = UserDescription::where('user_video_session_homeworks_id', $user_video_session_homework->id)->where('users_id', '!=', $user_id)->first();
-        if($user_description == null) {
+        if ($user_description == null) {
             $user_video_session_homework->is_deleted = 1;
             $user_video_session_homework->save();
             return (new UserVideoSessionHomeWorkResource(null))->additional([
@@ -91,5 +122,5 @@ class UserVideoSessionHomeWorkController extends Controller
         return (new UserVideoSessionHomeWorkResource($user_video_session_homework))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-    } 
+    }
 }

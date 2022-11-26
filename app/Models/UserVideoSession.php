@@ -23,6 +23,11 @@ class UserVideoSession extends Model
     }
     public function userVideoSessionHomework()
     {
-        return $this->belongsTo(UserVideoSessionHomework::class,"id","user_video_sessions_id");
+        return $this->hasMany('App\Models\UserVideoSessionHomework','user_video_sessions_id','id');
     }
+    public function productDetailVideo()
+    {
+        return $this->belongsTo('App\Models\ProductDetailVideo','video_sessions_id','video_sessions_id');
+    }
+
 }

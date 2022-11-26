@@ -34,6 +34,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
+
 class ProductController extends Controller
 {
     /**
@@ -43,14 +44,15 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(ProductIndexRequest $request)
-    {  
-        $user = Auth::user();      
+    {
+        $user = Auth::user();
+       // Log::info("the user is:" . json_encode($user));
         $per_page = $request->get('per_page');
         // $category_ones_id = $request->input('category_ones_id');
         // $category_twos_id = $request->input('category_twos_id');
         // $category_threes_id = $request->input('category_threes_id');
         // $searchName = $request->input('search_name');
-        $products = Product::where('is_deleted', false)->where('user_teacher_id',$user->id)
+        $products = Product::where('is_deleted', false)->where('user_teacher_id', $user->id)
             // ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id, $searchName) {
             //     if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
             //     if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
@@ -107,16 +109,26 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-
-        $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
-        if ($product != null) {
-            return (new ProductResource($product))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(200);
-        }
-        return (new ProductResource($product))->additional([
-            'errors' => ['product' => ['Product not found!']],
-        ])->response()->setStatusCode(404);
+        // dd("show item is running");
+        // $product = Product::where('is_deleted', false)->where('id',$id)->first();
+        // if ($product != null) {
+        //     return (new ProductResource($product))->additional([
+        //         'errors' => null,
+        //     ])->response()->setStatusCode(200);
+        // }
+        // return (new ProductResource($product))->additional([
+        //     'errors' => ['product' => ['Product not found!']],
+        // ])->response()->setStatusCode(404);
+        
+        // $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
+        // if ($product != null) {
+        //     return (new ProductResource($product))->additional([
+        //         'errors' => null,
+        //     ])->response()->setStatusCode(200);
+        // }
+        // return (new ProductResource($product))->additional([
+        //     'errors' => ['product' => ['Product not found!']],
+        // ])->response()->setStatusCode(404);
     }
 
     /**
@@ -167,20 +179,19 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
-    {       
-      
-       $user_product= UserProduct::where("products_id",$id)->first();     
-       if($user_product)
-       {       
+    {
+
+        $user_product = UserProduct::where("products_id", $id)->first();
+        if ($user_product) {
             return (new ProductResource(null))->additional([
-                'errors' => ['fail' => ['you can not delete this product the user buy it before' ]],
+                'errors' => ['fail' => ['you can not delete this product the user buy it before']],
             ])->response()->setStatusCode(400);
-       }
+        }
         $product = Product::where('is_deleted', false)->find($id);
         if ($product != null) {
             $product->is_deleted = 1;
             try {
-                  ProductDetailPackage::where("child_products_id",$id)->delete();
+                ProductDetailPackage::where("child_products_id", $id)->delete();
                 $product->save();
                 return (new ProductResource(null))->additional([
                     'errors' => null,
@@ -479,23 +490,23 @@ class ProductController extends Controller
             ])->response()->setStatusCode(200);
 
 
-        //     $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
-        //     $allgroup=[];
-        //     $groups= ProductDetailPackage::groupBy("group")->pluck("group");
-         
-        //    foreach($groups as $group)
-        //    {           
-        //       $id=0;
-        //       foreach($product_detail_package_items as $product_detail_package_item)
-        //       {               
-        //          if($product_detail_package_item->group===$group)
-        //          {  
-        //             $tmpGroup= !isset($group) ? "others":$group;                  
-        //             $allgroup[$tmpGroup][]=$product_detail_package_item;
-        //             $id++;
-        //          }
-        //       }
-        //    }    
+            //     $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            //     $allgroup=[];
+            //     $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+
+            //    foreach($groups as $group)
+            //    {           
+            //       $id=0;
+            //       foreach($product_detail_package_items as $product_detail_package_item)
+            //       {               
+            //          if($product_detail_package_item->group===$group)
+            //          {  
+            //             $tmpGroup= !isset($group) ? "others":$group;                  
+            //             $allgroup[$tmpGroup][]=$product_detail_package_item;
+            //             $id++;
+            //          }
+            //       }
+            //    }    
             //   return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
             //       'errors' => null,
             //   ])->response()->setStatusCode(200);  
@@ -528,25 +539,22 @@ class ProductController extends Controller
 
 
             $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
-            $allgroup=[];
-            $groups= ProductDetailPackage::groupBy("group")->pluck("group");
-         
-           foreach($groups as $group)
-           {           
-              $id=0;
-              foreach($product_detail_package_items as $product_detail_package_item)
-              {               
-                 if($product_detail_package_item->group===$group)
-                 {  
-                    $tmpGroup= !isset($group) ? "others":$group;                  
-                    $allgroup[$tmpGroup][]=$product_detail_package_item;
-                    $id++;
-                 }
-              }
-           }    
-              return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
-                  'errors' => null,
-              ])->response()->setStatusCode(200);  
+            $allgroup = [];
+            $groups = ProductDetailPackage::groupBy("group")->pluck("group");
+
+            foreach ($groups as $group) {
+                $id = 0;
+                foreach ($product_detail_package_items as $product_detail_package_item) {
+                    if ($product_detail_package_item->group === $group) {
+                        $tmpGroup = !isset($group) ? "others" : $group;
+                        $allgroup[$tmpGroup][] = $product_detail_package_item;
+                        $id++;
+                    }
+                }
+            }
+            return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
         }
 
 
@@ -555,7 +563,8 @@ class ProductController extends Controller
         ])->response()->setStatusCode(404);
     }
 
-    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id){
+    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id)
+    {
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->find($id);
