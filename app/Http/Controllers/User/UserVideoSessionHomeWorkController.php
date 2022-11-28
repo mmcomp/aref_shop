@@ -27,6 +27,12 @@ class UserVideoSessionHomeWorkController extends Controller
 
         $getAllHomework = UserVideoSession::where('users_id', Auth::user()->id)
             ->with('userVideoSessionHomework')
+            ->whereHas('productDetailVideo', function ($query) use ($request) {
+                if ($request->input("product_detail_video_id") != -1) {
+                    $query->where('id', $request->input("product_detail_video_id"));
+                }
+                return true;
+            })
             ->with('productDetailVideo')
             ->whereHas('productDetailVideo.product', function ($query) use ($request) {
                 if ($request->input("product_id") != -1) {

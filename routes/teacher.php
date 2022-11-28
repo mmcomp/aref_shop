@@ -43,5 +43,5 @@ Route::group([
     'prefix' => 'product-detail-videos',
 ], function ($router) {
     Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
-    Route::get('/get_one_by_product_id/{id}', [ProductDetailVideosController::class, 'getOne']);
+    Route::get('/all-session-of-one-product/{id}', [ProductDetailVideosController::class, 'getAllSessions']);
 });

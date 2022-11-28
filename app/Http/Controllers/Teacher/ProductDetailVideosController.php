@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductDetailVideosCollection;
 use App\Models\ProductDetailVideo;
 use App\Models\UserVideoSession;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Teacher\ProductDetailVideosResourceForShowForTeacher;
 use App\Http\Resources\User\ProductDetailVideosResourceForConference;
 use App\Utils\GetNameOfSessions;
+use Illuminate\Http\Request;
 
 class ProductDetailVideosController extends Controller
 {
@@ -23,11 +25,11 @@ class ProductDetailVideosController extends Controller
         //dd(Auth::user()->id);
         $getNameOfSessions = new GetNameOfSessions;
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)
-        ->where('id',$id)
-        ->with('userVideoSession')
-        ->with('userVideoSession.userVideoSessionHomework')
-        ->get();
-        return ($product_detail_video);
+            ->where('id', $id)
+            ->with('userVideoSession')
+            ->with('userVideoSession.userVideoSessionHomework')
+            ->get();
+        //return ($product_detail_video);
         // $product_detail_videos = [];
         // if ($product_detail_video != null) {
         //     $product_detail_videos = $getNameOfSessions->getProductDetailVideos($product_detail_video->product, Auth::user()->id);
@@ -43,14 +45,33 @@ class ProductDetailVideosController extends Controller
         //         'errors' => null,
         //     ])->response()->setStatusCode(200);
         // }
-        // return (new ProductDetailVideosResourceForShowForTeacher(null))->additional([
-        //     'errors' => ['productDetailVideo' => ['ProductDetailVideo not found!']],
-        // ])->response()->setStatusCode(404);
+        if ($product_detail_video != null) {
+            return ((new ProductDetailVideosResourceForShowForTeacher($product_detail_video)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+        return (new ProductDetailVideosResourceForShowForTeacher(null))->additional([
+            'errors' => ['productDetailVideo' => ['ProductDetailVideo not found!']],
+        ])->response()->setStatusCode(404);
     }
 
-    public function getOne($id){
-        $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('products_id',$id)->get();
+    public function getAllSessions(Request $request,$id)
+    {
+        $per_page = $request->get('per_page');       
+        $product_detail_video = ProductDetailVideo::where('is_deleted', false)
+        ->where('products_id', $id);
+        //->get();
+
+        if ($per_page == "all") {
+            $product_detail_video = $product_detail_video->get();
+        } else {
+            $product_detail_video = $product_detail_video->paginate(env('PAGE_COUNT'));
+        }
+
+        return (new  ProductDetailVideosCollection($product_detail_video))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+       
         return ($product_detail_video);
     }
-
-}   
+}

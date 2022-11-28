@@ -23,15 +23,16 @@ class ProductDetailVideosResourceForShowForTeacher extends JsonResource
      */
     public function toArray($request)
     {
+        return $this->resource;
         $files = [];
         if ($this->resource != null) {
-            if ($this->videoSession) {
-                foreach ($this->videoSession->videoSessionFiles as $file) {
-                    if ($file->file != null) {
-                        $files[] = new FileResource($file->file);
-                    }
-                }
-            }
+            // if ($this->videoSession) {
+            //     foreach ($this->videoSession->videoSessionFiles as $file) {
+            //         if ($file->file != null) {
+            //             $files[] = new FileResource($file->file);
+            //         }
+            //     }
+            // }
             return [
                 'id' => $this->id,
                 'name' => $this->name,
