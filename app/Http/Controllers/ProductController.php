@@ -29,6 +29,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
+use App\Models\ProductDetailChair;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -134,6 +135,9 @@ class ProductController extends Controller
         $allIds = [];
         if ($product != null) {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
+            ProductDetailChair::where('products_id',$id)->update([
+                "price" => $product->sale_price
+            ]);
             $orderDetails = OrderDetail::get();
             foreach ($orderDetails as $orderDetail) {
                 if (isset($orderDetail->order) && $orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {

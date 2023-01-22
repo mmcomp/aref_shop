@@ -125,6 +125,7 @@ class CartController extends Controller
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+        //Log::info("1)the order id is:". $order->id . "the product is: ".$products_id ."the price product is:" . $product->sale_price);
         if (!$orderDetail) {
             $orderDetail = OrderDetail::create([
                 'orders_id' => $order->id,
