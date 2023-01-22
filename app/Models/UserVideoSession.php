@@ -21,4 +21,13 @@ class UserVideoSession extends Model
     {
         return $this->hasOne('App\Models\User', 'id', 'users_id')->where('is_deleted', false);
     }
+    public function userVideoSessionHomework()
+    {
+        return $this->hasMany('App\Models\UserVideoSessionHomework','user_video_sessions_id','id');
+    }
+    public function productDetailVideo()
+    {
+        return $this->belongsTo('App\Models\ProductDetailVideo','video_sessions_id','video_sessions_id');
+    }
+
 }

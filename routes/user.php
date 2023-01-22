@@ -47,6 +47,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::post('/concat-homework-to-session/{id}', [UserVideoSessionHomeWorkController::class, 'ConcatHomeWorkToSession']);
         Route::delete('/file/{id}', [UserVideoSessionHomeWorkController::class, 'DeleteHomework']);
         Route::post('/add-description/{id}', [UserVideoSessionHomeWorkController::class, 'addDescription']);
+        Route::get('/getAll-homework', [UserVideoSessionHomeWorkController::class, 'getAllHomework']);
     });
     Route::group([
         'middleware' => 'api',

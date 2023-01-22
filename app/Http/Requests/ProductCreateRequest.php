@@ -67,7 +67,14 @@ class ProductCreateRequest extends FormRequest
             'education_system' => 'nullable|string|min:3|max:255',
             'hour' => 'nullable|string|min:3|max:255',
             'days' => 'nullable|string|min:3|max:255',
-            'start_date' => 'nullable|string|min:3|max:255'
+            'start_date' => 'nullable|string|min:3|max:255',
+            'user_teacher_id' => [
+                "nullable",
+                Rule::exists('users', 'id')->where(function ($query) {
+                    return $query->where('is_deleted', false)
+                    ->where('groups_id',3);
+                }),
+            ]
         ];
     }
     /**

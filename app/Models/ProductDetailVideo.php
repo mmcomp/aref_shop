@@ -35,4 +35,8 @@ class ProductDetailVideo extends Model
     {
         return $this->hasOne('App\Models\OrderVideoDetail', 'product_detail_videos_id', 'id');
     }
+    public function userVideoSession()
+    {
+        return $this->hasMany('App\Models\UserVideoSession',"video_sessions_id","video_sessions_id");
+    }
 }

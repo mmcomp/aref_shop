@@ -34,7 +34,8 @@ class Product extends Model
        'education_system',
        'start_date',
        'days',
-       'hour'
+       'hour',
+       'user_teacher_id'
     ];
 
     public function categoryOnes()
