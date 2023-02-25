@@ -7,7 +7,6 @@ use App\Http\Requests\CouponEditRequest;
 use App\Http\Requests\CouponIndexRequest;
 use App\Models\Coupon;
 use App\Http\Resources\CouponCollection;
-use App\Http\Resources\CouponResourceCollection;
 
 use App\Http\Resources\CouponResource;
 use Exception;
@@ -23,31 +22,29 @@ class CouponController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(CouponIndexRequest $request)
-    {
-
+    {        
         $sort = "id";
         $sort_dir = "desc";
-        $name="";
+        $name=null;
+        if ($request->get('name') != null ) {
+            $name = $request->get('name');           
+        }
+
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
             $sort_dir = $request->get('sort_dir');
         }
-        if ($request->get('name') != null ) {
-            $name = $request->get('name');            
-        }
         if ($request->get('per_page') == "all") {
-            if($name==="")
-                $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
-                else{
-                    $coupons = Coupon::where('is_deleted', false)->where('name','like', '%' .$name. '%')->orderBy($sort, $sort_dir)->get();
-                }
+            $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
         } else {
-            if($name==="")
-            $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
-                else{
-                    $coupons = Coupon::where('is_deleted', false)->where('name', 'like', '%' .$name. '%')->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
-                }
-            
+            if($name!=null)
+            {
+                $coupons = Coupon::where('is_deleted', false)->where('name','like', '%' . $name . '%')->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
+            }
+            else{
+                $coupons = Coupon::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
+            }
+                       
         }
         return (new CouponCollection($coupons))->additional([
             'errors' => null,
@@ -81,9 +78,14 @@ class CouponController extends Controller
         }
 
         $coupon = DB::table('coupons')->insert($creationCollection);
+        
         //$coupon = Coupon::create($request->all());
         // $coupon = Coupon::create($creationCollection);
-        return (new CouponResource($coupon))->additional([
+        // return (new CouponResource($coupon))->additional([
+        //     'errors' => null,
+        // ])->response()->setStatusCode(201);
+
+        return (new CouponResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
     }
