@@ -52,14 +52,14 @@ class BaseAuthController extends Controller
     {
         Log::info("Start Redis : " . json_encode($user));
         $value = Redis::hGet('user', $user->id);
-        // if($value != $token) {
-        //    $res = Redis::publish('node', json_encode([
-        //     'id' => $user->id,
-        //     'old_token' => $value,
-        //     'new_token' => $token
-        //    ]));
-        //    Log::info("Pub : " . json_encode($res));
-        // }
+        if($value != $token) {
+           $res = Redis::publish('node', json_encode([
+            'id' => $user->id,
+            'old_token' => $value,
+            'new_token' => $token
+           ]));
+           Log::info("Pub : " . json_encode($res));
+        }
         Redis::hSet('user', $user->id, $token);
         $first_name = $user->first_name == null ? '' : $user->first_name;
         $last_name = $user->last_name == null ? '' : $user->last_name;
