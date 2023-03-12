@@ -26,10 +26,11 @@ class CouponResource extends JsonResource
                 'type' => $this->type,
                 'expired_at' => $this->expired_at,
                 'product' => new ProductResource($this->product), 
-                'user' => new  UserResource($this->orderDetail->user),
+                'user' => new  UserResource(isset($this->orderDetail) ? $this->orderDetail->user:null ),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];            
         }
+        
     }
 }
