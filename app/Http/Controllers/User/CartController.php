@@ -231,7 +231,18 @@ class CartController extends Controller
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
-        $user_coupon = UserCoupon::where('users_id', $user_id)->where('coupons_id', $coupon->id)->first();
+        $another_user_used_coupon = UserCoupon::        
+        where('coupons_id', $coupon->id)
+        ->first();
+        $user_coupon = UserCoupon::
+        where('users_id', $user_id)
+        ->where('coupons_id', $coupon->id)
+        ->first();
+        if($another_user_used_coupon){
+            return (new OrderResource(null))->additional([
+                'errors' => ["already used" => ["The discount code has already been used."]],
+            ])->response()->setStatusCode(406);
+        }
         if ($user_coupon) {
             return (new OrderResource(null))->additional([
                 'errors' => ["already applied" => ["The discount code has already been applied."]],
