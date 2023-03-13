@@ -124,18 +124,23 @@ class ProductDetailVideosController extends Controller
      */
     public function destroy($id)
     {
-
+        
         $product_detail_video = ProductDetailVideo::where('is_deleted', false)->find($id);
+        
+        $get_all_users_has_this_products=UserProduct::where('products_id',$product_detail_video->products_id)->pluck('users_id');//get just all users that has used shared video for specila product not all products
+        
         if ($product_detail_video != null) {
             $product_detail_video->is_deleted = 1;
             try {
                 $product_detail_video->save();
-                UserVideoSession::where('video_sessions_id', $product_detail_video->video_sessions_id)->delete();
+                UserVideoSession::where('video_sessions_id', $product_detail_video->video_sessions_id)
+                ->whereIn('users_id',$get_all_users_has_this_products)->delete();
+                //dd($test);                
                 return (new ProductDetailVideosResource(null))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
-                Log::info('failed in ProductDetailVideosController/destory', json_encode($e));
+                //Log::info('failed in ProductDetailVideosController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new ProductDetailVideosResource(null))->additional([
                         'errors' => ['fail' => ['productDetailVideos deleting failed!' . json_encode($e)]],
