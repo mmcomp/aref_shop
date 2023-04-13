@@ -25,6 +25,7 @@ class MellatPayment implements IPayment
 
         $raiseError = new RaiseError;
         $payment = Payment::where('is_deleted', false)->where('orders_id', $order->id)->where('users_id', $order->users_id)->where('res_code', null)->first();
+        Log::info(json_encode($payment));
         $raiseError->ValidationError($payment, ['payment' => ['processing']]);
         if (!$payment) {
             $payment = Payment::create([

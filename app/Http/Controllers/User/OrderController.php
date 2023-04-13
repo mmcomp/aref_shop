@@ -72,14 +72,15 @@ class OrderController extends Controller
     {
         $user_id = Auth::user()->id;
         $orderVideoDetailsArr = [];
+        $availableProducts = UserProduct::where('users_id', $user_id)->where('partial', 1)->pluck('products_id');
         $orderVideoDetails = OrderVideoDetail::whereHas('orderDetail', function ($query) {
             $query->where('all_videos_buy', 0);
         })->whereHas('orderDetail.order', function ($query) use ($user_id) {
             $query->where(function($q){
                 return $q->where('status', 'ok')->orWhere('status', 'manual_ok');
             })->where('users_id', $user_id);
-        })->whereHas('orderDetail.product', function ($query) {
-            $query->where('type', 'video');
+        })->whereHas('orderDetail.product', function ($query) use ($availableProducts) {
+            $query->where('type', 'video')->whereIn('id', $availableProducts);
         })->get();
 
         foreach ($orderVideoDetails as $orderVideoDetail) {

@@ -277,7 +277,7 @@ class CartController extends Controller
                     'errors' => null,
                 ])->response()->setStatusCode(200);
             } catch (Exception $e) {
-                Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
+                //Log::info("fails in addCouponToTheCart in User/CartController" . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new OrderResource(null))->additional([
                         'errors' => ["fail" => ["fails in addCouponToTheCart in User/CartController" . json_encode($e)]],
