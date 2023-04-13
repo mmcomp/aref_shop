@@ -51,6 +51,22 @@ class BaseAuthController extends Controller
     public function userToRedis($user, string $token)
     {
         Log::info("Start Redis : " . json_encode($user));
+        $value = Redis::get('user_' . $user->id);
+        if($value != $token) {
+           $res = Redis::publish('node', json_encode([
+            'id' => $user->id,
+            'old_token' => $value,
+            'new_token' => $token
+           ]));
+           Log::info("Pub : " . json_encode($res));
+        }
+        Redis::set('user_' . $user->id, $token, 'EX', 7 * 24 * 3600);
+        $first_name = $user->first_name == null ? '' : $user->first_name;
+        $last_name = $user->last_name == null ? '' : $user->last_name;
+        Redis::set('name_' . $user->id, $first_name . ' ' . $last_name, 'EX', 7 * 24 * 3600);
+        // Redis::set('expires_in_' . $user->id, Carbon::now()->addDays(7), 'EX', 7 * 24 * 3600);
+
+        /*
         $value = Redis::hGet('user', $user->id);
         if($value != $token) {
            $res = Redis::publish('node', json_encode([
@@ -66,6 +82,7 @@ class BaseAuthController extends Controller
         Redis::hSet('name', $user->id, $first_name . ' ' . $last_name);
         Redis::hSet('expires_in', $user->id, Carbon::now()->addDays(7));
         $value = Redis::hGet('user', $user->id);
+        */
     }
 
     /**
