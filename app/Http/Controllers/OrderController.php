@@ -170,14 +170,7 @@ class OrderController extends Controller
 
         $users_id = $request->input('users_id');
         $response = $this->_store($users_id, $addteamOrder);
-        //dd($request->all());
-        // $orderDetail=OrderDetail::where('orders_id',)->where('users_id',$users_id)->first();
-
-        // $existAlready=UserProduct::where('user_id',$users_id)
-        // ->where('products_id',$orderDetail->products_id)
-        // ->where('partial',0)
-        // ->first();
-
+        
         if ($response === null) {
             return (new AdminOrderResource(null))->additional([
                 'errors' => ['type' => ['The user type is invalid!']],
@@ -236,6 +229,30 @@ class OrderController extends Controller
         $order = Order::find($orders_id);
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
+
+        //dd($orderDetail);
+        // $alreadyProductExist=OrderDetail::where('all_videos_buy',1)
+        // ->where('users_id',$order->users_id)
+        // ->where('products_id',$products_id)
+        // ->first();
+        $existAlready=null;
+       // if($alreadyProductExist)
+       // {
+            $existAlready=UserProduct::where('users_id',$order->users_id)
+            ->where('products_id',$products_id)
+            ->where('partial',0)
+            ->first();
+       // }
+       
+
+
+        if($existAlready){
+            return (new OrderResource($order))->additional([
+                'errors' => ["product already exist" => ["The product code has already been exist."]],
+            ])->response()->setStatusCode(409);
+            
+        }
+
         if ($orderDetail && $product->type == 'normal') {
             $orderDetail->number += $number;
             $orderDetail->total_price = $orderDetail->number * $orderDetail->price;
