@@ -171,12 +171,12 @@ class OrderController extends Controller
         $users_id = $request->input('users_id');
         $response = $this->_store($users_id, $addteamOrder);
         //dd($request->all());
-        $orderDetail=OrderDetail::where('orders_id',)->where('users_id',$users_id)->first();
+        // $orderDetail=OrderDetail::where('orders_id',)->where('users_id',$users_id)->first();
 
-        $existAlready=UserProduct::where('user_id',$users_id)
-        ->where('products_id',$orderDetail->products_id)
-        ->where('partial',0)
-        ->first();
+        // $existAlready=UserProduct::where('user_id',$users_id)
+        // ->where('products_id',$orderDetail->products_id)
+        // ->where('partial',0)
+        // ->first();
 
         if ($response === null) {
             return (new AdminOrderResource(null))->additional([
