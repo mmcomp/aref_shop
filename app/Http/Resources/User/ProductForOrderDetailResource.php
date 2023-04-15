@@ -22,5 +22,7 @@ class ProductForOrderDetailResource extends JsonResource
                 'main_image_thumb_path' => $this->main_image_thumb_path
             ];
         }
+       
+       
     }
 }

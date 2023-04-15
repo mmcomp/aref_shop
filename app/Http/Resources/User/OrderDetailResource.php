@@ -20,21 +20,23 @@ class OrderDetailResource extends JsonResource
         if ($this->resource != null) {
             $productDetails = [];
             $items = [];
-            if($this->product->type=='video') {
-                foreach ($this->orderVideoDetails as $item) {
-                    $items[] = $item;
+            if (isset($this->product)) {
+                if (($this->product->type == 'video')) {
+                    foreach ($this->orderVideoDetails as $item) {
+                        $items[] = $item;
+                    }
+                    $productDetails = new OrderVideoDetailCollection($items);
+                } else if ($this->product->type == 'chairs') {
+                    foreach ($this->orderChairDetails as $item) {
+                        $items[] = $item;
+                    }
+                    $productDetails = $items;
                 }
-                $productDetails = new OrderVideoDetailCollection($items);
-            } else if ($this->product->type=='chairs') {
-                foreach ($this->orderChairDetails as $item) {
-                    $items[] = $item;
-                }
-                $productDetails = $items;
             }
             return [
                 'id' => $this->id,
                 'product' => new ProductForOrderDetailResource($this->product),
-                'productDetails' => $productDetails,
+                'productDetails' => isset($productDetails) ? $productDetails : null,
                 'price' => $this->price,
                 'coupons_name' => $this->coupon ? $this->coupon->name : '',
                 'coupons_id' => $this->coupons_id,

@@ -190,7 +190,7 @@ class CartController extends Controller
             $add_chair_price = self::updateVideoDetailChairPrice($orderDetail->id);
         }
         $sumOfOrderDetailPrices = OrderDetail::where('orders_id', $order->id)->sum('total_price_with_coupon');
-       
+
         $order->amount = $sumOfOrderDetailPrices;
         $order->save();
         return (new OrderResource($order))->additional([
@@ -205,9 +205,30 @@ class CartController extends Controller
      */
     public function getWholeCart()
     {
-
+        $now = Carbon::now();        
         $user_id = Auth::user()->id;
-        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails.orderChairDetails')->first();
+        $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->first();
+        if( $order)
+        {
+            $startDate = Carbon::parse($now->format("Y-m-d"));
+            $endDate = Carbon::parse($order->updated_at->format("Y-m-d"));
+            $diffInDays = $startDate->diffInDays($endDate);       
+            if($diffInDays>2){            
+                $orderDetailIds=OrderDetail::where('orders_id', $order->id)->pluck('id');
+                OrderChairDetail::whereIn('order_details_id', $orderDetailIds)->delete();
+                OrderVideoDetail::whereIn('order_details_id', $orderDetailIds)->delete();
+                OrderPackageDetail::whereIn('order_details_id', $orderDetailIds)->delete();
+                OrderDetail::whereIn('id',$orderDetailIds)->delete();
+                Order::where('id',$order->id)->delete();
+            }
+            else 
+            {
+                $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails.orderChairDetails')->first();
+            
+            }        
+        }
+        
+       
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -231,14 +252,12 @@ class CartController extends Controller
         $raiseError->ValidationError($order == null, ['orders_id' => ['You don\'t have any waiting orders yet!']]);
         $orderDetail = OrderDetail::where('orders_id', $order->id)->where('products_id', $products_id)->first();
         $raiseError->ValidationError($orderDetail == null, ['products_id' => ['You don\'t have any orders for the product that you have coupon for']]);
-        $another_user_used_coupon = UserCoupon::        
-        where('coupons_id', $coupon->id)
-        ->first();
-        $user_coupon = UserCoupon::
-        where('users_id', $user_id)
-        ->where('coupons_id', $coupon->id)
-        ->first();
-        if($another_user_used_coupon){
+        $another_user_used_coupon = UserCoupon::where('coupons_id', $coupon->id)
+            ->first();
+        $user_coupon = UserCoupon::where('users_id', $user_id)
+            ->where('coupons_id', $coupon->id)
+            ->first();
+        if ($another_user_used_coupon) {
             return (new OrderResource(null))->additional([
                 'errors' => ["already used" => ["The discount code has already been used."]],
             ])->response()->setStatusCode(406);
@@ -447,7 +466,7 @@ class CartController extends Controller
         $orderChairDetail = OrderChairDetail::whereId($id)->first();
         if ($orderChairDetail !== null) {
             $orderDetailId = $orderChairDetail->order_details_id;
-           
+
             //$chair_price=$orderChairDetail->price;       
             if ($orderDetailId !== null) {
                 OrderChairDetail::whereId($id)->delete();
@@ -706,10 +725,10 @@ class CartController extends Controller
         $total_price = OrderChairDetail::where('order_details_id', '=', $order_detail_id)
             ->sum('price');
         //->get();
-       
+
         $order_detail = OrderDetail::where('id', $order_detail_id)
             ->first();
-     
+
         if ($order_detail !== null) {
             $order_detail["price"] = $total_price;
             $order_detail["total_price_with_coupon"] = $total_price;
@@ -764,7 +783,7 @@ class CartController extends Controller
             return (new OrderResource($order))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(201);
-           // return (new OrderPackageDetailResource(null));
+            // return (new OrderPackageDetailResource(null));
         } else {
             return (new OrderPackageDetailResource(null))->additional([
                 'errors' => ['order_Detail_id' => ['order_Detail_id is not exist']],
