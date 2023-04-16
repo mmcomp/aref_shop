@@ -248,7 +248,7 @@ class OrderController extends Controller
 
         if($existAlready){
             return (new OrderResource($order))->additional([
-                'errors' => ["product already exist" => ["The product code has already been exist."]],
+                'errors' => ["product already exist" => ["The product code has already exists."]],
             ])->response()->setStatusCode(409);
             
         }
