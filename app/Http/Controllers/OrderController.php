@@ -777,11 +777,13 @@ class OrderController extends Controller
             //     //dd($child_products_id);       
             
             $child_products_id=$tmp_child_products_id;
-            //dd($child_products_id); 
+            //dd($products_id); 
 
-                if(count($child_products_id)>0) // the products that exist in package and not exist in another product that student bought already
+                if(count($child_products_id)>0 ) // the products that exist in package and not exist in another product that student bought already
                 {
+
                     UserProduct::where('users_id', $users_id)->whereIn('products_id', $child_products_id)->where('partial', 0)->delete();
+                    UserProduct::where('users_id', $users_id)->where('products_id', $products_id)->where('partial', 0)->delete();
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->whereIn('products_id', $child_products_id)->pluck('video_sessions_id');
                     UserVideoSession::where('users_id', $users_id)->whereIn('video_sessions_id', $videoSessionIds)->delete();
                 }
