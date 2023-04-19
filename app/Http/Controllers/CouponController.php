@@ -58,7 +58,11 @@ class CouponController extends Controller
         ])->response()->setStatusCode(200);
     }
     public function store(CouponCreateRequest $request)
-    {        
+    {     
+        if (isset($request->count) && $request->count > 1) {
+            return $this->customized_store($request);
+        }
+
         $name = $request->name;        
         $creation = array(
             "name" => $name,
