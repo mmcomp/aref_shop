@@ -242,11 +242,8 @@ class OrderController extends Controller
             ->where('products_id',$products_id)
             ->where('partial',0)
             ->first();
-       // }
-       
-
-
-        if($existAlready){
+       // }    
+        if($existAlready ){
             return (new OrderResource($order))->additional([
                 'errors' => ["product already exist" => ["The product code has already exists."]],
             ])->response()->setStatusCode(409);
@@ -832,6 +829,10 @@ class OrderController extends Controller
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
                     'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                 ]);
+                if($product->type==="chairs"){
+                    OrderChairDetail::where('order_details_id',$orderDetail->id)->delete();
+
+                }
             }
             return (new OrderResource(null))->additional([
                 'errors' => null,
