@@ -243,7 +243,7 @@ class TeamUserMemberController extends Controller
             $this->orderDetailAdd($OrderDetail);                     
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
-        $this->smsObj->sendCode(User::find($userId)->email," ", "confirm-team-members");
+        $this->smsObj->sendCode(User::find($userId)->email,".", "confirm-team-members");
        
         if ($leaderAddOrder) {
            
