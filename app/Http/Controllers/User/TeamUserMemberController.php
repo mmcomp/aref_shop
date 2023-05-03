@@ -63,8 +63,7 @@ class TeamUserMemberController extends Controller
                 if ($this->avoidDuplicate($user->teamUser->id, $teamUserMember["mobile"])) {
                     $data = TeamUserMember::create($teamUserMember->toArray());
                     $this->notifyToNotApprovedMembers($user->teamUser->id, $user);
-                    // $mobile=$teamUserMember["mobile"];               
-                    // $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
+                
                 } else {
                     $this->deleteTeam($user->teamUser->id);
                     $this->errorHandle("User", "شماره " . $teamUserMember['mobile'] . " تکراری است");
