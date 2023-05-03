@@ -302,7 +302,7 @@ class TeamUserMemberController extends Controller
         if(isset($allNotApprovedMembers->first_name))
             $userFullName=str_replace(' ',"-",$allNotApprovedMembers->first_name ."-". $allNotApprovedMembers->last_name);
         else
-        $userFullName="";
+        $userFullName="شخصی";
         foreach($allNotApprovedMembers as $allNotApprovedMember)
         {
             $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullName, 'verify-team-member');
