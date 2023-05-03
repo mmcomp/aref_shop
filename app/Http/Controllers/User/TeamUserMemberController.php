@@ -217,7 +217,7 @@ class TeamUserMemberController extends Controller
                    //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
-                $this->smsObj->sendCode($Member->member->email,"زیست", "confirm-team-members");
+                $this->smsObj->sendCode($Member->member->email,"عارف", "confirm-team-members");
             }
         }
         
@@ -243,7 +243,7 @@ class TeamUserMemberController extends Controller
             $this->orderDetailAdd($OrderDetail);                     
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
-        $this->smsObj->sendCode(User::find($userId)->email,"آموزشگاه عارف", "confirm-team-members");
+        $this->smsObj->sendCode(User::find($userId)->email,"عارف", "confirm-team-members");
        
         if ($leaderAddOrder) {
            
