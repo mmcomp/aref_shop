@@ -284,8 +284,8 @@ class TeamUserMemberController extends Controller
             ->where("is_verified", 0)
             ->get();
         if (count($allNotApprovedMembers) >= 2) {
-            if (isset($allNotApprovedMembers->first_name) || isset($allNotApprovedMembers->last_name))
-                $userFullName = str_replace(' ', "-", $allNotApprovedMembers->first_name . "-" . $allNotApprovedMembers->last_name);
+            if (isset($allNotApprovedMembers->member->first_name) || isset($allNotApprovedMembers->member->last_name))
+                $userFullName = str_replace(' ', "-", $allNotApprovedMembers->member->first_name . "-" . $allNotApprovedMembers->member->last_name);
             else
                 $userFullName = "شخصی";
             foreach ($allNotApprovedMembers as $allNotApprovedMember) {
