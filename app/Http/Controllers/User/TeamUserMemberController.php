@@ -4,22 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\TeamUserMemberCreateRequest;
-use App\Http\Requests\User\TeamUserMemberEditRequest;
 use App\Http\Resources\User\TeamUserMemberResource;
-use App\Http\Resources\User\TeamUserResource;
-use App\Http\Resources\User\TeamUserMemberErrorResource;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
-use App\Http\Requests\InsertOrderForUserRequest;
 
 use App\Models\TeamUserMember;
 use App\Models\TeamUser;
-use App\Models\TeamUserProduct;
 use App\Models\UserProduct;
 use App\Models\TeamProductDefaults;
 use App\Models\User;
@@ -69,7 +61,7 @@ class TeamUserMemberController extends Controller
                 $teamUserMember["team_user_id"] = $user->teamUser->id;
                 if ($this->avoidDuplicate($user->teamUser->id, $teamUserMember["mobile"])) {
                     $data = TeamUserMember::create($teamUserMember->toArray());
-                    $this->notifyToNotApprovedMembers($user->teamUser->id);
+                    $this->notifyToNotApprovedMembers($user->teamUser->id, $user);
                     // $mobile=$teamUserMember["mobile"];               
                     // $this->smsObj->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
                 } else {
@@ -277,15 +269,15 @@ class TeamUserMemberController extends Controller
             }
         }
     }
-    protected function notifyToNotApprovedMembers(int $teamUserId)
+    protected function notifyToNotApprovedMembers(int $teamUserId,User $user)
     {
         $allNotApprovedMembers = TeamUserMember::where("team_user_id", $teamUserId)
             ->with("member")
             ->where("is_verified", 0)
             ->get();
         if (count($allNotApprovedMembers) >= 2) {
-            if (isset($allNotApprovedMembers->first_name) || isset($allNotApprovedMembers->last_name))
-                $userFullName = str_replace(' ', "-", $allNotApprovedMembers->first_name . "-" . $allNotApprovedMembers->last_name);
+            if (isset($user->first_name) || isset($user->last_name))
+                $userFullName = str_replace(' ', "-", $user->first_name . "-" . $user->last_name);
             else
                 $userFullName = "شخصی";
             foreach ($allNotApprovedMembers as $allNotApprovedMember) {
