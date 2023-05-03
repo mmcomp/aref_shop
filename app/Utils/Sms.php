@@ -1,6 +1,8 @@
 <?php
 namespace App\Utils;
 
+use Illuminate\Support\Facades\Log;
+
 class Sms {
     public function __construct() {
         $api_key = "553133726A6962423652346246504B544C72766668784A6E384C61682B4D565349756B2B374D374C4A6D553D";
@@ -11,6 +13,7 @@ class Sms {
     public function sendCode($receptor, $token, $template='aref') {
         $ch = curl_init();
         $url = $this->url."?receptor=$receptor&token=$token&template=$template";
+        Log::info($url);
         curl_setopt($ch, CURLOPT_URL,$url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
