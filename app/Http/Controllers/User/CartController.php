@@ -120,7 +120,9 @@ class CartController extends Controller
         if (!$order) {
             $order = Order::create([
                 'users_id' => $user_id,
-                'status' => 'waiting'
+                'status' => 'waiting',
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
@@ -205,8 +207,8 @@ class CartController extends Controller
      */
     public function getWholeCart()
     {
-        $now = Carbon::now();        
-        $user_id = Auth::user()->id;
+        $now = Carbon::now(); 
+        $user_id = Auth::user()->id;       
         $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->first();
         if( $order)
         {
@@ -804,6 +806,8 @@ class CartController extends Controller
             $order = Order::create([
                 'users_id' => $user_id,
                 'status' => 'waiting',
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
             ]);
         }
         $product = Product::where('is_deleted', false)->where('id', $products_id)->first();
