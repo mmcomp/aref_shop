@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\UserVideoSession;
 use App\Models\UserProduct;
+use Log;
 
 class VideoSessionsController extends Controller
 {
@@ -24,22 +25,29 @@ class VideoSessionsController extends Controller
     public function freeSessions()
     {
 
+        $user_phone = Auth::user()->email;
+        $whiteListed = in_array($user_phone, explode(",", env('EXECPTIONAL_USER')));
+
         $final_arr = [];
         $getNameOfSessions = new GetNameOfSessions;
-        $free_sessions = ProductDetailVideo::where('is_deleted', false)        
-        ->where(function ($query) {
-            $query->orWhere(function ($q1) {
-                $q1->where('price', 0)->whereHas('videoSession', function ($q2) {
-                    $q2->where('is_deleted', false)->where('start_date','>=',env('USER_PRODUCT_DATE'));
+        $free_sessions = ProductDetailVideo::where('is_deleted', false)
+            ->where(function ($query) use ($whiteListed) {
+                $query->orWhere(function ($q1) use ($whiteListed) {
+                    $q1->where('price', 0)->whereHas('videoSession', function ($q2) use ($whiteListed) {
+                        $q2->where('is_deleted', false);
+                        if (!$whiteListed)
+                            $q2 = $q2->where('start_date', '>=', env('USER_PRODUCT_DATE'));
+                    });
+                })->orWhere(function ($q) use ($whiteListed) {
+                    $q->where('price', null)->whereHas('videoSession', function ($q2)  use ($whiteListed) {
+                        $q2->where('price', 0)->where('is_deleted', false);
+                        if (!$whiteListed)
+                            $q2 = $q2->where('start_date', '>=', env('USER_PRODUCT_DATE'));
+                    });
                 });
-            })->orWhere(function ($q) {
-                $q->where('price', null)->whereHas('videoSession', function ($q2) {
-                    $q2->where('price', 0)->where('is_deleted', false)->where('start_date','>=',env('USER_PRODUCT_DATE'));
-                });
-            });
-        })->whereHas('product', function ($q) {
-            $q->where('is_deleted', false);
-        })->get();
+            })->whereHas('product', function ($q) {
+                $q->where('is_deleted', false);
+            })->get();
         for ($i = 0; $i < count($free_sessions); $i++) {
             $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
             for ($j = 0; $j < count($output); $j++) {
@@ -78,7 +86,7 @@ class VideoSessionsController extends Controller
 
             $today_sessions[$j]->buyed_before = in_array($today_sessions[$j]->video_sessions_id, $bouth_video_sessions);
         }
-       
+
         return (new ProductDetailVideosForTodaySessionsCollection($today_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
