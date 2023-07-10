@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use MikeMcLin\WpPassword\WpPassword;
 
+
 class BaseAuthController extends Controller
 {
 
@@ -52,13 +53,13 @@ class BaseAuthController extends Controller
     {
         Log::info("Start Redis : " . json_encode($user));
         $value = Redis::get('user_' . $user->id);
-        if($value != $token) {
-           $res = Redis::publish('node', json_encode([
-            'id' => $user->id,
-            'old_token' => $value,
-            'new_token' => $token
-           ]));
-           Log::info("Pub : " . json_encode($res));
+        if ($value != $token) {
+            $res = Redis::publish('node', json_encode([
+                'id' => $user->id,
+                'old_token' => $value,
+                'new_token' => $token
+            ]));
+            Log::info("Pub : " . json_encode($res));
         }
         Redis::set('user_' . $user->id, $token, 'EX', 7 * 24 * 3600);
         $first_name = $user->first_name == null ? '' : $user->first_name;
@@ -92,7 +93,6 @@ class BaseAuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-
         $user = User::where('email', $request->input('email'))->first();
 
         if ($user) {
@@ -139,6 +139,10 @@ class BaseAuthController extends Controller
         $smsValidation->delete();
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
+
+
+
+
         return $this->createNewToken($token);
     }
 
@@ -188,6 +192,7 @@ class BaseAuthController extends Controller
 
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
+
         return $this->createNewToken($token);
     }
 
