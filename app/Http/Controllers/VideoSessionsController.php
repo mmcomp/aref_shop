@@ -131,7 +131,7 @@ class VideoSessionsController extends Controller
                     'errors' => null,
                 ])->response()->setStatusCode(204);
             } catch (Exception $e) {
-                Log::info('failed in VideoSessionsController/destory', json_encode($e));
+                //Log::info('failed in VideoSessionsController/destory', json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new VideoSessionsResource(null))->additional([
                         'errors' => ["fail" => ['VideoSession deleting failed! ' . json_encode($e)]],
@@ -175,6 +175,7 @@ class VideoSessionsController extends Controller
                     "start_time" => $request->input("from_time"),
                     "end_time" => $request->input("to_time"),
                     "price" => $request->input("per_price"),
+                    "show_in_zero_price" => $request->input("show_in_zero_price"),
                     "video_session_type" => "offline",
                     "is_hidden" => 0,
                 ]);
@@ -182,6 +183,7 @@ class VideoSessionsController extends Controller
                     "single_purchase" => $request->input('single_purchase') ? $request->input('single_purchase') : 0,
                     "price" => $request->input("per_price"),
                     "products_id" => $request->input("products_id"),
+                    "show_in_zero_price" => $request->input("show_in_zero_price"),
                     "video_sessions_id" => $v->id,
                 ]);
                 $video_session_ids[] = $v->id;
@@ -273,6 +275,7 @@ class VideoSessionsController extends Controller
             'start_time' => $request->input('from_time'),
             'end_time' => $request->input('to_time'),
             'price' => $request->input('price'),
+            "show_in_zero_price" => $request->input("show_in_zero_price"),
             'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
             'video_link' => $request->input('video_link'),
             'is_aparat' => (($request->input('is_aparat') !== null) ? $request->input('is_aparat') : 0),
@@ -386,6 +389,7 @@ class VideoSessionsController extends Controller
                 'start_time' => $request->input('from_time'),
                 'end_time' => $request->input('to_time'),
                 'price' => $request->input('price'),
+                "show_in_zero_price" => $request->input("show_in_zero_price"),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
                 'video_link' => $request->input('video_link'),
                 'is_aparat' => $request->input('is_aparat'),

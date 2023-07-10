@@ -15,6 +15,7 @@ class VideoSession extends Model
         "end_time",
         "teacher_users_id",
         "price",
+        "show_in_zero_price",
         "video_session_type",
         "video_link",
         "is_aparat"

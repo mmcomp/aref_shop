@@ -47,7 +47,9 @@ class AbsencePresenceSubscribe extends Command
             $users_id = $json_decode_message["users_id"];
             $type = $json_decode_message["type"];
             $isFirst = isset($json_decode_message["isFirst"]) && $json_decode_message["isFirst"];
-            $user_video_session_presents = UserVideoSessionPresent::where('video_sessions_id', $video_sessions_id)->where('users_id', $users_id)->first();
+            $user_video_session_presents = UserVideoSessionPresent::where('video_sessions_id', $video_sessions_id)
+            ->where('users_id', $users_id)
+            ->first();
             if ($user_video_session_presents) {
                 if ($type == "online") {
                     $user_video_session_presents->online_exited_at = now();

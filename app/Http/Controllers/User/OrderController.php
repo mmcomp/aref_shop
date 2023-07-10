@@ -166,7 +166,9 @@ class OrderController extends Controller
                 });
             })->orWhere(function ($q) {
                 $q->where('price', null)->whereHas('videoSession', function ($q2) {
-                    $q2->where('price', 0)->where('is_deleted', false);
+                    $q2->where('price', 0)
+                    ->where('show_in_zero_price',1)
+                    ->where('is_deleted', false);
                 });
             });
         })->whereHas('product', function ($q) {

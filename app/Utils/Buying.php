@@ -59,8 +59,8 @@ class Buying
                         ];
                     }
                 }
-                Log::info("[completeInsertAfterBuying] orderDetail" . json_encode($orderDetail));
-                Log::info("[completeInsertAfterBuying] videoSessionIds" . json_encode($videoSessionIds));
+               // Log::info("[completeInsertAfterBuying] orderDetail" . json_encode($orderDetail));
+               // Log::info("[completeInsertAfterBuying] videoSessionIds" . json_encode($videoSessionIds));
             }
             if ($orderDetail->product->type == 'package') {
                 //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
@@ -69,7 +69,7 @@ class Buying
 
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
-                Log::info("[completeInsertAfterBuying] child_products" . json_encode($child_products));
+               // Log::info("[completeInsertAfterBuying] child_products" . json_encode($child_products));
                 foreach ($child_products as $child_product) {
                     //$child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
                     $tmp = ProductDetailPackage::where("id", $child_product)->first();
@@ -101,13 +101,13 @@ class Buying
                         }
                     }
                 }
-                Log::info("[completeInsertAfterBuying] childData" . json_encode($childData));
-                Log::info("[completeInsertAfterBuying] data" . json_encode($data));
+                //Log::info("[completeInsertAfterBuying] childData" . json_encode($childData));
+                //Log::info("[completeInsertAfterBuying] data" . json_encode($data));
                 UserProduct::insert($childData);
                 UserVideoSession::insert($data);
             }
         }
-        Log::info("[completeInsertAfterBuying] last_data" . json_encode($data));
+       // Log::info("[completeInsertAfterBuying] last_data" . json_encode($data));
         UserVideoSession::insert($data);
     }
 }

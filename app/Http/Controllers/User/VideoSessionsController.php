@@ -40,7 +40,7 @@ class VideoSessionsController extends Controller
                     });
                 })->orWhere(function ($q) use ($whiteListed) {
                     $q->where('price', null)->whereHas('videoSession', function ($q2)  use ($whiteListed) {
-                        $q2->where('price', 0)->where('is_deleted', false);
+                        $q2->where('price', 0)->where('show_in_zero_price',1)->where('is_deleted', false);
                         if (!$whiteListed)
                             $q2 = $q2->where('start_date', '>=', env('USER_PRODUCT_DATE'));
                     });
