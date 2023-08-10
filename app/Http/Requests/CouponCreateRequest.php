@@ -39,6 +39,7 @@ class CouponCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 })
             ],
+            'count' => 'nullable|integer'
         ];
     }
      /**

@@ -21,21 +21,24 @@ class ProductOfUserResource extends JsonResource
     {
         $files = [];
         $arrOfBoughtProducts = [];
-        if($this->resource != null){
-            if($this->productFiles){
-                foreach($this->productFiles as $file){
-                   if($file->file != null){
+        if ($this->resource != null) {
+            if ($this->productFiles) {
+                foreach ($this->productFiles as $file) {
+                    if ($file->file != null) {
                         $files[] = new FileResource($file->file);
-                   }
+                    }
                 }
             }
-            if($this->userProducts != null){
-                foreach($this->userProducts as $product) { 
-                    if($product->user && ($product->created_at >= env('USER_PRODUCT_DATE') )) {
-                        if($product->user->id == Auth::user()->id) {
+            if ($this->userProducts != null) {
+                foreach ($this->userProducts as $product) {
+
+                    if ($product->user) {
+                        $user_phone = $product->user->email;
+                        $whiteListed = in_array($user_phone, explode(",", env('EXECPTIONAL_USER')));
+                        if (($whiteListed || ($product->created_at >= env('USER_PRODUCT_DATE'))) && ($product->user->id == Auth::user()->id)) {
                             $arrOfBoughtProducts[] = new ProductOfUserResource($product);
                         }
-                    } 
+                    }
                 }
             }
 

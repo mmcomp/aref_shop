@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\User;
+
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\GetInfoOfAnOrderResource;
 use App\Http\Resources\User\OrderForShowFactorsCollection;
@@ -18,6 +19,7 @@ use App\Http\Resources\User\ProductForSingleSessionsCollection;
 use App\Utils\TheDate;
 use App\Utils\GetNameOfSessions;
 use Illuminate\Support\Facades\Auth;
+use Log;
 
 class OrderController extends Controller
 {
@@ -56,7 +58,7 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $orders = Order::where(function($q){
+        $orders = Order::where(function ($q) {
             return $q->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->where('users_id', $user_id)->orderBy('id', 'desc')->get();
         return (new OrderForShowFactorsCollection($orders))->additional([
@@ -71,22 +73,27 @@ class OrderController extends Controller
     public function singleSessionsOfAuthUser()
     {
         $user_id = Auth::user()->id;
+        $user_phone = Auth::user()->email;
+        $whiteListed = in_array($user_phone, explode(",", env('EXECPTIONAL_USER')));
+
         $orderVideoDetailsArr = [];
+        $availableProducts = UserProduct::where('users_id', $user_id)->where('partial', 1)->pluck('products_id');
         $orderVideoDetails = OrderVideoDetail::whereHas('orderDetail', function ($query) {
             $query->where('all_videos_buy', 0);
         })->whereHas('orderDetail.order', function ($query) use ($user_id) {
-            $query->where(function($q){
+            $query->where(function ($q) {
                 return $q->where('status', 'ok')->orWhere('status', 'manual_ok');
             })->where('users_id', $user_id);
-        })->whereHas('orderDetail.product', function ($query) {
-            $query->where('type', 'video');
+        })->whereHas('orderDetail.product', function ($query) use ($availableProducts) {
+            $query->where('type', 'video')->whereIn('id', $availableProducts);
         })->get();
 
         foreach ($orderVideoDetails as $orderVideoDetail) {
-            $product_detail_video = ProductDetailVideo::where('is_deleted', false)
-            ->where('created_at','>=',env('USER_PRODUCT_DATE'))
-            ->find($orderVideoDetail->product_details_videos_id);
-            if(!$product_detail_video) continue;
+            $product_detail_video = ProductDetailVideo::where('is_deleted', false);
+            if (!$whiteListed)
+                $product_detail_video = $product_detail_video->where('created_at', '>=', env('USER_PRODUCT_DATE'));
+            $product_detail_video = $product_detail_video->find($orderVideoDetail->product_details_videos_id);
+            if (!$product_detail_video) continue;
             $found_user_videoSession = UserVideoSession::where('users_id', $user_id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
             $price = $product_detail_video->price != null ? $product_detail_video->price : $product_detail_video->videoSession->price;
             $checkPriceAndUserVideoSession = (!$price || $found_user_videoSession);
@@ -106,12 +113,15 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $user_video_products = UserProduct::where('users_id', $user_id) 
-        ->where('created_at','>=',env('USER_PRODUCT_DATE'))      
-        ->where('partial', 0)
-        ->whereHas('product', function ($query) {
-            $query->where('type', 'video');
-        })->pluck('products_id')->toArray();
+        $user_phone = Auth::user()->email;
+        $whiteListed = in_array($user_phone, explode(",", env('EXECPTIONAL_USER')));
+        $user_video_products = UserProduct::where('users_id', $user_id);
+        if (!$whiteListed)
+            $user_video_products = $user_video_products->where('created_at', '>=', env('USER_PRODUCT_DATE'));
+        $user_video_products = $user_video_products->where('partial', 0)
+            ->whereHas('product', function ($query) {
+                $query->where('type', 'video');
+            })->pluck('products_id')->toArray();
         // $user_package_products = UserProduct::where('users_id', $user_id)->where('partial', 0)->whereHas('product', function ($query) {
         //     $query->where('type', 'package');
         // })->get();
@@ -123,9 +133,9 @@ class OrderController extends Controller
         // }
         $needed_product_ids = array_values(array_unique(array_merge($package_child_products, $user_video_products)));
         $products = Product::where('is_deleted', false)
-        ->whereIn('id', $needed_product_ids)
-        //->where('order_date','>=' , env('ORDER_DATE'))    
-        ->get();
+            ->whereIn('id', $needed_product_ids)
+            //->where('order_date','>=' , env('ORDER_DATE'))    
+            ->get();
         return (new ProductForSingleSessionsCollection($products))->additional([
             'error' => null,
         ])->response()->setStatusCode(200);
@@ -169,34 +179,33 @@ class OrderController extends Controller
         foreach ($video_sessions_arr as $item) {
             $video_sessions_id_arr[] = $item->id;
         }
-        for($i = 0; $i < count($free_sessions); $i++) {
-           
+        for ($i = 0; $i < count($free_sessions); $i++) {
+
             $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
-            for($j = 0; $j < count($output); $j++) {
-                if($output[$j]->id == $free_sessions[$i]->id) {
+            for ($j = 0; $j < count($output); $j++) {
+                if ($output[$j]->id == $free_sessions[$i]->id) {
                     $free_sessions[$i] = $output[$j];
                 }
-            }            
+            }
         }
         $product_detail_videos = ProductDetailVideo::where('is_deleted', false)
-        ->whereIn('products_id', $user_products )
-        ->whereIn('video_sessions_id', $video_sessions_id_arr)
-        ->with(["product" => function($query){
-            $query->where("id",'>',0);
-        }])->whereHas('product')       
-        ->get();       
-        for($i = 0; $i < count($product_detail_videos); $i++) {
-            
+            ->whereIn('products_id', $user_products)
+            ->whereIn('video_sessions_id', $video_sessions_id_arr)
+            ->with(["product" => function ($query) {
+                $query->where("id", '>', 0);
+            }])->whereHas('product')
+            ->get();
+        for ($i = 0; $i < count($product_detail_videos); $i++) {
+
             $output = $getNameOfSessions->getProductDetailVideos($product_detail_videos[$i]->product, Auth::user()->id);
-            
-            for($j = 0; $j < count($output); $j++) {
-                if($output[$j]->id == $product_detail_videos[$i]->id) {
+
+            for ($j = 0; $j < count($output); $j++) {
+                if ($output[$j]->id == $product_detail_videos[$i]->id) {
                     $product_detail_videos[$i] = $output[$j];
                 }
-            }        
-           
-        }       
-        $merged = $product_detail_videos->merge($free_sessions);     
+            }
+        }
+        $merged = $product_detail_videos->merge($free_sessions);
         return ((new ProductDetailVideosForShowingToStudentsCollection($merged))->foo($saturday_and_friday))->additional([
             'errors' => null,
             'saturday' => $saturday_and_friday['saturday'],
@@ -213,7 +222,7 @@ class OrderController extends Controller
     {
 
         $user_id = Auth::user()->id;
-        $order = Order::where('id', $id)->where(function($q){
+        $order = Order::where('id', $id)->where(function ($q) {
             return $q->where('status', 'ok')->orWhere('status', 'manual_ok');
         })->first();
         return (new OrderResource($order))->additional([

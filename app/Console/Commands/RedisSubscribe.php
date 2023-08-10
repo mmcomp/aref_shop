@@ -44,18 +44,19 @@ class RedisSubscribe extends Command
     public function handle()
     {
         $client = new Client();
-        Redis::subscribe([env('REDIS_CHAT_CHANEL','chat-channel')], function ($message) use ($client) {
+        Redis::subscribe([env('REDIS_CHAT_CHANEL', 'chat-channel')], function ($message) use ($client) {
             Log::info("message recieved " . $message);
             $chatData = json_decode($message);
-            $values = $client->hgetall(env('REDIS_PREFIX', 'aref_shop_') . 'user');
-            $userId = 0;
-            foreach ($values as $user_id => $token) {
-                if ($token == $chatData->Token) {
-                    $userId = $user_id;
-                }
+            $keys = $client->keys(env('REDIS_PREFIX', 'aref_shop_') . 'user_*');
+            Log::info("keys :" . var_export($keys, true));
+            $tokens = [];
+            foreach($keys as $key) {
+                $token = $client->get($key);
+                $tokens[$token] = str_replace(env('REDIS_PREFIX', 'aref_shop_') . 'user_', "", $key);
             }
+
             ChatMessage::create([
-                'users_id' => $userId,
+                'users_id' => $tokens[$chatData->Token],
                 'ip_address' => "",
                 'video_sessions_id' => $chatData->Data->video_session_id,
                 'message' => $chatData->Data->msg

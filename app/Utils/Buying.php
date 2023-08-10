@@ -8,6 +8,7 @@ use App\Models\UserVideoSession;
 use App\Models\ProductDetailVideo;
 use App\Models\ProductDetailPackage;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 
 class Buying
 {
@@ -29,7 +30,7 @@ class Buying
                 //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy])
                 //     :
                 //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
-            } 
+            }
             if ($orderDetail->product->type == 'video') {
                 if (!$found_user_product) {
                     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
@@ -46,28 +47,33 @@ class Buying
                         }
                     }
                 }
+                $now = date("Y-m-d H:i:s");
                 foreach ($videoSessionIds as $videoSessionId) {
                     $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
                     if (!$found_user_video_session) {
                         $data[] = [
                             "video_sessions_id" => $videoSessionId,
-                            "users_id" => $user
+                            "users_id" => $user,
+                            'created_at' => $now,
+                            'updated_at' => $now
                         ];
                     }
                 }
+                Log::info("[completeInsertAfterBuying] orderDetail" . json_encode($orderDetail));
+                Log::info("[completeInsertAfterBuying] videoSessionIds" . json_encode($videoSessionIds));
             }
             if ($orderDetail->product->type == 'package') {
                 //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
                 $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
                 // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
-                
+
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
-                foreach ($child_products as $child_product) {                   
+                Log::info("[completeInsertAfterBuying] child_products" . json_encode($child_products));
+                foreach ($child_products as $child_product) {
                     //$child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
-                    $tmp = ProductDetailPackage::where("id", $child_product)->first();                  
-                    if(!$tmp)
-                    {
+                    $tmp = ProductDetailPackage::where("id", $child_product)->first();
+                    if (!$tmp) {
                         continue;
                     }
                     $childData[] = [
@@ -77,7 +83,7 @@ class Buying
                         'updated_at' => $now
                     ];
 
-                    $p = Product::where('is_deleted', false)->where('id', $tmp->child_products_id/* $child_product*/)->first();                   
+                    $p = Product::where('is_deleted', false)->where('id', $tmp->child_products_id/* $child_product*/)->first();
                     if ($p->type == 'video') {
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
 
@@ -95,10 +101,13 @@ class Buying
                         }
                     }
                 }
+                Log::info("[completeInsertAfterBuying] childData" . json_encode($childData));
+                Log::info("[completeInsertAfterBuying] data" . json_encode($data));
                 UserProduct::insert($childData);
                 UserVideoSession::insert($data);
             }
         }
+        Log::info("[completeInsertAfterBuying] last_data" . json_encode($data));
         UserVideoSession::insert($data);
     }
 }

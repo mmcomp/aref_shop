@@ -16,6 +16,8 @@ use App\Utils\GetNameOfSessions;
 use App\Utils\RaiseError;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\Refund;
 use App\Models\ProductDetailChair;
 use App\Models\ProductDetailPackage;
 
@@ -26,6 +28,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use DB;
+use Log;
 
 class ProductController extends Controller
 {
@@ -224,21 +227,49 @@ class ProductController extends Controller
 
     public static function _GetListOfReservedChairs($product_id)
     {
+        // $product_tmp=Product::where('id',$product_id)->first();
+        // $order_ids_exist=OrderDetail::where('products_id',$product_id)->pluck('orders_id');
+        // if($product_tmp->type==="chair"){
+        //     $already_canceled=Refund::where('products_id',$product_id)
+        //     ->where('is_deleted',0)
+        //     ->whereNotIn('orders_id',$order_ids_exist)
+        //     ->pluck('id');
+        // }
+       
+
+        // $result=OrderDetail::where('products_id',$product_id)
+        // ->with('orderChairDetails')                
+        // ->get()
+        // ->map(function ($item, $key) {
+        //     return $item->orderChairDetails
+        //     ->map(function ($itemChairDetails, $keyChairDetails) {
+        //         return $itemChairDetails->chair_number;
+        //     });
+        // })
+        // ->flatten()
+        // ->sort();
+        //->toArray();            
+        
+       
+        
         $result = DB::table('products')
             ->leftjoin('order_details','products.id','=','order_details.products_id')
             ->leftjoin('orders','orders.id','=','order_details.orders_id')
             ->leftjoin('order_chair_details','order_chair_details.order_details_id','=','order_details.id')
-            ->select('chair_number') 
+            //->select('chair_number') 
             ->where('products.id',$product_id)
             ->whereIn('orders.status',['ok', 'processing'])
             ->orderby('chair_number')
-            ->get()        
+            ->get()       
             ->filter(function ($item, $key) {
                 return $item->chair_number;
             })
             ->map(function ($item, $key) {
                 return $item->chair_number;
             });
+
+            
+        Log::info(json_encode($result)); 
 
         return $result;
     }

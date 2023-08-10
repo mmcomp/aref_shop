@@ -233,6 +233,7 @@ Route::group([
 ], function ($router) {
     Route::get('/', [CouponController::class, 'index']);
     Route::post('/add', [CouponController::class, 'store']);
+    Route::post('/customized-add', [CouponController::class, 'customized_store']);
     Route::get('/show/{id}', [CouponController::class, 'show']);
     Route::put('/edit/{id}', [CouponController::class, 'update']);
     Route::delete('/{id}', [CouponController::class, 'destroy']);
