@@ -29,6 +29,7 @@ use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\UserVideoSessionPresentController;
 use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
+use App\Http\Controllers\ReadingStationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +82,16 @@ Route::group([
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
     Route::get('/search', [UserController::class, 'search']);
    // Route::post('/block', [UserController::class, 'block']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-stations',
+
+], function ($router) {
+    Route::post('/add', [ReadingStationController::class, 'store']);
+    Route::put('/edit', [ReadingStationController::class, 'update']);
+    Route::delete('/delete/{id}', [ReadingStationController::class, 'destroy']);
+    Route::get('/', [ReadingStationController::class, 'index']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],
@@ -378,4 +389,3 @@ Route::group([
    Route::delete('/team-mobile/{teamUserMemberId}',[ShowAllTeamUserController::class, 'deleteTeamMember']);  
    Route::delete('/{teamUserId}',[ShowAllTeamUserController::class, 'deleteTeam']);  
 });
-

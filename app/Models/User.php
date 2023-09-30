@@ -30,7 +30,14 @@ class User extends Authenticatable implements JWTSubject
         'address',
         'postall',
         'cities_id',
-        'groups_id'
+        'groups_id',
+        'national_code',
+        'gender',
+        'home_tell',
+        'father_tell',
+        'mother_tell',
+        'grade',
+        'description'
     ];
     protected $hidden=[
         'pass_txt',

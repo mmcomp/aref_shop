@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Database\Seeders\GroupGatesSeeder;
-use Database\Seeders\UserSeeder;
+use Database\Seeders\UsersSeeder;
 use Database\Seeders\GroupsSeeder;
 use Database\Seeders\CitiesSeeder;
 use Database\Seeders\ProvincesSeeder;
@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         foreach($this->toTruncate as $table) {
             DB::table($table)->truncate();
         }
+        $this->call(UsersSeeder::class);
         $this->call(GroupGatesSeeder::class);
         $this->call(GroupsSeeder::class);
         $this->call(GroupMenusSeeder::class);

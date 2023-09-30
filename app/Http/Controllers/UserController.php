@@ -102,7 +102,6 @@ class UserController extends Controller
      */
     public function update(UserEditRequest $request)
     {
-
         $user = User::where('id', $request->id)->first();
         if ($user != null) {
             $user->first_name = $request->first_name;
@@ -117,6 +116,13 @@ class UserController extends Controller
             $user->postall = $request->postall;
             $user->cities_id = $request->cities_id;
             $user->groups_id = $request->groups_id;
+            $user->national_code = $request->national_code;
+            $user->gender = $request->gender;
+            $user->home_tell = $request->home_tell;
+            $user->father_cell = $request->father_cell;
+            $user->mother_cell = $request->mother_cell;
+            $user->grade = $request->grade;
+            $user->description = $request->description;
             try {
                 $user->save();
                 return (new UserResource(null))->additional([

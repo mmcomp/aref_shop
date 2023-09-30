@@ -33,6 +33,7 @@ class UserEditRequest extends FormRequest
             'last_name' => 'string|between:2,100',
             'email' => 'string|max:12',
             'password' => 'nullable|string|min:6|confirmed',
+            'gender' => 'nullable|in:male,female',
             'referrer_users_id' => [
                 'nullable',
                 'different:id',
