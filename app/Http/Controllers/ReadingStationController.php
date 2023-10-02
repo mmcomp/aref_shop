@@ -52,18 +52,35 @@ class ReadingStationController extends Controller
 
     function index(UserIndexRequest $request) {
         $sort = "id";
-        $sort_dir = "desc";
+        $sortDir = "desc";
+        $paginatedReadingStations = [];
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
-            $sort_dir = $request->get('sort_dir');
+            $sortDir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $paginated_users = ReadingStation::orderBy($sort, $sort_dir)->get();
-
+            $paginatedReadingStations = ReadingStation::orderBy($sort, $sortDir)->get();
         } else {
-            $paginated_users = ReadingStation::orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
+            $perPage = $request->get('per_page');
+            if (!$perPage) {
+                $perPage = env('PAGE_COUNT');
+            }
+            $paginatedReadingStations = ReadingStation::orderBy($sort, $sortDir)->paginate($perPage);
         }
-        return (new ReadingStationCollection($paginated_users))->additional([
+        return (new ReadingStationCollection($paginatedReadingStations))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function findOne($id)
+    {
+        $found = ReadingStation::where("id", $id)->with('offdays')->first();
+        if (!$found) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station' => ['Reading station not found!']],
+            ])->response()->setStatusCode(404);
+        }
+        return (new ReadingStationResource($found))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

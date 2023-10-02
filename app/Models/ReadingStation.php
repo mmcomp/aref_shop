@@ -12,4 +12,9 @@ class ReadingStation extends Model
     use SoftDeletes;
 
     protected $fillable = ['name', 'table_start_number', 'table_end_number'];
+
+    function offdays()
+    {
+        return $this->hasMany(ReadingStationOffday::class);
+    }
 }

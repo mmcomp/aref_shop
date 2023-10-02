@@ -30,6 +30,7 @@ use App\Http\Controllers\UserVideoSessionPresentController;
 use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
 use App\Http\Controllers\ReadingStationController;
+use App\Http\Controllers\ReadingStationOffdaysController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,10 +89,16 @@ Route::group([
     'prefix' => 'reading-stations',
 
 ], function ($router) {
-    Route::post('/add', [ReadingStationController::class, 'store']);
-    Route::put('/edit', [ReadingStationController::class, 'update']);
-    Route::delete('/delete/{id}', [ReadingStationController::class, 'destroy']);
+    Route::post('/offdays', [ReadingStationOffdaysController::class, 'store']);
+    Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
+    Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
+    
+    Route::post('/', [ReadingStationController::class, 'store']);
+    Route::put('/', [ReadingStationController::class, 'update']);
+    Route::delete('/{id}', [ReadingStationController::class, 'destroy']);
+    Route::get('/{id}', [ReadingStationController::class, 'findOne']);
     Route::get('/', [ReadingStationController::class, 'index']);
+    Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

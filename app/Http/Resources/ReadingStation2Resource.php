@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-class ReadingStationResource extends JsonResource
+class ReadingStation2Resource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -23,7 +23,6 @@ class ReadingStationResource extends JsonResource
                 'name' => $this->name,
                 'table_start_number' => $this->table_start_number,
                 'table_end_number' => $this->table_end_number,
-                'offdays' => new ReadingStationOffdays2Collection($this->offdays),
             ];
         }
     }
