@@ -56,7 +56,7 @@ class Handler extends ExceptionHandler
             return response()->json(['errors' => ['forbidden' => ['Forbidden.']]], 403);
         } else if($exception instanceof NotFoundHttpException) {
             $path = $request->path();
-            if (str_starts_with($path, "api/reading-stations/") && str_ends_with($path, "/offdays")) {
+            if (str_starts_with($path, "api/reading-stations/") && (str_ends_with($path, "/offdays") || str_ends_with($path, "/sluts") || str_ends_with($path, "/users"))) {
                 return (new ReadingStationOffdaysResource(null))->additional([
                     'errors' => ['reading_station' => ['Reading station not found!']],
                 ])->response()->setStatusCode(404);

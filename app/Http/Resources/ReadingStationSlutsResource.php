@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-class ReadingStationOffdaysResource extends JsonResource
+class ReadingStationSlutsResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,7 +20,10 @@ class ReadingStationOffdaysResource extends JsonResource
 
             return [
                 'id' => $this->id,
-                'offday' => $this->offday,
+                'name' => $this->name,
+                'start' => $this->start,
+                'end' => $this->end,
+                'duration' => $this->duration,
                 'readingStation' => new ReadingStation2Resource($this->readingStation),
             ];
         }

@@ -19,7 +19,7 @@ class ReadingStationOffdaysController extends Controller
     function store(ReadingStationOffdaysCreateRequest $request)
     {
         $offday = Carbon::parse($request->offday)->toDateString();
-        $found = ReadingStationOffday::where([["offday", $offday],["reading_station_id", $request->reading_station_id]]);
+        $found = ReadingStationOffday::where([["offday", $offday],["reading_station_id", $request->reading_station_id]])->first();
         if ($found) {
             return (new ReadingStationOffdaysResource(null))->additional([
                 'errors' => ['reading_station_offday' => ['Reading station offday exists!']],

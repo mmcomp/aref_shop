@@ -31,6 +31,8 @@ use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
 use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
+use App\Http\Controllers\ReadingStationSlutsController;
+use App\Http\Controllers\ReadingStationUsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,13 +94,21 @@ Route::group([
     Route::post('/offdays', [ReadingStationOffdaysController::class, 'store']);
     Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
     Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
+
+    Route::get('/sluts', [ReadingStationSlutsController::class, 'index']);
+    Route::post('/sluts', [ReadingStationSlutsController::class, 'store']);
+    Route::delete('/sluts/{id}', [ReadingStationSlutsController::class, 'destroy']);
     
+    Route::get('/users', [ReadingStationUsersController::class, 'index']);
+
     Route::post('/', [ReadingStationController::class, 'store']);
     Route::put('/', [ReadingStationController::class, 'update']);
     Route::delete('/{id}', [ReadingStationController::class, 'destroy']);
     Route::get('/{id}', [ReadingStationController::class, 'findOne']);
     Route::get('/', [ReadingStationController::class, 'index']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
+    Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
+    Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-class ReadingStationOffdaysResource extends JsonResource
+class ReadingStationUsersResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,7 +20,8 @@ class ReadingStationOffdaysResource extends JsonResource
 
             return [
                 'id' => $this->id,
-                'offday' => $this->offday,
+                'table_number' => $this->table_number,
+                'user'=> new UserResource($this->user),
                 'readingStation' => new ReadingStation2Resource($this->readingStation),
             ];
         }

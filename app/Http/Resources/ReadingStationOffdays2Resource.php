@@ -19,6 +19,7 @@ class ReadingStationOffdays2Resource extends JsonResource
         if ($this->resource != null) {
 
             return [
+                'id' => $this->id,
                 'offday' => $this->offday,
             ];
         }

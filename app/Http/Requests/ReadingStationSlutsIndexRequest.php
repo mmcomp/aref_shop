@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ReadingStationOffdaysCreateRequest extends FormRequest
+class ReadingStationSlutsIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +26,9 @@ class ReadingStationOffdaysCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'reading_station_id' => 'required|exists:reading_stations,id',
-            'offday' => 'required|date_format:Y-m-d',
+            'sort' => 'required_with:type|in:id,name,start,end,duration',
+            'sort_dir' => 'required_with:sort|in:asc,desc',
+            'per_page' => 'string|max:255'
         ];
     }
      /**

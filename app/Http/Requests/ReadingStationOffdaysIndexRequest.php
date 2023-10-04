@@ -26,7 +26,7 @@ class ReadingStationOffdaysIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'sort' => 'required_with:type|in:id,email,first_name,last_name,referrer_users_id,address,postall,cities_id,groups_id',
+            'sort' => 'required_with:type|in:id,offday',
             'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255'
         ];

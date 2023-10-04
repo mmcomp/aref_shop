@@ -30,7 +30,8 @@ class UserResource extends JsonResource
                 'city' => new CityResource($this->city),
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-                'group' => new GroupResource($this->group)
+                'group' => new GroupResource($this->group),
+                'readingStationUser' => new ReadingStationUsers3Resource($this->readingStationUser),
             ];
         }
     }

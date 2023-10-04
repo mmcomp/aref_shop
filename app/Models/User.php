@@ -128,4 +128,8 @@ class User extends Authenticatable implements JWTSubject
         return $menus;
     }
     
+    function readingStationUser()
+    {
+        return $this->hasOne(ReadingStationUser::class);
+    }
 }
