@@ -75,6 +75,12 @@ class ReadingStationUsersController extends Controller
      */
     public function store(ReadingStationCreateUserRequest $request, User $user)
     {
+        $readingStation = ReadingStation::find($request->reading_station_id);
+        if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station table does not exist!']],
+            ])->response()->setStatusCode(400);
+        }
         $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->first();
         if ($found) {
             return (new ReadingStationUsersResource(null))->additional([
@@ -121,6 +127,12 @@ class ReadingStationUsersController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(201);
         }
+        $readingStation = ReadingStation::find($request->reading_station_id);
+        if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station table does not exist!']],
+            ])->response()->setStatusCode(400);
+        }
         if ($request->table_number !== null) {
             $foundTable = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("table_number", $request->table_number)->first();
             if ($foundTable) {
@@ -154,6 +166,11 @@ class ReadingStationUsersController extends Controller
     public function destroy(User $user, $id)
     {
         $found = ReadingStationUser::find($id);
+        if (!$found) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user not found!']],
+            ])->response()->setStatusCode(404);
+        }
         if ($found->user_id !== $user->id) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user table is not for this user!']],

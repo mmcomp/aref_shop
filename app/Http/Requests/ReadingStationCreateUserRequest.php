@@ -27,7 +27,7 @@ class ReadingStationCreateUserRequest extends FormRequest
     {
         return [
             'reading_station_id' => 'required|exists:reading_stations,id',
-            'table_number' => 'nullable|int|between:1,200',
+            'table_number' => 'nullable|int|between:1,1000',
         ];
     }
      /**

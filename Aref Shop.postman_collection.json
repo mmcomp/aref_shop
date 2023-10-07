@@ -374,18 +374,18 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/users/10/reading-station",
+											"raw": "{{base_url}}/api/users/1/reading-station",
 											"host": [
 												"{{base_url}}"
 											],
 											"path": [
 												"api",
 												"users",
-												"10",
+												"1",
 												"reading-station"
 											]
 										},
-										"description": "Errors\n\n-The selected reading station id is invalid.\n-The table number must be between 1 and 200."
+										"description": "### Errors\n\n- Reading station table does not exist!\n- The table number must be between 1 and 200.\n- The selected reading station id is invalid.\n- Reading station user exists!\n- User not found!"
 									},
 									"response": []
 								},
@@ -414,7 +414,8 @@
 												"1",
 												"reading-station"
 											]
-										}
+										},
+										"description": "### Errors\n\n- The selected id is invalid."
 									},
 									"response": []
 								},
@@ -435,7 +436,8 @@
 												"reading-station",
 												"3"
 											]
-										}
+										},
+										"description": "### Errors\n\n- Reading station user not found!"
 									},
 									"response": []
 								}
@@ -531,7 +533,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n\"id\": 1,\n\"address\": \"خ امام رضا ۵۵\",\n\"cities_id\": null,\n\"email\": \"09153254679\",\n\"first_name\": \"saied\",\n\"groups_id\": 1,\n\"last_name\": \"بانویی\",\n\"postall\": \"\",\n// \"referrer_users_id\": 19,\n\"national_code\": \"0938926374\",\n\"gender\": \"male\",\n\"home_tell\":\"05137632480\",\n\"father_cell\":\"09155193104\",\n\"mother_cell\":\"09155193105\",\n\"description\":\"09155193106\",\n\"grade\":7\n}",
+									"raw": "{\n    \"id\": 1,\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09153254679\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    // \"referrer_users_id\": 19,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4784,7 +4786,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"a3\",\n    \"table_start_number\": 10,\n    \"table_end_number\": 50\n}",
+									"raw": "{\n    \"name\": \"a0\",\n    \"table_start_number\": 1,\n    \"table_end_number\": 10\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4800,7 +4802,8 @@
 										"api",
 										"reading-stations"
 									]
-								}
+								},
+								"description": "### Errors\n\n- The name must be between 2 and 100 characters.\n- The table start number must be between 1 and 1000.\n    \n- The table end number must be between 1 and 1000.\n    \n- Reading station start table number should be less or equal end table number!"
 							},
 							"response": []
 						},
@@ -4827,7 +4830,8 @@
 										"api",
 										"reading-stations"
 									]
-								}
+								},
+								"description": "### Errors\n\n- Reading station not found!"
 							},
 							"response": []
 						},
@@ -4896,6 +4900,130 @@
 											"value": "1",
 											"disabled": true
 										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Reading Station Packages",
+					"item": [
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"a0\",\n    \"required_time\": 1,\n    \"optional_time\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-packages",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-packages"
+									]
+								},
+								"description": "### Errors\n\n- The required time field is required.\n- The optional time field is required.\n- The name field is required.\n    \n- Reading station package with this name exists!"
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 1,\n    \"name\": \"a1\",\n    \"required_time\": 1,\n    \"optional_time\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-packages",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-packages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-packages/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-packages",
+										"1"
+									]
+								},
+								"description": "### Errors\n\n- Reading Station Package not found!"
+							},
+							"response": []
+						},
+						{
+							"name": "All",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-packages",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-packages"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Load One",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-packages/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-packages",
+										"1"
 									]
 								}
 							},

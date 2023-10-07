@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReadingStationCreateRequest;
 use App\Http\Requests\ReadingStationUpdateRequest;
 use App\Http\Requests\UserIndexRequest;
+use App\Http\Resources\ReadingStation2Collection;
 use App\Http\Resources\ReadingStationCollection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
@@ -13,6 +14,11 @@ class ReadingStationController extends Controller
 {
     function store(ReadingStationCreateRequest $request)
     {
+        if ($request->table_start_number > $request->table_end_number) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station' => ['Reading station start table number should be less or equal end table number!']],
+            ])->response()->setStatusCode(400);
+        }
         ReadingStation::create(["name" => $request->name, "table_start_number" => $request->table_start_number, "table_end_number" => $request->table_end_number]);
         return (new ReadingStationResource(null))->additional([
             'errors' => null,
@@ -26,6 +32,11 @@ class ReadingStationController extends Controller
             return (new ReadingStationResource(null))->additional([
                 'errors' => ['reading_station' => ['Reading station not found!']],
             ])->response()->setStatusCode(404);
+        }
+        if ($request->table_start_number > $request->table_end_number) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station' => ['Reading station start table number should be less or equal end table number!']],
+            ])->response()->setStatusCode(400);
         }
         if ($request->name) {
             $readingStation->name = $request->name;
@@ -44,7 +55,13 @@ class ReadingStationController extends Controller
 
     public function destroy($id)
     {
-        ReadingStation::find($id)->delete();
+        $readingStation = ReadingStation::find($id);
+        if (!$readingStation) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station' => ['Reading station not found!']],
+            ])->response()->setStatusCode(404);
+        }
+        $readingStation->delete();
         return (new ReadingStationResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(204);
@@ -67,14 +84,14 @@ class ReadingStationController extends Controller
             }
             $paginatedReadingStations = ReadingStation::orderBy($sort, $sortDir)->paginate($perPage);
         }
-        return (new ReadingStationCollection($paginatedReadingStations))->additional([
+        return (new ReadingStation2Collection($paginatedReadingStations))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
 
     public function findOne($id)
     {
-        $found = ReadingStation::where("id", $id)->with('offdays')->first();
+        $found = ReadingStation::where("id", $id)->first();
         if (!$found) {
             return (new ReadingStationResource(null))->additional([
                 'errors' => ['reading_station' => ['Reading station not found!']],

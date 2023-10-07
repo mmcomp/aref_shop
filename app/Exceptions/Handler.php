@@ -66,6 +66,11 @@ class Handler extends ExceptionHandler
                     'errors' => ['users' => ['User not found!']],
                 ])->response()->setStatusCode(404);
             }
+            if (str_starts_with($path, "api/reading-station-packages/")) {
+                return (new ReadingStationOffdaysResource(null))->additional([
+                    'errors' => ['reading_station_packages' => ['Reading Station Package not found!']],
+                ])->response()->setStatusCode(404);
+            }
             return response()->json(['errors' => ['not_found' => ['Not Found.']]], 404);
         } else if($exception instanceof MethodNotAllowedHttpException) {
             return response()->json(['errors' => ['not_allowed' => ['Method Not allowed']]], 405);

@@ -17,4 +17,14 @@ class ReadingStation extends Model
     {
         return $this->hasMany(ReadingStationOffday::class);
     }
+
+    function sluts()
+    {
+        return $this->hasMany(ReadingStationSlut::class);
+    }
+
+    function users()
+    {
+        return $this->hasMany(ReadingStationUser::class);
+    }
 }

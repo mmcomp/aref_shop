@@ -31,8 +31,10 @@ use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
 use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
+use App\Http\Controllers\ReadingStationPackageController;
 use App\Http\Controllers\ReadingStationSlutsController;
 use App\Http\Controllers\ReadingStationUsersController;
+use App\Models\ReadingStationPackage;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,6 +114,17 @@ Route::group([
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
     Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-packages',
+
+], function ($router) {
+    Route::post('/', [ReadingStationPackageController::class, 'store']);
+    Route::put('/', [ReadingStationPackageController::class, 'update']);
+    Route::delete('/{readingStationPackage}', [ReadingStationPackageController::class, 'destroy']);
+    Route::get('/', [ReadingStationPackageController::class, 'index']);
+    Route::get('/{readingStationPackage}', [ReadingStationPackageController::class, 'findOne']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

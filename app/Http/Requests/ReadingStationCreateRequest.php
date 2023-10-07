@@ -29,8 +29,8 @@ class ReadingStationCreateRequest extends FormRequest
     {
         return [
             'name' => 'string|between:2,100',
-            'table_start_number' => 'int|between:1,200',
-            'table_end_number' => 'int|between:1,200',
+            'table_start_number' => 'int|between:1,1000',
+            'table_end_number' => 'int|between:1,1000',
         ];
     }
      /**
