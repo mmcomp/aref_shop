@@ -68,7 +68,7 @@ Route::group([
     Route::get('/synchronize', [AuthController::class, 'synchronizeUsers']);
 });
 Route::group([
-    'middleware' => ['auth:api', 'can:user'],
+'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'users',
 
 ], function ($router) {
@@ -85,6 +85,9 @@ Route::group([
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
     Route::get('/search', [UserController::class, 'search']);
    // Route::post('/block', [UserController::class, 'block']);
+    Route::post('/{user}/reading-station', [ReadingStationUsersController::class, 'store']);
+    Route::put('/{user}/reading-station', [ReadingStationUsersController::class, 'update']);
+    Route::delete('/{user}/reading-station/{id}', [ReadingStationUsersController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

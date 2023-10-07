@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReadingStationCreateUserRequest;
+use App\Http\Requests\ReadingStationUpdateUserRequest;
 use App\Http\Requests\ReadingStationUsersIndexRequest;
 use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\ReadingStationUsers2Collection;
 use App\Http\Resources\ReadingStationUsersCollection;
+use App\Http\Resources\ReadingStationUsersResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ReadingStationUsersController extends Controller
@@ -17,7 +21,8 @@ class ReadingStationUsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(UserIndexRequest $request) {
+    public function index(UserIndexRequest $request)
+    {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = [];
@@ -40,7 +45,7 @@ class ReadingStationUsersController extends Controller
     }
 
     function oneIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
-    {      
+    {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
@@ -59,17 +64,7 @@ class ReadingStationUsersController extends Controller
         }
         return (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
-        ])->response()->setStatusCode(200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -78,31 +73,32 @@ class ReadingStationUsersController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ReadingStationCreateUserRequest $request, User $user)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->first();
+        if ($found) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user exists!']],
+            ])->response()->setStatusCode(400);
+        }
+        if ($request->table_number !== null) {
+            $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("table_number", $request->table_number)->first();
+            if ($found) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station user table is occupied!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+        ReadingStationUser::create([
+            "reading_station_id" => $request->reading_station_id,
+            "user_id" => $user->id,
+            "table_number" => $request->table_number,
+        ]);
+        $user->is_reading_station_user = true;
+        $user->save();
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -112,9 +108,41 @@ class ReadingStationUsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ReadingStationUpdateUserRequest $request, User $user)
     {
-        //
+        $found = ReadingStationUser::find($request->id);
+        if (
+            $found->table_number === $request->table_number &&
+            $found->reading_station_id === $request->reading_station_id &&
+            $found->user_id === $user->id
+        ) {
+            // no changes
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(201);
+        }
+        if ($request->table_number !== null) {
+            $foundTable = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("table_number", $request->table_number)->first();
+            if ($foundTable) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station user table is occupied!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+        if ($found->user_id !== $user->id) {
+            // change user
+            $user->is_reading_station_user = true;
+            $user->save();
+            $oldUser = User::find($found->user_id);
+            $oldUser->is_reading_station_user = false;
+            $user->save();
+        }
+        $found->table_number = $request->table_number;
+        $found->user_id = $user->id;
+        $found->save();
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -123,8 +151,17 @@ class ReadingStationUsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user, $id)
     {
-        //
+        $found = ReadingStationUser::find($id);
+        if ($found->user_id !== $user->id) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user table is not for this user!']],
+            ])->response()->setStatusCode(400);
+        }
+        $found->delete();
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 }
