@@ -384,7 +384,8 @@
 												"10",
 												"reading-station"
 											]
-										}
+										},
+										"description": "Errors\n\n-The selected reading station id is invalid.\n-The table number must be between 1 and 200."
 									},
 									"response": []
 								},
