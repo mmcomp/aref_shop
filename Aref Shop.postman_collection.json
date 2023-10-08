@@ -366,7 +366,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"reading_station_id\":1,\n    \"table_number\":1\n}",
+											"raw": "{\n    \"reading_station_id\":1,\n    \"table_number\":2,\n    \"default_package_id\": 1,\n    \"start_date\": \"2023-12-12\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -374,18 +374,18 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station",
+											"raw": "{{base_url}}/api/users/2/reading-station",
 											"host": [
 												"{{base_url}}"
 											],
 											"path": [
 												"api",
 												"users",
-												"1",
+												"2",
 												"reading-station"
 											]
 										},
-										"description": "### Errors\n\n- Reading station table does not exist!\n- The table number must be between 1 and 200.\n- The selected reading station id is invalid.\n- Reading station user exists!\n- User not found!"
+										"description": "### Errors\n\n- Reading station table does not exist!\n- The table number must be between 1 and 200.\n- The selected reading station id is invalid.\n- Reading station user exists!\n- User not found!\n- The default package id field is required.\n- The start date field is required.\n    \n- Reading station user start date should be in the future!"
 									},
 									"response": []
 								},
@@ -504,6 +504,34 @@
 										"add"
 									]
 								}
+							},
+							"response": []
+						},
+						{
+							"name": "Full Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09155193104\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    \"password\": \"123456\",\n    \"password_confirmation\": \"123456\",\n    \"referrer_users_id\": 1,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/users",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users"
+									]
+								},
+								"description": "### Errors\n\n- User with this email exists!"
 							},
 							"response": []
 						},
@@ -5030,6 +5058,131 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Reading Station Strikes",
+					"item": [
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"a01\",\n    \"score\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-strikes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-strikes"
+									]
+								},
+								"description": "### Errors\n\n- The name must be at least 3 characters.\n    \n- The score must be at least 1."
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 1,\n    \"name\": \"a12\",\n    \"score\": 3\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-strikes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-strikes"
+									]
+								},
+								"description": "### Errors\n\n- Reading Station Strike not found!\n    \n- The selected id is invalid."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-strikes/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-strikes",
+										"1"
+									]
+								},
+								"description": "### Errors\n\n- Reading Station Package not found!"
+							},
+							"response": []
+						},
+						{
+							"name": "All",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-strikes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-strikes"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Load One",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-strikes/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-strikes",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -8001,7 +8154,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTY2NjQ2NTEsImV4cCI6MTY5Njc1MTA1MSwibmJmIjoxNjk2NjY0NjUxLCJqdGkiOiJKVHdvSTVYQ1o1dlp6Z0VvIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.X4dgeqiYpNEhvsUfBW3FXxr4zYBYLCEA4syR-72pO_0",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTY3NTEwNjUsImV4cCI6MTY5NjgzNzQ2NSwibmJmIjoxNjk2NzUxMDY1LCJqdGkiOiI0S1B0bVlLelRsRDQzSDFFIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.97Wy4lYEbo5cQIcqbOQI9CIw1kceFyHDs4q1vUpRWOk",
 				"type": "string"
 			}
 		]
