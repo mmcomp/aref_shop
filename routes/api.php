@@ -33,6 +33,7 @@ use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
 use App\Http\Controllers\ReadingStationPackageController;
 use App\Http\Controllers\ReadingStationSlutsController;
+use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
 use App\Models\ReadingStationPackage;
 
@@ -75,6 +76,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [UserController::class, 'index']);
+    Route::post('/', [UserController::class, 'fullStore']);
     Route::get('/block/{id}', [UserController::class, 'userBlock']);
     Route::get('/unblock/{id}', [UserController::class, 'userUnblock']);
     Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);    
@@ -125,6 +127,17 @@ Route::group([
     Route::delete('/{readingStationPackage}', [ReadingStationPackageController::class, 'destroy']);
     Route::get('/', [ReadingStationPackageController::class, 'index']);
     Route::get('/{readingStationPackage}', [ReadingStationPackageController::class, 'findOne']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-strikes',
+
+], function ($router) {
+    Route::post('/', [ReadingStationStrikeController::class, 'store']);
+    Route::put('/', [ReadingStationStrikeController::class, 'update']);
+    Route::delete('/{readingStationStrike}', [ReadingStationStrikeController::class, 'destroy']);
+    Route::get('/', [ReadingStationStrikeController::class, 'index']);
+    Route::get('/{readingStationStrike}', [ReadingStationStrikeController::class, 'findOne']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

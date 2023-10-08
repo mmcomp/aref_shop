@@ -7,6 +7,7 @@ use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserEditRequest;
+use App\Http\Requests\UserFullCreateRequest;
 use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\UserCollection;
@@ -92,6 +93,40 @@ class UserController extends Controller
         return (new UserResource($user))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+
+    function fullStore(UserFullCreateRequest $request)
+    {
+        $found = User::where("email", $request->email)->first();
+        if ($found) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['User with this email exists!']],
+            ])->response()->setStatusCode(404);
+        }
+        $user = new User;   
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->email = $request->email;
+        if ($request->password) {
+            $user->password = bcrypt($request->password);
+            $user->pass_txt = $request->password;
+        }
+        $user->referrer_users_id = $request->referrer_users_id;
+        $user->address = $request->address;
+        $user->postall = $request->postall;
+        $user->cities_id = $request->cities_id;
+        $user->groups_id = $request->groups_id;
+        $user->national_code = $request->national_code;
+        $user->gender = $request->gender;
+        $user->home_tell = $request->home_tell;
+        $user->father_cell = $request->father_cell;
+        $user->mother_cell = $request->mother_cell;
+        $user->grade = $request->grade;
+        $user->description = $request->description; 
+        $user->save();
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 
     /**

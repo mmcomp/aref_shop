@@ -11,7 +11,7 @@ class ReadingStationUser extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['reading_station_id', 'user_id', 'table_number'];
+    protected $fillable = ['reading_station_id', 'user_id', 'table_number', 'default_package_id'];
 
     function readingStation()
     {
@@ -21,5 +21,11 @@ class ReadingStationUser extends Model
     function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    
+    function package()
+    {
+        return $this->belongsTo(ReadingStationPackage::class, 'default_package_id');
     }
 }

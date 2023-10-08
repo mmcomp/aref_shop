@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationOffdaysCreateRequest;
 use App\Http\Requests\ReadingStationOffdaysIndexRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\ReadingStationOffdays2Collection;
 use App\Http\Resources\ReadingStationOffdaysCollection;
 use App\Http\Resources\ReadingStationOffdaysResource;
-use App\Http\Resources\ReadingStationOffdaysWithParentCollection;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationOffday;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Date;
 
 class ReadingStationOffdaysController extends Controller
 {
@@ -41,7 +38,7 @@ class ReadingStationOffdaysController extends Controller
     }
 
 
-    function index(UserIndexRequest $request) {
+    function index(ReadingStationOffdaysIndexRequest $request) {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = [];

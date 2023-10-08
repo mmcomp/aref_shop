@@ -23,6 +23,7 @@ class ReadingStationUsersResource extends JsonResource
                 'table_number' => $this->table_number,
                 'user'=> new UserResource($this->user),
                 'readingStation' => new ReadingStation2Resource($this->readingStation),
+                'package' => new ReadingStationPackagesResource($this->package),
             ];
         }
     }

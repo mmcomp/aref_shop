@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReadingStationCreateUserRequest;
 use App\Http\Requests\ReadingStationUpdateUserRequest;
 use App\Http\Requests\ReadingStationUsersIndexRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\ReadingStationUsers2Collection;
 use App\Http\Resources\ReadingStationUsersCollection;
 use App\Http\Resources\ReadingStationUsersResource;
 use App\Models\ReadingStation;
+use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationUser;
+use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class ReadingStationUsersController extends Controller
 {
@@ -21,7 +22,7 @@ class ReadingStationUsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(UserIndexRequest $request)
+    public function index(ReadingStationUsersIndexRequest $request)
     {
         $sort = "id";
         $sortDir = "desc";
@@ -95,13 +96,42 @@ class ReadingStationUsersController extends Controller
                 ])->response()->setStatusCode(400);
             }
         }
-        ReadingStationUser::create([
+        $date = Carbon::parse($request->start_date);
+        if (Carbon::now()->diffInDays($date) !== 0 && $date->isPast()) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user start date should be in the future!']],
+            ])->response()->setStatusCode(400);
+        }
+        $package = ReadingStationPackage::find($request->default_package_id);
+        $requiredTime = $request->required_time;
+        if (!$requiredTime) {
+            $requiredTime = $package->required_time;
+        }
+        $optionalTime = $request->optional_time;
+        if (!$optionalTime) {
+            $optionalTime = $package->optional_time;
+        }
+        $start = $date->toDateString();
+        $end = $date->endOfWeek(Carbon::FRIDAY)->toDateString();
+
+
+        $id = ReadingStationUser::create([
             "reading_station_id" => $request->reading_station_id,
             "user_id" => $user->id,
             "table_number" => $request->table_number,
+            "default_package_id" => $request->default_package_id,
+        ])->id;
+        ReadingStationWeeklyProgram::create([
+            "reading_station_user_id" => $id,
+            "name" => $package->name,
+            "start" => $start,
+            "end" => $end,
+            "required_time" => $requiredTime,
+            "optional_time" => $optionalTime,
         ]);
         $user->is_reading_station_user = true;
         $user->save();
+    
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -120,6 +150,7 @@ class ReadingStationUsersController extends Controller
         if (
             $found->table_number === $request->table_number &&
             $found->reading_station_id === $request->reading_station_id &&
+            $found->default_package_id === $request->default_package_id &&
             $found->user_id === $user->id
         ) {
             // no changes
@@ -134,7 +165,10 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
         if ($request->table_number !== null) {
-            $foundTable = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("table_number", $request->table_number)->first();
+            $foundTable = ReadingStationUser::where("reading_station_id", $request->reading_station_id)
+                ->where("table_number", $request->table_number)
+                ->where("user_id", '!=', $user->id)
+                ->first();
             if ($foundTable) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station user table is occupied!']],
@@ -150,6 +184,7 @@ class ReadingStationUsersController extends Controller
             $user->save();
         }
         $found->table_number = $request->table_number;
+        $found->default_package_id = $request->default_package_id;
         $found->user_id = $user->id;
         $found->save();
         return (new ReadingStationUsersResource(null))->additional([

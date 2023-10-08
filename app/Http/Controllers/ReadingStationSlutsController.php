@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationSlutsCreateRequest;
 use App\Http\Requests\ReadingStationSlutsIndexRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\ReadingStationSluts2Collection;
 use App\Http\Resources\ReadingStationSlutsCollection;
 use App\Http\Resources\ReadingStationSlutsResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationSlut;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class ReadingStationSlutsController extends Controller
 {
@@ -20,7 +18,7 @@ class ReadingStationSlutsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(UserIndexRequest $request) {
+    public function index(ReadingStationSlutsIndexRequest $request) {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = [];

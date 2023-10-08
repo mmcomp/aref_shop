@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationCreateRequest;
+use App\Http\Requests\ReadingStationIndexRequest;
 use App\Http\Requests\ReadingStationUpdateRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\ReadingStation2Collection;
-use App\Http\Resources\ReadingStationCollection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
 
@@ -67,7 +66,7 @@ class ReadingStationController extends Controller
         ])->response()->setStatusCode(204);
     }
 
-    function index(UserIndexRequest $request) {
+    function index(ReadingStationIndexRequest $request) {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStations = [];

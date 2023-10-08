@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationPackageCreateRequest;
+use App\Http\Requests\ReadingStationPackagesIndexRequest;
 use App\Http\Requests\ReadingStationPackageUpdateRequest;
-use App\Http\Requests\UserIndexRequest;
 use App\Http\Resources\ReadingStationPackagesCollection;
 use App\Http\Resources\ReadingStationPackagesResource;
 use App\Models\ReadingStationPackage;
@@ -17,7 +17,7 @@ class ReadingStationPackageController extends Controller
         if ($found) {
             return (new ReadingStationPackagesResource(null))->additional([
                 'errors' => ['reading_station_package' => ['Reading station package with this name exists!']],
-            ])->response()->setStatusCode(404);
+            ])->response()->setStatusCode(400);
         }
         ReadingStationPackage::create(["name" => $request->name, "required_time" => $request->required_time, "optional_time" => $request->optional_time]);
         return (new ReadingStationPackagesResource(null))->additional([
@@ -56,7 +56,7 @@ class ReadingStationPackageController extends Controller
         ])->response()->setStatusCode(204);
     }
 
-    function index(UserIndexRequest $request) {
+    function index(ReadingStationPackagesIndexRequest $request) {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStations = [];

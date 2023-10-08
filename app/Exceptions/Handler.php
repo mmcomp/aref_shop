@@ -58,17 +58,22 @@ class Handler extends ExceptionHandler
             $path = $request->path();
             if (str_starts_with($path, "api/reading-stations/") && (str_ends_with($path, "/offdays") || str_ends_with($path, "/sluts") || str_ends_with($path, "/users"))) {
                 return (new ReadingStationOffdaysResource(null))->additional([
-                    'errors' => ['reading_stations' => ['Reading station not found!']],
+                    'errors' => ['reading_station' => ['Reading station not found!']],
                 ])->response()->setStatusCode(404);
             }
             if (str_starts_with($path, "api/users/")) {
                 return (new ReadingStationOffdaysResource(null))->additional([
-                    'errors' => ['users' => ['User not found!']],
+                    'errors' => ['user' => ['User not found!']],
                 ])->response()->setStatusCode(404);
             }
             if (str_starts_with($path, "api/reading-station-packages/")) {
                 return (new ReadingStationOffdaysResource(null))->additional([
-                    'errors' => ['reading_station_packages' => ['Reading Station Package not found!']],
+                    'errors' => ['reading_station_package' => ['Reading Station Package not found!']],
+                ])->response()->setStatusCode(404);
+            }
+            if (str_starts_with($path, "api/reading-station-strikes/")) {
+                return (new ReadingStationOffdaysResource(null))->additional([
+                    'errors' => ['reading_station_strike' => ['Reading Station Strike not found!']],
                 ])->response()->setStatusCode(404);
             }
             return response()->json(['errors' => ['not_found' => ['Not Found.']]], 404);

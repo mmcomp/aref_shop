@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ReadingStationUpdateUserRequest extends FormRequest
+class ReadingStationStrikesCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,10 +26,8 @@ class ReadingStationUpdateUserRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|exists:reading_station_users,id',
-            'reading_station_id' => 'required|exists:reading_stations,id',
-            'table_number' => 'nullable|int|between:1,1000',
-            'default_package_id' => 'required|exists:reading_station_packages,id',
+            'name' => 'required|max:255|min:3',
+            'score' => 'required|int|min:1',
         ];
     }
      /**
