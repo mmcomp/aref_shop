@@ -390,6 +390,37 @@
 									"response": []
 								},
 								{
+									"name": "Define User Weekly Program",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_slut_id\": 2,\n            \"day\":\"2023-10-07\"\n        },\n                {\n            \"reading_station_slut_id\": 3,\n            \"day\":\"2023-10-13\"\n        }\n    ],\n    \"week\": \"next\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/users/1/reading-station/weekly-program",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"1",
+												"reading-station",
+												"weekly-program"
+											]
+										},
+										"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+									},
+									"response": []
+								},
+								{
 									"name": "Update a Reading Station",
 									"request": {
 										"method": "PUT",
@@ -8154,7 +8185,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTY3NTEwNjUsImV4cCI6MTY5NjgzNzQ2NSwibmJmIjoxNjk2NzUxMDY1LCJqdGkiOiI0S1B0bVlLelRsRDQzSDFFIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.97Wy4lYEbo5cQIcqbOQI9CIw1kceFyHDs4q1vUpRWOk",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTcwMDQ3MTcsImV4cCI6MTY5NzA5MTExNywibmJmIjoxNjk3MDA0NzE3LCJqdGkiOiJrdHFkOHB5d1BibzZ2Q2NwIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.kOQ-X-gPRchIwvDHbKey0Fgb_c6bMMUIgiLwesy8yLI",
 				"type": "string"
 			}
 		]

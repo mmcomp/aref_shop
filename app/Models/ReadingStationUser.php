@@ -22,10 +22,14 @@ class ReadingStationUser extends Model
     {
         return $this->belongsTo(User::class);
     }
-
     
     function package()
     {
         return $this->belongsTo(ReadingStationPackage::class, 'default_package_id');
+    }
+
+    function weeklyPrograms() 
+    {
+        return $this->hasMany(ReadingStationWeeklyProgram::class);    
     }
 }

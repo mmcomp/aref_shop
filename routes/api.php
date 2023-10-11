@@ -33,9 +33,9 @@ use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
 use App\Http\Controllers\ReadingStationPackageController;
 use App\Http\Controllers\ReadingStationSlutsController;
+use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
-use App\Models\ReadingStationPackage;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +89,9 @@ Route::group([
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
     Route::get('/search', [UserController::class, 'search']);
    // Route::post('/block', [UserController::class, 'block']);
+
+    // Reading Station
+    Route::post('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
     Route::post('/{user}/reading-station', [ReadingStationUsersController::class, 'store']);
     Route::put('/{user}/reading-station', [ReadingStationUsersController::class, 'update']);
     Route::delete('/{user}/reading-station/{id}', [ReadingStationUsersController::class, 'destroy']);
