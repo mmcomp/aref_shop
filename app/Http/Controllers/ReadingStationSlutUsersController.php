@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationSlutUsersCreateRequest;
 use App\Http\Resources\ReadingStationSlutUsersResource;
+use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
 use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
@@ -99,5 +100,12 @@ class ReadingStationSlutUsersController extends Controller
         return (new ReadingStationSlutUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(204);
+    }
+
+    public function load(User $user)
+    {
+        return (new ReadingStationUserWeeklyProgramStructureResource($user))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }
