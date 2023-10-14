@@ -29,6 +29,7 @@ use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\UserVideoSessionPresentController;
 use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
+use App\Http\Controllers\ReadingStationAbsentReasonsController;
 use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
 use App\Http\Controllers\ReadingStationPackageController;
@@ -142,6 +143,17 @@ Route::group([
     Route::delete('/{readingStationStrike}', [ReadingStationStrikeController::class, 'destroy']);
     Route::get('/', [ReadingStationStrikeController::class, 'index']);
     Route::get('/{readingStationStrike}', [ReadingStationStrikeController::class, 'findOne']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-absent-reasons',
+
+], function ($router) {
+    Route::post('/', [ReadingStationAbsentReasonsController::class, 'store']);
+    Route::put('/', [ReadingStationAbsentReasonsController::class, 'update']);
+    Route::delete('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'destroy']);
+    Route::get('/', [ReadingStationAbsentReasonsController::class, 'index']);
+    Route::get('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'show']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

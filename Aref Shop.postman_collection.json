@@ -4911,8 +4911,7 @@
 										"api",
 										"reading-stations"
 									]
-								},
-								"description": "### Errors\n\n- Reading station not found!"
+								}
 							},
 							"response": []
 						},
@@ -5107,6 +5106,130 @@
 										"1"
 									]
 								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Reading Station Absent Reasons",
+					"item": [
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"a01\",\n    \"score\": 1\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-absent-reasons",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-absent-reasons"
+									]
+								},
+								"description": "### Errors\n\n- The name field is required.\n- The name must be between 3 and 100 characters.\n- The score field is required.\n- The score must be at least 1.\n    \n- The name has already been taken."
+							},
+							"response": []
+						},
+						{
+							"name": "All",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-absent-reasons",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-absent-reasons"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Load One",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-absent-reasons/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-absent-reasons",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-absent-reasons/2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-absent-reasons",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 1,\n    \"name\": \"a02\",\n    \"score\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/reading-station-absent-reasons",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-station-absent-reasons"
+									]
+								},
+								"description": "### Errors\n\n- Reading station absent reason with the same name available!\n- The selected id is invalid.\n    \n- Reading Station Absent Reason not found!"
 							},
 							"response": []
 						}
@@ -8207,7 +8330,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTcwOTIwNjUsImV4cCI6MTY5NzE3ODQ2NSwibmJmIjoxNjk3MDkyMDY1LCJqdGkiOiJ3b1ZmTXFzb3hUbGlCanI4Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.9qAg7YDdELPqIOoJrgaTsekUra3gAkMdDa9zhKzkiFY",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTcyNzk1NDMsImV4cCI6MTY5NzM2NTk0MywibmJmIjoxNjk3Mjc5NTQzLCJqdGkiOiJBbEwweVJISWZFZ2NMdXpKIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.x64AV8beKSIWIBE6l2hdRShNg5KEm4JAUK3tD-IgmGE",
 				"type": "string"
 			}
 		]
