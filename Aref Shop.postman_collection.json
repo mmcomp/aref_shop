@@ -4760,7 +4760,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"reading_station_id\":1,\n    \"name\": \"test2\",\n    \"start\": \"10:00\",\n    \"end\": \"11:00\"\n}",
+											"raw": "{\n    \"name\": \"test2\",\n    \"start\": \"10:00\",\n    \"end\": \"11:00\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4768,13 +4768,14 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/reading-stations/sluts",
+											"raw": "{{base_url}}/api/reading-stations/1/sluts",
 											"host": [
 												"{{base_url}}"
 											],
 											"path": [
 												"api",
 												"reading-stations",
+												"1",
 												"sluts"
 											]
 										}
@@ -4797,7 +4798,8 @@
 												"sluts",
 												"1"
 											]
-										}
+										},
+										"description": "Reading station has users!"
 									},
 									"response": []
 								}
@@ -4922,16 +4924,17 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/reading-stations/2",
+									"raw": "{{base_url}}/api/reading-stations/1",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"api",
 										"reading-stations",
-										"2"
+										"1"
 									]
-								}
+								},
+								"description": "### Errors\n\n- Reading station has users!"
 							},
 							"response": []
 						},

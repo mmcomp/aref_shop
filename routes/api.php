@@ -108,14 +108,14 @@ Route::group([
     Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
 
     Route::get('/sluts', [ReadingStationSlutsController::class, 'index']);
-    Route::post('/sluts', [ReadingStationSlutsController::class, 'store']);
+    Route::post('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'store']);
     Route::delete('/sluts/{id}', [ReadingStationSlutsController::class, 'destroy']);
     
     Route::get('/users', [ReadingStationUsersController::class, 'index']);
 
     Route::post('/', [ReadingStationController::class, 'store']);
     Route::put('/', [ReadingStationController::class, 'update']);
-    Route::delete('/{id}', [ReadingStationController::class, 'destroy']);
+    Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
     Route::get('/{id}', [ReadingStationController::class, 'findOne']);
     Route::get('/', [ReadingStationController::class, 'index']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);

@@ -70,14 +70,14 @@ class ReadingStationSlutsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ReadingStationSlutsCreateRequest $request)
+    public function store(ReadingStationSlutsCreateRequest $request, ReadingStation $readingStation)
     {
         $duration = Carbon::parse($request->end)->diffInMinutes(Carbon::parse($request->start));
         $found = ReadingStationSlut::where([
             ["name", $request->name], 
             ["start", $request->start], 
             ["end", $request->end],
-            ["reading_station_id", $request->reading_station_id],
+            ["reading_station_id", $readingStation->id],
         ])->first();
         if ($found) {
             return (new ReadingStationSlutsResource(null))->additional([
@@ -85,7 +85,7 @@ class ReadingStationSlutsController extends Controller
             ])->response()->setStatusCode(400);
         }
         ReadingStationSlut::create([
-            "reading_station_id" => $request->reading_station_id, 
+            "reading_station_id" => $readingStation->id, 
             "name" => $request->name, 
             "start" => $request->start, 
             "end" => $request->end, 

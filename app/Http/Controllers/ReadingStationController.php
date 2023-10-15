@@ -52,13 +52,12 @@ class ReadingStationController extends Controller
         ])->response()->setStatusCode(204);
     }
 
-    public function destroy($id)
+    public function destroy(ReadingStation $readingStation)
     {
-        $readingStation = ReadingStation::find($id);
-        if (!$readingStation) {
+        if (count($readingStation->users) !== 0) {
             return (new ReadingStationResource(null))->additional([
-                'errors' => ['reading_station' => ['Reading station not found!']],
-            ])->response()->setStatusCode(404);
+                'errors' => ['reading_station' => ['Reading station has users!']],
+            ])->response()->setStatusCode(400);
         }
         $readingStation->delete();
         return (new ReadingStationResource(null))->additional([

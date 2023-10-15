@@ -26,7 +26,6 @@ class ReadingStationSlutsCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'reading_station_id' => 'required|exists:reading_stations,id',
             'name' => 'required|max:255|min:3',
             'start' => 'required|date_format:H:i',
             'end' => 'required|date_format:H:i',
