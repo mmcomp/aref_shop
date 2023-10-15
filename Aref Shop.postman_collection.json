@@ -4653,7 +4653,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"reading_station_id\":1,\n    \"offday\": \"2023-12\"\n}",
+											"raw": "{\n    \"offday\": \"2023-12-01\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4661,13 +4661,14 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/reading-stations/offdays",
+											"raw": "{{base_url}}/api/reading-stations/1/offdays",
 											"host": [
 												"{{base_url}}"
 											],
 											"path": [
 												"api",
 												"reading-stations",
+												"1",
 												"offdays"
 											]
 										}

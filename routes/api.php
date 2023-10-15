@@ -103,7 +103,7 @@ Route::group([
     'prefix' => 'reading-stations',
 
 ], function ($router) {
-    Route::post('/offdays', [ReadingStationOffdaysController::class, 'store']);
+    Route::post('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'store']);
     Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
     Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
 
@@ -125,7 +125,6 @@ Route::group([
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'reading-station-packages',
-
 ], function ($router) {
     Route::post('/', [ReadingStationPackageController::class, 'store']);
     Route::put('/', [ReadingStationPackageController::class, 'update']);

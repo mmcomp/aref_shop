@@ -26,7 +26,6 @@ class ReadingStationOffdaysCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'reading_station_id' => 'required|exists:reading_stations,id',
             'offday' => 'required|date_format:Y-m-d',
         ];
     }

@@ -13,16 +13,16 @@ use Carbon\Carbon;
 
 class ReadingStationOffdaysController extends Controller
 {
-    function store(ReadingStationOffdaysCreateRequest $request)
+    function store(ReadingStationOffdaysCreateRequest $request, ReadingStation $readingStation)
     {
         $offday = Carbon::parse($request->offday)->toDateString();
-        $found = ReadingStationOffday::where([["offday", $offday],["reading_station_id", $request->reading_station_id]])->first();
+        $found = ReadingStationOffday::where([["offday", $offday],["reading_station_id", $readingStation->id]])->first();
         if ($found) {
             return (new ReadingStationOffdaysResource(null))->additional([
                 'errors' => ['reading_station_offday' => ['Reading station offday exists!']],
             ])->response()->setStatusCode(400);
         }
-        ReadingStationOffday::create(["reading_station_id" => $request->reading_station_id, "offday" => $offday]);
+        ReadingStationOffday::create(["reading_station_id" => $readingStation->id, "offday" => $offday]);
         return (new ReadingStationOffdaysResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(204);
