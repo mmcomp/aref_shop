@@ -22,9 +22,7 @@ class AddRsMenuDetails extends Migration
         ["120","link","موجه کردن غیبتها",null,"AddCircleIcon","/reading-station/absence-reasons","2022-01-11 13:04:24","2022-01-11 13:04:24","117","0"],
         ["121","link","ارسال پیامک",null,"AddCircleIcon","/reading-station/send-sms","2022-01-11 13:04:24","2022-01-11 13:04:24","117","0"],
     ];
-    /*
-    "id","groups_id","menus_id","users_id","created_at","updated_at","is_deleted"
-    */
+
     public $menuGroups = [
         ["46","1","109","1",null,null,"0"],
         ["47","1","110","1",null,null,"0"],
