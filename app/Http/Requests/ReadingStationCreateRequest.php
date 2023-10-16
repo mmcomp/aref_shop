@@ -28,7 +28,7 @@ class ReadingStationCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|between:2,100',
+            'name' => 'string|between:2,100|unique:reading_stations',
             'table_start_number' => 'int|between:1,1000',
             'table_end_number' => 'int|between:1,1000',
         ];

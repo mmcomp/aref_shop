@@ -38,6 +38,14 @@ class ReadingStationController extends Controller
             ])->response()->setStatusCode(400);
         }
         if ($request->name) {
+            if ($request->name !== $readingStation->name) {
+                $found = ReadingStation::where("name", $request->name)->first();
+                if ($found) {
+                    return (new ReadingStationResource(null))->additional([
+                        'errors' => ['reading_station' => ['Reading station with the same name exists!']],
+                    ])->response()->setStatusCode(400);
+                }
+            }
             $readingStation->name = $request->name;
         }
         if ($request->table_start_number) {
