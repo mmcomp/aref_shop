@@ -29,6 +29,14 @@ class ReadingStationStrikeController extends Controller
     {
         $readingStationStrike = ReadingStationStrike::find($request->id);
         if ($request->name) {
+            if ($request->name !== $readingStationStrike->name) {
+                $found = ReadingStationStrike::where("name", $request->name)->first();
+                if ($found) {
+                    return (new ReadingStationStrikesResource(null))->additional([
+                        'errors' => ['reading_station_strike' => ['Reading station strike with this name exists!']],
+                    ])->response()->setStatusCode(400);
+                }
+            }
             $readingStationStrike->name = $request->name;
         }
         if ($request->score) {
