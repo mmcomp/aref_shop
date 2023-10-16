@@ -4870,7 +4870,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"a0\",\n    \"table_start_number\": 1,\n    \"table_end_number\": 10\n}",
+									"raw": "{\n    \"name\": \"شعبه نیشابور\",\n    \"table_start_number\": 1,\n    \"table_end_number\": 9\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4887,7 +4887,7 @@
 										"reading-stations"
 									]
 								},
-								"description": "### Errors\n\n- The name must be between 2 and 100 characters.\n- The table start number must be between 1 and 1000.\n    \n- The table end number must be between 1 and 1000.\n    \n- Reading station start table number should be less or equal end table number!"
+								"description": "### Errors\n\n- The name must be between 2 and 100 characters.\n- The table start number must be between 1 and 1000.\n- The table end number must be between 1 and 1000.\n- Reading station start table number should be less or equal end table number!\n    \n- Reading station with the same name exists!"
 							},
 							"response": []
 						},
@@ -4898,7 +4898,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": 1,\n    \"name\": \"a1\",\n    \"table_start_number\": 1,\n    \"table_end_number\": 90\n}",
+									"raw": "{\n    \"id\": 1,\n    \"name\": \"شعبه نیشابور\",\n    \"table_start_number\": 1,\n    \"table_end_number\": 90\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -8334,7 +8334,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTcyNzk1NDMsImV4cCI6MTY5NzM2NTk0MywibmJmIjoxNjk3Mjc5NTQzLCJqdGkiOiJBbEwweVJISWZFZ2NMdXpKIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.x64AV8beKSIWIBE6l2hdRShNg5KEm4JAUK3tD-IgmGE",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc0MzgwMTAsImV4cCI6MTY5NzUyNDQxMCwibmJmIjoxNjk3NDM4MDEwLCJqdGkiOiJ5aUx4ekx5Qnl6a3FMVlZ1Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.y66xk4jNq9MwUzFo72U2hWEC0WYj1Y-xJY5nflAOzls",
 				"type": "string"
 			}
 		]
