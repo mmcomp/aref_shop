@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Schema;
 class AddRsMenuGroup extends Migration
 {
     public $menuGroups = [
-        ["50", "1", "113", "1", NULL, NULL, "0"],
         ["51", "1", "114", "1", NULL, NULL, "0"],
         ["52", "1", "115", "1", NULL, NULL, "0"],
         ["53", "1", "116", "1", NULL, NULL, "0"],
