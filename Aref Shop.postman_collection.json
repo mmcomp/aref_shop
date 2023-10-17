@@ -473,7 +473,39 @@
 									"response": []
 								},
 								{
-									"name": "Delete a Reading Station Copy",
+									"name": "Declare student's next week package",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"next_week_package_id\":1\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/users/1/reading-station/weekly-program/next-week-package",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"1",
+												"reading-station",
+												"weekly-program",
+												"next-week-package"
+											]
+										},
+										"description": "### Errors\n\n- The selected next week package id is invalid."
+									},
+									"response": []
+								},
+								{
+									"name": "Delete a Reading Station",
 									"request": {
 										"method": "DELETE",
 										"header": [],
@@ -8334,7 +8366,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc0MzgwMTAsImV4cCI6MTY5NzUyNDQxMCwibmJmIjoxNjk3NDM4MDEwLCJqdGkiOiJ5aUx4ekx5Qnl6a3FMVlZ1Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.y66xk4jNq9MwUzFo72U2hWEC0WYj1Y-xJY5nflAOzls",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc1MjkwMzIsImV4cCI6MTY5NzYxNTQzMiwibmJmIjoxNjk3NTI5MDMyLCJqdGkiOiJDcDl1ZHJiZ095dlltaDhQIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.2mOeAqupHC1NIJxW8VxkpYr1C3JeOfvrpFr17xQBGDc",
 				"type": "string"
 			}
 		]

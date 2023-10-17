@@ -94,6 +94,7 @@ Route::group([
     // Reading Station
     Route::post('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
     Route::get('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
+    Route::put('/{user}/reading-station/weekly-program/next-week-package', [ReadingStationSlutUsersController::class, 'changeNextWeekPackage']);
     Route::post('/{user}/reading-station', [ReadingStationUsersController::class, 'store']);
     Route::put('/{user}/reading-station', [ReadingStationUsersController::class, 'update']);
     Route::delete('/{user}/reading-station/{id}', [ReadingStationUsersController::class, 'destroy']);

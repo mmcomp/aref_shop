@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationSlutUsersCreateRequest;
+use App\Http\Requests\ReadingStationSlutUsersNextWeekPackageChangeRequest;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
+use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
@@ -12,14 +14,21 @@ use Carbon\Carbon;
 
 class ReadingStationSlutUsersController extends Controller
 {
+    private function getNextWeek()
+    {
+        $nextWeekStartDate = Carbon::now()->endOfWeek(Carbon::FRIDAY)->addDay();
+        $nextWeekEndDate = $nextWeekStartDate->clone()->endOfWeek(Carbon::FRIDAY);
+        return [$nextWeekStartDate, $nextWeekEndDate];
+    }
+
     private function getWeeklyProgram(User $user, $week): ReadingStationWeeklyProgram
     {
         $package = $user->readingStationUser->package;
         $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
         $weeklyProgram = null;
-        $nextWeekStartDate = Carbon::now()->endOfWeek(Carbon::FRIDAY)->addDay();
+        [$nextWeekStartDate, $nextWeekEndDate] = $this->getNextWeek();
         $nextWeekStart = $nextWeekStartDate->toDateString();
-        $nextWeekEnd = $nextWeekStartDate->clone()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $nextWeekEnd = $nextWeekEndDate->toDateString();
         foreach ($weeklyPrograms as $weekProgram) {
             if ($week === 'current' && Carbon::now()->between(Carbon::parse($weekProgram->start), Carbon::parse($weekProgram->end), true)) {
                 $weeklyProgram = $weekProgram;
@@ -107,5 +116,40 @@ class ReadingStationSlutUsersController extends Controller
         return (new ReadingStationUserWeeklyProgramStructureResource($user))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function changeNextWeekPackage(ReadingStationSlutUsersNextWeekPackageChangeRequest $request, User $user)
+    {
+        [$nextWeekStartDate, $nextWeekEndDate] = $this->getNextWeek();
+        $nextWeekStart = $nextWeekStartDate->toDateString();
+        $nextWeekEnd = $nextWeekEndDate->toDateString();
+        $package = ReadingStationPackage::find($request->next_week_package_id);
+        $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
+        foreach ($weeklyPrograms as $indx => $weeklyProgram) {
+            if (Carbon::parse($weeklyProgram->start)->diffInDays($nextWeekStartDate) === 0) {
+                if ($weeklyProgram->name !== $package->name && count($weeklyProgram->sluts) === 0) {
+                    $weekPr = ReadingStationWeeklyProgram::find($weeklyProgram->id);
+                    $weekPr->name = $package->name;
+                    $weekPr->required_time = $package->required_time;
+                    $weekPr->optional_time = $package->optional_time;
+                    $weekPr->save();
+                }
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => null,
+                ])->response()->setStatusCode(204);
+            }
+        }
+        $weeklyProgram = new ReadingStationWeeklyProgram();
+        $weeklyProgram->reading_station_user_id = $user->readingStationUser->id;
+        $weeklyProgram->name = $package->name;
+        $weeklyProgram->required_time = $package->required_time;
+        $weeklyProgram->optional_time = $package->optional_time;
+        $weeklyProgram->start = $nextWeekStart;
+        $weeklyProgram->end = $nextWeekEnd;
+        $weeklyProgram->save();
+
+        return (new ReadingStationSlutUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(204);
     }
 }
