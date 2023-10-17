@@ -95,15 +95,9 @@ class ReadingStationController extends Controller
         ])->response()->setStatusCode(200);
     }
 
-    public function findOne($id)
+    public function findOne(ReadingStation $readingStation)
     {
-        $found = ReadingStation::where("id", $id)->first();
-        if (!$found) {
-            return (new ReadingStationResource(null))->additional([
-                'errors' => ['reading_station' => ['Reading station not found!']],
-            ])->response()->setStatusCode(404);
-        }
-        return (new ReadingStationResource($found))->additional([
+        return (new ReadingStationResource($readingStation))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

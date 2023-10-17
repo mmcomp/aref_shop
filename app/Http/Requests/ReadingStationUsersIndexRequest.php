@@ -28,7 +28,9 @@ class ReadingStationUsersIndexRequest extends FormRequest
         return [
             'sort' => 'required_with:type|in:id,table_number',
             'sort_dir' => 'required_with:sort|in:asc,desc',
-            'per_page' => 'string|max:255'
+            'per_page' => 'string|max:255',
+            'name' => 'nullable|string',
+            'phone' => 'nullable|string',
         ];
     }
      /**

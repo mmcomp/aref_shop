@@ -14,6 +14,7 @@ use App\Models\ReadingStationUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReadingStationUsersController extends Controller
 {
@@ -50,6 +51,22 @@ class ReadingStationUsersController extends Controller
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
+        if ($request->get('name') || $request->get('phone')) {
+            $paginatedReadingStationOffdays
+                ->whereHas('user', function ($q) use ($request) {
+                    if ($request->get('name')) {
+                        $name = $request->get('name');
+                        $q->where(DB::raw("CONCAT(first_name, ' ',last_name)"), 'like', '%' . $name . '%');
+                    }
+                    if ($request->get('phone')) {
+                        $phone = $request->get('phone');
+                        $q->where('email', 'like', '%' . $phone . '%')
+                            ->orWhere('home_tell', 'like', '%' . $phone . '%')
+                            ->orWhere('father_cell', 'like', '%' . $phone . '%')
+                            ->orWhere('mother_cell', 'like', '%' . $phone . '%');
+                    }
+                });
+        }
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
             $sortDir = $request->get('sort_dir');
@@ -131,7 +148,7 @@ class ReadingStationUsersController extends Controller
         ]);
         $user->is_reading_station_user = true;
         $user->save();
-    
+
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);

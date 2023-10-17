@@ -25,7 +25,7 @@ class ReadingStationResource extends JsonResource
                 'table_end_number' => $this->table_end_number,
                 'offdays' => new ReadingStationOffdays2Collection($this->offdays),
                 'sluts' => new ReadingStationSluts2Collection($this->sluts),
-                'users' => new ReadingStationUsers2Collection($this->users),
+                // 'users' => new ReadingStationUsers2Collection($this->users),
             ];
         }
     }
