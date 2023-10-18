@@ -5006,6 +5006,25 @@
 							"response": []
 						},
 						{
+							"name": "Test SMS",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/reading-stations/test-sms",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"reading-stations",
+										"test-sms"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Load One",
 							"request": {
 								"method": "GET",
@@ -8376,7 +8395,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc1MjkwMzIsImV4cCI6MTY5NzYxNTQzMiwibmJmIjoxNjk3NTI5MDMyLCJqdGkiOiJDcDl1ZHJiZ095dlltaDhQIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.2mOeAqupHC1NIJxW8VxkpYr1C3JeOfvrpFr17xQBGDc",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc2MTM0MDMsImV4cCI6MTY5NzY5OTgwMywibmJmIjoxNjk3NjEzNDAzLCJqdGkiOiJ1NEhBVVVMakdSSVR1Z0NOIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.QPnad7gWzMHgoLQ373d43iMPy689Cku9LUUGMca5Z5s",
 				"type": "string"
 			}
 		]
