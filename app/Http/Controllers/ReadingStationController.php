@@ -8,9 +8,15 @@ use App\Http\Requests\ReadingStationUpdateRequest;
 use App\Http\Resources\ReadingStation2Collection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
+use App\Utils\ReadingStationSms;
 
 class ReadingStationController extends Controller
 {
+    public function __construct(
+        protected ReadingStationSms $smsProvider,
+    ) {
+    }
+
     function store(ReadingStationCreateRequest $request)
     {
         if ($request->table_start_number > $request->table_end_number) {
@@ -73,7 +79,8 @@ class ReadingStationController extends Controller
         ])->response()->setStatusCode(204);
     }
 
-    function index(ReadingStationIndexRequest $request) {
+    function index(ReadingStationIndexRequest $request)
+    {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStations = [];
@@ -100,5 +107,10 @@ class ReadingStationController extends Controller
         return (new ReadingStationResource($readingStation))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function testSms()
+    {
+        return $this->smsProvider->send(['09155193104', '09153068145'], ['پیام تستی']);
     }
 }
