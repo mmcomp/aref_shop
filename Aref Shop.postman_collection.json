@@ -599,7 +599,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09155193104\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    \"password\": \"123456\",\n    \"password_confirmation\": \"123456\",\n    \"referrer_users_id\": 1,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7\n}",
+									"raw": "{\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09155193105\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    \"password\": \"123456\",\n    \"password_confirmation\": \"123456\",\n    \"referrer_users_id\": 1,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7,\n    \"reading_station_id\": 1 // Nullable\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -646,7 +646,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": 1,\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09153254679\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    // \"referrer_users_id\": 19,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7\n}",
+									"raw": "{\n    \"id\": 1,\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09153254679\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    // \"referrer_users_id\": 19,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7,\n    \"reading_station_id\": 1 // Nullable\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -8395,7 +8395,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc2MTM0MDMsImV4cCI6MTY5NzY5OTgwMywibmJmIjoxNjk3NjEzNDAzLCJqdGkiOiJ1NEhBVVVMakdSSVR1Z0NOIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.QPnad7gWzMHgoLQ373d43iMPy689Cku9LUUGMca5Z5s",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc2OTE3NTMsImV4cCI6MTY5Nzc3ODE1MywibmJmIjoxNjk3NjkxNzUzLCJqdGkiOiJlaGZHRFdlbnZwTmh2bUlkIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.0KCZaUJH2rJjetd2d0RhkQe91X6yI_FCdxsmv8UUDsc",
 				"type": "string"
 			}
 		]
