@@ -9,6 +9,7 @@ use App\Http\Resources\ReadingStation2Collection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
 use App\Utils\ReadingStationSms;
+use Illuminate\Support\Facades\Auth;
 
 class ReadingStationController extends Controller
 {
@@ -81,6 +82,7 @@ class ReadingStationController extends Controller
 
     function index(ReadingStationIndexRequest $request)
     {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStations = [];
@@ -88,14 +90,24 @@ class ReadingStationController extends Controller
             $sort = $request->get('sort');
             $sortDir = $request->get('sort_dir');
         }
+        $paginatedReadingStations = ReadingStation::where('id', '>', 0);
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId === null) {
+                return (new ReadingStation2Collection(null))->additional([
+                    'errors' => null,
+                ])->response()->setStatusCode(200);
+            }
+            $paginatedReadingStations->where('id', $readingStationId);
+        }
         if ($request->get('per_page') == "all") {
-            $paginatedReadingStations = ReadingStation::orderBy($sort, $sortDir)->get();
+            $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->get();
         } else {
             $perPage = $request->get('per_page');
             if (!$perPage) {
                 $perPage = env('PAGE_COUNT');
             }
-            $paginatedReadingStations = ReadingStation::orderBy($sort, $sortDir)->paginate($perPage);
+            $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->paginate($perPage);
         }
         return (new ReadingStation2Collection($paginatedReadingStations))->additional([
             'errors' => null,

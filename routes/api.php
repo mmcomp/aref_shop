@@ -119,11 +119,17 @@ Route::group([
     Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
     Route::get('/test-sms', [ReadingStationController::class, 'testSms']);
     Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
-    Route::get('/', [ReadingStationController::class, 'index']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
     Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
     
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-stations',
+
+], function ($router) {
+    Route::get('/', [ReadingStationController::class, 'index']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
