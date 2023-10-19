@@ -12,6 +12,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -52,6 +53,9 @@ class Handler extends ExceptionHandler
     } 
     public function handleException($request, Exception $exception)
     {
+        if ($exception instanceof HttpException) {
+            return response()->json(['errors' => ['http_exception' => [$exception->getMessage()]]], $exception->getStatusCode());
+        }
         if($exception instanceof AccessDeniedHttpException) {
             return response()->json(['errors' => ['forbidden' => ['Forbidden.']]], 403);
         } else if($exception instanceof NotFoundHttpException) {

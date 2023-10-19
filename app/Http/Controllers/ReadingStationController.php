@@ -111,6 +111,6 @@ class ReadingStationController extends Controller
 
     public function testSms()
     {
-        return $this->smsProvider->send(['09155193104', '09153068145'], ['پیام تستی']);
+        return $this->smsProvider->send('09028888145', ['سلام', 'عرض ادب', 'چه خبرها!؟']);
     }
 }

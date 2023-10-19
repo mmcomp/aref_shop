@@ -37,7 +37,8 @@ class User extends Authenticatable implements JWTSubject
         'father_tell',
         'mother_tell',
         'grade',
-        'description'
+        'description',
+        'reading_station_id'
     ];
     protected $hidden=[
         'pass_txt',
@@ -131,5 +132,10 @@ class User extends Authenticatable implements JWTSubject
     function readingStationUser()
     {
         return $this->hasOne(ReadingStationUser::class);
+    }
+        
+    function readingStation()
+    {
+        return $this->belongsTo(ReadingStation::class);
     }
 }

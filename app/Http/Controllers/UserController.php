@@ -45,7 +45,6 @@ class UserController extends Controller
         }
         if ($request->get('per_page') == "all") {
             $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
-
         } else {
             $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
         }
@@ -84,8 +83,8 @@ class UserController extends Controller
     {
 
         $saver_users_id = Auth::user()->id;
-        $user_registered=2; // student and AREF clients
-        $user_type=isset($request->groups_id) ? $request->groups_id : $user_registered ;
+        $user_registered = 2; // student and AREF clients
+        $user_type = isset($request->groups_id) ? $request->groups_id : $user_registered;
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => $user_type, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
 
         $user = User::create($userData);
@@ -103,7 +102,7 @@ class UserController extends Controller
                 'errors' => ['user' => ['User with this email exists!']],
             ])->response()->setStatusCode(404);
         }
-        $user = new User;   
+        $user = new User;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->email = $request->email;
@@ -122,7 +121,8 @@ class UserController extends Controller
         $user->father_cell = $request->father_cell;
         $user->mother_cell = $request->mother_cell;
         $user->grade = $request->grade;
-        $user->description = $request->description; 
+        $user->description = $request->description;
+        $user->reading_station_id = $request->reading_station_id;
         $user->save();
         return (new UserResource(null))->additional([
             'errors' => null,
@@ -158,6 +158,7 @@ class UserController extends Controller
             $user->mother_cell = $request->mother_cell;
             $user->grade = $request->grade;
             $user->description = $request->description;
+            $user->reading_station_id = $request->reading_station_id;
             try {
                 $user->save();
                 return (new UserResource(null))->additional([
@@ -204,7 +205,7 @@ class UserController extends Controller
                 Log::info('fails in UserController/destroy ' . json_encode($e));
                 if (env('APP_ENV') == 'development') {
                     return (new UserResource(null))->additional([
-                        'errors' =>["fail" => [ 'User deleting failed!' . json_encode($e)]],
+                        'errors' => ["fail" => ['User deleting failed!' . json_encode($e)]],
                     ])->response()->setStatusCode(500);
                 } else if (env('APP_ENV') == 'production') {
                     return (new UserResource(null))->additional([
@@ -326,10 +327,10 @@ class UserController extends Controller
                     $query->where('email', 'like', '%' . $phone . '%');
                 }
             })->where(function ($query) use ($fullName) {
-            if ($fullName != null) {
-                $query->where(DB::raw("CONCAT(IFNULL(first_name, ''), IFNULL(CONCAT(' ', last_name), ''))"), 'like', '%' . $fullName . '%');
-            }
-        });
+                if ($fullName != null) {
+                    $query->where(DB::raw("CONCAT(IFNULL(first_name, ''), IFNULL(CONCAT(' ', last_name), ''))"), 'like', '%' . $fullName . '%');
+                }
+            });
         if ($request->per_page == "all") {
             $users = $users_builder->orderBy($sort, $sort_dir)->get();
         } else {
@@ -347,7 +348,7 @@ class UserController extends Controller
      */
     // public function block(BlockAUserRequest $request)
     // {
-        
+
     //     $users_id = $request->input('users_id');
     //     $value = Redis::get('block_user_'. $users_id);
     //     if($value != null) {
@@ -358,75 +359,65 @@ class UserController extends Controller
     //     ])->response()->setStatusCode(200);
     // }
     public function showAllUserBlock()
-    {  
-       $now=now()->format('Y-m-d H:i:s');  
-       $users=User::where("blocked",">", $now)->pluck("id");
-      
-       $blockedUsers["blocked_users"]=$users->toArray();               
-        if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
-        {
-           return $blockedUsers;
-        }           
+    {
+        $now = now()->format('Y-m-d H:i:s');
+        $users = User::where("blocked", ">", $now)->pluck("id");
+
+        $blockedUsers["blocked_users"] = $users->toArray();
+        if ($this->putBlockedUserToRedis($blockedUsers["blocked_users"])) {
+            return $blockedUsers;
+        }
         $this->errorHandle("User", " به روز رسانی کاربران بلاک شده با مشکل مواجه شد.");
-    }   
+    }
     public function userBlock(int $userId)
-    {  
-       if($this->isAdmin($userId))
-        {
+    {
+        if ($this->isAdmin($userId)) {
             $this->errorHandle("User", "امکان مسدود کردن کاربر دارای دسترسی مدیریت وجود ندارد.");
         }
-      
-       $now=now()->format('Y-m-d H:i:s');       
-       $blocketTime=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');          
-        $user=User::find($userId);        
-        if( $user)
-        {
-            $user->blocked=Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
-            if($user->update())
-            {
-               $users=User::where("blocked",">", $now)->pluck("id");
-               $blockedUsers["blocked_users"]=$users->toArray();
-               //$redis->set('blockedUser',json_encode($blocketUser));
-              if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
-              {
-                return $blockedUsers;
-              }                
+
+        $now = now()->format('Y-m-d H:i:s');
+        $blocketTime = Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
+        $user = User::find($userId);
+        if ($user) {
+            $user->blocked = Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
+            if ($user->update()) {
+                $users = User::where("blocked", ">", $now)->pluck("id");
+                $blockedUsers["blocked_users"] = $users->toArray();
+                //$redis->set('blockedUser',json_encode($blocketUser));
+                if ($this->putBlockedUserToRedis($blockedUsers["blocked_users"])) {
+                    return $blockedUsers;
+                }
             }
             return "";
-        }
-        else
-        {
+        } else {
             $this->errorHandle("User", "کاربر معتبر نمی باشد.");
         }
     }
     public function userUnblock(int $userId)
     {
-        $user=User::find($userId); 
-        if( $user)
-        {
-           
-            $user->blocked=NULL;
+        $user = User::find($userId);
+        if ($user) {
+
+            $user->blocked = NULL;
             $user->update();
-           return $this->showAllUserBlock();
+            return $this->showAllUserBlock();
             //return "";
-        }
-        else
-        {
+        } else {
             $this->errorHandle("User", "کاربر معتبر نمی باشد.");
         }
     }
     public function isAdmin(int $userId)
     {
-       $isAdmin= User::where('id', $userId)->where("groups_id",1)->first(); 
-       return $isAdmin;
+        $isAdmin = User::where('id', $userId)->where("groups_id", 1)->first();
+        return $isAdmin;
     }
     public function putBlockedUserToRedis($blocketUsers)
     {
-       
+
         Redis::del('blocked_users');
         $redis = Redis::connection();
-       // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
-        $redis->set('blocked_users',json_encode($blocketUsers));
+        // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
+        $redis->set('blocked_users', json_encode($blocketUsers));
         //return $blocketUsers;
         // foreach($blocketUsers as $blocketUser)
         // {
@@ -434,8 +425,7 @@ class UserController extends Controller
         //     Redis::hSet('blockedUser',$blocketUser, "blocked");
         // }
         return true;
-        
-    }    
+    }
     public function errorHandle($class, $error)
     {
         throw new HttpResponseException(

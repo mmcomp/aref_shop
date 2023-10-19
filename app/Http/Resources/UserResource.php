@@ -32,6 +32,7 @@ class UserResource extends JsonResource
                 'updated_at' => $this->updated_at,
                 'group' => new GroupResource($this->group),
                 'readingStationUser' => new ReadingStationUsers3Resource($this->readingStationUser),
+                'readingStation' => new ReadingStationResource($this->readingStation),
             ];
         }
     }

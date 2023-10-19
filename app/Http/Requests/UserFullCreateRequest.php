@@ -56,6 +56,7 @@ class UserFullCreateRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'reading_station_id' => 'nullable|exists:reading_stations,id',
         ];
     }
      /**

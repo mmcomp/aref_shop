@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ReadingStationSms {
@@ -18,14 +19,12 @@ class ReadingStationSms {
         $this->address = env("SABA_ADDRESS");
     }
 
-    public function send(array $numbers, array $messages) {
-        if (count($numbers) === 0) {
-            throw new HttpException(400, 'You need to pass atleast one phone number!');
-        }
+    public function send(string $number, array $messages) {
         if (count($messages) === 0) {
             throw new HttpException(400, 'You need to pass atleast one message!');
         }
-    
+$enter = "
+";
         if (trim(end($messages)) !== 'لغو۱۱') {
             $messages[] = 'لغو۱۱';
         }
@@ -35,10 +34,14 @@ class ReadingStationSms {
             'password' => $this->password,
             'line' => $this->line,
             'life_time' => '60',
-            'mobile' => implode(',', $numbers),
-            'messages' => implode('\n', $messages),
+            'mobile' => $number,
+            'message' => implode($enter, $messages),
         ];
 
-        return Http::get($this->address, $parameters);
+        $response =  Http::get($this->address, $parameters);
+
+        return [
+            "status" => $response->status() === 200 && $response['status'] === -1,
+        ];
     }
 }
