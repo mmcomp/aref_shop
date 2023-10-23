@@ -4902,6 +4902,46 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Load One Users Slut",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/users/slut/2 ",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"users",
+												"slut",
+												"2 "
+											],
+											"query": [
+												{
+													"key": "per_page",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "name",
+													"value": "بانویی",
+													"disabled": true
+												},
+												{
+													"key": "phone",
+													"value": "09155193104",
+													"disabled": true
+												}
+											]
+										},
+										"description": "### Errors\n\n- Reading station slut does not belong to the reading station!"
+									},
+									"response": []
 								}
 							]
 						},
@@ -8395,7 +8435,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTc2OTM2OTIsImV4cCI6MTY5Nzc4MDA5MiwibmJmIjoxNjk3NjkzNjkyLCJqdGkiOiI3WUdqNHFQZ2hFSzZjdHZVIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.kGpStKfOHoaLY0v6IEfE2KtH_Ywjh4-tqkjNxge0bRY",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTgwNDE3ODgsImV4cCI6MTY5ODEyODE4OCwibmJmIjoxNjk4MDQxNzg4LCJqdGkiOiJVRlphWXdoM09jRDVudk1DIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.TF6XzUs9Mm6jOi0MyKqGV8GSloppzpy-u2R3QTBEv0A",
 				"type": "string"
 			}
 		]

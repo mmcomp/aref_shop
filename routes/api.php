@@ -130,6 +130,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [ReadingStationController::class, 'index']);
+    Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

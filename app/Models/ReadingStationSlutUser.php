@@ -24,16 +24,21 @@ class ReadingStationSlutUser extends Model
 
     function weeklyProgram()
     {
-        return $this->belongsTo(ReadingStationWeeklyProgram::class);
+        return $this->hasOne(ReadingStationWeeklyProgram::class, 'id', 'reading_station_weekly_program_id');
     }
 
     function slut()
     {
-        return $this->belongsTo(ReadingStationSlut::class);
+        return $this->hasOne(ReadingStationSlut::class, 'id', 'reading_station_slut_id');
     }
 
     function absenseReason()
     {
         return $this->belongsTo(ReadingStationAbsentReason::class);
+    }
+
+    function absentPresent()
+    {
+        return $this->hasOne(ReadingStationAbsentPresent::class, 'day', 'day');
     }
 }

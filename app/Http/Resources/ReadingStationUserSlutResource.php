@@ -2,10 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ReadingStationUser;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-class ReadingStationSlutUsersResource extends JsonResource
+class ReadingStationUserSlutResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,18 +17,17 @@ class ReadingStationSlutUsersResource extends JsonResource
      */
     public function toArray($request)
     {
-
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                'weeklyProgram' => new ReadingStationWeeklyProgramsResource($this->weeklyProgram),
-                'slut' => new ReadingStationSluts2Resource($this->slut),
                 'day' => $this->day,
                 'is_required' => $this->is_required,
-                'end' => $this->end,
+                'status' => $this->status,
                 'absenseReason' => new ReadingStationAbsentReasonsResource($this->absenseReason),
                 'reading_station_absent_reason_score' => $this->reading_station_absent_reason_score,
                 'absense_approved_status' => $this->absense_approved_status,
+                'isToday' => $this->isToday,
+                'absentPresent' => new ReadingStationAbsentPresentResource( $this->absentPresent),
             ];
         }
     }

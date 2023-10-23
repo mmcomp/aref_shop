@@ -34,7 +34,7 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-   
+
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -42,7 +42,7 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->renderable(function(Exception $e, $request) {
+        $this->renderable(function (Exception $e, $request) {
             return $this->handleException($request, $e);
         });
     }
@@ -50,17 +50,19 @@ class Handler extends ExceptionHandler
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         return response()->json(['errors' => ['authentication' => ['Unauthenticated.']]], 401);
-    } 
+    }
     public function handleException($request, Exception $exception)
     {
-        if ($exception instanceof HttpException) {
-            return response()->json(['errors' => ['http_exception' => [$exception->getMessage()]]], $exception->getStatusCode());
-        }
-        if($exception instanceof AccessDeniedHttpException) {
+        if ($exception instanceof AccessDeniedHttpException) {
             return response()->json(['errors' => ['forbidden' => ['Forbidden.']]], 403);
-        } else if($exception instanceof NotFoundHttpException) {
+        } else if ($exception instanceof NotFoundHttpException) {
             $path = $request->path();
             if (str_starts_with($path, "api/reading-stations/")) {
+                if (str_contains($exception->getMessage(), '[App\Models\ReadingStationSlut]')) {
+                    return (new ReadingStationOffdaysResource(null))->additional([
+                        'errors' => ['reading_station_slut' => ['Reading station slut not found!']],
+                    ])->response()->setStatusCode(404);
+                }
                 return (new ReadingStationOffdaysResource(null))->additional([
                     'errors' => ['reading_station' => ['Reading station not found!']],
                 ])->response()->setStatusCode(404);
@@ -86,9 +88,10 @@ class Handler extends ExceptionHandler
                 ])->response()->setStatusCode(404);
             }
             return response()->json(['errors' => ['not_found' => ['Not Found.']]], 404);
-        } else if($exception instanceof MethodNotAllowedHttpException) {
+        } else if ($exception instanceof MethodNotAllowedHttpException) {
             return response()->json(['errors' => ['not_allowed' => ['Method Not allowed']]], 405);
-        } 
+        } else if ($exception instanceof HttpException) {
+            return response()->json(['errors' => ['http_exception' => [$exception->getMessage()]]], $exception->getStatusCode());
+        }
     }
-    
 }

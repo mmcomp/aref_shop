@@ -7,13 +7,18 @@ use App\Http\Requests\ReadingStationUpdateUserRequest;
 use App\Http\Requests\ReadingStationUsersIndexRequest;
 use App\Http\Resources\ReadingStationUsers2Collection;
 use App\Http\Resources\ReadingStationUsersCollection;
+use App\Http\Resources\ReadingStationUserSlutsCollection;
+use App\Http\Resources\ReadingStationUserSlutsResource;
 use App\Http\Resources\ReadingStationUsersResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationPackage;
+use App\Models\ReadingStationSlut;
+use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ReadingStationUsersController extends Controller
@@ -25,23 +30,34 @@ class ReadingStationUsersController extends Controller
      */
     public function index(ReadingStationUsersIndexRequest $request)
     {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
         $sort = "id";
         $sortDir = "desc";
-        $paginatedReadingStationOffdays = [];
+        $paginatedReadingStationUsers = [];
+        $paginatedReadingStationUsers = ReadingStationUser::where('id', '>', 0);
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId === null) {
+                return (new ReadingStationUsersCollection(null))->additional([
+                    'errors' => null,
+                ])->response()->setStatusCode(200);
+            }
+            $paginatedReadingStationUsers->where('reading_station_id', $readingStationId);
+        }
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
             $sortDir = $request->get('sort_dir');
         }
         if ($request->get('per_page') == "all") {
-            $paginatedReadingStationOffdays = ReadingStationUser::orderBy($sort, $sortDir)->with('readingStation')->get();
+            $paginatedReadingStationUsers = $paginatedReadingStationUsers->orderBy($sort, $sortDir)->get();
         } else {
             $perPage = $request->get('per_page');
             if (!$perPage) {
                 $perPage = env('PAGE_COUNT');
             }
-            $paginatedReadingStationOffdays = ReadingStationUser::orderBy($sort, $sortDir)->paginate($perPage);
+            $paginatedReadingStationUsers = $paginatedReadingStationUsers->orderBy($sort, $sortDir)->paginate($perPage);
         }
-        return (new ReadingStationUsersCollection($paginatedReadingStationOffdays))->additional([
+        return (new ReadingStationUsersCollection($paginatedReadingStationUsers))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -83,6 +99,18 @@ class ReadingStationUsersController extends Controller
         return (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+
+    public function oneSlutIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation, ReadingStationSlut $slut)
+    {
+        if ($slut->reading_station_id !== $readingStation->id) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station slut does not belong to the reading station!']],
+            ])->response()->setStatusCode(400);
+        }
+        return (new ReadingStationUserSlutsResource($readingStation->users, $slut))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 
     /**
