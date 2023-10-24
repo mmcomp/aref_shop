@@ -4909,7 +4909,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/reading-stations/1/users/slut/2 ",
+											"raw": "{{base_url}}/api/reading-stations/1/users/slut/2",
 											"host": [
 												"{{base_url}}"
 											],
@@ -4919,7 +4919,7 @@
 												"1",
 												"users",
 												"slut",
-												"2 "
+												"2"
 											],
 											"query": [
 												{
@@ -8435,7 +8435,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTgwNDE3ODgsImV4cCI6MTY5ODEyODE4OCwibmJmIjoxNjk4MDQxNzg4LCJqdGkiOiJVRlphWXdoM09jRDVudk1DIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.TF6XzUs9Mm6jOi0MyKqGV8GSloppzpy-u2R3QTBEv0A",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTgxMzQzNDMsImV4cCI6MTY5ODIyMDc0MywibmJmIjoxNjk4MTM0MzQzLCJqdGkiOiI2M2dzbndYMHBWQ2xSMTJ6Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.QDbvWPxHpSdmQKRlTzNYkpuzFeJPGz_z5Op6yi5i02I",
 				"type": "string"
 			}
 		]

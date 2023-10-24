@@ -32,19 +32,26 @@ class ReadingStationUserSlutsResource extends JsonResource
             $readingStationUsers = $this->users;
             foreach ($readingStationUsers as $readingStationUser) {
                 $weeklyPrograms = $readingStationUser->weeklyPrograms;
-                $sluts = null;
+                $selectedSlut = null;
+                $slutNames = [];
                 foreach ($weeklyPrograms as $weeklyProgram) {
                     if (Carbon::now()->startOfWeek(Carbon::SATURDAY)->diffInDays(Carbon::parse($weeklyProgram->start)) === 0) {
-                        $sluts = $weeklyProgram->sluts->map(function ($_slut) use ($slut) {
-                            $_slut->isToday = $_slut->reading_station_slut_id !== $slut->id;
-                            return $_slut;
+                        $slutNames = $weeklyProgram->sluts->map(function ($_slut) {
+                            return $_slut->slut->name;
                         });
+                        $selectedSlut = $weeklyProgram->sluts->map(function ($_slut) use ($slut) {
+                            $_slut->isNow = $_slut->reading_station_slut_id !== $slut->id;
+                            return $_slut;
+                        })->reject(function ($_slut) {
+                            return Carbon::now()->toDateString() !== $_slut->day;
+                        })->first();
                         break;
                     }
                 }
                 $userInformations[] = [
                     "user" => new UserResource($readingStationUser->user),
-                    "sluts" => new ReadingStationUserSlutCollection($sluts),
+                    "slut" => new ReadingStationUserSlutResource($selectedSlut),
+                    "slutNames" => $slutNames,
                 ];
             }
             return $userInformations;
