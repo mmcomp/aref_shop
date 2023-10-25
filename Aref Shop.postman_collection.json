@@ -763,7 +763,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/users/search?per_page=all&email=0915&sort_dir=desc&sort=email",
+									"raw": "{{base_url}}/api/users/search?per_page=all&email=0915&sort_dir=desc&sort=email&group=reg",
 									"host": [
 										"{{base_url}}"
 									],
@@ -793,6 +793,10 @@
 										{
 											"key": "sort",
 											"value": "email"
+										},
+										{
+											"key": "group",
+											"value": "reg"
 										}
 									]
 								}
@@ -8435,7 +8439,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTgxMzQzNDMsImV4cCI6MTY5ODIyMDc0MywibmJmIjoxNjk4MTM0MzQzLCJqdGkiOiI2M2dzbndYMHBWQ2xSMTJ6Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.QDbvWPxHpSdmQKRlTzNYkpuzFeJPGz_z5Op6yi5i02I",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTgyMjcxMTQsImV4cCI6MTY5ODMxMzUxNCwibmJmIjoxNjk4MjI3MTE0LCJqdGkiOiJ4ZjVqbFU1OFFLMHBrMFpTIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.EXIjTyg184FMyEOqpYytMnD99GlUukj3_lEpZyBQS4s",
 				"type": "string"
 			}
 		]

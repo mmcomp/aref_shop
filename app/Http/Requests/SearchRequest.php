@@ -30,7 +30,8 @@ class SearchRequest extends FormRequest
             'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
             'name' => 'nullable|string|min:3|max:255',
-            'email' => 'nullable|numeric'
+            'email' => 'nullable|numeric',
+            'group' => 'nullable|string|min:3|max:255',
         ];
     }
      /**
