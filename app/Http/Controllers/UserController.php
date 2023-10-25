@@ -322,6 +322,7 @@ class UserController extends Controller
         $phone = trim(request()->email);
         $fullName = trim(request()->name);
         $groupName = trim(request()->group);
+        $groupType = trim(request()->group_type);
         $users_builder = User::where('is_deleted', false)
             ->where(function ($query) use ($phone) {
                 if ($phone != null) {
@@ -331,9 +332,12 @@ class UserController extends Controller
                 if ($fullName != null) {
                     $query->where(DB::raw("CONCAT(IFNULL(first_name, ''), IFNULL(CONCAT(' ', last_name), ''))"), 'like', '%' . $fullName . '%');
                 }
-            })->whereHas('group', function ($query) use ($groupName) {
+            })->whereHas('group', function ($query) use ($groupName, $groupType) {
                 if ($groupName != null) {
                     $query->where('name', 'like', '%'.$groupName.'%');
+                }
+                if ($groupType != null) {
+                    $query->where('type', 'like', '%'.$groupType.'%');
                 }
             });
         if ($request->per_page == "all") {

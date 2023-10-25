@@ -763,7 +763,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/users/search?per_page=all&email=0915&sort_dir=desc&sort=email&group=reg",
+									"raw": "{{base_url}}/api/users/search?per_page=all&email=0915&sort_dir=desc&sort=email&group_type=adm",
 									"host": [
 										"{{base_url}}"
 									],
@@ -796,7 +796,12 @@
 										},
 										{
 											"key": "group",
-											"value": "reg"
+											"value": "reg",
+											"disabled": true
+										},
+										{
+											"key": "group_type",
+											"value": "adm"
 										}
 									]
 								}

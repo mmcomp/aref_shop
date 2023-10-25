@@ -32,6 +32,7 @@ class SearchRequest extends FormRequest
             'name' => 'nullable|string|min:3|max:255',
             'email' => 'nullable|numeric',
             'group' => 'nullable|string|min:3|max:255',
+            'group_type' => 'nullable|string|min:3|max:255',
         ];
     }
      /**
