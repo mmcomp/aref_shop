@@ -26,6 +26,7 @@ class ReadingStationResource extends JsonResource
                 'offdays' => new ReadingStationOffdays2Collection($this->offdays),
                 'sluts' => new ReadingStationSluts2Collection($this->sluts),
                 // 'users' => new ReadingStationUsers2Collection($this->users),
+                'availableTables' => $this->availableTables,
             ];
         }
     }

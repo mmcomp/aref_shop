@@ -8,6 +8,7 @@ use App\Http\Requests\ReadingStationUpdateRequest;
 use App\Http\Resources\ReadingStation2Collection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
+use App\Models\ReadingStationUser;
 use App\Utils\ReadingStationSms;
 use Illuminate\Support\Facades\Auth;
 
@@ -116,6 +117,9 @@ class ReadingStationController extends Controller
 
     public function findOne(ReadingStation $readingStation)
     {
+        $availableTables = $this->availableTables($readingStation);
+        $readingStation->availableTables = $availableTables;
+        // dd($readingStation);
         return (new ReadingStationResource($readingStation))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -124,5 +128,20 @@ class ReadingStationController extends Controller
     public function testSms()
     {
         return $this->smsProvider->send('09028888145', ['سلام', 'عرض ادب', 'چه خبرها!؟']);
+    }
+
+    private function availableTables(ReadingStation $readingStation) : array 
+    {
+        $occupideTables = $readingStation->users->map(function (ReadingStationUser $user) {
+            return $user->table_number;
+        })->toArray();
+
+        $result = [];
+        for ($i = $readingStation->table_start_number; $i<=$readingStation->table_end_number; $i++) {
+            if (!in_array($i, $occupideTables)) {
+                $result[] = $i;
+            }
+        }
+        return $result;
     }
 }
