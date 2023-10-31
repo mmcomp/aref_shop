@@ -102,6 +102,12 @@ class UserController extends Controller
                 'errors' => ['user' => ['User with this email exists!']],
             ])->response()->setStatusCode(404);
         }
+        $found = User::where("national_code", $request->national_code)->first();
+        if ($found) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['User with this national code exists!']],
+            ])->response()->setStatusCode(404);
+        }
         $user = new User;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;

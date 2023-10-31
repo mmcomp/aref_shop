@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\NationalCode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -57,6 +58,7 @@ class UserFullCreateRequest extends FormRequest
                 }),
             ],
             'reading_station_id' => 'nullable|exists:reading_stations,id',
+            'national_code' => ['required', 'string', new NationalCode],
         ];
     }
      /**
