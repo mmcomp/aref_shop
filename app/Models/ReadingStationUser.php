@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,6 +31,7 @@ class ReadingStationUser extends Model
 
     function weeklyPrograms() 
     {
-        return $this->hasMany(ReadingStationWeeklyProgram::class);    
+        $startOfCurrentWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+        return $this->hasMany(ReadingStationWeeklyProgram::class)->where('start', '>=', $startOfCurrentWeek);    
     }
 }
