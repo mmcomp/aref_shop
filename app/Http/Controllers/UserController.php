@@ -130,7 +130,7 @@ class UserController extends Controller
         $user->description = $request->description;
         $user->reading_station_id = $request->reading_station_id;
         $user->save();
-        return (new UserResource(null))->additional([
+        return (new UserResource($user))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
