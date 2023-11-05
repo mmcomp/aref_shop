@@ -4929,26 +4929,42 @@
 												"users",
 												"slut",
 												"2"
-											],
-											"query": [
-												{
-													"key": "per_page",
-													"value": "1",
-													"disabled": true
-												},
-												{
-													"key": "name",
-													"value": "بانویی",
-													"disabled": true
-												},
-												{
-													"key": "phone",
-													"value": "09155193104",
-													"disabled": true
-												}
 											]
 										},
-										"description": "### Errors\n\n- Reading station slut does not belong to the reading station!"
+										"description": "### Errors\n\n- Reading station slut does not belong to the reading station!\n    \n- Reading station does not belong to you!"
+									},
+									"response": []
+								},
+								{
+									"name": "Set a User absent/present status",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"status\": \"defined\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/users/1/slut/3",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"users",
+												"1",
+												"slut",
+												"3"
+											]
+										},
+										"description": "## Status Definition\n\n### possible values :\n\ndefined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep\n\n**P.S**: defined is somehow null\n\n### Errors\n\n- Reading station slut does not belong to the reading station!\n- Reading station user does not have this slut for today!"
 									},
 									"response": []
 								}
@@ -8444,7 +8460,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTg3Mzk5NTMsImV4cCI6MTY5ODgyNjM1MywibmJmIjoxNjk4NzM5OTUzLCJqdGkiOiJ3a1FXWm56UmdiaGdrQlBYIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.-ND6D8ogMqS9Y4ymcICDz8MIZk1zd8eAcxJjdoB1suM",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTkxNzA4NDMsImV4cCI6MTY5OTI1NzI0MywibmJmIjoxNjk5MTcwODQzLCJqdGkiOiJnNkxNb0lCYlZ5dmQ4NUhrIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.SdiLYJsS8NlgxLLrO-86hWWiVbGeKPln4xPErcvXTCo",
 				"type": "string"
 			}
 		]
