@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationCreateUserRequest;
+use App\Http\Requests\ReadingStationSetUserSlutStatusRequest;
 use App\Http\Requests\ReadingStationUpdateUserRequest;
 use App\Http\Requests\ReadingStationUsersIndexRequest;
 use App\Http\Resources\ReadingStationUsers2Collection;
 use App\Http\Resources\ReadingStationUsersCollection;
-use App\Http\Resources\ReadingStationUserSlutsCollection;
 use App\Http\Resources\ReadingStationUserSlutsResource;
 use App\Http\Resources\ReadingStationUsersResource;
 use App\Models\ReadingStation;
@@ -101,16 +101,57 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(201);
     }
 
-    public function oneSlutIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation, ReadingStationSlut $slut)
+    public function oneSlutIndex(ReadingStation $readingStation, ReadingStationSlut $slut)
     {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
         if ($slut->reading_station_id !== $readingStation->id) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station slut does not belong to the reading station!']],
             ])->response()->setStatusCode(400);
         }
+
         return (new ReadingStationUserSlutsResource($readingStation->users, $slut))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function setUserSlutStatus(ReadingStationSetUserSlutStatusRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
+    {
+        if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $userSlut = new ReadingStationSlutUser();
+        $today = Carbon::now()->toDateString();
+        foreach ($user->readingStationUser->weeklyPrograms as $weeklyProgram) {
+            foreach ($weeklyProgram->sluts as $_slut) {
+                if ($_slut->reading_station_slut_id === $slut->id && $_slut->day === $today) {
+                    $userSlut = $_slut;
+                    break;
+                }
+            }
+        }
+        if (!$userSlut->id) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user does not have this slut for today!']],
+            ])->response()->setStatusCode(400);
+        }
+        $userSlut->status = $request->status;
+        $userSlut->save();
+
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     /**
@@ -122,6 +163,13 @@ class ReadingStationUsersController extends Controller
     public function store(ReadingStationCreateUserRequest $request, User $user)
     {
         $readingStation = ReadingStation::find($request->reading_station_id);
+
+        if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
         if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station table does not exist!']],
@@ -204,6 +252,13 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(201);
         }
         $readingStation = ReadingStation::find($request->reading_station_id);
+
+        if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
         if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station table does not exist!']],
@@ -251,6 +306,13 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station user not found!']],
             ])->response()->setStatusCode(404);
         }
+
+        if (!$this->checkUserWithReadingStationAuth($found->readingStation, $user)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
         if ($found->user_id !== $user->id) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user table is not for this user!']],
@@ -260,5 +322,19 @@ class ReadingStationUsersController extends Controller
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+
+    private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
+    {
+        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return false;
+            }
+            if ($user->readingStationUser->reading_station_id !== $readingStation->id) {
+                return false;
+            }
+        }
+        return true;
     }
 }

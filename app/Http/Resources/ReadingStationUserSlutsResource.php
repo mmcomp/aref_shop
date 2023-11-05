@@ -40,7 +40,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                             return $_slut->slut->name;
                         });
                         $selectedSlut = $weeklyProgram->sluts->map(function ($_slut) use ($slut) {
-                            $_slut->isNow = $_slut->reading_station_slut_id !== $slut->id;
+                            $_slut->isNow = $_slut->reading_station_slut_id === $slut->id;
                             return $_slut;
                         })->reject(function ($_slut) {
                             return Carbon::now()->toDateString() !== $_slut->day;

@@ -90,8 +90,12 @@ Route::group([
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
     Route::get('/search', [UserController::class, 'search']);
    // Route::post('/block', [UserController::class, 'block']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'users',
 
-    // Reading Station
+], function ($router) {
     Route::post('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
     Route::get('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
     Route::put('/{user}/reading-station/weekly-program/next-week-package', [ReadingStationSlutUsersController::class, 'changeNextWeekPackage']);
@@ -131,6 +135,7 @@ Route::group([
 ], function ($router) {
     Route::get('/', [ReadingStationController::class, 'index']);
     Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
+    Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationUsersController::class, 'setUserSlutStatus']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
