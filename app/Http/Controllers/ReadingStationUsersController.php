@@ -276,12 +276,9 @@ class ReadingStationUsersController extends Controller
             }
         }
         if ($found->user_id !== $user->id) {
-            // change user
-            $user->is_reading_station_user = true;
-            $user->save();
-            $oldUser = User::find($found->user_id);
-            $oldUser->is_reading_station_user = false;
-            $user->save();
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
         }
         $found->table_number = $request->table_number;
         $found->default_package_id = $request->default_package_id;
