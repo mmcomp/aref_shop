@@ -152,43 +152,30 @@ class UserController extends Controller
     {
         $user = User::where('id', $request->id)->first();
         if ($user != null) {
-            $user->first_name = $request->first_name;
-            $user->last_name = $request->last_name;
-            $user->email = $request->email;
+            $user->first_name ??= $request->first_name;
+            $user->last_name ??= $request->last_name;
+            // $user->email = $request->email;
             if ($request->password) {
                 $user->password = bcrypt($request->password);
                 $user->pass_txt = $request->password;
             }
-            $user->referrer_users_id = $request->referrer_users_id;
-            $user->address = $request->address;
-            $user->postall = $request->postall;
-            $user->cities_id = $request->cities_id;
-            $user->groups_id = $request->groups_id;
-            $user->national_code = $request->national_code;
-            $user->gender = $request->gender;
-            $user->home_tell = $request->home_tell;
-            $user->father_cell = $request->father_cell;
-            $user->mother_cell = $request->mother_cell;
-            $user->grade = $request->grade;
-            $user->description = $request->description;
-            $user->reading_station_id = $request->reading_station_id;
-            try {
-                $user->save();
-                return (new UserResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(200);
-            } catch (Exception $e) {
-                Log::info('fails in UserController/edit ' . json_encode($e));
-                if (env('APP_ENV') == 'development') {
-                    return (new UserResource(null))->additional([
-                        'errors' => ['fail' => ['User updating failed! ' . json_encode($e)]],
-                    ])->response()->setStatusCode(500);
-                } else if (env('APP_ENV') == 'production') {
-                    return (new UserResource(null))->additional([
-                        'errors' => ['fail' => ['User updating failed!']],
-                    ])->response()->setStatusCode(500);
-                }
-            }
+            $user->referrer_users_id ??= $request->referrer_users_id;
+            $user->address ??= $request->address;
+            $user->postall ??= $request->postall;
+            $user->cities_id ??= $request->cities_id;
+            $user->groups_id ??= $request->groups_id;
+            $user->national_code ??= $request->national_code;
+            $user->gender ??= $request->gender;
+            $user->home_tell ??= $request->home_tell;
+            $user->father_cell ??= $request->father_cell;
+            $user->mother_cell ??= $request->mother_cell;
+            $user->grade ??= $request->grade;
+            $user->description ??= $request->description ;
+            $user->reading_station_id ??= $request->reading_station_id;
+            $user->save();
+            return (new UserResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
         }
         return (new UserResource(null))->additional([
             'errors' => ['user' => ['User not found!']],
