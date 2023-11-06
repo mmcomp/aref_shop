@@ -77,12 +77,10 @@ Route::group([
 
 ], function ($router) {
     Route::get('/', [UserController::class, 'index']);
-    Route::post('/', [UserController::class, 'fullStore']);
     Route::get('/block/{id}', [UserController::class, 'userBlock']);
     Route::get('/unblock/{id}', [UserController::class, 'userUnblock']);
     Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);    
     Route::post('/add', [UserController::class, 'store']);
-    Route::put('/edit', [UserController::class, 'update']);
     Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::delete('/avatar/{id}', [UserController::class, 'deleteAvatar']);
@@ -102,6 +100,8 @@ Route::group([
     Route::post('/{user}/reading-station-user', [ReadingStationUsersController::class, 'store']);
     Route::put('/{user}/reading-station-user', [ReadingStationUsersController::class, 'update']);
     Route::delete('/{user}/reading-station-user/{id}', [ReadingStationUsersController::class, 'destroy']);
+    Route::post('/', [UserController::class, 'fullStore']);
+    Route::put('/edit', [UserController::class, 'update']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
