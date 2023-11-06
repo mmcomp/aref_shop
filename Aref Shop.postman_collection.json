@@ -374,7 +374,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/users/2/reading-station",
+											"raw": "{{base_url}}/api/users/2/reading-station-user",
 											"host": [
 												"{{base_url}}"
 											],
@@ -382,7 +382,7 @@
 												"api",
 												"users",
 												"2",
-												"reading-station"
+												"reading-station-user"
 											]
 										},
 										"description": "### Errors\n\n- Reading station table does not exist!\n- The table number must be between 1 and 200.\n- The selected reading station id is invalid.\n- Reading station user exists!\n- User not found!\n- The default package id field is required.\n- The start date field is required.\n    \n- Reading station user start date should be in the future!"
@@ -404,7 +404,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station/weekly-program",
+											"raw": "{{base_url}}/api/users/1/reading-station-user/weekly-program",
 											"host": [
 												"{{base_url}}"
 											],
@@ -412,7 +412,7 @@
 												"api",
 												"users",
 												"1",
-												"reading-station",
+												"reading-station-user",
 												"weekly-program"
 											]
 										},
@@ -426,7 +426,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station/weekly-program",
+											"raw": "{{base_url}}/api/users/1/reading-station-user/weekly-program",
 											"host": [
 												"{{base_url}}"
 											],
@@ -434,7 +434,7 @@
 												"api",
 												"users",
 												"1",
-												"reading-station",
+												"reading-station-user",
 												"weekly-program"
 											]
 										},
@@ -457,7 +457,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station",
+											"raw": "{{base_url}}/api/users/1/reading-station-user",
 											"host": [
 												"{{base_url}}"
 											],
@@ -465,7 +465,7 @@
 												"api",
 												"users",
 												"1",
-												"reading-station"
+												"reading-station-user"
 											]
 										},
 										"description": "### Errors\n\n- The selected id is invalid."
@@ -487,7 +487,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station/weekly-program/next-week-package",
+											"raw": "{{base_url}}/api/users/1/reading-station-user/weekly-program/next-week-package",
 											"host": [
 												"{{base_url}}"
 											],
@@ -495,7 +495,7 @@
 												"api",
 												"users",
 												"1",
-												"reading-station",
+												"reading-station-user",
 												"weekly-program",
 												"next-week-package"
 											]
@@ -510,7 +510,7 @@
 										"method": "DELETE",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station/3",
+											"raw": "{{base_url}}/api/users/1/reading-station-user/3",
 											"host": [
 												"{{base_url}}"
 											],
@@ -518,7 +518,7 @@
 												"api",
 												"users",
 												"1",
-												"reading-station",
+												"reading-station-user",
 												"3"
 											]
 										},

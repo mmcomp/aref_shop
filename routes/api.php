@@ -96,12 +96,12 @@ Route::group([
     'prefix' => 'users',
 
 ], function ($router) {
-    Route::post('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
-    Route::get('/{user}/reading-station/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
-    Route::put('/{user}/reading-station/weekly-program/next-week-package', [ReadingStationSlutUsersController::class, 'changeNextWeekPackage']);
-    Route::post('/{user}/reading-station', [ReadingStationUsersController::class, 'store']);
-    Route::put('/{user}/reading-station', [ReadingStationUsersController::class, 'update']);
-    Route::delete('/{user}/reading-station/{id}', [ReadingStationUsersController::class, 'destroy']);
+    Route::post('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
+    Route::get('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
+    Route::put('/{user}/reading-station-user/weekly-program/next-week-package', [ReadingStationSlutUsersController::class, 'changeNextWeekPackage']);
+    Route::post('/{user}/reading-station-user', [ReadingStationUsersController::class, 'store']);
+    Route::put('/{user}/reading-station-user', [ReadingStationUsersController::class, 'update']);
+    Route::delete('/{user}/reading-station-user/{id}', [ReadingStationUsersController::class, 'destroy']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
