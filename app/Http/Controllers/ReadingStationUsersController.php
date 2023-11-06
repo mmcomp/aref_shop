@@ -64,6 +64,13 @@ class ReadingStationUsersController extends Controller
 
     function oneIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
     {
+        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+            if (Auth::user()->reading_station_id !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
