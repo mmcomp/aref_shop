@@ -16,7 +16,7 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
     public function toArray($request)
     {
 
-        if ($this->resource != null) {
+        if ($this->resource != null && $this->readingStationUser) {
             $tableNumber = $this->readingStationUser->table_number;
             $package = $this->readingStationUser->package;
             $sluts = $this->readingStationUser->readingStation->sluts->sortBy('start');
