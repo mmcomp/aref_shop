@@ -122,7 +122,6 @@ Route::group([
     Route::put('/', [ReadingStationController::class, 'update']);
     Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
     Route::get('/test-sms', [ReadingStationController::class, 'testSms']);
-    Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
     Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
@@ -133,6 +132,7 @@ Route::group([
     'prefix' => 'reading-stations',
 
 ], function ($router) {
+    Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
 });
 Route::group([
