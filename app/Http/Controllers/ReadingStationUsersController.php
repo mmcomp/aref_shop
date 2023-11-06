@@ -319,6 +319,8 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
         $found->delete();
+        $user->is_reading_station_user = false;
+        $user->save();
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);

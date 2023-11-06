@@ -108,6 +108,13 @@ class UserController extends Controller
                 'errors' => ['user' => ['User with this national code exists!']],
             ])->response()->setStatusCode(404);
         }
+
+        if (!$request->group_id) {
+            $userGroup = Group::where('type', 'user')->first();
+            if ($userGroup) {
+                $request->group_id = $userGroup->id;
+            }
+        }
         $user = new User;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;

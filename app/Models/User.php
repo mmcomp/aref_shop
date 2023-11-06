@@ -38,7 +38,8 @@ class User extends Authenticatable implements JWTSubject
         'mother_tell',
         'grade',
         'description',
-        'reading_station_id'
+        'reading_station_id',
+        'is_reading_station_user'
     ];
     protected $hidden=[
         'pass_txt',
