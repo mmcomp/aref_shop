@@ -152,26 +152,26 @@ class UserController extends Controller
     {
         $user = User::where('id', $request->id)->first();
         if ($user != null) {
-            $user->first_name ??= $request->first_name;
-            $user->last_name ??= $request->last_name;
+            $user->first_name = $request->first_name ?? $user->first_name;
+            $user->last_name = $request->last_name ?? $user->last_name;
             // $user->email = $request->email;
             if ($request->password) {
                 $user->password = bcrypt($request->password);
                 $user->pass_txt = $request->password;
             }
-            $user->referrer_users_id ??= $request->referrer_users_id;
-            $user->address ??= $request->address;
-            $user->postall ??= $request->postall;
-            $user->cities_id ??= $request->cities_id;
-            $user->groups_id ??= $request->groups_id;
-            $user->national_code ??= $request->national_code;
-            $user->gender ??= $request->gender;
-            $user->home_tell ??= $request->home_tell;
-            $user->father_cell ??= $request->father_cell;
-            $user->mother_cell ??= $request->mother_cell;
-            $user->grade ??= $request->grade;
-            $user->description ??= $request->description ;
-            $user->reading_station_id ??= $request->reading_station_id;
+            $user->referrer_users_id = $request->referrer_users_id ?? $user->referrer_users_id;
+            $user->address = $request->address ?? $user->address;
+            $user->postall = $request->postall ?? $user->postall;
+            $user->cities_id = $request->cities_id ?? $user->cities_id;
+            $user->groups_id = $request->groups_id ?? $user->groups_id;
+            $user->national_code = $request->national_code ?? $user->national_code;
+            $user->gender = $request->gender ?? $user->gender;
+            $user->home_tell = $request->home_tell ?? $user->home_tell;
+            $user->father_cell = $request->father_cell ?? $user->father_cell;
+            $user->mother_cell = $request->mother_cell ?? $user->mother_cell;
+            $user->grade = $request->grade ?? $user->grade;
+            $user->description = $request->description ?? $user->description;
+            $user->reading_station_id = $request->reading_station_id ?? $user->reading_station_id;
             $user->save();
             return (new UserResource(null))->additional([
                 'errors' => null,
