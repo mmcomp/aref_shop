@@ -449,7 +449,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"id\": 3,\n    \"reading_station_id\":1,\n    \"table_number\":1\n}",
+											"raw": "{\n    \"id\": 3,\n    \"reading_station_id\":1,\n    \"table_number\":1,\n    \"default_package_id\": 1 \n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -646,7 +646,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": 1,\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09153254679\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    // \"referrer_users_id\": 19,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7,\n    \"reading_station_id\": 1 // Nullable\n}",
+									"raw": "{\n    \"id\": 8,\n    \"address\": \"خ امام رضا ۵5\",\n    // \"cities_id\": null,\n    // \"email\": \"09153254679\",\n    \"first_name\": \"saied\",\n    // \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    // \"postall\": \"\",\n    // // \"referrer_users_id\": 19,\n    // \"national_code\": \"0938926374\",\n    // \"gender\": \"male\",\n    // \"home_tell\": \"05137632480\",\n    // \"father_cell\": \"09155193104\",\n    // \"mother_cell\": \"09155193105\",\n    // \"description\": \"09155193106\",\n    // \"grade\": 7,\n    \"reading_station_id\": 1 // Nullable\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -8460,7 +8460,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTkxNzA4NDMsImV4cCI6MTY5OTI1NzI0MywibmJmIjoxNjk5MTcwODQzLCJqdGkiOiJnNkxNb0lCYlZ5dmQ4NUhrIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.SdiLYJsS8NlgxLLrO-86hWWiVbGeKPln4xPErcvXTCo",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTkyNTQ3NzksImV4cCI6MTY5OTM0MTE3OSwibmJmIjoxNjk5MjU0Nzc5LCJqdGkiOiJ6NDFvSHZ1czFoTzF5amQ1Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vtor7EOp8pI14BM-ZkyCSA6jR8sB2NPBMqu2Vb31iHI",
 				"type": "string"
 			}
 		]
