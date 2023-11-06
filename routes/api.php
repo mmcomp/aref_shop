@@ -82,7 +82,6 @@ Route::group([
     Route::get('/unblock/{id}', [UserController::class, 'userUnblock']);
     Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);    
     Route::post('/add', [UserController::class, 'store']);
-    Route::get('/get/{id}', [UserController::class, 'show']);
     Route::put('/edit', [UserController::class, 'update']);
     Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
@@ -96,6 +95,7 @@ Route::group([
     'prefix' => 'users',
 
 ], function ($router) {
+    Route::get('/get/{id}', [UserController::class, 'show']);
     Route::post('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
     Route::get('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
     Route::put('/{user}/reading-station-user/weekly-program/next-week-package', [ReadingStationSlutUsersController::class, 'changeNextWeekPackage']);
