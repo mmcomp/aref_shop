@@ -151,8 +151,13 @@ Route::group([
     Route::post('/', [ReadingStationPackageController::class, 'store']);
     Route::put('/', [ReadingStationPackageController::class, 'update']);
     Route::delete('/{readingStationPackage}', [ReadingStationPackageController::class, 'destroy']);
-    Route::get('/', [ReadingStationPackageController::class, 'index']);
     Route::get('/{readingStationPackage}', [ReadingStationPackageController::class, 'findOne']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-packages',
+], function ($router) {
+    Route::get('/', [ReadingStationPackageController::class, 'index']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
