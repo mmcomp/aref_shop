@@ -154,7 +154,7 @@ Route::group([
     Route::get('/{readingStationPackage}', [ReadingStationPackageController::class, 'findOne']);
 });
 Route::group([
-    'middleware' => ['auth:api', 'can:user'],
+    'middleware' => ['auth:api', 'can:reading_station'],
     'prefix' => 'reading-station-packages',
 ], function ($router) {
     Route::get('/', [ReadingStationPackageController::class, 'index']);
