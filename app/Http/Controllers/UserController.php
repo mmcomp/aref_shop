@@ -109,10 +109,10 @@ class UserController extends Controller
             ])->response()->setStatusCode(404);
         }
 
-        if (!$request->group_id) {
+        if (!$request->groups_id) {
             $userGroup = Group::where('type', 'user')->first();
             if ($userGroup) {
-                $request->group_id = $userGroup->id;
+                $request->groups_id = $userGroup->id;
             }
         }
         $user = new User;
@@ -347,10 +347,10 @@ class UserController extends Controller
                 }
             })->whereHas('group', function ($query) use ($groupName, $groupType) {
                 if ($groupName != null) {
-                    $query->where('name', 'like', '%'.$groupName.'%');
+                    $query->where('name', 'like', '%' . $groupName . '%');
                 }
                 if ($groupType != null) {
-                    $query->where('type', 'like', '%'.$groupType.'%');
+                    $query->where('type', 'like', '%' . $groupType . '%');
                 }
             });
         if ($request->per_page == "all") {
