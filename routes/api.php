@@ -85,7 +85,6 @@ Route::group([
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::delete('/avatar/{id}', [UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
-    Route::get('/search', [UserController::class, 'search']);
    // Route::post('/block', [UserController::class, 'block']);
 });
 Route::group([
@@ -93,6 +92,7 @@ Route::group([
     'prefix' => 'users',
 
 ], function ($router) {
+    Route::get('/search', [UserController::class, 'search']);
     Route::get('/get/{id}', [UserController::class, 'show']);
     Route::post('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
     Route::get('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
