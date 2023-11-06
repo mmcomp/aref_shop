@@ -338,7 +338,7 @@ class ReadingStationUsersController extends Controller
             if ($readingStationId !== $readingStation->id) {
                 return false;
             }
-            if ($user->readingStationUser->reading_station_id !== $readingStation->id) {
+            if ($user->readingStationUser && $user->readingStationUser->reading_station_id !== $readingStation->id) {
                 return false;
             }
         }
