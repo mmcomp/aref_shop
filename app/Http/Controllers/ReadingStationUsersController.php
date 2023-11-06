@@ -284,7 +284,8 @@ class ReadingStationUsersController extends Controller
             $user->save();
         }
         $found->table_number = $request->table_number;
-        $found->default_package_id = $request->default_package_id ?? $found->default_package_id;
+        $found->default_package_id = $request->default_package_id;
+        $found->reading_station_id = $request->reading_station_id;
         $found->user_id = $user->id;
         $found->save();
         return (new ReadingStationUsersResource(null))->additional([
