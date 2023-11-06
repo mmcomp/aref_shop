@@ -29,7 +29,7 @@ class ReadingStationUpdateUserRequest extends FormRequest
             'id' => 'required|exists:reading_station_users,id',
             'reading_station_id' => 'required|exists:reading_stations,id',
             'table_number' => 'nullable|int|between:1,1000',
-            'default_package_id' => 'required|exists:reading_station_packages,id',
+            'default_package_id' => 'nullable|exists:reading_station_packages,id',
         ];
     }
      /**
