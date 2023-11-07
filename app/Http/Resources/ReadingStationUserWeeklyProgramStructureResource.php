@@ -16,7 +16,6 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
      */
     public function toArray($request)
     {
-
         if ($this->resource != null && $this->readingStationUser) {
             $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
             $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
@@ -25,12 +24,14 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
             $tableNumber = $this->readingStationUser->table_number;
             $package = $this->readingStationUser->package;
             $sluts = $this->readingStationUser->readingStation->sluts->sortBy('start');
+            $weeklyPrograms = $this->readingStationUser->weeklyPrograms;
             return [
                 'tableNumber' => $tableNumber,
                 'name' => $package->name,
                 'required_time' => $package->required_time,
                 'optional_time' => $package->optional_time,
                 'sluts' => new ReadingStationSluts2Collection($sluts),
+                'weeklyPrograms' => new ReadingStationWeeklyPrograms2Collection($weeklyPrograms),
                 'startOfThisWeek' => $startOfThisWeek,
                 'endOfThisWeek' => $endOfThisWeek,
                 'startOfNextWeek' => $startOfNextWeek,
