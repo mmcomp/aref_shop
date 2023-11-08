@@ -15,9 +15,7 @@ class ReadingStationWeeklyProgramsResource extends JsonResource
      */
     public function toArray($request)
     {
-
         if ($this->resource != null) {
-
             return [
                 'id' => $this->id,
                 'name' => $this->name,

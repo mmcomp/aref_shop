@@ -24,7 +24,10 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
             $tableNumber = $this->readingStationUser->table_number;
             $package = $this->readingStationUser->package;
             $sluts = $this->readingStationUser->readingStation->sluts->sortBy('start');
-            $weeklyPrograms = $this->readingStationUser->weeklyPrograms;
+            $weeklyPrograms = $this->readingStationUser->weeklyPrograms->map(function ($weeklyProgram) {
+                $weeklyProgram->sluts;
+                return $weeklyProgram;
+            });
             return [
                 'tableNumber' => $tableNumber,
                 'name' => $package->name,
