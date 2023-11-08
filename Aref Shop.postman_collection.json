@@ -176,7 +176,9 @@
 										"exec": [
 											"if(pm.response.status == \"OK\") {",
 											"    const response = JSON.parse(responseBody) || {}",
-											"    if (response && response.data  && response.data.access_token) postman.setEnvironmentVariable(\"access_token\", response.data.access_token);",
+											"    if (response && response.data  && response.data.access_token) {",
+											"        pm.collectionVariables.set(\"access_token\", response.data.access_token);",
+											"    }",
 											"}"
 										],
 										"type": "text/javascript"
@@ -8460,7 +8462,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTk0Mjc3NDcsImV4cCI6MTY5OTUxNDE0NywibmJmIjoxNjk5NDI3NzQ3LCJqdGkiOiI1R3g1cDZUNWFDNWNxenk3Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.C-AERfa_Vks_oF0kR5AzCS3sfhmfPuyDUYlX0Qdp6VY",
+				"value": "{{access_token}}",
 				"type": "string"
 			}
 		]
