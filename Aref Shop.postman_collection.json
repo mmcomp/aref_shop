@@ -396,7 +396,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_slut_id\": 2,\n            \"day\":\"2023-10-07\"\n        },\n                {\n            \"reading_station_slut_id\": 3,\n            \"day\":\"2023-10-13\"\n        }\n    ],\n    \"week\": \"next\"\n}",
+											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_slut_id\": 2,\n            \"day\":\"2023-11-09\"\n        },\n                {\n            \"reading_station_slut_id\": 3,\n            \"day\":\"2023-11-09\"\n        }\n    ],\n    \"week\": \"current\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -416,7 +416,7 @@
 												"weekly-program"
 											]
 										},
-										"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+										"description": "## Status\n\ndefined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep\n\n### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n- The selected week is invalid."
 									},
 									"response": []
 								},
@@ -8460,7 +8460,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTkyNTQ3NzksImV4cCI6MTY5OTM0MTE3OSwibmJmIjoxNjk5MjU0Nzc5LCJqdGkiOiJ6NDFvSHZ1czFoTzF5amQ1Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vtor7EOp8pI14BM-ZkyCSA6jR8sB2NPBMqu2Vb31iHI",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE2OTk0Mjc3NDcsImV4cCI6MTY5OTUxNDE0NywibmJmIjoxNjk5NDI3NzQ3LCJqdGkiOiI1R3g1cDZUNWFDNWNxenk3Iiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.C-AERfa_Vks_oF0kR5AzCS3sfhmfPuyDUYlX0Qdp6VY",
 				"type": "string"
 			}
 		]
