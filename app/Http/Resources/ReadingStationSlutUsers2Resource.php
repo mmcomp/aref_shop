@@ -20,6 +20,7 @@ class ReadingStationSlutUsers2Resource extends JsonResource
             return [
                 'id' => $this->id,
                 'status' => $this->status,
+                'reading_station_slut_id' => $this->reading_station_slut_id,
                 'day' => $this->day,
                 'is_required' => $this->is_required,
                 'end' => $this->end,
