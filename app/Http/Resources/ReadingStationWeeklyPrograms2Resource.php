@@ -28,7 +28,7 @@ class ReadingStationWeeklyPrograms2Resource extends JsonResource
                 'optional_time_done'=> $this->optional_time_done,
                 'strikes_done'=> $this->strikes_done,
                 'absence_done'=> $this->absence_done,
-                'sluts' => new ReadingStationSlutUsersCollection($this->sluts),
+                'sluts' => new ReadingStationSlutUsers2Collection($this->sluts),
             ];
         }
     }
