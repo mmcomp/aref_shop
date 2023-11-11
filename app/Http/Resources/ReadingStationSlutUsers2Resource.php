@@ -19,8 +19,7 @@ class ReadingStationSlutUsers2Resource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                // 'weeklyProgram' => new ReadingStationWeeklyProgramsResource($this->weeklyProgram),
-                // 'slut' => new ReadingStationSluts2Resource($this->slut),
+                'status' => $this->status,
                 'day' => $this->day,
                 'is_required' => $this->is_required,
                 'end' => $this->end,
