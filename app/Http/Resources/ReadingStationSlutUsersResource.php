@@ -27,6 +27,7 @@ class ReadingStationSlutUsersResource extends JsonResource
                 'absenseReason' => new ReadingStationAbsentReasonsResource($this->absenseReason),
                 'reading_station_absent_reason_score' => $this->reading_station_absent_reason_score,
                 'absense_approved_status' => $this->absense_approved_status,
+                'absentPresent' => new ReadingStationAbsentPresentResource($this->absentPresent),
             ];
         }
     }
