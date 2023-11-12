@@ -134,12 +134,7 @@ Route::group([
 ], function ($router) {
     Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
-});
-Route::group([
-    'middleware' => ['auth:api', 'can:reading_station'],
-    'prefix' => 'reading-stations',
-
-], function ($router) {
+    Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
     Route::get('/', [ReadingStationController::class, 'index']);
     Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
     Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationUsersController::class, 'setUserSlutStatus']);

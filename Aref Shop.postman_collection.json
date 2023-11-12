@@ -398,7 +398,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_slut_id\": 2,\n            \"day\":\"2023-11-09\"\n        },\n                {\n            \"reading_station_slut_id\": 3,\n            \"day\":\"2023-11-09\"\n        }\n    ],\n    \"week\": \"current\"\n}",
+											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_slut_id\": 2,\n            \"day\":\"2023-11-11\"\n        },\n                {\n            \"reading_station_slut_id\": 3,\n            \"day\":\"2023-11-12\"\n        }\n    ],\n    \"week\": \"current\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -428,14 +428,14 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/users/1/reading-station-user/weekly-program",
+											"raw": "{{base_url}}/api/users/18855/reading-station-user/weekly-program",
 											"host": [
 												"{{base_url}}"
 											],
 											"path": [
 												"api",
 												"users",
-												"1",
+												"18855",
 												"reading-station-user",
 												"weekly-program"
 											]
@@ -4911,6 +4911,36 @@
 												}
 											]
 										}
+									},
+									"response": []
+								},
+								{
+									"name": "Bulk update One Users",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_user_id\":3,\n            \"table_number\":1\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"users"
+											]
+										},
+										"description": "### Errors\n\n- Reading station table belongs to other!\n    \n- Reading station unexpected error!"
 									},
 									"response": []
 								},

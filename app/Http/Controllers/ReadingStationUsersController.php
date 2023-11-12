@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReadingStationCreateUserRequest;
 use App\Http\Requests\ReadingStationSetUserSlutStatusRequest;
 use App\Http\Requests\ReadingStationUpdateUserRequest;
+use App\Http\Requests\ReadingStationUsersBulkUpdateRequest;
 use App\Http\Requests\ReadingStationUsersIndexRequest;
 use App\Http\Resources\ReadingStationUsers2Collection;
 use App\Http\Resources\ReadingStationUsersCollection;
@@ -18,6 +19,7 @@ use App\Models\ReadingStationUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -326,6 +328,48 @@ class ReadingStationUsersController extends Controller
         $found->delete();
         $user->is_reading_station_user = false;
         $user->save();
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+    }
+
+    function bulkUpdate(ReadingStationUsersBulkUpdateRequest $request, ReadingStation $readingStation)
+    {
+        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+            if (Auth::user()->reading_station_id !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $userStations = collect($request->data)->map(function ($data) {
+            return $data['reading_station_user_id'];
+        })->toArray();
+        $userStationTables = collect($request->data)->map(function ($data) {
+            return $data['table_number'];
+        })->toArray();
+        $otherTables = ReadingStationUser::whereNotIn('id', $userStations)->pluck('table_number')->toArray();
+        if (array_intersect($otherTables, $userStationTables)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station table belongs to other!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        DB::beginTransaction();
+        foreach ($request->data as $data) {
+            DB::table('reading_station_users')->where('id', $data['reading_station_user_id'])->update(['table_number'=> $data['table_number']]);
+        }
+        try {
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station unexpected error!']],
+            ])->response()->setStatusCode(500);
+        }
+
+
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
