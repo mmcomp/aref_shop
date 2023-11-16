@@ -7,10 +7,12 @@ use App\Http\Requests\ReadingStationSlutUsersNextWeekPackageChangeRequest;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
 use App\Models\ReadingStationPackage;
+use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReadingStationSlutUsersController extends Controller
 {
@@ -67,17 +69,35 @@ class ReadingStationSlutUsersController extends Controller
         $sluts = $user->readingStationUser->readingStation->sluts;
         $weeklyProgram = $this->getWeeklyProgram($user, $request->week);
         if (ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->first()) {
-            return (new ReadingStationSlutUsersResource(null))->additional([
-                'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
-            ])->response()->setStatusCode(400);
+            if (!in_array(Auth::user()->group->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
+                ])->response()->setStatusCode(400);    
+            }
+            if (ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->where('status', '!=', 'defined')->first()) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
+                ])->response()->setStatusCode(400);  
+            }
+            ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->delete();
         }
+        $total = 0;
         foreach ($request->data as $data) {
             if (!Carbon::parse($data['day'])->between(Carbon::parse($weeklyProgram->start), Carbon::parse($weeklyProgram->end), true)) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_slut_user' => ['The selected day is not in the week!']],
                 ])->response()->setStatusCode(400);
             }
+            $theSlut = ReadingStationSlut::find($data['reading_station_slut_id']);
+            $total += $theSlut->duration;
         }
+        $requiredTime = $weeklyProgram->required_time + 60;
+        if ($total > $requiredTime) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_slut_user' => ['Total time exceeded the maximum!']],
+            ])->response()->setStatusCode(400); 
+        }
+
         $requestSluts = [];
         foreach ($request->data as $data) {
             $requestSluts[] = $data['reading_station_slut_id'];
