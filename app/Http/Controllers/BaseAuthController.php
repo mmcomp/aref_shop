@@ -439,4 +439,11 @@ class BaseAuthController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+
+    public function ping()
+    {
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+    }
 }

@@ -49,8 +49,12 @@ use App\Http\Controllers\ReadingStationUsersController;
 |
  */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+    'middleware' => ['auth:api', 'can:ping'],
+    'prefix' => 'auth',
+
+], function ($router) {
+    Route::get('/ping', [AuthController::class, 'ping']);
 });
 
 Route::group([
@@ -72,20 +76,20 @@ Route::group([
     Route::get('/synchronize', [AuthController::class, 'synchronizeUsers']);
 });
 Route::group([
-'middleware' => ['auth:api', 'can:user'],
+    'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'users',
 
 ], function ($router) {
     Route::get('/', [UserController::class, 'index']);
     Route::get('/block/{id}', [UserController::class, 'userBlock']);
     Route::get('/unblock/{id}', [UserController::class, 'userUnblock']);
-    Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);    
+    Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);
     Route::post('/add', [UserController::class, 'store']);
     Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::delete('/avatar/{id}', [UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
-   // Route::post('/block', [UserController::class, 'block']);
+    // Route::post('/block', [UserController::class, 'block']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
@@ -106,7 +110,6 @@ Route::group([
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'reading-stations',
-
 ], function ($router) {
     Route::post('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'store']);
     Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
@@ -115,7 +118,7 @@ Route::group([
     Route::get('/sluts', [ReadingStationSlutsController::class, 'index']);
     Route::post('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'store']);
     Route::delete('/sluts/{id}', [ReadingStationSlutsController::class, 'destroy']);
-    
+
     Route::get('/users', [ReadingStationUsersController::class, 'index']);
 
     Route::post('/', [ReadingStationController::class, 'store']);
@@ -125,7 +128,6 @@ Route::group([
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
     Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
-    
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
@@ -207,7 +209,6 @@ Route::group([
     Route::get('/get-product-detail-chairs/{id}', [ProductDetailChairsController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailChairsController::class, 'update']);
     Route::delete('/{id}', [ProductDetailChairsController::class, 'destroy']);
-    
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailDownload'],
@@ -395,11 +396,11 @@ Route::group([
     'prefix' => 'orders',
 ], function ($router) {
     Route::get('/get-info-of-an-order/{id}', [OrderController::class, 'getInfoOfAnOrder']);
-    Route::post('/add', [OrderController::class, 'store'])->name("addOrder");    
+    Route::post('/add', [OrderController::class, 'store'])->name("addOrder");
     Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct'])->name("addStoreProduct");
     Route::post('/add-orderdetail-product-bymobilelist', [OrderController::class, 'storeProductByMobileList']);
     Route::post('/add-package-product', [OrderController::class, 'storeProductPackage']);
-    
+
     Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
     Route::get('/get-cart/{orders_id}', [OrderController::class, 'getWholeCart']);
     Route::delete('/cart/{orders_id}', [OrderController::class, 'destroyWholeCart']);
@@ -415,7 +416,7 @@ Route::group([
 Route::get('/publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
-   
+
     Redis::publish('test-channel', json_encode([
         "Type" => "MESSAGE",
         "Token" => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYyNzIxMDQwMywiZXhwIjoxNjI3MjE0MDAzLCJuYmYiOjE2MjcyMTA0MDMsImp0aSI6InVBU2VtTEVWcG1QRTZUcGYiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vUYPZR5FlT0UIbdL-RJlFssSWC6cPnXODwBUULwzs9E",
@@ -428,7 +429,7 @@ Route::get('/publish', function () {
 Route::get('/new-publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
-   
+
     Redis::publish('absence-presence-channel', json_encode([
         "type" => "online",
         "product_detail_videos_id" => 21,
@@ -459,16 +460,16 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'conference-users',
 ], function ($router) {
-    
-   Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'showReport']);
-   Route::get('/getall',[ConferenceUsersController::class, 'index']);   
+
+    Route::get('/report/{product_detail_videos_id}', [ConferenceUsersController::class, 'showReport']);
+    Route::get('/getall', [ConferenceUsersController::class, 'index']);
 });
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'team-users',
-], function ($router) {  
-   Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);     
-   Route::post('/team-mobile',[ShowAllTeamUserController::class, 'addTeamMember']);  
-   Route::delete('/team-mobile/{teamUserMemberId}',[ShowAllTeamUserController::class, 'deleteTeamMember']);  
-   Route::delete('/{teamUserId}',[ShowAllTeamUserController::class, 'deleteTeam']);  
+], function ($router) {
+    Route::get('/report/all-team', [ShowAllTeamUserController::class, 'index']);
+    Route::post('/team-mobile', [ShowAllTeamUserController::class, 'addTeamMember']);
+    Route::delete('/team-mobile/{teamUserMemberId}', [ShowAllTeamUserController::class, 'deleteTeamMember']);
+    Route::delete('/{teamUserId}', [ShowAllTeamUserController::class, 'deleteTeam']);
 });
