@@ -437,7 +437,7 @@
 												"weekly-program"
 											]
 										},
-										"description": "## Status\n\ndefined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep\n\n### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n- The selected week is invalid.\n    \n- Total time exceeded the maximum!"
+										"description": "## Status\n\ndefined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep\n\n### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n- The selected week is invalid.\n- Total time exceeded the maximum!\n    \n- User has a recorded slut for the requested week!"
 									},
 									"response": []
 								},

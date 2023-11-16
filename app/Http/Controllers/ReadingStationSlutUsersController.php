@@ -76,7 +76,7 @@ class ReadingStationSlutUsersController extends Controller
             }
             if (ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->where('status', '!=', 'defined')->first()) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
-                    'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
+                    'errors' => ['reading_station_slut_user' => ['User has a recorded slut for the requested week!']],
                 ])->response()->setStatusCode(400);  
             }
             ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->delete();
