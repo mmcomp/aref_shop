@@ -276,6 +276,25 @@
 							"response": []
 						},
 						{
+							"name": "Ping",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/auth/ping",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"ping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Forget Password",
 							"request": {
 								"auth": {
