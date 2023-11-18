@@ -151,9 +151,29 @@ class ReadingStationUsersController extends Controller
             }
         }
         if (!$userSlut->id) {
-            return (new ReadingStationUsersResource(null))->additional([
-                'errors' => ['reading_station_user' => ['Reading station user does not have this slut for today!']],
-            ])->response()->setStatusCode(400);
+            $thisWeeklyProgram = null;
+            foreach ($user->readingStationUser->weeklyPrograms as $weeklyProgram) {
+                if (Carbon::now()->between(Carbon::parse($weeklyProgram->start), Carbon::parse($weeklyProgram->end), true)) {
+                    $thisWeeklyProgram = $weeklyProgram;
+                    break;
+                }
+            }
+            if (!$thisWeeklyProgram) {
+                $package = $user->readingStationUser->package;
+                $thisWeeklyProgram = new ReadingStationWeeklyProgram();
+                $thisWeeklyProgram->reading_station_user_id = $user->readingStationUser->id;
+                $thisWeeklyProgram->name = $package->name;
+                $thisWeeklyProgram->required_time = $package->required_time;
+                $thisWeeklyProgram->optional_time = $package->optional_time;
+                $thisWeeklyProgram->start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+                $thisWeeklyProgram->end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+
+                $thisWeeklyProgram->save();
+            }
+            $userSlut->reading_station_weekly_program_id = $thisWeeklyProgram->id;
+            $userSlut->reading_station_slut_id = $slut->id;
+            $userSlut->day = $today;
+            $userSlut->is_required = false;
         }
         $userSlut->status = $request->status;
         $userSlut->save();
@@ -358,7 +378,7 @@ class ReadingStationUsersController extends Controller
 
         DB::beginTransaction();
         foreach ($request->data as $data) {
-            DB::table('reading_station_users')->where('id', $data['reading_station_user_id'])->update(['table_number'=> $data['table_number']]);
+            DB::table('reading_station_users')->where('id', $data['reading_station_user_id'])->update(['table_number' => $data['table_number']]);
         }
         try {
             DB::commit();
