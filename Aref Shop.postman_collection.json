@@ -193,7 +193,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"09153254679\",\n    \"password\": \"09153254679\"\n}",
+									"raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4993,7 +4993,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"status\": \"defined\"\n}",
+											"raw": "{\n    \"status\": \"present\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5001,7 +5001,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{base_url}}/api/reading-stations/1/users/1/slut/3",
+											"raw": "{{base_url}}/api/reading-stations/1/users/1/slut/1",
 											"host": [
 												"{{base_url}}"
 											],
@@ -5012,7 +5012,7 @@
 												"users",
 												"1",
 												"slut",
-												"3"
+												"1"
 											]
 										},
 										"description": "## Status Definition\n\n### possible values :\n\ndefined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep\n\n**P.S**: defined is somehow null\n\n### Errors\n\n- Reading station slut does not belong to the reading station!\n- Reading station user does not have this slut for today!"
@@ -8544,6 +8544,16 @@
 		{
 			"key": "access_token",
 			"value": ""
+		},
+		{
+			"key": "email",
+			"value": "09153254679",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "09153254679",
+			"type": "string"
 		}
 	]
 }
