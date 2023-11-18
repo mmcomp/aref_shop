@@ -41,7 +41,9 @@ class ReadingStationUserSlutsResource extends JsonResource
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
                         });
-                        $selectedSlut = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->first();
+                        $selectedSlut = $weeklyProgram->sluts
+                                            ->where('day', Carbon::now()->toDateString())
+                                            ->where('reading_station_slut_id', $slut->id)->first();
                         break;
                     }
                 }
