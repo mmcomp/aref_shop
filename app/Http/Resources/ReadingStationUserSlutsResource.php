@@ -40,7 +40,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                             return Carbon::now()->toDateString() == $_slut->day;
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
-                        });
+                        })->toArray();
                         $selectedSlut = $weeklyProgram->sluts
                                             ->where('day', Carbon::now()->toDateString())
                                             ->where('reading_station_slut_id', $slut->id)->first();
