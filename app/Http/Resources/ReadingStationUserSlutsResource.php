@@ -58,7 +58,6 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "hasProgram" => $hasProgram,
                 ];
             }
-            dd();
             return $userInformations;
         }
     }
