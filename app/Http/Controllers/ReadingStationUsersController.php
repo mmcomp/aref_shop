@@ -159,7 +159,7 @@ class ReadingStationUsersController extends Controller
                 }
             }
 
-            if (!$thisWeeklyProgram || ($thisWeeklyProgram && !$thisWeeklyProgram->sluts)) {
+            if (!$thisWeeklyProgram || ($thisWeeklyProgram && count($thisWeeklyProgram->sluts)===0)) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
                 ])->response()->setStatusCode(400);
