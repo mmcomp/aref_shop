@@ -63,7 +63,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "slut" => new ReadingStationUserSlutResource($selectedSlut),
                     "slutNames" => $slutNames,
                     "hasProgram" => $hasProgram,
-                    "absentPresent" => $absentPresent,
+                    "absentPresent" => new ReadingStationAbsentPresentResource($absentPresent),
                 ];
             }
             return $userInformations;
