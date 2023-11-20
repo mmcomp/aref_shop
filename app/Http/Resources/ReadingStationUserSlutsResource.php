@@ -35,10 +35,8 @@ class ReadingStationUserSlutsResource extends JsonResource
                 $selectedSlut = null;
                 $slutNames = [];
                 $hasProgram = false;
-                dump($readingStationUser);
                 foreach ($weeklyPrograms as $weeklyProgram) {
-                    dump($weeklyProgram);
-                    if (Carbon::now()->startOfWeek(Carbon::SATURDAY)->diffInDays(Carbon::parse($weeklyProgram->start)) === 0) {
+                    if (Carbon::now()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
                         if ($weeklyProgram->sluts) {
                             $hasProgram = true;
                         }
@@ -60,7 +58,6 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "hasProgram" => $hasProgram,
                 ];
             }
-            dd();
             return $userInformations;
         }
     }
