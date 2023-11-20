@@ -158,17 +158,11 @@ class ReadingStationUsersController extends Controller
                     break;
                 }
             }
-            if (!$thisWeeklyProgram) {
-                $package = $user->readingStationUser->package;
-                $thisWeeklyProgram = new ReadingStationWeeklyProgram();
-                $thisWeeklyProgram->reading_station_user_id = $user->readingStationUser->id;
-                $thisWeeklyProgram->name = $package->name;
-                $thisWeeklyProgram->required_time = $package->required_time;
-                $thisWeeklyProgram->optional_time = $package->optional_time;
-                $thisWeeklyProgram->start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
-                $thisWeeklyProgram->end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
 
-                $thisWeeklyProgram->save();
+            if (!$thisWeeklyProgram || ($thisWeeklyProgram && !$thisWeeklyProgram->sluts)) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
+                ])->response()->setStatusCode(400);
             }
             $userSlut->reading_station_weekly_program_id = $thisWeeklyProgram->id;
             $userSlut->reading_station_slut_id = $slut->id;
