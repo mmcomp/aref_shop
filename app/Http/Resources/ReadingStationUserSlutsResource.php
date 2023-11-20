@@ -33,6 +33,7 @@ class ReadingStationUserSlutsResource extends JsonResource
             foreach ($readingStationUsers as $readingStationUser) {
                 $weeklyPrograms = $readingStationUser->weeklyPrograms;
                 $selectedSlut = null;
+                $absentPresent = null;
                 $slutNames = [];
                 $hasProgram = false;
                 foreach ($weeklyPrograms as $weeklyProgram) {
@@ -48,6 +49,12 @@ class ReadingStationUserSlutsResource extends JsonResource
                         $selectedSlut = $weeklyProgram->sluts
                                             ->where('day', Carbon::now()->toDateString())
                                             ->where('reading_station_slut_id', $slut->id)->first();
+                        foreach($weeklyProgram->sluts as $_slut) {
+                            if ($_slut->absentPresent) {
+                                $absentPresent = $_slut->absentPresent;
+                                break;
+                            }
+                        }
                         break;
                     }
                 }
@@ -56,6 +63,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "slut" => new ReadingStationUserSlutResource($selectedSlut),
                     "slutNames" => $slutNames,
                     "hasProgram" => $hasProgram,
+                    "absentPresent" => $absentPresent,
                 ];
             }
             return $userInformations;

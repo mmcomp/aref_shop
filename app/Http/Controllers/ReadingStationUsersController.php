@@ -151,6 +151,11 @@ class ReadingStationUsersController extends Controller
             }
         }
         if (!$userSlut->id) {
+            if ($request->status === 'absent' || $request->status === 'defined') {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
+                ])->response()->setStatusCode(400);
+            }
             $thisWeeklyProgram = null;
             foreach ($user->readingStationUser->weeklyPrograms as $weeklyProgram) {
                 if (Carbon::now()->between(Carbon::parse($weeklyProgram->start), Carbon::parse($weeklyProgram->end), true)) {
