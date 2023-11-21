@@ -139,4 +139,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(ReadingStation::class);
     }
+
+    function absentPresents()
+    {
+        return $this->hasMany(ReadingStationAbsentPresent::class);    
+    }
 }

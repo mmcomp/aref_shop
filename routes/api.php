@@ -140,6 +140,7 @@ Route::group([
     Route::get('/', [ReadingStationController::class, 'index']);
     Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
     Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationUsersController::class, 'setUserSlutStatus']);
+    Route::post('/{readingStation}/users/{user}', [ReadingStationUsersController::class, 'addAbsentPresent']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

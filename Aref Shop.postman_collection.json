@@ -4871,6 +4871,43 @@
 							"name": "Users",
 							"item": [
 								{
+									"name": "Add absent present",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"enter_way\": \"father\",\n    \"reading_station_slut_user_exit_id\": 22,\n    \"possible_end\": \"22:10\",\n    \"end\": \"22:00\",\n    \"posssible_exit_way\": \"father\",\n    \"exit_way\": \"mother\",\n    \"is_optional_visit\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/users/1",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"users",
+												"1"
+											],
+											"query": [
+												{
+													"key": "per_page",
+													"value": "1",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Load All Users",
 									"request": {
 										"method": "GET",

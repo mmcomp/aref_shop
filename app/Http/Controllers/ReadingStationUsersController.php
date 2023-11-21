@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationCreateUserRequest;
+use App\Http\Requests\ReadingStationSetUserAbsentPresentRequest;
 use App\Http\Requests\ReadingStationSetUserSlutStatusRequest;
 use App\Http\Requests\ReadingStationUpdateUserRequest;
 use App\Http\Requests\ReadingStationUsersBulkUpdateRequest;
 use App\Http\Requests\ReadingStationUsersIndexRequest;
+use App\Http\Resources\ReadingStationAbsentPresentResource;
 use App\Http\Resources\ReadingStationUsers2Collection;
 use App\Http\Resources\ReadingStationUsersCollection;
 use App\Http\Resources\ReadingStationUserSlutsResource;
 use App\Http\Resources\ReadingStationUsersResource;
 use App\Models\ReadingStation;
+use App\Models\ReadingStationAbsentPresent;
 use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
@@ -164,7 +167,7 @@ class ReadingStationUsersController extends Controller
                 }
             }
 
-            if (!$thisWeeklyProgram || ($thisWeeklyProgram && count($thisWeeklyProgram->sluts)===0)) {
+            if (!$thisWeeklyProgram || ($thisWeeklyProgram && count($thisWeeklyProgram->sluts) === 0)) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
                 ])->response()->setStatusCode(400);
@@ -394,16 +397,80 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(201);
     }
 
+    function addAbsentPresent(ReadingStationSetUserAbsentPresentRequest $request, ReadingStation $readingStation, User $user)
+    {
+        if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        if ($request->reading_station_slut_user_exit_id) {
+            $slut = ReadingStationSlutUser::find($request->reading_station_slut_user_exit_id);
+            $slutUser = $slut->weeklyProgram->readingStationUser;
+            if ($slutUser->reading_station_id !== $readingStation->id || $slutUser->user_id !== $user->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station id does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+
+        $isProcessed = false;
+        if ($request->end || $request->exit_way) {
+            $isProcessed = true;
+        }
+        $day = Carbon::now()->toDateString();
+        $absentPresent = ReadingStationAbsentPresent::where('user_id', $user->id)
+            ->where('reading_station_id', $readingStation->id)
+            ->where('is_processed', false)
+            ->where('day', $day)
+            ->first();
+        if (!$absentPresent) {
+            if (!$request->enter_way) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['You should specify the `enter_way`!']],
+                ])->response()->setStatusCode(400);
+            }
+
+            $absentPresent = new ReadingStationAbsentPresent();
+            $absentPresent->user_id = $user->id;
+            $absentPresent->reading_station_id = $readingStation->id;
+            $absentPresent->day = $day;
+            $absentPresent->is_optional_visit = false;
+        }
+        $absentPresent->reading_station_slut_user_exit_id = $request->reading_station_slut_user_exit_id ?? $absentPresent->reading_station_slut_user_exit_id;
+        $absentPresent->possible_end = $request->possible_end ?? $absentPresent->possible_end;
+        $absentPresent->end = $request->end ?? $absentPresent->end;
+        $absentPresent->posssible_exit_way = $request->posssible_exit_way ?? $absentPresent->posssible_exit_way;
+        $absentPresent->exit_way = $request->exit_way ?? $absentPresent->exit_way;
+        $absentPresent->enter_way = $request->enter_way ?? $absentPresent->enter_way;
+        $absentPresent->is_optional_visit = $request->is_optional_visit ?? $absentPresent->is_optional_visit;
+        $absentPresent->is_processed = $isProcessed;
+        $absentPresent->save();
+
+        return (new ReadingStationAbsentPresentResource($absentPresent))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
     {
-        if (Auth::user()->group->type === 'admin_reading_station_branch') {
-            $readingStationId = Auth::user()->reading_station_id;
-            if ($readingStationId !== $readingStation->id) {
-                return false;
-            }
-            if ($user->readingStationUser && $user->readingStationUser->reading_station_id !== $readingStation->id) {
-                return false;
-            }
+        switch (Auth::user()->group->type) {
+            case 'admin_reading_station_branch':
+                $readingStationId = Auth::user()->reading_station_id;
+                if ($readingStationId !== $readingStation->id) {
+                    return false;
+                }
+                if ($user->readingStationUser && $user->readingStationUser->reading_station_id !== $readingStation->id) {
+                    return false;
+                }
+                break;
+
+            case 'user':
+                if ($user->readingStationUser->reading_station_id !== $readingStation->id) {
+                    return false;
+                }
         }
         return true;
     }

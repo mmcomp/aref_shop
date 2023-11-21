@@ -14,4 +14,9 @@ class ReadingStationWeeklyProgram extends Model
     {
         return $this->hasMany(ReadingStationSlutUser::class);   
     }
+
+    function readingStationUser()
+    {
+        return $this->belongsTo(ReadingStationUser::class);
+    }
 }
