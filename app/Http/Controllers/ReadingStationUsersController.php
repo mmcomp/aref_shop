@@ -405,6 +405,12 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        if (!$this->hasProgram($user)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
+            ])->response()->setStatusCode(400);
+        }
+
         if ($request->reading_station_slut_user_exit_id) {
             $slut = ReadingStationSlutUser::find($request->reading_station_slut_user_exit_id);
             $slutUser = $slut->weeklyProgram->readingStationUser;
@@ -482,5 +488,18 @@ class ReadingStationUsersController extends Controller
                 }
         }
         return true;
+    }
+
+    private function hasProgram(User $user): bool
+    {
+        $date = Carbon::now();
+        if ($user->readingStationUser && $user->readingStationUser->weeklyPrograms && count($user->readingStationUser->weeklyPrograms)) {
+            $weeklyProgram = $user->readingStationUser->weeklyPrograms->where('end', $date->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
+            if ($weeklyProgram) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
