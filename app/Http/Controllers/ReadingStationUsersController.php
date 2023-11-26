@@ -442,11 +442,11 @@ class ReadingStationUsersController extends Controller
             ->where('day', $day)
             ->first();
         if (!$absentPresent) {
-            if (!$request->enter_way) {
-                return (new ReadingStationUsersResource(null))->additional([
-                    'errors' => ['reading_station_user' => ['You should specify the `enter_way`!']],
-                ])->response()->setStatusCode(400);
-            }
+            // if (!$request->enter_way) {
+            //     return (new ReadingStationUsersResource(null))->additional([
+            //         'errors' => ['reading_station_user' => ['You should specify the `enter_way`!']],
+            //     ])->response()->setStatusCode(400);
+            // }
 
             $absentPresent = new ReadingStationAbsentPresent();
             $absentPresent->user_id = $user->id;
