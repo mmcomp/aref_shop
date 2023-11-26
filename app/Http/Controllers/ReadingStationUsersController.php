@@ -413,6 +413,15 @@ class ReadingStationUsersController extends Controller
                     'errors' => ['reading_station_user' => ['Reading station id does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
+
+            $slutEnd = Carbon::parse($slut->slut->end);
+            if ($request->possible_end) {
+                if ($slutEnd->greaterThan(Carbon::parse($request->possible_end))) {
+                    return (new ReadingStationUsersResource(null))->additional([
+                        'errors' => ['reading_station_user' => ['Possible End can not be before the exit slut end!']],
+                    ])->response()->setStatusCode(400);
+                }
+            }
         }
 
 
