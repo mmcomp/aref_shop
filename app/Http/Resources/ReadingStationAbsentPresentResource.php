@@ -20,6 +20,7 @@ class ReadingStationAbsentPresentResource extends JsonResource
 
             return [
                 'id' => $this->id,
+                'reading_station_slut_user_exit_id' => $this->reading_station_slut_user_exit_id,
                 // 'slutUserExit' => new ReadingStationSlutUsersResource($this->slutUserExit),
                 'possible_end' => $this->possible_end,
                 'end' => $this->end,
