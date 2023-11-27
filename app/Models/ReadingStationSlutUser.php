@@ -41,4 +41,9 @@ class ReadingStationSlutUser extends Model
     {
         return $this->hasOne(ReadingStationAbsentPresent::class, 'day', 'day');
     }
+
+    function calls()
+    {
+        return $this->hasMany(ReadingStationCall::class);
+    }
 }

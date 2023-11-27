@@ -30,6 +30,7 @@ use App\Http\Controllers\UserVideoSessionPresentController;
 use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
 use App\Http\Controllers\ReadingStationAbsentReasonsController;
+use App\Http\Controllers\ReadingStationCallsController;
 use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
 use App\Http\Controllers\ReadingStationPackageController;
@@ -178,6 +179,19 @@ Route::group([
     Route::delete('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'destroy']);
     Route::get('/', [ReadingStationAbsentReasonsController::class, 'index']);
     Route::get('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'show']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-calls',
+
+], function ($router) {
+    Route::get('/{readingStation}', [ReadingStationCallsController::class, 'index']);
+    // Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
+    // Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
+    // Route::get('/', [ReadingStationController::class, 'index']);
+    // Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
+    // Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationUsersController::class, 'setUserSlutStatus']);
+    // Route::post('/{readingStation}/users/{user}', [ReadingStationUsersController::class, 'addAbsentPresent']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],
