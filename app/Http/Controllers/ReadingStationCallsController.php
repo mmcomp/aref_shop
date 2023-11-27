@@ -9,46 +9,80 @@ use App\Http\Resources\ReadingStation2Collection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationUser;
+use App\Models\User;
 use App\Utils\ReadingStationSms;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Utils\ReadingStationAuth;
+use App\Http\Resources\ReadingStationAllCallsResource;
+use App\Models\ReadingStationSlutUser;
+use Carbon\Carbon;
 
 class ReadingStationCallsController extends Controller
 {
 
     function index(ReadingStationIndexRequest $request, ReadingStation $readingStation)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
-        $sort = "id";
-        $sortDir = "desc";
-        $paginatedReadingStations = [];
-        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
-            $sort = $request->get('sort');
-            $sortDir = $request->get('sort_dir'); 
+        if (!$this->checkUserWithReadingStationAuth($readingStation)) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_call' => ['Reading station call are not available for you!']],
+            ])->response()->setStatusCode(400);
         }
-        $paginatedReadingStations = ReadingStation::where('id', '>', 0);
-        if ($isReadingStationBranchAdmin) {
-            $readingStationId = Auth::user()->reading_station_id;
-            if ($readingStationId === null) {
-                return (new ReadingStation2Collection(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(200);
+        $today = Carbon::now()->toDateString();
+        $weeklyPrograms = [];
+        $readingStation->users->map(function ($user) use (&$weeklyPrograms) {
+            return $user->weeklyPrograms->map(function ($weeklyProgram) use (&$weeklyPrograms) {
+                $weeklyPrograms[] = $weeklyProgram->id;
+            });
+        })->toArray();
+        $todaySluts = ReadingStationSlutUser::whereIn('reading_station_weekly_program_id', $weeklyPrograms)
+            ->where('day', $today)
+            ->get();
+        $userSluts = [];
+        $todaySluts->map(function ($slutUser) use (&$userSluts) {
+            if (isset($userSluts[$slutUser->reading_station_weekly_program_id])) {
+                $currentSlut = $userSluts[$slutUser->reading_station_weekly_program_id];
+                if (Carbon::parse($currentSlut->slut->start)->isBefore(Carbon::parse($slutUser->slut->start))) {
+                    return;
+                }
             }
-            $paginatedReadingStations->where('id', $readingStationId);
-        }
-        if ($request->get('per_page') == "all") {
-            $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->get();
-        } else {
-            $perPage = $request->get('per_page');
-            if (!$perPage) {
-                $perPage = env('PAGE_COUNT');
-            }
-            $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->paginate($perPage);
-        }
-        return (new ReadingStation2Collection($paginatedReadingStations))->additional([
+            $userSluts[$slutUser->reading_station_weekly_program_id] = $slutUser;
+        });
+        return (new ReadingStationAllCallsResource($userSluts))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+        // return ($userSluts);
+        // $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        // $sort = "id";
+        // $sortDir = "desc";
+        // $paginatedReadingStations = [];
+        // if ($request->get('sort_dir') != null && $request->get('sort') != null) {
+        //     $sort = $request->get('sort');
+        //     $sortDir = $request->get('sort_dir'); 
+        // }
+        // $paginatedReadingStations = ReadingStation::where('id', '>', 0);
+        // if ($isReadingStationBranchAdmin) {
+        //     $readingStationId = Auth::user()->reading_station_id;
+        //     if ($readingStationId === null) {
+        //         return (new ReadingStation2Collection(null))->additional([
+        //             'errors' => null,
+        //         ])->response()->setStatusCode(200);
+        //     }
+        //     $paginatedReadingStations->where('id', $readingStationId);
+        // }
+        // if ($request->get('per_page') == "all") {
+        //     $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->get();
+        // } else {
+        //     $perPage = $request->get('per_page');
+        //     if (!$perPage) {
+        //         $perPage = env('PAGE_COUNT');
+        //     }
+        //     $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->paginate($perPage);
+        // }
+        // return (new ReadingStation2Collection($paginatedReadingStations))->additional([
+        //     'errors' => null,
+        // ])->response()->setStatusCode(200);
     }
-    
+
     /*
     function store(ReadingStationCreateRequest $request)
     {
@@ -127,4 +161,10 @@ class ReadingStationCallsController extends Controller
         ])->response()->setStatusCode(200);
     }
     */
+
+
+    private function checkUserWithReadingStationAuth(ReadingStation $readingStation): bool
+    {
+        return ReadingStationAuth::checkUserWithReadingStationAuth($readingStation);
+    }
 }

@@ -25,6 +25,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Utils\ReadingStationAuth;
 
 class ReadingStationUsersController extends Controller
 {
@@ -471,23 +472,7 @@ class ReadingStationUsersController extends Controller
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
     {
-        switch (Auth::user()->group->type) {
-            case 'admin_reading_station_branch':
-                $readingStationId = Auth::user()->reading_station_id;
-                if ($readingStationId !== $readingStation->id) {
-                    return false;
-                }
-                if ($user->readingStationUser && $user->readingStationUser->reading_station_id !== $readingStation->id) {
-                    return false;
-                }
-                break;
-
-            case 'user':
-                if ($user->readingStationUser->reading_station_id !== $readingStation->id) {
-                    return false;
-                }
-        }
-        return true;
+        return ReadingStationAuth::checkUserWithReadingStationAuth($readingStation, $user);
     }
 
     private function hasProgram(User $user): bool
