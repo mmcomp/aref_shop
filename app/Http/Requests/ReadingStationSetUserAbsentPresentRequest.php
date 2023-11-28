@@ -30,7 +30,7 @@ class ReadingStationSetUserAbsentPresentRequest extends FormRequest
             'possible_end' => 'nullable|date_format:H:i',
             'end' => 'nullable|date_format:H:i',
             'posssible_exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,tillnight,self',
-            'exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,tillnight,self',
+            'exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,self',
             'enter_way' => 'nullable|in:mother,father,relatives',
             'is_optional_visit' => 'nullable|bool',
         ];
