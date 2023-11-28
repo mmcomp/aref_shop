@@ -28,7 +28,14 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(400);
         }
         $today = Carbon::now()->toDateString();
+        $now = Carbon::now()->format("H:i:s");
         $weeklyPrograms = [];
+        $availableSluts = $readingStation->sluts
+                            ->where('start', '<=', $now)
+                            ->map(function ($slut) {
+                                return $slut->id;
+                            })
+                            ->toArray();
         $readingStation->users->map(function ($user) use (&$weeklyPrograms) {
             return $user->weeklyPrograms->map(function ($weeklyProgram) use (&$weeklyPrograms) {
                 $weeklyPrograms[] = $weeklyProgram->id;
@@ -36,18 +43,21 @@ class ReadingStationCallsController extends Controller
         })->toArray();
         $todaySluts = ReadingStationSlutUser::whereIn('reading_station_weekly_program_id', $weeklyPrograms)
             ->where('day', $today)
+            ->whereIn('reading_station_slut_id', $availableSluts)
+            ->where('status', '!=', 'defined')
             ->get();
-        $userSluts = [];
-        $todaySluts->map(function ($slutUser) use (&$userSluts) {
-            if (isset($userSluts[$slutUser->reading_station_weekly_program_id])) {
-                $currentSlut = $userSluts[$slutUser->reading_station_weekly_program_id];
-                if (Carbon::parse($currentSlut->slut->start)->isBefore(Carbon::parse($slutUser->slut->start))) {
-                    return;
-                }
-            }
-            $userSluts[$slutUser->reading_station_weekly_program_id] = $slutUser;
-        });
-        return (new ReadingStationAllCallsResource($userSluts))->additional([
+        // $userSluts = [];
+        // $todaySluts->map(function ($slutUser) use (&$userSluts) {
+        //     // if (isset($userSluts[$slutUser->reading_station_weekly_program_id])) {
+        //     //     $currentSlut = $userSluts[$slutUser->reading_station_weekly_program_id];
+        //     //     if (Carbon::parse($currentSlut->slut->start)->isBefore(Carbon::parse($slutUser->slut->start))) {
+        //     //         return;
+        //     //     }
+        //     // }
+        //     // $userSluts[$slutUser->reading_station_weekly_program_id] = $slutUser;
+        //     $userSluts[] = $slutUser;
+        // });
+        return (new ReadingStationAllCallsResource($todaySluts))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
         // return ($userSluts);
