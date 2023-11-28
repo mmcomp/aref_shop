@@ -26,7 +26,7 @@ class ReadingStationSetUserAbsentPresentRequest extends FormRequest
     public function rules()
     {
         return [
-            'reading_station_slut_user_exit_id' => 'nullable|exists:reading_station_slut_users,id',
+            'reading_station_slut_user_exit_id' => 'nullable|exists:reading_station_sluts,id',
             'possible_end' => 'nullable|date_format:H:i',
             'end' => 'nullable|date_format:H:i',
             'posssible_exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,till_night',
