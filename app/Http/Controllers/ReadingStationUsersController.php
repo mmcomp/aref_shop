@@ -413,12 +413,25 @@ class ReadingStationUsersController extends Controller
         }
 
         if ($request->reading_station_slut_user_exit_id) {
-            $slut = ReadingStationSlutUser::find($request->reading_station_slut_user_exit_id);
-            $slutUser = $slut->weeklyProgram->readingStationUser;
-            if ($slutUser->reading_station_id !== $readingStation->id || $slutUser->user_id !== $user->id) {
-                return (new ReadingStationUsersResource(null))->additional([
-                    'errors' => ['reading_station_user' => ['Reading station id does not belong to you!']],
-                ])->response()->setStatusCode(400);
+            $weeklyProgram = $this->thisWeekProgram($user);
+            $slut = ReadingStationSlutUser::where('reading_station_slut_id', $request->reading_station_slut_user_exit_id)
+                        ->where('reading_station_weekly_program_id', $weeklyProgram->id)
+                        ->first();
+            if (!$slut) {
+                $slut = new ReadingStationSlutUser();
+                $slut->reading_station_weekly_program_id = $weeklyProgram->id;
+                $slut->reading_station_slut_id = $request->reading_station_slut_user_exit_id;
+                $slut->day = Carbon::now()->toDateString();
+                $slut->is_required = 0;
+                $slut->status = 'defined';
+                $slut->save();
+            } else {
+                $slutUser = $slut->weeklyProgram->readingStationUser;
+                if ($slutUser->reading_station_id !== $readingStation->id || $slutUser->user_id !== $user->id) {
+                    return (new ReadingStationUsersResource(null))->additional([
+                        'errors' => ['reading_station_user' => ['Reading station id does not belong to you!']],
+                    ])->response()->setStatusCode(400);
+                }    
             }
 
             $slutEnd = Carbon::parse($slut->slut->end);
@@ -486,5 +499,12 @@ class ReadingStationUsersController extends Controller
         }
 
         return false;
+    }
+
+
+    private function thisWeekProgram(User $user): ReadingStationWeeklyProgram
+    {
+        $date = Carbon::now();
+        return $user->readingStationUser->weeklyPrograms->where('end', $date->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
     }
 }
