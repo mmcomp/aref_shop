@@ -16,7 +16,7 @@ class ReadingStationAllCallsResource extends JsonResource
     public function toArray($request)
     {
         if ($this->resource != null) {
-            $all = 0;
+            $all = count($this->resource);
             $optional_enters = 0;
             $delays = 0;
             $absents = 0;
@@ -52,6 +52,7 @@ class ReadingStationAllCallsResource extends JsonResource
                         "exit_slut_id" => $absentPresent->reading_station_slut_user_exit_id,
                         "reason" => $absentPresent->exit_way,
                     ];
+                    $exits++;
                 }
                 switch ($userSlut->status) {
                     case 'absent':
