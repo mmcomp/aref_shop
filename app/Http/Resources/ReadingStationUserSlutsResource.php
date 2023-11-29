@@ -41,7 +41,11 @@ class ReadingStationUserSlutsResource extends JsonResource
                         if (count($weeklyProgram->sluts) > 0) {
                             $hasProgram = true;
                         }
-                        $slutNames = $weeklyProgram->sluts->sortBy('start')->filter(function ($_slut) {
+                        $slutNames = $weeklyProgram->sluts->sort(function ($a, $b) {
+                            if ($a->slut->start === $b->slut->start) return 0;
+                            if (Carbon::parse($a->slut->start)->greaterThan(Carbon::parse($b->slut->start))) return 1;
+                            return -1;
+                        })->filter(function ($_slut) {
                             return Carbon::now()->toDateString() == $_slut->day;
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
