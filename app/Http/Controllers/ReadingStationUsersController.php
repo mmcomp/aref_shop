@@ -412,11 +412,11 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        $weeklyProgram = $this->thisWeekProgram($user);
         if ($request->reading_station_slut_user_exit_id) {
-            $weeklyProgram = $this->thisWeekProgram($user);
             $slut = ReadingStationSlutUser::where('reading_station_slut_id', $request->reading_station_slut_user_exit_id)
-                        ->where('reading_station_weekly_program_id', $weeklyProgram->id)
-                        ->first();
+                ->where('reading_station_weekly_program_id', $weeklyProgram->id)
+                ->first();
             if (!$slut) {
                 $slut = new ReadingStationSlutUser();
                 $slut->reading_station_weekly_program_id = $weeklyProgram->id;
@@ -430,15 +430,6 @@ class ReadingStationUsersController extends Controller
                 if ($slutUser->reading_station_id !== $readingStation->id || $slutUser->user_id !== $user->id) {
                     return (new ReadingStationUsersResource(null))->additional([
                         'errors' => ['reading_station_user' => ['Reading station id does not belong to you!']],
-                    ])->response()->setStatusCode(400);
-                }    
-            }
-
-            $slutEnd = Carbon::parse($slut->slut->end);
-            if ($request->possible_end) {
-                if ($slutEnd->greaterThan(Carbon::parse($request->possible_end))) {
-                    return (new ReadingStationUsersResource(null))->additional([
-                        'errors' => ['reading_station_user' => ['Possible End can not be before the exit slut end!']],
                     ])->response()->setStatusCode(400);
                 }
             }
@@ -467,6 +458,18 @@ class ReadingStationUsersController extends Controller
             $absentPresent->reading_station_id = $readingStation->id;
             $absentPresent->day = $day;
             $absentPresent->is_optional_visit = false;
+        }
+
+        if ($absentPresent->reading_station_slut_user_exit_id && $request->possible_end) {
+            $slut = ReadingStationSlutUser::where('reading_station_slut_id', $absentPresent->reading_station_slut_user_exit_id)
+                ->where('reading_station_weekly_program_id', $weeklyProgram->id)
+                ->first();
+            $slutEnd = Carbon::parse($slut->slut->end);
+            if ($slutEnd->greaterThan(Carbon::parse($request->possible_end))) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Possible End can not be before the exit slut end!']],
+                ])->response()->setStatusCode(400);
+            }
         }
 
         $absentPresent->reading_station_slut_user_exit_id = $request->exists("reading_station_slut_user_exit_id") ? $request->reading_station_slut_user_exit_id : $absentPresent->reading_station_slut_user_exit_id;
