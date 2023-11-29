@@ -468,7 +468,7 @@ class ReadingStationUsersController extends Controller
             $absentPresent->day = $day;
             $absentPresent->is_optional_visit = false;
         }
-        $absentPresent->reading_station_slut_user_exit_id = $request->reading_station_slut_user_exit_id ?? $absentPresent->reading_station_slut_user_exit_id;
+        $absentPresent->reading_station_slut_user_exit_id = $request->exists("reading_station_slut_user_exit_id") ? $request->reading_station_slut_user_exit_id : $absentPresent->reading_station_slut_user_exit_id;
         $absentPresent->possible_end = $request->exists("possible_end") ? $request->possible_end : $absentPresent->possible_end;
         $absentPresent->end = $request->exists("end") ? $request->end : $absentPresent->end;
         $absentPresent->posssible_exit_way = $request->exists("posssible_exit_way") ? $request->posssible_exit_way : $absentPresent->posssible_exit_way;
