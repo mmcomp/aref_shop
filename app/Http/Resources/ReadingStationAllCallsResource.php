@@ -29,8 +29,9 @@ class ReadingStationAllCallsResource extends JsonResource
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
-                if (count($userSlut->calls) > 0) {
-                    $last_call_status = $userSlut->calls[count($userSlut->calls) - 1]->answered ? true : false;
+                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit');
+                if (count($noneExitCalls) > 0) {
+                    $last_call_status = $noneExitCalls[count($noneExitCalls) - 1]->answered ? true : false;
                 }
                 $optional_enter = $userSlut->is_required ? false : true;
                 if ($optional_enter) {
@@ -56,15 +57,7 @@ class ReadingStationAllCallsResource extends JsonResource
                 }
                 switch ($userSlut->status) {
                     case 'absent':
-                        $hasCall = null;
-                        $call = $userSlut->calls->where('reason', 'absence')->first();
-                        if ($call) {
-                            $hasCall = [
-                                "answered" => $call->answered ? true : false,
-                            ];
-                        }
                         $absent = [
-                            "hasCall" => $hasCall,
                             "reason_id" => $userSlut->reading_station_absent_reason_id,
                         ];
                         $absents++;
@@ -74,23 +67,17 @@ class ReadingStationAllCallsResource extends JsonResource
                     case 'late_45':
                     case 'late_60':
                     case 'late_60_plus':
-                        $hasCall = null;
-                        $call = $userSlut->calls->where('reason', 'latency')->first();
-                        if ($call) {
-                            $hasCall = [
-                                "answered" => $call->answered ? true : false,
-                            ];
-                        }
-                        $delay = [
-                            "hasCall" => $hasCall,
-                            "status" => $userSlut->status,
-                        ];
+                        $delay = $userSlut->status;
                         $delays++;
                         break;
                 }
                 $data[] = [
-                    "slut_name" => $userSlut->slut->name,
+                    "slut" => [
+                        "id" => $userSlut->slut->id,
+                        "name" => $userSlut->slut->name,
+                    ],
                     "user" => [
+                        "id" => $user->id,
                         "first_name" => $user->first_name,
                         "last_name" => $user->last_name,
                         "email" => $user->email,

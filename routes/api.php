@@ -186,11 +186,12 @@ Route::group([
 
 ], function ($router) {
     Route::get('/{readingStation}', [ReadingStationCallsController::class, 'index']);
+    Route::post('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendNoneExitCall']);
+    // Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendNoneExitCall']);
     // Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
     // Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
     // Route::get('/', [ReadingStationController::class, 'index']);
     // Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
-    // Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationUsersController::class, 'setUserSlutStatus']);
     // Route::post('/{readingStation}/users/{user}', [ReadingStationUsersController::class, 'addAbsentPresent']);
 });
 Route::group([
