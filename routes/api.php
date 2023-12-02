@@ -187,7 +187,8 @@ Route::group([
 ], function ($router) {
     Route::get('/{readingStation}', [ReadingStationCallsController::class, 'index']);
     Route::post('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendNoneExitCall']);
-    // Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendNoneExitCall']);
+    Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'updateExitSlutId']);
+    Route::put('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendExitCall']);
     // Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
     // Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
     // Route::get('/', [ReadingStationController::class, 'index']);

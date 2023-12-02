@@ -5111,6 +5111,102 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Change Exit Slut Id",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"reading_station_slut_user_exit_id\": 2\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-station-calls/1/users/1/slut/2",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-station-calls",
+												"1",
+												"users",
+												"1",
+												"slut",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Change Exit Way",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"exit_way\": \"father\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-station-calls/1/users/1/slut/2",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-station-calls",
+												"1",
+												"users",
+												"1",
+												"slut",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Send Exit Call",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"answered\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-station-calls/1/users/1/slut/2",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-station-calls",
+												"1",
+												"users",
+												"1",
+												"slut",
+												"2"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},

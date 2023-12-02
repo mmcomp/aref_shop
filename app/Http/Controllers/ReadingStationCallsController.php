@@ -6,8 +6,10 @@ use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
 use App\Models\User;
 use App\Http\Controllers\Utils\ReadingStationAuth;
+use App\Http\Requests\ReadingStationExitSlutUpdateRequest;
 use App\Http\Requests\ReadingStationNoneExitCallCreateRequest;
 use App\Http\Resources\ReadingStationAllCallsResource;
+use App\Models\ReadingStationAbsentPresent;
 use App\Models\ReadingStationCall;
 use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
@@ -108,6 +110,97 @@ class ReadingStationCallsController extends Controller
         return (new ReadingStationAllCallsResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    function updateExitSlutId(ReadingStationExitSlutUpdateRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
+    {
+        if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_call' => ['Reading station call are not available for you!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        if (!$this->hasProgram($user)) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $today = Carbon::now()->toDateString();
+        $absentPresent = ReadingStationAbsentPresent::where('user_id', $user->id)
+                            ->where('reading_station_id', $readingStation->id)
+                            ->where('day', $today)
+                            ->where('is_processed', 0)
+                            ->first();
+        if (!$absentPresent) {
+            $absentPresent = new ReadingStationAbsentPresent();
+            $absentPresent->user_id = $user->id;
+            $absentPresent->reading_station_id = $readingStation->id;
+            $absentPresent->day = $today;
+        }
+        $absentPresent->reading_station_slut_user_exit_id = $request->exists('reading_station_slut_user_exit_id') ? $request->reading_station_slut_user_exit_id : $absentPresent->reading_station_slut_user_exit_id;
+        $absentPresent->exit_way = $request->exists('exit_way') ? $request->exit_way : $absentPresent->exit_way;
+        $absentPresent->save();
+    
+        return (new ReadingStationResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+    }
+
+    function sendExitCall(ReadingStationNoneExitCallCreateRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
+    {
+        if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_call' => ['Reading station call are not available for you!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        if (!$this->hasProgram($user)) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $today = Carbon::now()->toDateString();
+        $absentPresent = ReadingStationAbsentPresent::where('user_id', $user->id)
+                            ->where('reading_station_id', $readingStation->id)
+                            ->where('day', $today)
+                            ->where('is_processed', 0)
+                            ->where('reading_station_slut_user_exit_id', '!=', 'NULL')
+                            ->first();
+        if (!$absentPresent) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user does not have a exit slut defined!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $exitSlutId = $absentPresent->reading_station_slut_user_exit_id;
+
+        $weeklyProgram = $this->thisWeekProgram($user);
+        $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $exitSlutId)->first();
+        if (!$slutUser) {
+            $slutUser = new ReadingStationSlutUser();
+            $slutUser->reading_station_slut_id = $exitSlutId;
+            $slutUser->reading_station_weekly_program_id = $weeklyProgram->id;
+            $slutUser->day = $today;
+            $slutUser->is_required = 0;
+            $slutUser->save();
+        }
+        if (ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->where('reason', 'exit')->first()) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station user already has an exit call for today for this slut!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $exitCall = new ReadingStationCall();
+        $exitCall->reading_station_slut_user_id = $slutUser->id;
+        $exitCall->reason = 'exit';
+        $exitCall->answered = $request->answered;
+        $exitCall->save();
+    
+        return (new ReadingStationResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, ?User $user = null): bool
