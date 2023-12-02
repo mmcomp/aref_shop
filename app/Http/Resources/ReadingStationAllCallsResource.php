@@ -49,9 +49,9 @@ class ReadingStationAllCallsResource extends JsonResource
                     }
                     $exit = [
                         "hasCall" => $hasCall,
-                        "possible_reason" => $absentPresent->possible_exit_way,
+                        "possible_exit_way" => $absentPresent->possible_exit_way,
                         "exit_slut_id" => $absentPresent->reading_station_slut_user_exit_id,
-                        "reason" => $absentPresent->exit_way,
+                        "exit_way" => $absentPresent->exit_way,
                     ];
                     $exits++;
                 }
