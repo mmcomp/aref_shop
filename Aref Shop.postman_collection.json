@@ -5177,6 +5177,38 @@
 									"response": []
 								},
 								{
+									"name": "Change Absent Reason",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"reading_station_absent_reason_id\": 1\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-station-calls/1/users/1/slut/2",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-station-calls",
+												"1",
+												"users",
+												"1",
+												"slut",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Send Exit Call",
 									"request": {
 										"method": "PUT",

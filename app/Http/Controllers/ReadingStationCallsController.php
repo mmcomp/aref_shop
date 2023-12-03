@@ -126,12 +126,28 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        if ($request->exists('reading_station_absent_reason_id')) {
+            $weeklyProgram = $this->thisWeekProgram($user);
+            $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->first();
+            if ($slutUser->status !== 'absent') {
+                return (new ReadingStationResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station user were not absent then!']],
+                ])->response()->setStatusCode(400);
+            }
+            $slutUser->reading_station_absent_reason_id = $request->reading_station_absent_reason_id;
+            $slutUser->save();
+
+            return (new ReadingStationResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(201);
+        }
+
         $today = Carbon::now()->toDateString();
         $absentPresent = ReadingStationAbsentPresent::where('user_id', $user->id)
-                            ->where('reading_station_id', $readingStation->id)
-                            ->where('day', $today)
-                            ->where('is_processed', 0)
-                            ->first();
+            ->where('reading_station_id', $readingStation->id)
+            ->where('day', $today)
+            ->where('is_processed', 0)
+            ->first();
         if (!$absentPresent) {
             $absentPresent = new ReadingStationAbsentPresent();
             $absentPresent->user_id = $user->id;
@@ -141,7 +157,7 @@ class ReadingStationCallsController extends Controller
         $absentPresent->reading_station_slut_user_exit_id = $request->exists('reading_station_slut_user_exit_id') ? $request->reading_station_slut_user_exit_id : $absentPresent->reading_station_slut_user_exit_id;
         $absentPresent->exit_way = $request->exists('exit_way') ? $request->exit_way : $absentPresent->exit_way;
         $absentPresent->save();
-    
+
         return (new ReadingStationResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -163,11 +179,11 @@ class ReadingStationCallsController extends Controller
 
         $today = Carbon::now()->toDateString();
         $absentPresent = ReadingStationAbsentPresent::where('user_id', $user->id)
-                            ->where('reading_station_id', $readingStation->id)
-                            ->where('day', $today)
-                            ->where('is_processed', 0)
-                            ->where('reading_station_slut_user_exit_id', '!=', 'NULL')
-                            ->first();
+            ->where('reading_station_id', $readingStation->id)
+            ->where('day', $today)
+            ->where('is_processed', 0)
+            ->where('reading_station_slut_user_exit_id', '!=', 'NULL')
+            ->first();
         if (!$absentPresent) {
             return (new ReadingStationResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user does not have a exit slut defined!']],
@@ -197,7 +213,7 @@ class ReadingStationCallsController extends Controller
         $exitCall->reason = 'exit';
         $exitCall->answered = $request->answered;
         $exitCall->save();
-    
+
         return (new ReadingStationResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
