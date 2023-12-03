@@ -27,7 +27,6 @@ class ReadingStationAllCallsResource extends JsonResource
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
-                dump($absentPresent);
                 $absent = null;
                 $last_call_status = null;
                 $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit');
@@ -48,6 +47,7 @@ class ReadingStationAllCallsResource extends JsonResource
                             "answered" => $call->answered ? true : false,
                         ];
                     }
+                    dump($absentPresent->possible_exit_way);
                     $exit = [
                         "hasCall" => $hasCall,
                         "possible_exit_way" => $absentPresent->possible_exit_way,
@@ -55,6 +55,7 @@ class ReadingStationAllCallsResource extends JsonResource
                         "exit_way" => $absentPresent->exit_way,
                         "possible_end" => $absentPresent->possible_end,
                     ];
+                    dump($exit);
                     $exits++;
                 }
                 switch ($userSlut->status) {
