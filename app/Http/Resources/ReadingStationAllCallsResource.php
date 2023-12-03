@@ -27,6 +27,7 @@ class ReadingStationAllCallsResource extends JsonResource
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
+                dump($absentPresent);
                 $absent = null;
                 $last_call_status = null;
                 $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit');
