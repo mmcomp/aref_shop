@@ -47,7 +47,6 @@ class ReadingStationAllCallsResource extends JsonResource
                             "answered" => $call->answered ? true : false,
                         ];
                     }
-                    dump($absentPresent);
                     $exit = [
                         "hasCall" => $hasCall,
                         "possible_exit_way" => $absentPresent->possible_exit_way,
@@ -55,7 +54,6 @@ class ReadingStationAllCallsResource extends JsonResource
                         "exit_way" => $absentPresent->exit_way,
                         "possible_end" => $absentPresent->possible_end,
                     ];
-                    dump($exit);
                     $exits++;
                 }
                 switch ($userSlut->status) {
