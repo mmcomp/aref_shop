@@ -76,6 +76,7 @@ class ReadingStationCallsController extends Controller
 
         $query = [];
         $now = Carbon::now()->toDateString();
+        $reasons = [];
         if ($slutUser->status === 'absent') {
             $query[] = [
                 "reading_station_slut_user_id" => $slutUser->id,
@@ -85,6 +86,7 @@ class ReadingStationCallsController extends Controller
                 "created_at" => $now,
                 "updated_at" => $now,
             ];
+            $reasons[] = "absence";
         } else if (str_starts_with($slutUser->status, 'late_')) {
             $query[] = [
                 "reading_station_slut_user_id" => $slutUser->id,
@@ -94,6 +96,7 @@ class ReadingStationCallsController extends Controller
                 "created_at" => $now,
                 "updated_at" => $now,
             ];
+            $reasons[] = "latency";
         }
         if (!$slutUser->is_required) {
             $query[] = [
@@ -104,7 +107,26 @@ class ReadingStationCallsController extends Controller
                 "created_at" => $now,
                 "updated_at" => $now,
             ];
+            $reasons[] = "entry";
         }
+        if (count($reasons) === 0) {
+            return (new ReadingStationResource(null))->additional([
+                'errors' => ['reading_station_user' => ['No reason to place a call!']],
+            ])->response()->setStatusCode(400);
+        }
+        if (!$request->exists('answered')) {
+            if (!ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->first()) {
+                return (new ReadingStationResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['No call to update description!']],
+                ])->response()->setStatusCode(400);
+            }
+            ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->update(['description'=>$request->description]);
+
+            return (new ReadingStationAllCallsResource(null))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        }
+
         ReadingStationCall::insert($query);
 
         return (new ReadingStationAllCallsResource(null))->additional([

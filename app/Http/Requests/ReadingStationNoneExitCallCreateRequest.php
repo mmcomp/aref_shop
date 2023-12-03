@@ -26,8 +26,8 @@ class ReadingStationNoneExitCallCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'answered' => 'required|boolean',
-            'description' => 'nullable|string|max:255',
+            'answered' => 'required_without:description|boolean',
+            'description' => 'required_without:answered|string|max:255',
         ];
     }
      /**
