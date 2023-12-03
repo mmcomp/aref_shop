@@ -475,7 +475,7 @@ class ReadingStationUsersController extends Controller
         $absentPresent->reading_station_slut_user_exit_id = $request->exists("reading_station_slut_user_exit_id") ? $request->reading_station_slut_user_exit_id : $absentPresent->reading_station_slut_user_exit_id;
         $absentPresent->possible_end = $request->exists("possible_end") ? $request->possible_end : $absentPresent->possible_end;
         $absentPresent->end = $request->exists("end") ? $request->end : $absentPresent->end;
-        $absentPresent->posssible_exit_way = $request->exists("posssible_exit_way") ? $request->posssible_exit_way : $absentPresent->posssible_exit_way;
+        $absentPresent->possible_exit_way = $request->exists("possible_exit_way") ? $request->possible_exit_way : $absentPresent->possible_exit_way;
         $absentPresent->exit_way = $request->exists("exit_way") ? $request->exit_way : $absentPresent->exit_way;
         $absentPresent->enter_way = $request->exists("enter_way") ? $request->enter_way : $absentPresent->enter_way;
         $absentPresent->is_optional_visit = $request->is_optional_visit ?? $absentPresent->is_optional_visit;

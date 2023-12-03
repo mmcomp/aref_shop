@@ -24,7 +24,7 @@ class ReadingStationAbsentPresentResource extends JsonResource
                 // 'slutUserExit' => new ReadingStationSlutUsersResource($this->slutUserExit),
                 'possible_end' => $this->possible_end,
                 'end' => $this->end,
-                'posssible_exit_way' => $this->posssible_exit_way,
+                'possible_exit_way' => $this->possible_exit_way,
                 'exit_way' => $this->exit_way,
                 'enter_way' => $this->enter_way,
                 'attachment_address' => $this->attachment_address,

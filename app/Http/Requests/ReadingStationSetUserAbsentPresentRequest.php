@@ -29,7 +29,7 @@ class ReadingStationSetUserAbsentPresentRequest extends FormRequest
             'reading_station_slut_user_exit_id' => 'nullable|exists:reading_station_sluts,id',
             'possible_end' => 'nullable|date_format:G:i',
             'end' => 'nullable|date_format:G:i',
-            'posssible_exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,tillnight,self',
+            'possible_exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,tillnight,self',
             'exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,self',
             'enter_way' => 'nullable|in:mother,father,relatives',
             'is_optional_visit' => 'nullable|bool',

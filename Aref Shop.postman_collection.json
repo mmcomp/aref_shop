@@ -4877,7 +4877,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"enter_way\": \"\",\n    // \"reading_station_slut_user_exit_id\": 22,\n    \"possible_end\": \"22:10\",\n    \"end\": \"\",\n    \"posssible_exit_way\": \"tillnight\",\n    \"exit_way\": \"\",\n    \"is_optional_visit\": true\n}",
+											"raw": "{\n    \"enter_way\": \"\",\n    \"reading_station_slut_user_exit_id\": 22,\n    \"possible_end\": \"22:10\",\n    \"end\": \"\",\n    \"possible_exit_way\": \"tillnight\",\n    \"exit_way\": \"\",\n    \"is_optional_visit\": true\n}",
 											"options": {
 												"raw": {
 													"language": "json"

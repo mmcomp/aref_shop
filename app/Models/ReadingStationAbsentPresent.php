@@ -19,7 +19,7 @@ class ReadingStationAbsentPresent extends Model
         'reading_station_slut_user_exit_id',
         'possible_end',
         'end',
-        'posssible_exit_way',
+        'possible_exit_way',
         'exit_way',
         'enter_way',
         'attachment_address',
