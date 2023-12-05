@@ -47,14 +47,16 @@ class ReadingStationAllCallsResource extends JsonResource
                             "answered" => $call->answered ? true : false,
                         ];
                     }
-                    $exit = [
-                        "hasCall" => $hasCall,
-                        "possible_exit_way" => $absentPresent->possible_exit_way,
-                        "exit_slut_id" => $absentPresent->reading_station_slut_user_exit_id,
-                        "exit_way" => $absentPresent->exit_way,
-                        "possible_end" => $absentPresent->possible_end,
-                    ];
-                    $exits++;
+                    if (!$hasCall || !$absentPresent->possible_exit_way || !$absentPresent->reading_station_slut_user_exit_id || !$absentPresent->exit_way || !$absentPresent->possible_end) {
+                        $exit = [
+                            "hasCall" => $hasCall,
+                            "possible_exit_way" => $absentPresent->possible_exit_way,
+                            "exit_slut_id" => $absentPresent->reading_station_slut_user_exit_id,
+                            "exit_way" => $absentPresent->exit_way,
+                            "possible_end" => $absentPresent->possible_end,
+                        ];
+                        $exits++;
+                    }
                 }
                 switch ($userSlut->status) {
                     case 'absent':
