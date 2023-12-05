@@ -15,6 +15,7 @@ use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReadingStationCallsController extends Controller
 {
@@ -83,6 +84,7 @@ class ReadingStationCallsController extends Controller
                 "reason" => "absence",
                 "answered" => $request->answered,
                 "description" => $request->description,
+                "caller_user_id" => Auth::user()->id,
                 "created_at" => $now,
                 "updated_at" => $now,
             ];
@@ -93,6 +95,7 @@ class ReadingStationCallsController extends Controller
                 "reason" => "latency",
                 "answered" => $request->answered,
                 "description" => $request->description,
+                "caller_user_id" => Auth::user()->id,
                 "created_at" => $now,
                 "updated_at" => $now,
             ];
@@ -104,6 +107,7 @@ class ReadingStationCallsController extends Controller
                 "reason" => "entry",
                 "answered" => $request->answered,
                 "description" => $request->description,
+                "caller_user_id" => Auth::user()->id,
                 "created_at" => $now,
                 "updated_at" => $now,
             ];
@@ -234,6 +238,7 @@ class ReadingStationCallsController extends Controller
         $exitCall->reading_station_slut_user_id = $slutUser->id;
         $exitCall->reason = 'exit';
         $exitCall->answered = $request->answered;
+        $exitCall->caller_user_id = Auth::user()->id;
         $exitCall->save();
 
         return (new ReadingStationResource(null))->additional([
