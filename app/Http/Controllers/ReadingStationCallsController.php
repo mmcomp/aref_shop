@@ -134,7 +134,7 @@ class ReadingStationCallsController extends Controller
 
         ReadingStationCall::insert($query);
 
-        return (new ReadingStationAllCallsResource(null))->additional([
+        return (new ReadingStationAllCallsResource([$slutUser]))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
