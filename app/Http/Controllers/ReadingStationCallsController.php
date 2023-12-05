@@ -68,7 +68,8 @@ class ReadingStationCallsController extends Controller
         }
 
         $weeklyProgram = $this->thisWeekProgram($user);
-        $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->first();
+        $today = Carbon::now()->toDateString();
+        $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
         if (!$slutUser) {
             return (new ReadingStationResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Selected slut is not available for this user!']],
