@@ -153,9 +153,10 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        $today = Carbon::now()->toDateString();
         if ($request->exists('reading_station_absent_reason_id')) {
             $weeklyProgram = $this->thisWeekProgram($user);
-            $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->first();
+            $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
             if ($slutUser->status !== 'absent') {
                 return (new ReadingStationResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station user were not absent then!']],
@@ -169,7 +170,6 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(201);
         }
 
-        $today = Carbon::now()->toDateString();
         $absentPresent = ReadingStationAbsentPresent::where('user_id', $user->id)
             ->where('reading_station_id', $readingStation->id)
             ->where('day', $today)
