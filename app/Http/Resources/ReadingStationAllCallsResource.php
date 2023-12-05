@@ -47,7 +47,13 @@ class ReadingStationAllCallsResource extends JsonResource
                             "answered" => $call->answered ? true : false,
                         ];
                     }
-                    if (!$hasCall || !$absentPresent->possible_exit_way || !$absentPresent->reading_station_slut_user_exit_id || !$absentPresent->exit_way || !$absentPresent->possible_end) {
+                    if (
+                        $hasCall ||
+                        $absentPresent->possible_exit_way ||
+                        $absentPresent->reading_station_slut_user_exit_id ||
+                        $absentPresent->exit_way ||
+                        $absentPresent->possible_end
+                    ) {
                         $exit = [
                             "hasCall" => $hasCall,
                             "possible_exit_way" => $absentPresent->possible_exit_way,
