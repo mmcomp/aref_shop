@@ -220,7 +220,7 @@ class ReadingStationCallsController extends Controller
         $exitSlutId = $absentPresent->reading_station_slut_user_exit_id;
 
         $weeklyProgram = $this->thisWeekProgram($user);
-        $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $exitSlutId)->first();
+        $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $exitSlutId)->where('day', $today)->first();
         if (!$slutUser) {
             $slutUser = new ReadingStationSlutUser();
             $slutUser->reading_station_slut_id = $exitSlutId;
