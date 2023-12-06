@@ -80,38 +80,11 @@ class ReadingStationCallsController extends Controller
         $now = Carbon::now()->toDateString();
         $reasons = [];
         if ($slutUser->status === 'absent') {
-            $query[] = [
-                "reading_station_slut_user_id" => $slutUser->id,
-                "reason" => "absence",
-                "answered" => $request->answered,
-                "description" => $request->description,
-                "caller_user_id" => Auth::user()->id,
-                "created_at" => $now,
-                "updated_at" => $now,
-            ];
             $reasons[] = "absence";
         } else if (str_starts_with($slutUser->status, 'late_')) {
-            $query[] = [
-                "reading_station_slut_user_id" => $slutUser->id,
-                "reason" => "latency",
-                "answered" => $request->answered,
-                "description" => $request->description,
-                "caller_user_id" => Auth::user()->id,
-                "created_at" => $now,
-                "updated_at" => $now,
-            ];
             $reasons[] = "latency";
         }
         if (!$slutUser->is_required) {
-            $query[] = [
-                "reading_station_slut_user_id" => $slutUser->id,
-                "reason" => "entry",
-                "answered" => $request->answered,
-                "description" => $request->description,
-                "caller_user_id" => Auth::user()->id,
-                "created_at" => $now,
-                "updated_at" => $now,
-            ];
             $reasons[] = "entry";
         }
         if (count($reasons) === 0) {
@@ -125,14 +98,22 @@ class ReadingStationCallsController extends Controller
                     'errors' => ['reading_station_user' => ['No call to update description!']],
                 ])->response()->setStatusCode(400);
             }
-            ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->update(['description'=>$request->description]);
+            ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->update(['description' => $request->description]);
 
             return (new ReadingStationAllCallsResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
 
-        ReadingStationCall::insert($query);
+        ReadingStationCall::insert([[
+            "reading_station_slut_user_id" => $slutUser->id,
+            "reason" => "none_exit",
+            "answered" => $request->answered,
+            "description" => $request->description,
+            "caller_user_id" => Auth::user()->id,
+            "created_at" => $now,
+            "updated_at" => $now,
+        ]]);
 
         return (new ReadingStationAllCallsResource([$slutUser]))->additional([
             'errors' => null,
