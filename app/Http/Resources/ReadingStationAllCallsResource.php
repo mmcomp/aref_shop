@@ -39,10 +39,11 @@ class ReadingStationAllCallsResource extends JsonResource
                 }
                 $delay = null;
                 $exit = null;
-                // dump($absentPresent);
+                dump($absentPresent);
+                dump($user);
+                dump($userSlut->calls);
                 if ($absentPresent) {
-                    dump($user);
-                    dump($userSlut->calls);
+
                     $hasCall = null;
                     $call = $userSlut->calls->where('reason', 'exit')->first();
 
