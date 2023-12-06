@@ -26,9 +26,9 @@ class ReadingStationExitSlutUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'reading_station_slut_user_exit_id' => 'required_without_all:exit_way,reading_station_absent_reason_id|exists:reading_station_sluts,id',
-            'exit_way' => 'required_without_all:reading_station_slut_user_exit_id,reading_station_absent_reason_id|in:taxi,mother,father,relatives,parents_notified,self',
-            'reading_station_absent_reason_id' => 'required_without_all:exit_way,reading_station_slut_user_exit_id|exists:reading_station_absent_reasons,id',
+            'reading_station_slut_user_exit_id' => 'nullable|exists:reading_station_sluts,id',
+            'exit_way' => 'nullable|in:taxi,mother,father,relatives,parents_notified,self',
+            'reading_station_absent_reason_id' => 'nullable|exists:reading_station_absent_reasons,id',
         ];
     }
      /**
