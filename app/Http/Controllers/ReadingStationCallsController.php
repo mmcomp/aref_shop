@@ -223,9 +223,9 @@ class ReadingStationCallsController extends Controller
         $exitCall->caller_user_id = Auth::user()->id;
         $exitCall->save();
 
-        return (new ReadingStationResource(null))->additional([
+        return (new ReadingStationAllCallsResource([$slutUser]))->additional([
             'errors' => null,
-        ])->response()->setStatusCode(201);
+        ])->response()->setStatusCode(200);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, ?User $user = null): bool
