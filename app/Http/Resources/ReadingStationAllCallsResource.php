@@ -103,6 +103,8 @@ class ReadingStationAllCallsResource extends JsonResource
                 if($last_call_status!==null) {
                     $noneExitCallSituation = true;
                 }
+                dump($exitCallSituation);
+                dump($noneExitCallSituation);
                 if ($exitCallSituation && $noneExitCallSituation) continue;
                 $data[] = [
                     "slut" => [
@@ -127,7 +129,7 @@ class ReadingStationAllCallsResource extends JsonResource
                     "last_call_status" => $last_call_status,
                 ];
             }
-
+            dd();
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
