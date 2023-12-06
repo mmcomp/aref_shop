@@ -53,7 +53,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     $hasCall = null;
                     $call = null;
                     $this->exitCalls->map(function ($_call) use (&$call, $user) {
-                        if($_call->slutUser->weeklyProgram->readingStationUser->user->id === $user->id) {
+                        if ($_call->slutUser->weeklyProgram->readingStationUser->user->id === $user->id) {
                             $call = $_call;
                         }
                     });
@@ -79,7 +79,9 @@ class ReadingStationNeededCallsResource extends JsonResource
                             "exit_way" => $absentPresent->exit_way,
                             "possible_end" => $absentPresent->possible_end,
                         ];
-                        $exits++;
+                        if (!$exitCallSituation) {
+                            $exits++;
+                        }
                     }
                 }
                 switch ($userSlut->status) {
@@ -87,7 +89,9 @@ class ReadingStationNeededCallsResource extends JsonResource
                         $absent = [
                             "reason_id" => $userSlut->reading_station_absent_reason_id,
                         ];
-                        $absents++;
+                        if (!$last_call_status) {
+                            $absents++;
+                        }
                         $noneExitCallSituation = false;
                         break;
                     case 'late_15':
@@ -96,11 +100,13 @@ class ReadingStationNeededCallsResource extends JsonResource
                     case 'late_60':
                     case 'late_60_plus':
                         $delay = $userSlut->status;
-                        $delays++;
+                        if (!$last_call_status) {
+                            $delays++;
+                        }
                         $noneExitCallSituation = false;
                         break;
                 }
-                if($last_call_status===true) {
+                if ($last_call_status === true) {
                     $noneExitCallSituation = true;
                 }
                 if ($exitCallSituation && $noneExitCallSituation) continue;
