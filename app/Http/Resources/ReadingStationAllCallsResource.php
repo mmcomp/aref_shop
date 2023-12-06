@@ -39,9 +39,9 @@ class ReadingStationAllCallsResource extends JsonResource
                 }
                 $delay = null;
                 $exit = null;
+                dump($absentPresent);
                 if ($absentPresent) {
                     $hasCall = null;
-                    dump($userSlut->calls);
                     $call = $userSlut->calls->where('reason', 'exit')->first();
                     if ($call) {
                         $hasCall = [
@@ -105,6 +105,7 @@ class ReadingStationAllCallsResource extends JsonResource
                 ];
             }
 
+            dd();
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
