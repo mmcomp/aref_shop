@@ -43,8 +43,10 @@ class ReadingStationAllCallsResource extends JsonResource
                 if ($absentPresent) {
                     $hasCall = null;
                     $call = $userSlut->calls->where('reason', 'exit')->first();
-                    if (!$call)
+                    if (!$call) {
+                        dump($user);
                         dump($userSlut->calls);
+                    }
                     if ($call) {
                         $hasCall = [
                             "answered" => $call->answered ? true : false,
@@ -107,7 +109,7 @@ class ReadingStationAllCallsResource extends JsonResource
                 ];
             }
 
-            // dd();
+            dd();
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
