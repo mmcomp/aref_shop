@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-class ReadingStationAllCallsResource extends JsonResource
+class ReadingStationNeededCallsResource extends JsonResource
 {
     private $exitCalls;
 
@@ -32,6 +32,8 @@ class ReadingStationAllCallsResource extends JsonResource
             $data = [];
 
             foreach ($this->resource as $userSlut) {
+                $exitCallSituation = true;
+                $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
@@ -60,6 +62,8 @@ class ReadingStationAllCallsResource extends JsonResource
                         $hasCall = [
                             "answered" => $call->answered ? true : false,
                         ];
+                    } else {
+                        $exitCallSituation = false;
                     }
                     if (
                         $hasCall ||
@@ -84,6 +88,7 @@ class ReadingStationAllCallsResource extends JsonResource
                             "reason_id" => $userSlut->reading_station_absent_reason_id,
                         ];
                         $absents++;
+                        $noneExitCallSituation = false;
                         break;
                     case 'late_15':
                     case 'late_30':
@@ -92,9 +97,13 @@ class ReadingStationAllCallsResource extends JsonResource
                     case 'late_60_plus':
                         $delay = $userSlut->status;
                         $delays++;
+                        $noneExitCallSituation = false;
                         break;
                 }
-
+                if($last_call_status===true) {
+                    $noneExitCallSituation = true;
+                }
+                if ($exitCallSituation && $noneExitCallSituation) continue;
                 $data[] = [
                     "slut" => [
                         "id" => $userSlut->slut->id,

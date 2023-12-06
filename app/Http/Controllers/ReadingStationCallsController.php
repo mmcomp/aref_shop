@@ -9,6 +9,7 @@ use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationExitSlutUpdateRequest;
 use App\Http\Requests\ReadingStationNoneExitCallCreateRequest;
 use App\Http\Resources\ReadingStationAllCallsResource;
+use App\Http\Resources\ReadingStationNeededCallsResource;
 use App\Models\ReadingStationAbsentPresent;
 use App\Models\ReadingStationCall;
 use App\Models\ReadingStationSlut;
@@ -51,7 +52,7 @@ class ReadingStationCallsController extends Controller
             ->whereDate('created_at', Carbon::today())
             ->get();
 
-        return (new ReadingStationAllCallsResource($todaySluts, $exitCalls))->additional([
+        return (new ReadingStationNeededCallsResource($todaySluts, $exitCalls))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -80,7 +81,6 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $query = [];
         $now = Carbon::now()->toDateString();
         $reasons = [];
         if ($slutUser->status === 'absent') {
@@ -96,6 +96,11 @@ class ReadingStationCallsController extends Controller
                 'errors' => ['reading_station_user' => ['No reason to place a call!']],
             ])->response()->setStatusCode(400);
         }
+
+        $exitCalls = ReadingStationCall::where('reason', 'exit')
+            ->whereDate('created_at', Carbon::today())
+            ->get();
+
         if (!$request->exists('answered')) {
             if (!ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->first()) {
                 return (new ReadingStationResource(null))->additional([
@@ -104,7 +109,7 @@ class ReadingStationCallsController extends Controller
             }
             ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->update(['description' => $request->description]);
 
-            return (new ReadingStationAllCallsResource(null, null))->additional([
+            return (new ReadingStationAllCallsResource([$slutUser], $exitCalls))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
@@ -119,10 +124,6 @@ class ReadingStationCallsController extends Controller
             "updated_at" => $now,
         ]]);
 
-
-        $exitCalls = ReadingStationCall::where('reason', 'exit')
-            ->whereDate('created_at', Carbon::today())
-            ->get();
 
         return (new ReadingStationAllCallsResource([$slutUser], $exitCalls))->additional([
             'errors' => null,
