@@ -24,7 +24,7 @@ class ReadingStationNeededCallsResource extends JsonResource
     public function toArray($request)
     {
         if ($this->resource != null) {
-            $all = count($this->resource);
+            $all = 0;
             $optional_enters = 0;
             $delays = 0;
             $absents = 0;
@@ -44,7 +44,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     $last_call_status = $noneExitCalls[count($noneExitCalls) - 1]->answered ? true : false;
                 }
                 $optional_enter = $userSlut->is_required ? false : true;
-                if ($optional_enter) {
+                if ($optional_enter && !$last_call_status) {
                     $optional_enters++;
                 }
                 $delay = null;
@@ -110,6 +110,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     $noneExitCallSituation = true;
                 }
                 if ($exitCallSituation && $noneExitCallSituation) continue;
+                $all++;
                 $data[] = [
                     "slut" => [
                         "id" => $userSlut->slut->id,
