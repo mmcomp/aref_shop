@@ -100,10 +100,10 @@ class ReadingStationAllCallsResource extends JsonResource
                         $noneExitCallSituation = false;
                         break;
                 }
-                if($last_call_status!==null) {
+                if($last_call_status===true) {
                     $noneExitCallSituation = true;
                 }
-                // if ($exitCallSituation && $noneExitCallSituation) continue;
+                if ($exitCallSituation && $noneExitCallSituation) continue;
                 $data[] = [
                     "slut" => [
                         "id" => $userSlut->slut->id,
