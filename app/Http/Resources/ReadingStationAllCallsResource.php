@@ -24,6 +24,7 @@ class ReadingStationAllCallsResource extends JsonResource
             $data = [];
 
             foreach ($this->resource as $userSlut) {
+                dump($userSlut->id);
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
@@ -39,9 +40,9 @@ class ReadingStationAllCallsResource extends JsonResource
                 }
                 $delay = null;
                 $exit = null;
-                dump($absentPresent);
-                dump($user);
-                dump($userSlut->calls);
+                // dump($absentPresent);
+                // dump($user);
+                // dump($userSlut->calls);
                 if ($absentPresent) {
 
                     $hasCall = null;
