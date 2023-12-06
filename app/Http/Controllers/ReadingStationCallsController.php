@@ -47,7 +47,11 @@ class ReadingStationCallsController extends Controller
             ->where('status', '!=', 'defined')
             ->get();
 
-        return (new ReadingStationAllCallsResource($todaySluts))->additional([
+        $exitCalls = ReadingStationCall::where('reason', 'exit')
+            ->whereDate('created_at', Carbon::today())
+            ->get();
+
+        return (new ReadingStationAllCallsResource($todaySluts, $exitCalls))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -100,7 +104,7 @@ class ReadingStationCallsController extends Controller
             }
             ReadingStationCall::where('reading_station_slut_user_id', $slutUser->id)->update(['description' => $request->description]);
 
-            return (new ReadingStationAllCallsResource(null))->additional([
+            return (new ReadingStationAllCallsResource(null, null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
@@ -115,7 +119,12 @@ class ReadingStationCallsController extends Controller
             "updated_at" => $now,
         ]]);
 
-        return (new ReadingStationAllCallsResource([$slutUser]))->additional([
+
+        $exitCalls = ReadingStationCall::where('reason', 'exit')
+            ->whereDate('created_at', Carbon::today())
+            ->get();
+
+        return (new ReadingStationAllCallsResource([$slutUser], $exitCalls))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -223,7 +232,12 @@ class ReadingStationCallsController extends Controller
         $exitCall->caller_user_id = Auth::user()->id;
         $exitCall->save();
 
-        return (new ReadingStationAllCallsResource([$slutUser]))->additional([
+
+        $exitCalls = ReadingStationCall::where('reason', 'exit')
+            ->whereDate('created_at', Carbon::today())
+            ->get();
+
+        return (new ReadingStationAllCallsResource([$slutUser], $exitCalls))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

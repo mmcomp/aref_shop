@@ -16,4 +16,9 @@ class ReadingStationCall extends Model
         'description',
         'caller_user_id',
     ];
+
+    function slutUser()
+    {
+        return $this->hasOne(ReadingStationSlutUser::class, 'id', 'reading_station_slut_user_id');
+    }
 }

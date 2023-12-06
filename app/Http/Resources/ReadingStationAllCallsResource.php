@@ -7,6 +7,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReadingStationAllCallsResource extends JsonResource
 {
+    private $exitCalls;
+
+    public function __construct($resource, $exitCalls)
+    {
+        parent::__construct($resource);
+        $this->exitCalls = $exitCalls;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -24,7 +32,6 @@ class ReadingStationAllCallsResource extends JsonResource
             $data = [];
 
             foreach ($this->resource as $userSlut) {
-                dump($userSlut->id);
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
@@ -40,13 +47,15 @@ class ReadingStationAllCallsResource extends JsonResource
                 }
                 $delay = null;
                 $exit = null;
-                // dump($absentPresent);
-                // dump($user);
-                // dump($userSlut->calls);
                 if ($absentPresent) {
 
                     $hasCall = null;
-                    $call = $userSlut->calls->where('reason', 'exit')->first();
+                    $call = null;
+                    $this->exitCalls->map(function ($_call) use (&$call, $user) {
+                        if($_call->slutUser->weeklyProgram->readingStationUser->user->id === $user->id) {
+                            $call = $_call;
+                        }
+                    });
 
                     if ($call) {
                         $hasCall = [
@@ -110,7 +119,6 @@ class ReadingStationAllCallsResource extends JsonResource
                 ];
             }
 
-            dd();
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
