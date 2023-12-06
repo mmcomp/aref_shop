@@ -62,7 +62,7 @@ class ReadingStationAllCallsResource extends JsonResource
                         $hasCall = [
                             "answered" => $call->answered ? true : false,
                         ];
-                    } {
+                    } else {
                         $exitCallSituation = false;
                     }
                     if (
