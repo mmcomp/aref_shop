@@ -41,6 +41,7 @@ class ReadingStationAllCallsResource extends JsonResource
                 $exit = null;
                 if ($absentPresent) {
                     $hasCall = null;
+                    dd($userSlut->calls);
                     $call = $userSlut->calls->where('reason', 'exit')->first();
                     if ($call) {
                         $hasCall = [
