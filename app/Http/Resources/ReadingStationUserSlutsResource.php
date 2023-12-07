@@ -46,7 +46,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                             if (Carbon::parse($a->slut->start)->greaterThan(Carbon::parse($b->slut->start))) return 1;
                             return -1;
                         })->filter(function ($_slut) {
-                            return Carbon::now()->toDateString() == $_slut->day;
+                            return Carbon::now()->toDateString() == $_slut->day && $_slut->is_required;
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
                         })->toArray();
