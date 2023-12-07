@@ -157,7 +157,7 @@ class ReadingStationUsersController extends Controller
         if (!$userSlut->id) {
             if ($request->status === 'absent' || $request->status === 'defined') {
                 return (new ReadingStationUsersResource(null))->additional([
-                    'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
+                    'errors' => ['reading_station_user' => ['Reading station user is not required for this slut!']],
                 ])->response()->setStatusCode(400);
             }
             $thisWeeklyProgram = null;
