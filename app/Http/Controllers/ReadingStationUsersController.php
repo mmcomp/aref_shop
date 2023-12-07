@@ -177,6 +177,14 @@ class ReadingStationUsersController extends Controller
             $userSlut->reading_station_slut_id = $slut->id;
             $userSlut->day = $today;
             $userSlut->is_required = false;
+        } else {
+            if ($request->status === 'defined') {
+                $userSlut->delete();
+
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => null,
+                ])->response()->setStatusCode(201);
+            }
         }
         $userSlut->status = $request->status;
         $userSlut->save();
