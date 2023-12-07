@@ -178,7 +178,7 @@ class ReadingStationUsersController extends Controller
             $userSlut->day = $today;
             $userSlut->is_required = false;
         } else {
-            if ($request->status === 'defined' && !$request->is_required) {
+            if ($request->status === 'defined' && !$userSlut->is_required) {
                 $userSlut->delete();
 
                 return (new ReadingStationUsersResource(null))->additional([
