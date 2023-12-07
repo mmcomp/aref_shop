@@ -46,6 +46,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $optional_enter = $userSlut->is_required ? false : true;
                 if ($optional_enter && !$last_call_status) {
                     $optional_enters++;
+                    $noneExitCallSituation = false;
                 }
                 $delay = null;
                 $exit = null;
