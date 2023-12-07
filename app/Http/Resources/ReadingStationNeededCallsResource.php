@@ -30,6 +30,7 @@ class ReadingStationNeededCallsResource extends JsonResource
             $absents = 0;
             $exits = 0;
             $data = [];
+            $exitUsers = [];
 
             foreach ($this->resource as $userSlut) {
                 $exitCallSituation = true;
@@ -50,7 +51,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 }
                 $delay = null;
                 $exit = null;
-                if ($absentPresent) {
+                if ($absentPresent && !in_array($user->id, $exitUsers)) {
                     $hasCall = null;
                     $call = null;
                     $this->exitCalls->map(function ($_call) use (&$call, $user) {
@@ -82,6 +83,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                         ];
                         if (!$exitCallSituation) {
                             $exits++;
+                            $exitUsers[] = $user->id;
                         }
                     }
                 }
