@@ -18,7 +18,12 @@ class ReadingStationExitsResource extends JsonResource
     {
         if ($this->resource) {
             return $this->resource->map(function (ReadingStationAbsentPresent $data) {
-                dump($data->user->readingStationUser);
+                $calls = 0;
+                $data->user->readingStationUser->weeklyPrograms->map(function ($weeklyProgram) use (&$calls) {
+                    $weeklyProgram->sluts->map(function ($slut) use (&$calls) {
+                        $calls += count($slut->calls);
+                    });
+                });
                 return [
                     "id" => $data->id,
                     "table_number" => $data->user->readingStationUser->table_number,
@@ -33,7 +38,7 @@ class ReadingStationExitsResource extends JsonResource
                     "possible_exit_way" => $data->possible_exit_way,
                     "possible_end" => $data->possible_end,
                     "exit_delay" => $data->exit_delay,
-                    "calls" => $data->user->readingStationUser->calls ? count($data->user->readingStationUser->calls) : 0,
+                    "calls" => $calls,
                     "exited" => $data->is_processed,
                 ];
             });
