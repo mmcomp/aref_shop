@@ -29,6 +29,7 @@ use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationChangeExitsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Resources\ReadingStationExitsResource;
+use App\Models\ReadingStationCall;
 
 class ReadingStationUsersController extends Controller
 {
@@ -529,7 +530,7 @@ class ReadingStationUsersController extends Controller
         $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
-            if ($readingStationId !== $readingStationAbsentPresent->reading_station_id) {
+            if ($readingStationId !== $readingStationAbsentPresent->reading_station_id || $readingStation->id !== $readingStationId) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
@@ -540,6 +541,20 @@ class ReadingStationUsersController extends Controller
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Bad Request!']],
             ])->response()->setStatusCode(400);
+        }
+
+        if ($request->exists('exit_way')) {
+            $now = Carbon::now()->toDateString();
+            ReadingStationCall::insert([[
+                "reading_station_slut_user_id" => $readingStationAbsentPresent->user->readingStationUser->id,
+                "reason" => "none_exit",
+                "answered" => true,
+                "caller_user_id" => Auth::user()->id,
+                "created_at" => $now,
+                "updated_at" => $now,
+            ]]);
+        } elseif ($request->exists('exited') && !$readingStationAbsentPresent->exit_way) {
+            $readingStationAbsentPresent->exit_way = $readingStationAbsentPresent->possible_exit_way; 
         }
 
         $readingStationAbsentPresent->exit_delay = $request->exists('exit_delay') ? $request->exit_delay : $readingStationAbsentPresent->exit_delay;

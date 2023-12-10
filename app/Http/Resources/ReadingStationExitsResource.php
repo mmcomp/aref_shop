@@ -17,8 +17,8 @@ class ReadingStationExitsResource extends JsonResource
     public function toArray($request)
     {
         if ($this->resource) {
-
             return $this->resource->map(function (ReadingStationAbsentPresent $data) {
+                dump($data->user->readingStationUser->calls);
                 return [
                     "id" => $data->id,
                     "table_number" => $data->user->readingStationUser->table_number,
