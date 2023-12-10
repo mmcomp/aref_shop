@@ -25,6 +25,7 @@ class ReadingStationAbsentPresent extends Model
         'attachment_address',
         'is_optional_visit',
         'is_processed',
+        'exit_delay',
     ];
 
     public function slutUserExit()

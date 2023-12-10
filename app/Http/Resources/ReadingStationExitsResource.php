@@ -27,6 +27,7 @@ class ReadingStationExitsResource extends JsonResource
                     "exit_way" => $data->exit_way,
                     "possible_exit_way" => $data->possible_exit_way,
                     "possible_end" => $data->possible_end,
+                    "exit_delay" => $data->exit_delay,
                     "calls" => $data->user->readingStationUser->calls ? count($data->user->readingStationUser->calls) : 0,
                 ];
             });

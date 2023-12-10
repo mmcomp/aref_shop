@@ -5268,7 +5268,8 @@
 													"disabled": true
 												}
 											]
-										}
+										},
+										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
 									},
 									"response": []
 								}
