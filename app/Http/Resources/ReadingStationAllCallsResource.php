@@ -37,7 +37,7 @@ class ReadingStationAllCallsResource extends JsonResource
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
-                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit');
+                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit')->where('updated_at', '>=', $userSlut->updated_at);
                 if (count($noneExitCalls) > 0) {
                     $last_call_status = $noneExitCalls[count($noneExitCalls) - 1]->answered ? true : false;
                 }

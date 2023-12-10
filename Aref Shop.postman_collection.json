@@ -5243,6 +5243,31 @@
 							]
 						},
 						{
+							"name": "Exits",
+							"item": [
+								{
+									"name": "Load all today exits",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/exits",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"exits"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Create",
 							"request": {
 								"method": "POST",

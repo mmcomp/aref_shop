@@ -31,4 +31,9 @@ class ReadingStationAbsentPresent extends Model
     {
         return $this->belongsTo(ReadingStationSlutUser::class, 'reading_station_slut_user_exit_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);    
+    }
 }

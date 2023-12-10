@@ -26,6 +26,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\ReadingStationAuth;
+use App\Http\Resources\ReadingStationExitsResource;
 
 class ReadingStationUsersController extends Controller
 {
@@ -493,6 +494,40 @@ class ReadingStationUsersController extends Controller
         return (new ReadingStationAbsentPresentResource($absentPresent))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    function allExit(ReadingStation $readingStation)
+    {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $absentPresents = ReadingStationAbsentPresent::where('reading_station_id', $readingStation->id)
+                            ->where('is_processed', 0)
+                            ->where('day', Carbon::now()->toDateString())
+                            ->get();
+        return (new ReadingStationExitsResource($absentPresents))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    function allExitOfSlut(ReadingStation $readingStation, ReadingStationSlut $slut)
+    {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
