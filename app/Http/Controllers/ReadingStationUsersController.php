@@ -26,6 +26,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\ReadingStationAuth;
+use App\Http\Requests\ReadingStationChangeExitsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Resources\ReadingStationExitsResource;
 
@@ -521,17 +522,32 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
-    function allExitOfSlut(ReadingStation $readingStation, ReadingStationSlut $slut)
+    function updateExitRecord(ReadingStationChangeExitsRequest $request, ReadingStation $readingStation, ReadingStationAbsentPresent $readingStationAbsentPresent)
     {
         $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
-            if ($readingStationId !== $readingStation->id) {
+            if ($readingStationId !== $readingStationAbsentPresent->reading_station_id) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
         }
+
+        if (!$request->exists('exit_delay') && !$request->exists('exit_way') && !$request->exists('exited')) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Bad Request!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $readingStationAbsentPresent->exit_delay = $request->exists('exit_delay') ? $request->exit_delay : $readingStationAbsentPresent->exit_delay;
+        $readingStationAbsentPresent->exit_way = $request->exists('exit_way') ? $request->exit_way : $readingStationAbsentPresent->exit_way;
+        $readingStationAbsentPresent->is_processed = $request->exists('exited') ? $request->exited : $readingStationAbsentPresent->is_processed;
+        $readingStationAbsentPresent->save();
+
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool

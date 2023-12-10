@@ -20,6 +20,7 @@ class ReadingStationExitsResource extends JsonResource
 
             return $this->resource->map(function (ReadingStationAbsentPresent $data) {
                 return [
+                    "id" => $data->id,
                     "table_number" => $data->user->readingStationUser->table_number,
                     "first_name" => $data->user->first_name,
                     "last_name" => $data->user->last_name,
