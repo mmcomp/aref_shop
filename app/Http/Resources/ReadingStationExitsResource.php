@@ -23,11 +23,11 @@ class ReadingStationExitsResource extends JsonResource
                     "table_number" => $data->user->readingStationUser->table_number,
                     "first_name" => $data->user->first_name,
                     "last_name" => $data->user->last_name,
-                    "reading_station_slut_user_exit" => [
+                    "reading_station_slut_user_exit" => $data->slutUserExit ? [
                         "name" => $data->slutUserExit->name,
                         "start" => $data->slutUserExit->start,
                         "end" => $data->slutUserExit->end,
-                    ],
+                    ] : null,
                     "exit_way" => $data->exit_way,
                     "possible_exit_way" => $data->possible_exit_way,
                     "possible_end" => $data->possible_end,

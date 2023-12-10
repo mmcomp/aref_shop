@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ReadingStationAbsentPresent extends Model
@@ -30,7 +29,7 @@ class ReadingStationAbsentPresent extends Model
 
     public function slutUserExit()
     {
-        return $this->belongsTo(ReadingStationSlutUser::class, 'reading_station_slut_user_exit_id');
+        return $this->belongsTo(ReadingStationSlut::class, 'reading_station_slut_user_exit_id');
     }
 
     public function user()
