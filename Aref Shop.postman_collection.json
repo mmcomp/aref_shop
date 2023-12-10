@@ -5260,6 +5260,13 @@
 												"reading-stations",
 												"1",
 												"exits"
+											],
+											"query": [
+												{
+													"key": "reading_station_slut_user_exit_id",
+													"value": "1",
+													"disabled": true
+												}
 											]
 										}
 									},

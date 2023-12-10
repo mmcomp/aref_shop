@@ -26,6 +26,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\ReadingStationAuth;
+use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Resources\ReadingStationExitsResource;
 
 class ReadingStationUsersController extends Controller
@@ -496,7 +497,7 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
-    function allExit(ReadingStation $readingStation)
+    function allExit(ReadingStationIndexExitsRequest $request, ReadingStation $readingStation)
     {
         $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
         if ($isReadingStationBranchAdmin) {
@@ -509,9 +510,13 @@ class ReadingStationUsersController extends Controller
         }
 
         $absentPresents = ReadingStationAbsentPresent::where('reading_station_id', $readingStation->id)
-                            ->where('is_processed', 0)
-                            ->where('day', Carbon::now()->toDateString())
-                            ->get();
+            ->where('is_processed', 0)
+            ->where('day', Carbon::now()->toDateString());
+        if ($request->reading_station_slut_user_exit_id) {
+            $absentPresents->where('reading_station_slut_user_exit_id', $request->reading_station_slut_user_exit_id);
+        }
+        $absentPresents = $absentPresents->get();
+
         return (new ReadingStationExitsResource($absentPresents))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
