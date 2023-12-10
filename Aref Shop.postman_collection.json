@@ -5272,6 +5272,37 @@
 										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
 									},
 									"response": []
+								},
+								{
+									"name": "Update Exit",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"exit_delay\": \"none\",\n    \"exit_way\": \"taxi\",\n    \"exited\": false\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/exits/15",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"exits",
+												"15"
+											]
+										},
+										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
+									},
+									"response": []
 								}
 							]
 						},
