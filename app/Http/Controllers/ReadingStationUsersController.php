@@ -548,7 +548,7 @@ class ReadingStationUsersController extends Controller
             $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
             ReadingStationCall::insert([[
                 "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
-                "reason" => "none_exit",
+                "reason" => "exit",
                 "answered" => true,
                 "caller_user_id" => Auth::user()->id,
                 "created_at" => $now,
