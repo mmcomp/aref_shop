@@ -81,7 +81,7 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $now = Carbon::now()->toDayDateTimeString();
+        $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
         $reasons = [];
         if ($slutUser->status === 'absent') {
             $reasons[] = "absence";

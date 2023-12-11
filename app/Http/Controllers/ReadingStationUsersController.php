@@ -544,7 +544,7 @@ class ReadingStationUsersController extends Controller
         }
 
         if ($request->exists('exit_way') || $request->exists('exited')) {
-            $now = Carbon::now()->toDateString();
+            $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
             $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
             ReadingStationCall::insert([[
                 "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,

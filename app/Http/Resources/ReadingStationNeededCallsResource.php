@@ -42,11 +42,15 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
+                $allCalls = $userSlut->calls
+                    ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
+                    ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
                 $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit')
                     ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
                     ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
                 if ($lastAbsentPresent) {
                     $noneExitCalls = $noneExitCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
+                    $allCalls = $allCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
                     if (Carbon::parse($lastAbsentPresent->updated_at)->greaterThan(Carbon::parse($userSlut->updated_at))) {
                         continue;
                     }
@@ -149,7 +153,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     "optional_enter" => $optional_enter,
                     "delay" => $delay,
                     "exit" => $exit,
-                    "call_numbers" => count($userSlut->calls),
+                    "call_numbers" => count($allCalls),
                     "last_call_status" => $last_call_status,
                 ];
             }
