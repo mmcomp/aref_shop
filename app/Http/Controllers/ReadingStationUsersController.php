@@ -564,9 +564,9 @@ class ReadingStationUsersController extends Controller
         $readingStationAbsentPresent->is_processed = $request->exists('exited') ? $request->exited : $readingStationAbsentPresent->is_processed;
         $readingStationAbsentPresent->save();
 
-        return (new ReadingStationUsersResource(null))->additional([
+        return (new ReadingStationExitsResource([$readingStationAbsentPresent]))->additional([
             'errors' => null,
-        ])->response()->setStatusCode(201);
+        ])->response()->setStatusCode(200);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
