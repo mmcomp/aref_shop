@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\ReadingStationAbsentPresent;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
@@ -21,7 +22,7 @@ class ReadingStationExitsResource extends JsonResource
                 $calls = 0;
                 $data->user->readingStationUser->weeklyPrograms->map(function ($weeklyProgram) use (&$calls) {
                     $weeklyProgram->sluts->map(function ($slut) use (&$calls) {
-                        $calls += count($slut->calls);
+                        $calls += count($slut->calls->whereDate('updated_at', Carbon::now()->toDateString()));
                     });
                 });
                 return [
