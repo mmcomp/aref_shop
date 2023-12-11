@@ -39,10 +39,14 @@ class ReadingStationAllCallsResource extends JsonResource
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
-                $allCalls = $userSlut->calls
+                $calls = collect([]);
+                $userSlut->weeklyProgram->sluts->map(function ($slut) use (&$calls) {
+                    $calls = $calls->merge($slut->calls->where('updated_at',  ">=", Carbon::now()->toDateString() . " 00:00:00")->where('updated_at',  "<=", Carbon::now()->toDateString() . " 23:59:59"));
+                });
+                $allCalls = $calls
                     ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
                     ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
-                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit')
+                $noneExitCalls = $calls->where('reason', '!=', 'exit')
                     ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
                     ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
                 if ($lastAbsentPresent) {
