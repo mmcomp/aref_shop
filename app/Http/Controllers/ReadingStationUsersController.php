@@ -543,7 +543,7 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        if ($request->exists('exit_way')) {
+        if ($request->exists('exit_way') || $request->exists('exited')) {
             $now = Carbon::now()->toDateString();
             $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
             ReadingStationCall::insert([[
@@ -554,7 +554,8 @@ class ReadingStationUsersController extends Controller
                 "created_at" => $now,
                 "updated_at" => $now,
             ]]);
-        } elseif ($request->exists('exited') && !$readingStationAbsentPresent->exit_way) {
+        }
+        if ($request->exists('exited') && !$readingStationAbsentPresent->exit_way) {
             $readingStationAbsentPresent->exit_way = $readingStationAbsentPresent->possible_exit_way; 
         }
 
