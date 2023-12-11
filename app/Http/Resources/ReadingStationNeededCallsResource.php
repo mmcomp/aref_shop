@@ -51,9 +51,6 @@ class ReadingStationNeededCallsResource extends JsonResource
                 if ($lastAbsentPresent) {
                     $noneExitCalls = $noneExitCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
                     $allCalls = $allCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
-                    if (Carbon::parse($lastAbsentPresent->updated_at)->greaterThan(Carbon::parse($userSlut->updated_at))) {
-                        continue;
-                    }
                 }
                 if (count($noneExitCalls) > 0) {
                     $last_call_status = $noneExitCalls->sortByDesc('id')->first()->answered ? true : false;
