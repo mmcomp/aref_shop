@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
@@ -33,13 +34,26 @@ class ReadingStationAllCallsResource extends JsonResource
 
             foreach ($this->resource as $userSlut) {
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
+                $lastAbsentPresent = $user->absentPresents->where('is_processed', 1)->sortByDesc('updated_at')->first();
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
-                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit')->where('updated_at', '>=', $userSlut->updated_at);
+                $allCalls = $userSlut->calls
+                    ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
+                    ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
+                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit')
+                    ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
+                    ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
+                if ($lastAbsentPresent) {
+                    $noneExitCalls = $noneExitCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
+                    $allCalls = $allCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
+                    if (Carbon::parse($lastAbsentPresent->updated_at)->greaterThan(Carbon::parse($userSlut->updated_at))) {
+                        continue;
+                    }
+                }
                 if (count($noneExitCalls) > 0) {
-                    $last_call_status = $noneExitCalls[count($noneExitCalls) - 1]->answered ? true : false;
+                    $last_call_status = $noneExitCalls->sortByDesc('id')->first()->answered ? true : false;
                 }
                 $optional_enter = $userSlut->is_required ? false : true;
                 if ($optional_enter) {
