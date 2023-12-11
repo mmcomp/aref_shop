@@ -238,7 +238,7 @@ class ReadingStationCallsController extends Controller
             ->whereDate('created_at', Carbon::today())
             ->get();
 
-        return (new ReadingStationAllCallsResource([$slutUser], $exitCalls))->additional([
+        return (new ReadingStationNeededCallsResource([$slutUser], $exitCalls))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
