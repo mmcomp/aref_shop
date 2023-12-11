@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
@@ -36,11 +37,17 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
+                $lastAbsentPresent = $user->absentPresents->where('is_processed', 1)->sortByDesc('updated_at')->first();
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
-                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit');
+                $noneExitCalls = $userSlut->calls->where('reason', '!=', 'exit')
+                    ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
+                    ->where('updated_at', '<=', Carbon::now()->toDateString() . ' 23:59:59');
+                if ($lastAbsentPresent) {
+                    $noneExitCalls = $noneExitCalls->where('updated_at', '>', $lastAbsentPresent->updated_at);
+                }
                 if (count($noneExitCalls) > 0) {
                     $last_call_status = $noneExitCalls->sortByDesc('id')->first()->answered ? true : false;
                 }
@@ -112,6 +119,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 if ($last_call_status === true) {
                     $noneExitCallSituation = true;
                 }
+
                 if ($exitCallSituation && $noneExitCallSituation) continue;
                 $all++;
                 $data[] = [
