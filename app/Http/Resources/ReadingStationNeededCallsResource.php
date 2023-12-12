@@ -38,6 +38,7 @@ class ReadingStationNeededCallsResource extends JsonResource
             $exits = 0;
             $data = [];
             $exitUsers = [];
+            dd($this->resource);
 
             foreach ($this->resource as $userSlut) {
                 $exitCallSituation = true;
