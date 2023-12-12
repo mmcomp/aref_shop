@@ -75,17 +75,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $exit = null;
                 if ($absentPresent && !in_array($user->id, $exitUsers)) {
                     $hasCall = null;
-                    $call = null;
-                    $this->exitCalls->map(function ($_call) use (&$call, $user, $lastAbsentPresent) {
-                        if ($_call->slutUser->weeklyProgram->readingStationUser->user->id === $user->id) {
-                            if ($lastAbsentPresent) {
-                                if (Carbon::parse($lastAbsentPresent->updated_at)->greaterThan(Carbon::parse($_call->updated_at))) {
-                                    return;
-                                }
-                            }
-                            $call = $_call;
-                        }
-                    });
+                    $call = $allCalls->where('reason', 'exit')->first();
 
                     if ($call) {
                         $hasCall = $call ? true : false;
