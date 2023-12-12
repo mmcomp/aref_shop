@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ReadingStationSlutUser;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,6 +24,11 @@ class ReadingStationNeededCallsResource extends JsonResource
      * @return array
      */
     public function toArray($request)
+    {
+        return $this->processSlutUser(true);
+    }
+
+    public function processSlutUser(bool $filter = false)
     {
         if ($this->resource != null) {
             $all = 0;
@@ -81,9 +87,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     });
 
                     if ($call) {
-                        $hasCall = [
-                            "answered" => $call->answered ? true : false,
-                        ];
+                        $hasCall = $call ? true : false;
                     } else {
                         $exitCallSituation = false;
                     }
@@ -133,7 +137,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     $noneExitCallSituation = true;
                 }
 
-                if ($exitCallSituation && $noneExitCallSituation) continue;
+                if ($exitCallSituation && $noneExitCallSituation && $filter) continue;
                 $all++;
                 $data[] = [
                     "slut" => [
