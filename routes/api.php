@@ -172,6 +172,13 @@ Route::group([
     Route::get('/{readingStationStrike}', [ReadingStationStrikeController::class, 'findOne']);
 });
 Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-strike',
+
+], function ($router) {
+    Route::get('/{readingStation}', [ReadingStationStrikeController::class, 'readingStationIndex']);
+});
+Route::group([
     'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'reading-station-absent-reasons',
 
@@ -191,11 +198,6 @@ Route::group([
     Route::post('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendNoneExitCall']);
     Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'updateExitSlutId']);
     Route::put('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendExitCall']);
-    // Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
-    // Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
-    // Route::get('/', [ReadingStationController::class, 'index']);
-    // Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
-    // Route::post('/{readingStation}/users/{user}', [ReadingStationUsersController::class, 'addAbsentPresent']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

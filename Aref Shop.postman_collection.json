@@ -5151,7 +5151,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"exit_way\": \"father\"\n}",
+											"raw": "{\n    \"exit_way\": \"\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5298,6 +5298,45 @@
 												"1",
 												"exits",
 												"15"
+											]
+										},
+										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Strikes",
+							"item": [
+								{
+									"name": "Load Strikes",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-station-strike/1?day=2023-12-12&reading_station_strike_id=1&per_page=all",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-station-strike",
+												"1"
+											],
+											"query": [
+												{
+													"key": "day",
+													"value": "2023-12-12"
+												},
+												{
+													"key": "reading_station_strike_id",
+													"value": "1"
+												},
+												{
+													"key": "per_page",
+													"value": "all"
+												}
 											]
 										},
 										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
