@@ -241,6 +241,8 @@ class ReadingStationCallsController extends Controller
             ->whereDate('created_at', Carbon::today())
             ->get();
 
+        $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
+
         return (new ReadingStationAllCallsResource([$slutUser], $exitCalls))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
