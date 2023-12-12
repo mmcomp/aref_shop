@@ -547,6 +547,7 @@ class ReadingStationUsersController extends Controller
             $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
             $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
             ReadingStationCall::insert([[
+                "reading_station_absent_present_id" => $readingStationAbsentPresent->id,
                 "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
                 "reason" => "exit",
                 "answered" => true,
@@ -556,7 +557,7 @@ class ReadingStationUsersController extends Controller
             ]]);
         }
         if ($request->exists('exited') && !$readingStationAbsentPresent->exit_way) {
-            $readingStationAbsentPresent->exit_way = $readingStationAbsentPresent->possible_exit_way; 
+            $readingStationAbsentPresent->exit_way = $readingStationAbsentPresent->possible_exit_way;
         }
 
         $readingStationAbsentPresent->exit_delay = $request->exists('exit_delay') ? $request->exit_delay : $readingStationAbsentPresent->exit_delay;

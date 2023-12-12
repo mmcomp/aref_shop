@@ -114,7 +114,10 @@ class ReadingStationCallsController extends Controller
             ])->response()->setStatusCode(200);
         }
 
+        $absentPresent = $user->absentPresents->where('is_processed', 0)->first();
+
         ReadingStationCall::insert([[
+            "reading_station_absent_present_id" => $absentPresent->id,
             "reading_station_slut_user_id" => $slutUser->id,
             "reason" => "none_exit",
             "answered" => $request->answered,
@@ -227,9 +230,9 @@ class ReadingStationCallsController extends Controller
         }
 
         $exitCall = new ReadingStationCall();
+        $exitCall->reading_station_absent_present_id = $absentPresent->id;
         $exitCall->reading_station_slut_user_id = $slutUser->id;
         $exitCall->reason = 'exit';
-        $exitCall->answered = $request->answered;
         $exitCall->caller_user_id = Auth::user()->id;
         $exitCall->save();
 
