@@ -48,6 +48,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
+                if (!$userSlut->absentPresent) continue;
                 $calls = $userSlut->absentPresent->calls;
                 $allCalls = $calls
                     ->where('updated_at', '>=', Carbon::now()->toDateString() . ' 00:00:00')
