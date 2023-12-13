@@ -4971,6 +4971,27 @@
 									"response": []
 								},
 								{
+									"name": "Load One Users SMALL",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/users/small",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"users",
+												"small"
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Bulk update One Users",
 									"request": {
 										"method": "PUT",

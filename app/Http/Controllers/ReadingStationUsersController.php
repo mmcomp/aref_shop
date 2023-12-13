@@ -29,6 +29,7 @@ use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationChangeExitsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Resources\ReadingStationExitsResource;
+use App\Http\Resources\ReadingStationUsers5Collection;
 use App\Models\ReadingStationCall;
 
 class ReadingStationUsersController extends Controller
@@ -568,6 +569,24 @@ class ReadingStationUsersController extends Controller
         return (new ReadingStationExitsResource(collect([$readingStationAbsentPresent])))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+
+    function oneSmallIndex(ReadingStation $readingStation)
+    {
+        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+            if (Auth::user()->reading_station_id !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $users = ReadingStationUser::where("reading_station_id", $readingStation->id)->get();
+
+        return (new ReadingStationUsers5Collection($users))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
