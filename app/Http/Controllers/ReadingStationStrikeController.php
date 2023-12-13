@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReadingStationCreateStrikesRequest;
 use App\Http\Requests\ReadingStationIndexStrikesRequest;
 use App\Http\Requests\ReadingStationStrikesCreateRequest;
 use App\Http\Requests\ReadingStationStrikesIndexRequest;
@@ -11,8 +12,10 @@ use App\Http\Resources\ReadingStationStrikesResource;
 use App\Http\Resources\ReadingStationUserStrikesCollection;
 use App\Http\Resources\ReadingStationUserStrikesResource;
 use App\Models\ReadingStation;
+use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationStrike;
 use App\Models\ReadingStationUserStrike;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -139,5 +142,46 @@ class ReadingStationStrikeController extends Controller
         return (new ReadingStationUserStrikesCollection($strikes))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function addReadingStationUserStrike(ReadingStationCreateStrikesRequest $request, ReadingStation $readingStation)
+    {
+        $readingStationId = Auth::user()->reading_station_id;
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationStrikesResource(null))->additional([
+                    'errors' => ['reading_station_strike' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+        $user = User::find($request->user_id);
+        if ($user->readingStationUser->reading_station_id !== $readingStationId) {
+            return (new ReadingStationStrikesResource(null))->additional([
+                'errors' => ['reading_station_strike' => ['Reading station does not belong to the User!']],
+            ])->response()->setStatusCode(400);
+        }
+        $slutUser = null;
+        $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
+        $weeklyPrograms->map(function ($weeklyProgram) use (&$slutUser, $request) {
+            $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $request->reading_station_slut_id)->first();
+        });
+        if (!$slutUser) {
+            return (new ReadingStationStrikesResource(null))->additional([
+                'errors' => ['reading_station_strike' => ['User does not have any records for this slut!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $strike = ReadingStationStrike::find($request->reading_station_strike_id);
+
+        $userStrike = new ReadingStationUserStrike();
+        $userStrike->reading_station_slut_user_id = $slutUser->id;
+        $userStrike->reading_station_strike_id = $request->reading_station_strike_id;
+        $userStrike->reading_station_strike_score = $strike->score;
+        $userStrike->save();
+
+        return (new ReadingStationStrikesResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 }

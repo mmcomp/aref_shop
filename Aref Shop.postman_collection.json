@@ -5342,6 +5342,35 @@
 										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
 									},
 									"response": []
+								},
+								{
+									"name": "Add User Strike",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"day\": \"2023-12-13\",\n    \"user_id\": 1,\n    \"reading_station_slut_id\": 1,\n    \"reading_station_strike_id\": 1\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-station-strike/1",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-station-strike",
+												"1"
+											]
+										},
+										"description": "ALTER TABLE \\`reading_station_absent_presents\\` CHANGE \\`exit_delay\\` \\`exit_delay\\` enum('none','15-30','30-45','45-60','60-75') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL ;"
+									},
+									"response": []
 								}
 							]
 						},

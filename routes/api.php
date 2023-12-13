@@ -177,6 +177,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/{readingStation}', [ReadingStationStrikeController::class, 'readingStationIndex']);
+    Route::post('/{readingStation}', [ReadingStationStrikeController::class, 'addReadingStationUserStrike']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
