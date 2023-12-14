@@ -370,7 +370,7 @@ class UserController extends Controller
     public function showAllUserBlock()
     {
         $now = now()->format('Y-m-d H:i:s');
-        $users = User::where("blocked", "!=", null)->pluck("id");
+        $users = User::where("blocked", ">=", Carbon::now()->toDateString() . ' 00:00:00')->pluck("id");
 
         $blockedUsers["blocked_users"] = $users->toArray();
         if ($this->putBlockedUserToRedis($blockedUsers["blocked_users"])) {
@@ -390,7 +390,7 @@ class UserController extends Controller
         if ($user) {
             $user->blocked = Carbon::parse(now()->addHours(env("REDIS_USER_BLOCK_TIME")))->format('Y-m-d H:i:s');
             if ($user->update()) {
-                $users = User::where("blocked", "!=", null)->pluck("id");
+                $users = User::where("blocked", ">=", Carbon::now()->toDateString() . ' 00:00:00')->pluck("id");
                 $blockedUsers["blocked_users"] = $users->toArray();
                 //$redis->set('blockedUser',json_encode($blocketUser));
                 if ($this->putBlockedUserToRedis($blockedUsers["blocked_users"])) {
