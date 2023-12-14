@@ -370,7 +370,7 @@ class UserController extends Controller
     public function showAllUserBlock()
     {
         $now = now()->format('Y-m-d H:i:s');
-        $users = User::where("blocked", ">", $now)->pluck("id");
+        $users = User::where("blocked", "!=", null)->pluck("id");
 
         $blockedUsers["blocked_users"] = $users->toArray();
         if ($this->putBlockedUserToRedis($blockedUsers["blocked_users"])) {
