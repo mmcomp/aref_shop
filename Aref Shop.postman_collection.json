@@ -5102,13 +5102,13 @@
 									"response": []
 								},
 								{
-									"name": "Send None Exit Call",
+									"name": "Send Call",
 									"request": {
 										"method": "POST",
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"answered\": false,\n    \"description\" : \"a\" // Optional\n}",
+											"raw": "{\n    \"reason\": \"all\", // exit,none_exit,all\n    \"answered\": false,\n    \"description\" : \"a\" // Optional\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5205,38 +5205,6 @@
 										"body": {
 											"mode": "raw",
 											"raw": "{\n    \"reading_station_absent_reason_id\": 1\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{base_url}}/api/reading-station-calls/1/users/1/slut/2",
-											"host": [
-												"{{base_url}}"
-											],
-											"path": [
-												"api",
-												"reading-station-calls",
-												"1",
-												"users",
-												"1",
-												"slut",
-												"2"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Send Exit Call",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"answered\": false\n}",
 											"options": {
 												"raw": {
 													"language": "json"

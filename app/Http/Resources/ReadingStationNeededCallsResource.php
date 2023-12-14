@@ -9,13 +9,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReadingStationNeededCallsResource extends JsonResource
 {
-    private $exitCalls;
-
-    public function __construct($resource, $exitCalls)
-    {
-        parent::__construct($resource);
-        $this->exitCalls = $exitCalls;
-    }
 
     /**
      * Transform the resource into an array.
@@ -73,7 +66,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $exit = null;
                 if ($absentPresent && !in_array($user->id, $exitUsers)) {
                     $hasCall = null;
-                    $call = $allCalls->where('reason', 'exit')->first();
+                    $call = $allCalls->whereIn('reason', ['exit', 'all'])->first();
 
                     if ($call) {
                         $hasCall = $call ? true : false;

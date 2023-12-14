@@ -197,9 +197,8 @@ Route::group([
 
 ], function ($router) {
     Route::get('/{readingStation}', [ReadingStationCallsController::class, 'index']);
-    Route::post('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendNoneExitCall']);
+    Route::post('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendCall']);
     Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'updateExitSlutId']);
-    Route::put('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendExitCall']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

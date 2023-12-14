@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ReadingStationNoneExitCallCreateRequest extends FormRequest
+class ReadingStationCallCreateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +26,9 @@ class ReadingStationNoneExitCallCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'answered' => 'required_without:description|boolean',
-            'description' => 'required_without:answered|string|max:255',
+            'reason' => 'required|in:none_exit,exit,all',
+            'answered' => 'required|boolean',
+            'description' => 'nullable|string|max:255',
         ];
     }
      /**
