@@ -26,8 +26,7 @@ class ReadingStationCallCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'reason' => 'required|in:none_exit,exit,all',
-            'answered' => 'required|boolean',
+            'reason' => 'required|in:none_exit,exit,all,no_answered',
             'description' => 'nullable|string|max:255',
         ];
     }
