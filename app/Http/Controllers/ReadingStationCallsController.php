@@ -85,7 +85,6 @@ class ReadingStationCallsController extends Controller
             "reading_station_absent_present_id" => $absentPresent->id,
             "reading_station_slut_user_id" => $slutUser->id,
             "reason" => $request->reason,
-            "answered" => $request->answered,
             "description" => $request->description,
             "caller_user_id" => Auth::user()->id,
             "created_at" => $now,
