@@ -59,7 +59,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                 $userInformations[] = [
                     "user" => new UserResource($readingStationUser->user),
                     "slut" => new ReadingStationUserSlutResource($selectedSlut),
-                    "operator" => $selectedSlut ? [
+                    "operator" => $selectedSlut->user ? [
                         "first_name" =>  $selectedSlut->user->first_name,
                         "last_name" => $selectedSlut->user->first_name,
                         "updated_at" => $selectedSlut->updated_at,
