@@ -191,6 +191,7 @@ class ReadingStationUsersController extends Controller
                 ])->response()->setStatusCode(201);
             }
         }
+        $userSlut->user_id = Auth::user()->id;
         $userSlut->status = $request->status;
         $userSlut->save();
 

@@ -19,7 +19,8 @@ class ReadingStationSlutUser extends Model
         'status',
         'reading_station_absent_reason_id',
         'reading_station_absent_reason_score',
-        'absense_approved_status'
+        'absense_approved_status',
+        'user_id'
     ];
 
     function weeklyProgram()
@@ -50,5 +51,10 @@ class ReadingStationSlutUser extends Model
     function calls()
     {
         return $this->hasMany(ReadingStationCall::class);
+    }
+
+    function user()
+    {
+        return $this->belongsTo(User::class);    
     }
 }
