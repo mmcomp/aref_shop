@@ -198,7 +198,7 @@ class ReadingStationUsersController extends Controller
         if (!$userSlut->absentPresent) {
             $absentPresent = new ReadingStationAbsentPresent();
             $absentPresent->user_id = $user->id;
-            $absentPresent->user_id = $readingStation->id;
+            $absentPresent->reading_station_id = $readingStation->id;
             $absentPresent->day = $userSlut->day;
             $absentPresent->save();
         }
