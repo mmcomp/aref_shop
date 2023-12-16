@@ -65,13 +65,11 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $delay = null;
                 $exit = null;
                 if ($absentPresent && !in_array($user->id, $exitUsers)) {
-                    $hasCall = null;
+                    $hasCall = false;
                     $call = $allCalls->whereIn('reason', ['exit', 'all'])->first();
 
                     if ($call) {
-                        $hasCall = $call ? true : false;
-                    } else {
-                        $exitCallSituation = false;
+                        $hasCall = true;
                     }
                     if (
                         $hasCall ||
@@ -87,9 +85,10 @@ class ReadingStationNeededCallsResource extends JsonResource
                             "exit_way" => $absentPresent->exit_way,
                             "possible_end" => $absentPresent->possible_end,
                         ];
-                        if (!$exitCallSituation) {
+                        if (!$hasCall) {
                             $exits++;
                             $exitUsers[] = $user->id;
+                            $exitCallSituation = false;
                         }
                     }
                 }
