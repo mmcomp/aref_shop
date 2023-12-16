@@ -194,6 +194,14 @@ class ReadingStationUsersController extends Controller
         $userSlut->status = $request->status;
         $userSlut->save();
 
+        if (!$userSlut->absentPresent) {
+            $absentPresent = new ReadingStationAbsentPresent();
+            $absentPresent->user_id = $user->id;
+            $absentPresent->user_id = $readingStation->id;
+            $absentPresent->day = $userSlut->day;
+            $absentPresent->save();
+        }
+
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
