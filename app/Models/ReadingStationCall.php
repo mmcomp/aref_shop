@@ -12,7 +12,6 @@ class ReadingStationCall extends Model
     protected $fillable = [
         'reading_station_slut_user_id',
         'reason',
-        'answered',
         'description',
         'caller_user_id',
     ];
