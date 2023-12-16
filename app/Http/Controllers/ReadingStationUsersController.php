@@ -560,7 +560,6 @@ class ReadingStationUsersController extends Controller
                 "reading_station_absent_present_id" => $readingStationAbsentPresent->id,
                 "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
                 "reason" => "exit",
-                "answered" => true,
                 "caller_user_id" => Auth::user()->id,
                 "created_at" => $now,
                 "updated_at" => $now,
