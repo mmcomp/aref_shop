@@ -5108,7 +5108,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"reason\": \"all\", // exit,none_exit,all\n    \"answered\": false,\n    \"description\" : \"a\" // Optional\n}",
+											"raw": "{\n    \"reason\": \"all\", // exit,none_exit,all,no_answered\n    \"description\" : \"a\" // Optional\n}",
 											"options": {
 												"raw": {
 													"language": "json"
