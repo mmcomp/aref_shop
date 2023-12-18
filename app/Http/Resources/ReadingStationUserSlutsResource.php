@@ -52,9 +52,30 @@ class ReadingStationUserSlutsResource extends JsonResource
                             return $_slut->slut->name;
                         })->toArray();
                         $selectedSlut = $weeklyProgram->sluts
-                                            ->where('day', Carbon::now()->toDateString())
-                                            ->where('reading_station_slut_id', $slut->id)->first();
+                            ->where('day', Carbon::now()->toDateString())
+                            ->where('reading_station_slut_id', $slut->id)->first();
                         break;
+                    }
+                }
+                $latestOperator =  $selectedSlut && $selectedSlut->user ? [
+                    "first_name" =>  $selectedSlut->user->first_name,
+                    "last_name" => $selectedSlut->user->last_name,
+                    "updated_at" => $selectedSlut->updated_at,
+                ] : null;
+                $currentAbsentPresent = $readingStationUser->user->absentPresents->where('is_processed', 0)->first();
+                if ($currentAbsentPresent) {
+                    $absentPresentOperator = $currentAbsentPresent->operator ? [
+                        "first_name" =>  $currentAbsentPresent->operator->first_name,
+                        "last_name" => $currentAbsentPresent->operator->last_name,
+                        "updated_at" => $currentAbsentPresent->updated_at,
+                    ] : null;
+                    if (
+                        !$latestOperator ||
+                        ($latestOperator &&
+                            $absentPresentOperator &&
+                            Carbon::parse($absentPresentOperator['updated_at'])->greaterThan(Carbon::parse($latestOperator['updated_at'])))
+                    ) {
+                        $latestOperator = $absentPresentOperator;
                     }
                 }
                 $userInformations[] = [
@@ -68,6 +89,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "slutNames" => $slutNames,
                     "hasProgram" => $hasProgram,
                     "absentPresents" => new ReadingStationAbsentPresentCollection($readingStationUser->user->absentPresents),
+                    "latestOperator" => $latestOperator,
                 ];
             }
             return $userInformations;
