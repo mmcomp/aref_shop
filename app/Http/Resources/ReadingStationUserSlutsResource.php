@@ -36,6 +36,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                 // $absentPresent = null;
                 $slutNames = [];
                 $hasProgram = false;
+                if (!$weeklyPrograms) continue;
                 foreach ($weeklyPrograms as $weeklyProgram) {
                     if (Carbon::now()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
                         if (count($weeklyProgram->sluts) > 0) {
