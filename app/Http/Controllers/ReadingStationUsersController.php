@@ -572,6 +572,7 @@ class ReadingStationUsersController extends Controller
         $readingStationAbsentPresent->exit_delay = $request->exists('exit_delay') ? $request->exit_delay : $readingStationAbsentPresent->exit_delay;
         $readingStationAbsentPresent->exit_way = $request->exists('exit_way') ? $request->exit_way : $readingStationAbsentPresent->exit_way;
         $readingStationAbsentPresent->is_processed = $request->exists('exited') ? $request->exited : $readingStationAbsentPresent->is_processed;
+        $readingStationAbsentPresent->operator_id = Auth::user()->id;
         $readingStationAbsentPresent->save();
 
         return (new ReadingStationExitsResource(collect([$readingStationAbsentPresent])))->additional([
