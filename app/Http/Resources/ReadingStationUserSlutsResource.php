@@ -31,12 +31,12 @@ class ReadingStationUserSlutsResource extends JsonResource
             $userInformations = [];
             $readingStationUsers = $this->users;
             foreach ($readingStationUsers as $readingStationUser) {
-                $weeklyPrograms = $readingStationUser->weeklyPrograms;
+                $weeklyPrograms = $readingStationUser->weeklyProgram;
                 $selectedSlut = null;
                 // $absentPresent = null;
                 $slutNames = [];
                 $hasProgram = false;
-                dump($readingStationUser);
+                dump($weeklyPrograms);
                 if (!$weeklyPrograms) continue;
                 foreach ($weeklyPrograms as $weeklyProgram) {
                     if (Carbon::now()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
