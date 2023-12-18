@@ -30,6 +30,11 @@ class ReadingStationAbsentPresentResource extends JsonResource
                 'attachment_address' => $this->attachment_address,
                 'is_optional_visit' => $this->is_optional_visit,
                 'is_processed' => $this->is_processed,
+                'operator' => $this->operator ? [
+                    "first_name" => $this->operator->first_name,
+                    "last_name" => $this->operator->first_name,
+                    "updated_at" => $this->updated_at,
+                ] : null,
             ];
         }
     }

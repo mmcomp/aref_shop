@@ -25,6 +25,7 @@ class ReadingStationAbsentPresent extends Model
         'is_optional_visit',
         'is_processed',
         'exit_delay',
+        'operator_id',
     ];
 
     public function slutUserExit()
@@ -40,5 +41,10 @@ class ReadingStationAbsentPresent extends Model
     public function calls()
     {
         return $this->hasMany(ReadingStationCall::class);    
+    }
+
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_id');    
     }
 }
