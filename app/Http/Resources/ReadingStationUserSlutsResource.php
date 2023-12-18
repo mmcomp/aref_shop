@@ -31,7 +31,7 @@ class ReadingStationUserSlutsResource extends JsonResource
             $userInformations = [];
             $readingStationUsers = $this->users;
             foreach ($readingStationUsers as $readingStationUser) {
-                $weeklyPrograms = $readingStationUser->weeklyProgram;
+                $weeklyPrograms = $readingStationUser->weeklyPrograms;
                 $selectedSlut = null;
                 // $absentPresent = null;
                 $slutNames = [];
