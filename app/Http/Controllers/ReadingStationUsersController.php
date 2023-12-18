@@ -502,6 +502,7 @@ class ReadingStationUsersController extends Controller
         $absentPresent->enter_way = $request->exists("enter_way") ? $request->enter_way : $absentPresent->enter_way;
         $absentPresent->is_optional_visit = $request->is_optional_visit ?? $absentPresent->is_optional_visit;
         $absentPresent->is_processed = $isProcessed;
+        $absentPresent->operator_id = Auth::user()->id;
         $absentPresent->save();
 
         return (new ReadingStationAbsentPresentResource($absentPresent))->additional([
