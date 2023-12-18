@@ -15,9 +15,7 @@ class ReadingStationAbsentPresentResource extends JsonResource
      */
     public function toArray($request)
     {
-
         if ($this->resource != null) {
-
             return [
                 'id' => $this->id,
                 'reading_station_slut_user_exit_id' => $this->reading_station_slut_user_exit_id,
@@ -32,7 +30,7 @@ class ReadingStationAbsentPresentResource extends JsonResource
                 'is_processed' => $this->is_processed,
                 'operator' => $this->operator ? [
                     "first_name" => $this->operator->first_name,
-                    "last_name" => $this->operator->first_name,
+                    "last_name" => $this->operator->last_name,
                     "updated_at" => $this->updated_at,
                 ] : null,
             ];
