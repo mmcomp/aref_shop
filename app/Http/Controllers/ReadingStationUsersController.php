@@ -203,7 +203,7 @@ class ReadingStationUsersController extends Controller
             $absentPresent->save();
         }
 
-        return (new ReadingStationUserSlutsResource([$userSlut], $slut))->additional([
+        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
