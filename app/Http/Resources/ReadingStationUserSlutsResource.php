@@ -36,7 +36,6 @@ class ReadingStationUserSlutsResource extends JsonResource
                 // $absentPresent = null;
                 $slutNames = [];
                 $hasProgram = false;
-                dump($weeklyPrograms);
                 if (!$weeklyPrograms) continue;
                 foreach ($weeklyPrograms as $weeklyProgram) {
                     if (Carbon::now()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
@@ -71,7 +70,6 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "absentPresents" => new ReadingStationAbsentPresentCollection($readingStationUser->user->absentPresents),
                 ];
             }
-            dd();
             return $userInformations;
         }
     }
