@@ -145,6 +145,7 @@ Route::group([
     Route::get('/{readingStation}/exits', [ReadingStationUsersController::class, 'allExit']);
     Route::patch('/{readingStation}/exits/{readingStationAbsentPresent}', [ReadingStationUsersController::class, 'updateExitRecord']);
     Route::get('/{readingStation}/users/small', [ReadingStationUsersController::class, 'oneSmallIndex']);
+    Route::get('/{readingStation}/users/absents', [ReadingStationUsersController::class, 'absents']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

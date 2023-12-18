@@ -4971,6 +4971,43 @@
 									"response": []
 								},
 								{
+									"name": "Load One Absents",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/users/absents?day=2023-12-18",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"users",
+												"absents"
+											],
+											"query": [
+												{
+													"key": "per_page",
+													"value": "all",
+													"disabled": true
+												},
+												{
+													"key": "day",
+													"value": "2023-12-18"
+												},
+												{
+													"key": "table_number",
+													"value": "1",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Load One Users SMALL",
 									"request": {
 										"method": "GET",

@@ -28,7 +28,9 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationChangeExitsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
+use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
 use App\Http\Resources\ReadingStationExitsResource;
+use App\Http\Resources\ReadingStationUserAbsentsCollection;
 use App\Http\Resources\ReadingStationUsers5Collection;
 use App\Models\ReadingStationCall;
 
@@ -597,6 +599,56 @@ class ReadingStationUsersController extends Controller
         return (new ReadingStationUsers5Collection($users))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+
+    function absents(ReadingStationIndexUserAbsentsRequest $request, ReadingStation $readingStation)
+    {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $slutUsers = ReadingStationSlutUser::whereHas('slut', function ($q) use ($readingStation) {
+            $q->where('reading_station_id', $readingStation->id);
+        })
+            ->where('status', 'absent')
+            ->where('is_required', 1)
+            ->where('absense_approved_status', 'not_approved');
+        if ($request->exists('table_number')) {
+            if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station table out of range!']],
+                ])->response()->setStatusCode(400);
+            }
+            $slutUsers->whereHas('weeklyProgram', function ($q1) use ($request) {
+                $q1->whereHas('readingStationUser', function ($q2) use ($request) {
+                    $q2->where('table_number', $request->table_number);
+                });
+            });
+        }
+        if ($request->exists('day')) {
+            $slutUsers->where('day', $request->day);
+        }
+
+        $perPage = $request->get('per_page', null);
+        $slutUsers->withAggregate('slut', 'start')->orderBy('slut_start', 'ASC');
+
+        if ($perPage === 'all') {
+            return (new ReadingStationUserAbsentsCollection($slutUsers->get()))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
+        } else if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+
+        return (new ReadingStationUserAbsentsCollection($slutUsers->paginate($perPage)))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool
