@@ -636,6 +636,7 @@ class ReadingStationUsersController extends Controller
         }
 
         $perPage = $request->get('per_page', null);
+        $slutUsers->withAggregate('weeklyProgram', 'id')->orderBy('weekly_program_id', 'ASC');
         $slutUsers->withAggregate('slut', 'start')->orderBy('slut_start', 'ASC');
 
         if ($perPage === 'all') {

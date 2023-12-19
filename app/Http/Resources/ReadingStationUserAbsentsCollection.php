@@ -15,17 +15,30 @@ class ReadingStationUserAbsentsCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        // dump($this->colllection);
         $groupId = 0;
         foreach ($this->collection as $indx => $cell) {
             if ($indx === 0) continue;
 
             $a = $this->collection[$indx - 1];
             $b = $cell;
+            // dump($a);
+            // dump($b);
             if ($this->near($a, $b)) {
                 if ($a->groupId) {
                     $this->collection[$indx]->groupId = $a->groupId;
                 } else {
                     $this->collection[$indx - 1]->groupId = $groupId;
+                    $this->collection[$indx]->groupId = $groupId;
+                    $groupId++;
+                }
+            } else {
+                if ($a->groupId) {
+                    $this->collection[$indx]->groupId = $groupId;
+                    $groupId++;
+                } else {
+                    $this->collection[$indx - 1]->groupId = $groupId;
+                    $groupId++;
                     $this->collection[$indx]->groupId = $groupId;
                     $groupId++;
                 }
