@@ -44,7 +44,7 @@ class ReadingStationUserAbsentsCollection extends ResourceCollection
         return $this->collection->groupBy('groupId');
     }
 
-    private function near($a, $b, $maxDiffMinutes = 45): bool
+    private function near($a, $b, $maxDiffMinutes = 46): bool
     {
         return (Carbon::parse($b->slut->start)->diffInMinutes(Carbon::parse($a->slut->end)) <= $maxDiffMinutes);
     }
