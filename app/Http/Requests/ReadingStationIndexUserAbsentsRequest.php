@@ -27,7 +27,7 @@ class ReadingStationIndexUserAbsentsRequest extends FormRequest
     {
         return [
             'table_number' => 'nullable|int|min:1|max:200',
-            'day' => 'nullable|date_format:Y-m-d',
+            'day' => 'required|date_format:Y-m-d',
             'per_page' => 'string|max:255',
         ];
     }

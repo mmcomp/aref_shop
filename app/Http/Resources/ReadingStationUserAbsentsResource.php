@@ -26,6 +26,7 @@ class ReadingStationUserAbsentsResource extends JsonResource
                 'slut_name' => $this->slut->name,
                 'slut_start' => $this->slut->start,
                 'slut_end' => $this->slut->end,
+                'groupId' => $this->groupId,
             ];
         }
     }
