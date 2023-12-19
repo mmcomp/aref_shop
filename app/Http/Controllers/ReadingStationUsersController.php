@@ -29,8 +29,10 @@ use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationChangeExitsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
+use App\Http\Requests\ReadingStationIndexUserAbsentTablesRequest;
 use App\Http\Resources\ReadingStationExitsResource;
 use App\Http\Resources\ReadingStationUserAbsentsCollection;
+use App\Http\Resources\ReadingStationUserAbsentTablesCollection;
 use App\Http\Resources\ReadingStationUsers5Collection;
 use App\Models\ReadingStationCall;
 
@@ -648,6 +650,32 @@ class ReadingStationUsersController extends Controller
         }
 
         return (new ReadingStationUserAbsentsCollection($slutUsers->paginate($perPage)))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    function absentTableNumbers(ReadingStationIndexUserAbsentTablesRequest $request, ReadingStation $readingStation)
+    {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $slutUsers = ReadingStationSlutUser::whereHas('slut', function ($q) use ($readingStation) {
+            $q->where('reading_station_id', $readingStation->id);
+        })
+            ->where('day', $request->day)
+            ->where('status', 'absent')
+            ->where('is_required', 1)
+            ->where('absense_approved_status', 'not_approved');
+
+
+        return (new ReadingStationUserAbsentTablesCollection($slutUsers->get()))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
