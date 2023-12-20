@@ -170,6 +170,7 @@ class ReadingStationStrikeController extends Controller
                 ->where('status', '!=', 'defind')
                 ->where('status', '!=', 'absent')
                 ->first();
+            dd($slutUser);
         });
         if (!$slutUser) {
             return (new ReadingStationStrikesResource(null))->additional([
