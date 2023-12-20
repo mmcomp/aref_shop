@@ -167,6 +167,8 @@ class ReadingStationStrikeController extends Controller
             $slutUser = $weeklyProgram->sluts
                 ->where('reading_station_slut_id', $request->reading_station_slut_id)
                 ->where('day', $request->day)
+                ->where('status', '!=', 'defind')
+                ->where('status', '!=', 'absent')
                 ->first();
         });
         if (!$slutUser) {
