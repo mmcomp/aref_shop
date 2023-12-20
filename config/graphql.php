@@ -2,6 +2,10 @@
 
 declare(strict_types = 1);
 
+use App\GraphQL\Queries\ReadingStationQuery;
+use App\GraphQL\Types\ReadingStationType;
+use Illuminate\Support\Facades\App;
+
 return [
     'route' => [
         // The prefix for routes; do NOT use a leading slash!
@@ -76,6 +80,7 @@ return [
         'default' => [
             'query' => [
                 // ExampleQuery::class,
+                ReadingStationQuery::class,
             ],
             'mutation' => [
                 // ExampleMutation::class,
@@ -83,6 +88,7 @@ return [
             // The types only available in this schema
             'types' => [
                 // ExampleType::class,
+                ReadingStationType::class,
             ],
 
             // Laravel HTTP middleware
