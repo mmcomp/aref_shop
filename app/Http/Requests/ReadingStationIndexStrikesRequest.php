@@ -28,7 +28,7 @@ class ReadingStationIndexStrikesRequest extends FormRequest
         return [
             'day' => 'nullable|date_format:Y-m-d',
             'reading_station_strike_id' => 'nullable|exists:reading_station_strikes,id',
-            'sort' => 'required_with:type|in:id,reading_station_slut_user_id,reading_station_strike_id,reading_station_strike_score,description',
+            'sort' => 'required_with:type|in:id,reading_station_slut_user_id,reading_station_strike_id,reading_station_strike_score,description,day',
             'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
         ];
