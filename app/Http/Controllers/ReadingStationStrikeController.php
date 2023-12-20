@@ -156,7 +156,7 @@ class ReadingStationStrikeController extends Controller
             }
         }
         $user = User::find($request->user_id);
-        if ($user->readingStationUser->reading_station_id !== $readingStationId) {
+        if ($user->readingStationUser->reading_station_id !== $readingStation->id) {
             return (new ReadingStationStrikesResource(null))->additional([
                 'errors' => ['reading_station_strike' => ['Reading station does not belong to the User!']],
             ])->response()->setStatusCode(400);
