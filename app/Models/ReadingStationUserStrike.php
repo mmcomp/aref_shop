@@ -11,7 +11,7 @@ class ReadingStationUserStrike extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['reading_station_slut_user_id', 'reading_station_strike_id', 'reading_station_strike_score', 'description'];
+    protected $fillable = ['reading_station_slut_user_id', 'reading_station_strike_id', 'reading_station_strike_score', 'description', 'day'];
 
     function readingStationStrike()
     {
