@@ -4976,31 +4976,56 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/reading-stations/1/users/absents?day=2023-12-18",
+											"raw": "{{base_url}}/api/reading-stations/9/users/absents?per_page=all&day=2023-12-19&table_number=12",
 											"host": [
 												"{{base_url}}"
 											],
 											"path": [
 												"api",
 												"reading-stations",
-												"1",
+												"9",
 												"users",
 												"absents"
 											],
 											"query": [
 												{
 													"key": "per_page",
-													"value": "all",
-													"disabled": true
+													"value": "all"
 												},
 												{
 													"key": "day",
-													"value": "2023-12-18"
+													"value": "2023-12-19"
 												},
 												{
 													"key": "table_number",
-													"value": "1",
-													"disabled": true
+													"value": "12"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Load One Absent Tables",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/9/users/absent-tables?day=2023-12-19",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"9",
+												"users",
+												"absent-tables"
+											],
+											"query": [
+												{
+													"key": "day",
+													"value": "2023-12-19"
 												}
 											]
 										}
@@ -5376,7 +5401,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"day\": \"2023-12-13\",\n    \"user_id\": 1,\n    \"reading_station_slut_id\": 1,\n    \"reading_station_strike_id\": 1\n}",
+											"raw": "{\n    \"day\": \"2023-12-13\",\n    \"user_id\": 1,\n    \"reading_station_slut_id\": 1,\n    \"reading_station_strike_id\": 1,\n    \"reading_station_strike_score\": 1, // optional\n    \"description\": \"a\" // optional\n}",
 											"options": {
 												"raw": {
 													"language": "json"
