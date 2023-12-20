@@ -19,7 +19,7 @@ class ReadingStationUsers5Resource extends JsonResource
         if ($this->resource != null) {
 
             return [
-                'id' => $this->id,
+                'id' => $this->user->id,
                 'table_number' => $this->table_number,
                 'first_name' => $this->user->first_name,
                 'last_name' => $this->user->last_name,
