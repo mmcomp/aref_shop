@@ -164,7 +164,10 @@ class ReadingStationStrikeController extends Controller
         $slutUser = null;
         $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
         $weeklyPrograms->map(function ($weeklyProgram) use (&$slutUser, $request) {
-            $slutUser = $weeklyProgram->sluts->where('reading_station_slut_id', $request->reading_station_slut_id)->first();
+            $slutUser = $weeklyProgram->sluts
+                ->where('reading_station_slut_id', $request->reading_station_slut_id)
+                ->where('day', $request->day)
+                ->first();
         });
         if (!$slutUser) {
             return (new ReadingStationStrikesResource(null))->additional([
