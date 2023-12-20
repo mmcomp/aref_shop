@@ -177,7 +177,8 @@ class ReadingStationStrikeController extends Controller
         $userStrike = new ReadingStationUserStrike();
         $userStrike->reading_station_slut_user_id = $slutUser->id;
         $userStrike->reading_station_strike_id = $request->reading_station_strike_id;
-        $userStrike->reading_station_strike_score = $strike->score;
+        $userStrike->reading_station_strike_score = $request->exists('reading_station_strike_score') ? $request->reading_station_strike_score : $strike->score;
+        $userStrike->description = $request->description;
         $userStrike->day = $request->day;
         $userStrike->save();
 
