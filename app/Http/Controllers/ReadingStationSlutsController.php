@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationSlutsCreateRequest;
 use App\Http\Requests\ReadingStationSlutsIndexRequest;
 use App\Http\Resources\ReadingStationSluts2Collection;
@@ -9,7 +10,9 @@ use App\Http\Resources\ReadingStationSlutsCollection;
 use App\Http\Resources\ReadingStationSlutsResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationSlut;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReadingStationSlutsController extends Controller
 {
@@ -43,6 +46,14 @@ class ReadingStationSlutsController extends Controller
 
     function oneIndex(ReadingStationSlutsIndexRequest $request, ReadingStation $readingStation)
     {      
+        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+            if (Auth::user()->reading_station_id !== $readingStation->id) {
+                return (new ReadingStationSlutsResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationSlut::where("reading_station_id", $readingStation->id);

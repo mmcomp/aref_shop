@@ -107,6 +107,7 @@ Route::group([
     Route::delete('/{user}/reading-station-user/{id}', [ReadingStationUsersController::class, 'destroy']);
     Route::post('/', [UserController::class, 'fullStore']);
     Route::put('/edit', [UserController::class, 'update']);
+    Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
@@ -127,7 +128,6 @@ Route::group([
     Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
     Route::get('/test-sms', [ReadingStationController::class, 'testSms']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
-    Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
 });
 Route::group([
