@@ -190,9 +190,16 @@ Route::group([
     Route::post('/', [ReadingStationAbsentReasonsController::class, 'store']);
     Route::put('/', [ReadingStationAbsentReasonsController::class, 'update']);
     Route::delete('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'destroy']);
-    Route::get('/', [ReadingStationAbsentReasonsController::class, 'index']);
     Route::get('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'show']);
 });
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-absent-reasons',
+
+], function ($router) {
+    Route::get('/', [ReadingStationAbsentReasonsController::class, 'index']);
+});
+
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
     'prefix' => 'reading-station-calls',
