@@ -20,7 +20,8 @@ class ReadingStationSlutUser extends Model
         'reading_station_absent_reason_id',
         'reading_station_absent_reason_score',
         'absense_approved_status',
-        'user_id'
+        'user_id',
+        'absense_file',
     ];
 
     function weeklyProgram()

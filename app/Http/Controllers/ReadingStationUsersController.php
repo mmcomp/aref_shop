@@ -30,11 +30,13 @@ use App\Http\Requests\ReadingStationChangeExitsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentTablesRequest;
+use App\Http\Requests\ReadingStationIndexUserAbsentVerifyRequest;
 use App\Http\Resources\ReadingStationExitsResource;
 use App\Http\Resources\ReadingStationUserAbsentsCollection;
 use App\Http\Resources\ReadingStationUserAbsentTablesCollection;
 use App\Http\Resources\ReadingStationUsers5Collection;
 use App\Models\ReadingStationCall;
+use Illuminate\Support\Facades\Storage;
 
 class ReadingStationUsersController extends Controller
 {
@@ -678,6 +680,74 @@ class ReadingStationUsersController extends Controller
         return (new ReadingStationUserAbsentTablesCollection($slutUsers->get()))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function verfyAbsent(ReadingStationIndexUserAbsentVerifyRequest $request, ReadingStation $readingStation)
+    {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $slutUser = ReadingStationSlutUser::where('id', $request->reading_station_slut_user_id)
+            ->whereHas('slut', function ($q) use ($readingStation) {
+                $q->where('reading_station_id', $readingStation->id);
+            })->first();
+        if (!$slutUser) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station slut user not found!']],
+            ])->response()->setStatusCode(404);
+        }
+        $absense_file = null;
+        $file = $request->file('absense_file');
+        if ($file) {
+            $fileName = $file->hashName();
+            $absense_file = env('FTP_PATH') . '/' . $fileName . '/' . $fileName;
+            $file->store(env('FTP_PATH') . '/' . $fileName, 'ftp');
+        }
+        $slutUser->absense_approved_status = $request->absense_approved_status;
+        $slutUser->absense_file = $absense_file;
+        $slutUser->user_id = Auth::user()->id;
+        $slutUser->save();
+
+        return (new ReadingStationUsersResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+    }
+
+    public function getVerfyAbsent(ReadingStation $readingStation, ReadingStationSlutUser $slutUser)
+    {
+        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        if ($isReadingStationBranchAdmin) {
+            $readingStationId = Auth::user()->reading_station_id;
+            if ($readingStationId !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+            if ($slutUser->slut->reading_station_id !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        if (!$slutUser->absense_file) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['No attachment to show!']],
+            ])->response()->setStatusCode(400);
+        }
+        if (Storage::drive('ftp')->missing($slutUser->absense_file)) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Attachment is missing!']],
+            ])->response()->setStatusCode(400);
+        }
+        return Storage::drive('ftp')->download($slutUser->absense_file);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool

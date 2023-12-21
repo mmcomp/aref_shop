@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AddCurrentDateTimeInResponse
 {
@@ -18,7 +19,8 @@ class AddCurrentDateTimeInResponse
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
-
+        if ($response instanceof StreamedResponse) return $response;
+        
         $content = json_decode($response->content(), true);
 
         //Check if the response is JSON

@@ -5033,6 +5033,68 @@
 									"response": []
 								},
 								{
+									"name": "Set AbsentApproval State",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "reading_station_slut_user_id",
+													"value": "24",
+													"type": "text"
+												},
+												{
+													"key": "absense_approved_status",
+													"value": "semi_approved",
+													"type": "text"
+												},
+												{
+													"key": "absense_file",
+													"type": "file",
+													"src": [],
+													"disabled": true
+												}
+											]
+										},
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/absent-verify",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"absent-verify"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Absent Approval Attachment",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/absent-verify-document/24",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"absent-verify-document",
+												"24"
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Load One Users SMALL",
 									"request": {
 										"method": "GET",
@@ -5401,7 +5463,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"day\": \"2023-12-13\",\n    \"user_id\": 1,\n    \"reading_station_slut_id\": 1,\n    \"reading_station_strike_id\": 1,\n    \"reading_station_strike_score\": 1, // optional\n    \"description\": \"a\" // optional\n}",
+											"raw": "{\n    \"day\": \"2023-12-13\",\n    \"user_id\": 1,\n    \"reading_station_slut_id\": 1,\n    \"reading_station_strike_id\": 1,\n    \"reading_station_strike_score\": 1, // optional\n    \"description\": \"abc\" // optional\n}",
 											"options": {
 												"raw": {
 													"language": "json"
