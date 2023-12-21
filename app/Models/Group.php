@@ -17,7 +17,7 @@ class Group extends Model
 
     public function menus()
     {
-        return $this->hasMany('App\Models\GroupMenu', 'groups_id', 'id');
+        return $this->hasMany('App\Models\GroupMenu', 'groups_id', 'id')->orderBy('order_id');
     }
     
     public function gates()
