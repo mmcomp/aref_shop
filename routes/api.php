@@ -176,6 +176,13 @@ Route::group([
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-strikes',
+
+], function ($router) {
+    Route::get('/', [ReadingStationStrikeController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
     'prefix' => 'reading-station-strike',
 
 ], function ($router) {
