@@ -133,7 +133,7 @@ class UserController extends Controller
         $user->home_tell = $request->home_tell;
         $user->father_cell = $request->father_cell;
         $user->mother_cell = $request->mother_cell;
-        $user->grade = $request->grade;
+        $user->grade = $request->grade ?? 1 ;
         $user->description = $request->description;
         $user->reading_station_id = $request->reading_station_id;
         $user->save();

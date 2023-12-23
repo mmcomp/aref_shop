@@ -33,7 +33,7 @@ class UserFullCreateRequest extends FormRequest
             'last_name' => 'string|between:2,100',
             'email' => 'required|string|max:12',
             'password' => 'required|string|min:6|confirmed',
-            'gender' => 'nullable|in:male,female',
+            'gender' => 'required|in:male,female',
             'referrer_users_id' => [
                 'nullable',
                 'different:id',
