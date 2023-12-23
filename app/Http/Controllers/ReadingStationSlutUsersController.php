@@ -87,14 +87,13 @@ class ReadingStationSlutUsersController extends Controller
         $total = 0;
         $readingStation = $user->readingStationUser->readingStation;
         $offDays = $readingStation->offdays;
-        dd($offDays);
         foreach ($request->data as $data) {
             if (!Carbon::parse($data['day'])->between(Carbon::parse($weeklyProgram->start), Carbon::parse($weeklyProgram->end), true)) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_slut_user' => ['The selected day is not in the week!']],
                 ])->response()->setStatusCode(400);
             }
-            if ($offDays->where('day', $data['day'])->first()) {
+            if ($offDays->where('offday', $data['day'])->first()) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_slut_user' => ['The selected day is a off day!', $data['day']]],
                 ])->response()->setStatusCode(400);
