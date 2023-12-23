@@ -11,6 +11,7 @@ use App\Http\Requests\ReadingStationExitSlutUpdateRequest;
 use App\Http\Resources\ReadingStationAllCallsResource;
 use App\Http\Resources\ReadingStationNeededCallsResource;
 use App\Models\ReadingStationAbsentPresent;
+use App\Models\ReadingStationAbsentReason;
 use App\Models\ReadingStationCall;
 use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
@@ -119,8 +120,13 @@ class ReadingStationCallsController extends Controller
                     'errors' => ['reading_station_user' => ['Reading station user were not absent then!']],
                 ])->response()->setStatusCode(400);
             }
+            $absentReason = ReadingStationAbsentReason::find($request->reading_station_absent_reason_id);
             $slutUser->reading_station_absent_reason_id = $request->reading_station_absent_reason_id;
+            $slutUser->reading_station_absent_reason_score = $absentReason->score;
             $slutUser->save();
+
+            $weeklyProgram->strikes_done += $absentReason->score;
+            $weeklyProgram->save();
 
             return (new ReadingStationResource(null))->additional([
                 'errors' => null,
