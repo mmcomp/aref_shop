@@ -711,7 +711,7 @@ class ReadingStationUsersController extends Controller
             if (!$file->store(env('FTP_PATH') . '/' . $fileName, 'ftp')) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Attachment Store Error!']],
-                ])->response()->setStatusCode(404);
+                ])->response()->setStatusCode(500);
             }
         }
         $slutUser->absense_approved_status = $request->absense_approved_status;
