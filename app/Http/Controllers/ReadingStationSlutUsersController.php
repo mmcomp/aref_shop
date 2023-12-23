@@ -87,6 +87,7 @@ class ReadingStationSlutUsersController extends Controller
         $total = 0;
         $readingStation = $user->readingStationUser->readingStation;
         $offDays = $readingStation->offdays;
+        dd($offDays);
         foreach ($request->data as $data) {
             if (!Carbon::parse($data['day'])->between(Carbon::parse($weeklyProgram->start), Carbon::parse($weeklyProgram->end), true)) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
