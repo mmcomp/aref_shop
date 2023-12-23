@@ -17,7 +17,10 @@ class ReadingStationUserAbsentsCollection extends ResourceCollection
     {
         $groupId = 0;
         foreach ($this->collection as $indx => $cell) {
-            if ($indx === 0) continue;
+            if ($indx === 0) {
+                $this->collection[$indx]->groupId = $groupId;
+                continue;
+            }
 
             $a = $this->collection[$indx - 1];
             $b = $cell;
