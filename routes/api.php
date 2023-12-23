@@ -149,6 +149,7 @@ Route::group([
     Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
     Route::post('/{readingStation}/absent-verify', [ReadingStationUsersController::class, 'verfyAbsent']);
     Route::get('/{readingStation}/absent-verify-document/{slutUser}', [ReadingStationUsersController::class, 'getVerfyAbsent']);
+    Route::get('/{readingStation}/absent-list', [ReadingStationSlutUsersController::class, 'listAbsentUsers']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReadingStationSlutUsersCreateRequest;
 use App\Http\Requests\ReadingStationSlutUsersNextWeekPackageChangeRequest;
+use App\Http\Requests\ReadingStationUserAbsentIndexRequest;
+use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
+use App\Models\ReadingStation;
 use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
@@ -72,12 +75,12 @@ class ReadingStationSlutUsersController extends Controller
             if (!in_array(Auth::user()->group->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
-                ])->response()->setStatusCode(400);    
+                ])->response()->setStatusCode(400);
             }
             if (ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->where('status', '!=', 'defined')->first()) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_slut_user' => ['User has a recorded slut for the requested week!']],
-                ])->response()->setStatusCode(400);  
+                ])->response()->setStatusCode(400);
             }
             ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->delete();
         }
@@ -95,7 +98,7 @@ class ReadingStationSlutUsersController extends Controller
         if ($total > $requiredTime) {
             return (new ReadingStationSlutUsersResource(null))->additional([
                 'errors' => ['reading_station_slut_user' => ['Total time exceeded the maximum!']],
-            ])->response()->setStatusCode(400); 
+            ])->response()->setStatusCode(400);
         }
 
         $requestSluts = [];
@@ -171,5 +174,63 @@ class ReadingStationSlutUsersController extends Controller
         return (new ReadingStationSlutUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(204);
+    }
+
+    public function listAbsentUsers(ReadingStationUserAbsentIndexRequest $request, ReadingStation $readingStation)
+    {
+        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+            if ($readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+        if (Carbon::parse($request->from_day)->greaterThan(Carbon::parse($request->to_day))) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['From Day is after To Day!']],
+            ])->response()->setStatusCode(400);
+        }
+
+
+        $slutUsers = ReadingStationSlutUser::whereHas('slut', function ($q1) use ($readingStation, $request) {
+            $q1->where('reading_station_id', $readingStation->id);
+        })
+            ->where('day', '>=', $request->from_day)
+            ->where('day', '<=', $request->to_day)
+            ->where('status', 'absent');
+        if ($request->exists('user_id')) {
+            $slutUsers->whereHas('weeklyProgram', function ($q1) use ($request) {
+                $q1->whereHas('readingStationUser', function ($q2) use ($request) {
+                    $q2->where('user_id', $request->user_id);
+                });
+            });
+        }
+        if ($request->exists('reading_station_slut_id')) {
+            $slutUsers->where('reading_station_slut_id', $request->reading_station_slut_id);
+        }
+
+        $sort = "id";
+        $sortDir = "desc";
+        if ($request->exists('sort_dir')) {
+            $sortDir = $request->sort_dir;
+        }
+        if ($request->exists('sort')) {
+            $sort = $request->sort;
+        }
+
+        $slutUsers->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $slutUsers->get();
+        } else {
+            $output = $slutUsers->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserAbsentsCollection($output))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

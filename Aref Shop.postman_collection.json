@@ -5095,6 +5095,68 @@
 									"response": []
 								},
 								{
+									"name": "Get Absent User List",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/absent-list?from_day=2023-11-01&to_day=2023-12-23",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"absent-list"
+											],
+											"query": [
+												{
+													"key": "from_day",
+													"value": "2023-11-01",
+													"description": "Required"
+												},
+												{
+													"key": "to_day",
+													"value": "2023-12-23",
+													"description": "Required"
+												},
+												{
+													"key": "user_id",
+													"value": "1",
+													"description": "Optional",
+													"disabled": true
+												},
+												{
+													"key": "reading_station_slut_id",
+													"value": "1",
+													"description": "Optional",
+													"disabled": true
+												},
+												{
+													"key": "sort",
+													"value": "id",
+													"description": "Optional [id,day,reading_station_absent_reason_id,reading_station_slut_id,absense_approved_status]",
+													"disabled": true
+												},
+												{
+													"key": "sort_dir",
+													"value": "desc",
+													"description": "Optional",
+													"disabled": true
+												},
+												{
+													"key": "per_page",
+													"value": "all",
+													"description": "Optional",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Load One Users SMALL",
 									"request": {
 										"method": "GET",
