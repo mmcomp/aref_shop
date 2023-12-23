@@ -187,6 +187,10 @@ class ReadingStationStrikeController extends Controller
         $userStrike->day = $request->day;
         $userStrike->save();
 
+        $weeklyProgram =  $slutUser->weeklyProgram;
+        $weeklyProgram->strikes_done += $userStrike->reading_station_strike_score;
+        $weeklyProgram->save();
+
         return (new ReadingStationStrikesResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);

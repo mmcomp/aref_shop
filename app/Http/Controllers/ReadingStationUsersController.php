@@ -165,6 +165,8 @@ class ReadingStationUsersController extends Controller
                 }
             }
         }
+        $oldStatus = null;
+        $deleted = false;
         if (!$userSlut->id) {
             if ($request->status === 'absent' || $request->status === 'defined') {
                 return (new ReadingStationUsersResource(null))->additional([
@@ -189,12 +191,9 @@ class ReadingStationUsersController extends Controller
             $userSlut->day = $today;
             $userSlut->is_required = false;
         } else {
+            $oldStatus = $userSlut->status;
             if ($request->status === 'defined' && !$userSlut->is_required) {
-                $userSlut->delete();
-
-                return (new ReadingStationUsersResource(null))->additional([
-                    'errors' => null,
-                ])->response()->setStatusCode(201);
+                $deleted = true;
             }
         }
         $userSlut->user_id = Auth::user()->id;
@@ -207,6 +206,58 @@ class ReadingStationUsersController extends Controller
             $absentPresent->reading_station_id = $readingStation->id;
             $absentPresent->day = $userSlut->day;
             $absentPresent->save();
+        }
+
+        $weeklyProgram = $userSlut->weeklyProgram;
+        $time = $userSlut->slut->duration;
+        if ($userSlut->status !== 'absent' && $userSlut->status !== 'defined') {
+            switch ($userSlut->status) {
+                case 'late_15':
+                    $time -= 15;
+                    break;
+                case 'late_30':
+                    $time -= 30;
+                    break;
+                case 'late_45':
+                    $time -= 45;
+                    break;
+                case 'late_60':
+                    $time -= 60;
+                    break;
+                case 'late_60_plus':
+                    $time -= 75;
+                    break;
+            }
+            if ($userSlut->is_required) {
+                $weeklyProgram->required_time_done += $time;
+            } else {
+                $weeklyProgram->optional_time_done += $time;
+            }
+        } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
+            switch ($oldStatus) {
+                case 'late_15':
+                    $time -= 15;
+                    break;
+                case 'late_30':
+                    $time -= 30;
+                    break;
+                case 'late_45':
+                    $time -= 45;
+                    break;
+                case 'late_60':
+                    $time -= 60;
+                    break;
+                case 'late_60_plus':
+                    $time -= 75;
+                    break;
+            }
+            $weeklyProgram->required_time_done -= $time;
+        } else if ($userSlut->is_required && $userSlut->status === 'absent') {
+            $weeklyProgram->absence_done += $time;
+        }
+        $weeklyProgram->save();
+        if ($deleted) {
+            $userSlut->delete();
         }
 
         return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut))->additional([
