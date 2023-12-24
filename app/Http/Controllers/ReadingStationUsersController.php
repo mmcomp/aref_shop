@@ -820,7 +820,7 @@ class ReadingStationUsersController extends Controller
         $sort = "id";
         $sortDir = "desc";
         $authGroup = Auth::user()->group;
-        $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
+        $paginatedReadingStationOffdays = ReadingStationUser::where("id", ">", 0);
         $paginatedReadingStationOffdays
             ->whereHas('user', function ($q) use ($request, $authGroup, $readingStation) {
                 if ($request->get('name')) {
