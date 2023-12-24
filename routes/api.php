@@ -107,7 +107,7 @@ Route::group([
     Route::delete('/{user}/reading-station-user/{id}', [ReadingStationUsersController::class, 'destroy']);
     Route::post('/', [UserController::class, 'fullStore']);
     Route::put('/edit', [UserController::class, 'update']);
-    Route::get('/group', [UserController::class, 'groupIndex']);
+    Route::get('/reading-station-group', [UserController::class, 'groupIndex']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
