@@ -151,6 +151,7 @@ Route::group([
     Route::post('/{readingStation}/absent-verify', [ReadingStationUsersController::class, 'verfyAbsent']);
     Route::get('/{readingStation}/absent-verify-document/{slutUser}', [ReadingStationUsersController::class, 'getVerfyAbsent']);
     Route::get('/{readingStation}/absent-list', [ReadingStationSlutUsersController::class, 'listAbsentUsers']);
+    Route::get('/{readingStation}/none-users', [ReadingStationUsersController::class, 'oneNoneUserIndex']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

@@ -4983,10 +4983,42 @@
 													"key": "phone",
 													"value": "09155193104",
 													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Load One None Users",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/none-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"none-users"
+											],
+											"query": [
+												{
+													"key": "per_page",
+													"value": "1",
+													"disabled": true
 												},
 												{
-													"key": "group_id",
-													"value": "3",
+													"key": "name",
+													"value": "بانویی",
+													"disabled": true
+												},
+												{
+													"key": "phone",
+													"value": "09155193104",
 													"disabled": true
 												}
 											]

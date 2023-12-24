@@ -35,6 +35,7 @@ use App\Http\Resources\ReadingStationExitsResource;
 use App\Http\Resources\ReadingStationUserAbsentsCollection;
 use App\Http\Resources\ReadingStationUserAbsentTablesCollection;
 use App\Http\Resources\ReadingStationUsers5Collection;
+use App\Models\Group;
 use App\Models\ReadingStationCall;
 use Illuminate\Support\Facades\Storage;
 
@@ -81,7 +82,7 @@ class ReadingStationUsersController extends Controller
 
     function oneIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
     {
-        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
@@ -91,9 +92,10 @@ class ReadingStationUsersController extends Controller
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
-        if ($request->get('name') || $request->get('phone') || $request->get('group_id')) {
+        $userGroup = Group::where('type', 'user')->first();
+        if ($request->get('name') || $request->get('phone')) {
             $paginatedReadingStationOffdays
-                ->whereHas('user', function ($q) use ($request) {
+                ->whereHas('user', function ($q) use ($request, $userGroup) {
                     if ($request->get('name')) {
                         $name = $request->get('name');
                         $q->where(DB::raw("CONCAT(first_name, ' ',last_name)"), 'like', '%' . $name . '%');
@@ -105,10 +107,7 @@ class ReadingStationUsersController extends Controller
                             ->orWhere('father_cell', 'like', '%' . $phone . '%')
                             ->orWhere('mother_cell', 'like', '%' . $phone . '%');
                     }
-                    if ($request->get('group_id')) {
-                        $groupId = $request->get('group_id');
-                        $q->where('groups_id', $groupId);
-                    }
+                    $q->where('groups_id', $userGroup->id);
                 });
         }
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
@@ -807,6 +806,66 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
         return Storage::drive('ftp')->download($slutUser->absense_file);
+    }
+
+    function oneNoneUserIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if (Auth::user()->reading_station_id !== $readingStation->id) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+        $sort = "id";
+        $sortDir = "desc";
+        $authGroup = Auth::user()->group;
+        $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
+        $paginatedReadingStationOffdays
+            ->whereHas('user', function ($q) use ($request, $authGroup, $readingStation) {
+                if ($request->get('name')) {
+                    $name = $request->get('name');
+                    $q->where(DB::raw("CONCAT(first_name, ' ',last_name)"), 'like', '%' . $name . '%');
+                }
+                if ($request->get('phone')) {
+                    $phone = $request->get('phone');
+                    $q->where('email', 'like', '%' . $phone . '%')
+                        ->orWhere('home_tell', 'like', '%' . $phone . '%')
+                        ->orWhere('father_cell', 'like', '%' . $phone . '%')
+                        ->orWhere('mother_cell', 'like', '%' . $phone . '%');
+                }
+                switch ($authGroup->type) {
+                    case 'admin_reading_station_branch':
+                        $q->whereHas('group', function ($q1) {
+                            $q1->where('type', 'user_reading_station_branch');
+                        });
+
+                        break;
+                    case 'admin_reading_station':
+                        $q->whereHas('group', function ($q1) {
+                            $q1->whereIn('type', ['user_reading_station_branch', 'admin_reading_station_branch']);
+                        });
+
+                        break;
+                }
+                $q->where('reading_station_id', $readingStation->id);
+            });
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $sortDir = $request->get('sort_dir');
+        }
+        if ($request->get('per_page') == "all") {
+            $paginatedReadingStationOffdays = $paginatedReadingStationOffdays->orderBy($sort, $sortDir)->get();
+        } else {
+            $perPage = $request->get('per_page');
+            if (!$perPage) {
+                $perPage = env('PAGE_COUNT');
+            }
+            $paginatedReadingStationOffdays = $paginatedReadingStationOffdays->orderBy($sort, $sortDir)->paginate($perPage);
+        }
+        return (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 
     private function checkUserWithReadingStationAuth(ReadingStation $readingStation, User $user): bool

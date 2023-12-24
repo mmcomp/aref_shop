@@ -46,7 +46,7 @@ class ReadingStationSlutsController extends Controller
 
     function oneIndex(ReadingStationSlutsIndexRequest $request, ReadingStation $readingStation)
     {      
-        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationSlutsResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
