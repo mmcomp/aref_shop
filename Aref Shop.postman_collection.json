@@ -526,6 +526,48 @@
 									"response": []
 								},
 								{
+									"name": "Disable Reading Station User or None User",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/1/disable",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"1",
+												"disable"
+											]
+										},
+										"description": "### Errors\n\n- The selected next week package id is invalid."
+									},
+									"response": []
+								},
+								{
+									"name": "Enable Reading Station User or None User",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/1/enable",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"1",
+												"enable"
+											]
+										},
+										"description": "### Errors\n\n- The selected next week package id is invalid."
+									},
+									"response": []
+								},
+								{
 									"name": "Delete a Reading Station",
 									"request": {
 										"method": "DELETE",

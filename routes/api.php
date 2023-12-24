@@ -108,6 +108,8 @@ Route::group([
     Route::post('/', [UserController::class, 'fullStore']);
     Route::put('/edit', [UserController::class, 'update']);
     Route::get('/reading-station-group', [UserController::class, 'groupIndex']);
+    Route::patch('/{user}/disable', [UserController::class, 'disableUser']);
+    Route::patch('/{user}/enable', [UserController::class, 'enableUser']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

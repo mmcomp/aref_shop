@@ -524,4 +524,76 @@ class UserController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+
+    public function disableUser(User $user)
+    {
+        $authUser = Auth::user();
+        $authGroup = $authUser->group;
+        switch ($authGroup->type) {
+            case 'admin_reading_station':
+                if (!$user->readingStation || $user->group->type === 'admin_reading_station')
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['Access denied!']],
+                    ])->response()->setStatusCode(403);
+            case 'admin_reading_station_branch':
+                if (
+                    !$user->readingStation ||
+                    $user->group->type !== 'user_reading_station_branch' ||
+                    (
+                        $user->reading_station_id &&
+                        $user->reading_station_id !== $authUser->reading_station_id
+                    )
+                )
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['Access denied!']],
+                    ])->response()->setStatusCode(403);
+            case 'user_reading_station_branch':
+                return (new UserResource(null))->additional([
+                    'errors' => ['user' => ['Access denied!']],
+                ])->response()->setStatusCode(403);
+        }
+
+        $user->disabled = true;
+        $user->save();
+
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+    }
+
+    public function enableUser(User $user)
+    {
+        $authUser = Auth::user();
+        $authGroup = $authUser->group;
+        switch ($authGroup->type) {
+            case 'admin_reading_station':
+                if (!$user->readingStation || $user->group->type === 'admin_reading_station')
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['Access denied!']],
+                    ])->response()->setStatusCode(403);
+            case 'admin_reading_station_branch':
+                if (
+                    !$user->readingStation ||
+                    $user->group->type !== 'user_reading_station_branch' ||
+                    (
+                        $user->reading_station_id &&
+                        $user->reading_station_id !== $authUser->reading_station_id
+                    )
+                )
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['Access denied!']],
+                    ])->response()->setStatusCode(403);
+            case 'user_reading_station_branch':
+                return (new UserResource(null))->additional([
+                    'errors' => ['user' => ['Access denied!']],
+                ])->response()->setStatusCode(403);
+        }
+        
+        $user->disabled = false;
+        $user->save();
+
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
+    }
 }
