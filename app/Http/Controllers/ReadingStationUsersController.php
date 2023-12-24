@@ -48,7 +48,7 @@ class ReadingStationUsersController extends Controller
      */
     public function index(ReadingStationUsersIndexRequest $request)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationUsers = [];
@@ -130,7 +130,7 @@ class ReadingStationUsersController extends Controller
 
     public function oneSlutIndex(ReadingStation $readingStation, ReadingStationSlut $slut)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {
@@ -440,7 +440,7 @@ class ReadingStationUsersController extends Controller
 
     function bulkUpdate(ReadingStationUsersBulkUpdateRequest $request, ReadingStation $readingStation)
     {
-        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
@@ -572,7 +572,7 @@ class ReadingStationUsersController extends Controller
 
     function allExit(ReadingStationIndexExitsRequest $request, ReadingStation $readingStation)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {
@@ -598,7 +598,7 @@ class ReadingStationUsersController extends Controller
 
     function updateExitRecord(ReadingStationChangeExitsRequest $request, ReadingStation $readingStation, ReadingStationAbsentPresent $readingStationAbsentPresent)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStationAbsentPresent->reading_station_id || $readingStation->id !== $readingStationId) {
@@ -644,7 +644,7 @@ class ReadingStationUsersController extends Controller
 
     function oneSmallIndex(ReadingStation $readingStation)
     {
-        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
@@ -661,7 +661,7 @@ class ReadingStationUsersController extends Controller
 
     function absents(ReadingStationIndexUserAbsentsRequest $request, ReadingStation $readingStation)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {
@@ -712,7 +712,7 @@ class ReadingStationUsersController extends Controller
 
     function absentTableNumbers(ReadingStationIndexUserAbsentTablesRequest $request, ReadingStation $readingStation)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {
@@ -738,7 +738,7 @@ class ReadingStationUsersController extends Controller
 
     public function verfyAbsent(ReadingStationIndexUserAbsentVerifyRequest $request, ReadingStation $readingStation)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {
@@ -780,7 +780,7 @@ class ReadingStationUsersController extends Controller
 
     public function getVerfyAbsent(ReadingStation $readingStation, ReadingStationSlutUser $slutUser)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {

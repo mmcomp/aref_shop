@@ -100,7 +100,7 @@ class ReadingStationStrikeController extends Controller
 
     public function readingStationIndex(ReadingStationIndexStrikesRequest $request, ReadingStation $readingStation)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
             if ($readingStationId !== $readingStation->id) {
@@ -147,7 +147,7 @@ class ReadingStationStrikeController extends Controller
     public function addReadingStationUserStrike(ReadingStationCreateStrikesRequest $request, ReadingStation $readingStation)
     {
         $readingStationId = Auth::user()->reading_station_id;
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin =in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             if ($readingStationId !== $readingStation->id) {
                 return (new ReadingStationStrikesResource(null))->additional([
