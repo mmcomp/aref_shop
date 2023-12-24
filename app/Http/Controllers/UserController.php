@@ -538,6 +538,7 @@ class UserController extends Controller
                     return (new UserResource(null))->additional([
                         'errors' => ['user' => ['Access denied!']],
                     ])->response()->setStatusCode(403);
+                break;
             case 'admin_reading_station_branch':
                 if (
                     !$user->readingStation ||
@@ -546,10 +547,12 @@ class UserController extends Controller
                         $user->reading_station_id &&
                         $user->reading_station_id !== $authUser->reading_station_id
                     )
-                )
+                ) {
                     return (new UserResource(null))->additional([
                         'errors' => ['user' => ['Access denied!']],
                     ])->response()->setStatusCode(403);
+                }
+                break;
             case 'user_reading_station_branch':
                 return (new UserResource(null))->additional([
                     'errors' => ['user' => ['Access denied!']],
@@ -575,6 +578,7 @@ class UserController extends Controller
                     return (new UserResource(null))->additional([
                         'errors' => ['user' => ['Access denied!']],
                     ])->response()->setStatusCode(403);
+                break;
             case 'admin_reading_station_branch':
                 if (
                     !$user->readingStation ||
@@ -587,6 +591,7 @@ class UserController extends Controller
                     return (new UserResource(null))->additional([
                         'errors' => ['user' => ['Access denied!']],
                     ])->response()->setStatusCode(403);
+                break;
             case 'user_reading_station_branch':
                 return (new UserResource(null))->additional([
                     'errors' => ['user' => ['Access denied!']],
