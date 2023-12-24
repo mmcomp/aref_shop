@@ -25,6 +25,7 @@ class NoneUserResource extends JsonResource
                 'last_name' => $this->last_name,
                 'created_at' => $this->created_at,
                 'group' => new GroupResource($this->group),
+                'disabled' => $this->disabled ? true : false,
             ];
         }
     }

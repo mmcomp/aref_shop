@@ -93,7 +93,9 @@ class BaseAuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))
+            ->where('disabled', false)
+            ->first();
 
         if ($user) {
             $this->check($request->input('password'), $user->password);
