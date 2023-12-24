@@ -52,6 +52,7 @@ class UserFullCreateRequest extends FormRequest
                 }),
             ],
             'groups_id' => [
+                'required',
                 'integer',
                 Rule::exists('groups','id')->where(function ($query) {
                     return $query->where('is_deleted', false);

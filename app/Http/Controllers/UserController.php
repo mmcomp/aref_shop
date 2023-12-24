@@ -96,6 +96,58 @@ class UserController extends Controller
 
     function fullStore(UserFullCreateRequest $request)
     {
+        $authUser = Auth::user();
+        $authGroup = $authUser->group;
+        if (in_array($authGroup->type, ['user', 'teacher'])) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
+
+        $group = Group::find($request->groups_id);
+        switch ($group->type) {
+            case 'admin':
+            case 'admin_reading_station':
+                if ($authGroup->type !== 'admin') {
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['This groups id is forbidden!']],
+                    ])->response()->setStatusCode(403);
+                }
+                break;
+            case 'admin_reading_station_branch':
+                if (!in_array($authGroup->type, ['admin', 'admin_reading_station'])) {
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['This groups id is forbidden!']],
+                    ])->response()->setStatusCode(403);
+                }
+                break;
+            case 'user_reading_station_branch':
+                if (!in_array($authGroup->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['This groups id is forbidden!']],
+                    ])->response()->setStatusCode(403);
+                }
+                if (
+                    $authGroup->type === 'admin_reading_station_branch' &&
+                    (
+                        !$authUser->reading_station_id ||
+                        (
+                            $authUser->reading_station_id &&
+                            $authUser->reading_station_id !== $request->reading_station_id
+                        )
+                    )
+                ) {
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['This groups id is forbidden!']],
+                    ])->response()->setStatusCode(403);
+                }
+                break;
+            default:
+                return (new UserResource(null))->additional([
+                    'errors' => ['user' => ['Un recognizable group!', $group->type]],
+                ])->response()->setStatusCode(403);
+        }
+
         $found = User::where("email", $request->email)->first();
         if ($found) {
             return (new UserResource(null))->additional([
@@ -109,12 +161,12 @@ class UserController extends Controller
             ])->response()->setStatusCode(404);
         }
 
-        if (!$request->groups_id) {
-            $userGroup = Group::where('type', 'user')->first();
-            if ($userGroup) {
-                $request->groups_id = $userGroup->id;
-            }
-        }
+        // if (!$request->groups_id) {
+        //     $userGroup = Group::where('type', 'user')->first();
+        //     if ($userGroup) {
+        //         $request->groups_id = $userGroup->id;
+        //     }
+        // }
         $user = new User;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
@@ -133,7 +185,7 @@ class UserController extends Controller
         $user->home_tell = $request->home_tell;
         $user->father_cell = $request->father_cell;
         $user->mother_cell = $request->mother_cell;
-        $user->grade = $request->grade ?? 1 ;
+        $user->grade = $request->grade ?? 1;
         $user->description = $request->description;
         $user->reading_station_id = $request->reading_station_id;
         $user->save();
