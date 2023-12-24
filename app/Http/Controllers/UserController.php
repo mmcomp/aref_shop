@@ -226,6 +226,7 @@ class UserController extends Controller
             $user->grade = $request->grade ?? $user->grade;
             $user->description = $request->description ?? $user->description;
             $user->reading_station_id = $request->reading_station_id ?? $user->reading_station_id;
+            $user->disabled = $request->exists('disabled') ? $request->disabled : $user->disabled;
             $user->save();
             return (new UserResource(null))->additional([
                 'errors' => null,
@@ -588,7 +589,7 @@ class UserController extends Controller
                     'errors' => ['user' => ['Access denied!']],
                 ])->response()->setStatusCode(403);
         }
-        
+
         $user->disabled = false;
         $user->save();
 
