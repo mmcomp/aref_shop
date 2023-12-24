@@ -499,6 +499,19 @@ class UserController extends Controller
 
     public function groupIndex()
     {
-        return Group::select('id', 'name')->get();    
+        $authUser = Auth::user();
+        $authGroup = $authUser->group;
+        $groups = Group::select('id', 'name');
+        switch ($authGroup->type) {
+            case 'admin':
+                return $groups->get();
+            case 'admin_reading_station':
+                return $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station'])->get();
+            case 'admin_reading_station_branch':
+                return $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station', 'admin_reading_station_branch'])->get();
+            case 'user_reading_station_branch':
+                return $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station', 'admin_reading_station_branch', 'user_reading_station_branch'])->get();
+        }
+        return null;    
     }
 }
