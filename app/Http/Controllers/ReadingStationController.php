@@ -83,7 +83,7 @@ class ReadingStationController extends Controller
 
     function index(ReadingStationIndexRequest $request)
     {
-        $isReadingStationBranchAdmin = Auth::user()->group->type === 'admin_reading_station_branch';
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStations = [];
