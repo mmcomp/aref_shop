@@ -26,7 +26,7 @@ class ReadingStationNoneUsersIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'sort' => 'required_with:type|in:id,firstname,last_name',
+            'sort' => 'required_with:type|in:id,firstname,last_name,created_at,groups_id',
             'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
             'name' => 'nullable|string',
