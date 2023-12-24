@@ -31,10 +31,12 @@ use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentTablesRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentVerifyRequest;
+use App\Http\Requests\ReadingStationNoneUsersIndexRequest;
 use App\Http\Resources\ReadingStationExitsResource;
 use App\Http\Resources\ReadingStationUserAbsentsCollection;
 use App\Http\Resources\ReadingStationUserAbsentTablesCollection;
 use App\Http\Resources\ReadingStationUsers5Collection;
+use App\Http\Resources\UserCollection;
 use App\Models\Group;
 use App\Models\ReadingStationCall;
 use Illuminate\Support\Facades\Storage;
@@ -808,7 +810,7 @@ class ReadingStationUsersController extends Controller
         return Storage::drive('ftp')->download($slutUser->absense_file);
     }
 
-    function oneNoneUserIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
+    function oneNoneUserIndex(ReadingStationNoneUsersIndexRequest $request, ReadingStation $readingStation)
     {
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
@@ -820,9 +822,8 @@ class ReadingStationUsersController extends Controller
         $sort = "id";
         $sortDir = "desc";
         $authGroup = Auth::user()->group;
-        $paginatedReadingStationOffdays = ReadingStationUser::where("id", ">", 0);
-        $paginatedReadingStationOffdays
-            ->whereHas('user', function ($q) use ($request, $authGroup, $readingStation) {
+        $paginatedReadingStationOffdays = User::where('reading_station_id', $readingStation->id)
+            ->where(function ($q) use ($request, $authGroup) {
                 if ($request->get('name')) {
                     $name = $request->get('name');
                     $q->where(DB::raw("CONCAT(first_name, ' ',last_name)"), 'like', '%' . $name . '%');
@@ -848,7 +849,6 @@ class ReadingStationUsersController extends Controller
 
                         break;
                 }
-                $q->where('reading_station_id', $readingStation->id);
             });
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
@@ -863,7 +863,7 @@ class ReadingStationUsersController extends Controller
             }
             $paginatedReadingStationOffdays = $paginatedReadingStationOffdays->orderBy($sort, $sortDir)->paginate($perPage);
         }
-        return (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
+        return (new UserCollection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
     }
