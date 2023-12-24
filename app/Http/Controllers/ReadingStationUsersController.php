@@ -32,6 +32,7 @@ use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentTablesRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentVerifyRequest;
 use App\Http\Requests\ReadingStationNoneUsersIndexRequest;
+use App\Http\Resources\NoneUserCollection;
 use App\Http\Resources\ReadingStationExitsResource;
 use App\Http\Resources\ReadingStationUserAbsentsCollection;
 use App\Http\Resources\ReadingStationUserAbsentTablesCollection;
@@ -863,7 +864,7 @@ class ReadingStationUsersController extends Controller
             }
             $paginatedReadingStationOffdays = $paginatedReadingStationOffdays->orderBy($sort, $sortDir)->paginate($perPage);
         }
-        return (new UserCollection($paginatedReadingStationOffdays))->additional([
+        return (new NoneUserCollection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
     }
