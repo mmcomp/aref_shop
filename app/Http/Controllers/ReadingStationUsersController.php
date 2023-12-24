@@ -91,7 +91,7 @@ class ReadingStationUsersController extends Controller
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
-        if ($request->get('name') || $request->get('phone')) {
+        if ($request->get('name') || $request->get('phone') || $request->get('group_id')) {
             $paginatedReadingStationOffdays
                 ->whereHas('user', function ($q) use ($request) {
                     if ($request->get('name')) {
@@ -104,6 +104,10 @@ class ReadingStationUsersController extends Controller
                             ->orWhere('home_tell', 'like', '%' . $phone . '%')
                             ->orWhere('father_cell', 'like', '%' . $phone . '%')
                             ->orWhere('mother_cell', 'like', '%' . $phone . '%');
+                    }
+                    if ($request->get('group_id')) {
+                        $groupId = $request->get('group_id');
+                        $q->where('groups_id', $groupId);
                     }
                 });
         }

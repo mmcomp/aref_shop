@@ -117,7 +117,7 @@ class ReadingStationController extends Controller
 
     public function findOne(ReadingStation $readingStation)
     {
-        if (Auth::user()->group->type === 'admin_reading_station_branch') {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationResource(null))->additional([
                     'errors' => ['reading_station' => ['Reading station does not belong to you!']],
