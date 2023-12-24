@@ -496,4 +496,9 @@ class UserController extends Controller
             ], 422)
         );
     }
+
+    public function groupIndex()
+    {
+        return Group::select('id', 'name')->get();    
+    }
 }

@@ -830,6 +830,25 @@
 							"response": []
 						},
 						{
+							"name": "Groups",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/group",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"group"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "deleteAvatar",
 							"request": {
 								"method": "DELETE",
