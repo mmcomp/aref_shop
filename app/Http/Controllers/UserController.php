@@ -190,6 +190,7 @@ class UserController extends Controller
         $user->grade = $request->grade ?? 1;
         $user->description = $request->description;
         $user->reading_station_id = $request->reading_station_id;
+        $user->saver_users_id = Auth::user()->id;
         $user->save();
         return (new UserResource($user))->additional([
             'errors' => null,
@@ -227,6 +228,7 @@ class UserController extends Controller
             $user->description = $request->description ?? $user->description;
             $user->reading_station_id = $request->reading_station_id ?? $user->reading_station_id;
             $user->disabled = $request->exists('disabled') ? $request->disabled : $user->disabled;
+            $user->saver_users_id = Auth::user()->id;
             $user->save();
             return (new UserResource(null))->additional([
                 'errors' => null,
@@ -555,6 +557,7 @@ class UserController extends Controller
         }
 
         $user->disabled = true;
+        $user->saver_users_id = Auth::user()->id;
         $user->save();
 
         return (new UserResource(null))->additional([
@@ -591,6 +594,7 @@ class UserController extends Controller
         }
 
         $user->disabled = false;
+        $user->saver_users_id = Auth::user()->id;
         $user->save();
 
         return (new UserResource(null))->additional([
