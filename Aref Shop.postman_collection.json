@@ -835,14 +835,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/users/group",
+									"raw": "{{base_url}}/api/users/reading-station-group",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"api",
 										"users",
-										"group"
+										"reading-station-group"
 									]
 								}
 							},
