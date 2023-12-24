@@ -503,7 +503,7 @@ class UserController extends Controller
     {
         $authUser = Auth::user();
         $authGroup = $authUser->group;
-        $groups = Group::where('id', '>', 0);
+        $groups = Group::where('type', '!=', 'user');
         switch ($authGroup->type) {
             case 'admin':
                 $groups = $groups->get();
