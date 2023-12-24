@@ -831,10 +831,7 @@ class ReadingStationUsersController extends Controller
                 }
                 if ($request->get('phone')) {
                     $phone = $request->get('phone');
-                    $q->where('email', 'like', '%' . $phone . '%')
-                        ->orWhere('home_tell', 'like', '%' . $phone . '%')
-                        ->orWhere('father_cell', 'like', '%' . $phone . '%')
-                        ->orWhere('mother_cell', 'like', '%' . $phone . '%');
+                    $q->where('email', 'like', '%' . $phone . '%');
                 }
                 switch ($authGroup->type) {
                     case 'admin_reading_station_branch':
