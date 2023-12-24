@@ -97,9 +97,13 @@ class BaseAuthController extends Controller
             ->where('disabled', false)
             ->first();
 
-        if ($user) {
-            $this->check($request->input('password'), $user->password);
+        if (!$user) {
+            return (new UserResource(null))->additional([
+                'errors' => ['authentication' => ['Unauthorized']],
+            ])->response()->setStatusCode(401);
         }
+
+        $this->check($request->input('password'), $user->password);
 
         $validated = $request->validated();
         if (!$token = auth('api')->attempt($validated)) {
