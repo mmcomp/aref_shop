@@ -10,6 +10,8 @@ use App\Http\Requests\UserEditRequest;
 use App\Http\Requests\UserFullCreateRequest;
 use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserSetAvatarRequest;
+use App\Http\Resources\GroupCollection;
+use App\Http\Resources\GroupResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -501,17 +503,25 @@ class UserController extends Controller
     {
         $authUser = Auth::user();
         $authGroup = $authUser->group;
-        $groups = Group::select('id', 'name');
+        $groups = Group::where('id', '>', 0);
         switch ($authGroup->type) {
             case 'admin':
-                return $groups->get();
+                $groups = $groups->get();
+                break;
             case 'admin_reading_station':
-                return $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station'])->get();
+                $groups = $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station'])->get();
+                break;
             case 'admin_reading_station_branch':
-                return $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station', 'admin_reading_station_branch'])->get();
+                $groups = $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station', 'admin_reading_station_branch'])->get();
+                break;
             case 'user_reading_station_branch':
-                return $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station', 'admin_reading_station_branch', 'user_reading_station_branch'])->get();
+                $groups = $groups->whereNotIn('type', ['admin', 'teacher', 'admin_reading_station', 'admin_reading_station_branch', 'user_reading_station_branch'])->get();
+                break;
+            default:
+                $groups = null;
         }
-        return null;    
+        return (new GroupCollection($groups))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }
