@@ -239,6 +239,10 @@ class ReadingStationUsersController extends Controller
             } else {
                 $weeklyProgram->optional_time_done += $time;
             }
+            if (str_starts_with('late_', $userSlut->status)) {
+                $weeklyProgram->strikes_done += 1;
+            }
+            $weeklyProgram->strike_done += 1;
         } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
             switch ($oldStatus) {
                 case 'late_15':
@@ -260,6 +264,7 @@ class ReadingStationUsersController extends Controller
             $weeklyProgram->required_time_done -= $time;
         } else if ($userSlut->is_required && $userSlut->status === 'absent') {
             $weeklyProgram->absence_done += $time;
+            $weeklyProgram->strikes_done += 2;
         }
         $weeklyProgram->save();
         if ($deleted) {
@@ -776,6 +781,21 @@ class ReadingStationUsersController extends Controller
         $slutUser->user_id = Auth::user()->id;
         $slutUser->save();
 
+        $strikeFixed = 0;
+        switch ($request->absense_approved_status) {
+            case 'semi_approved':
+                $strikeFixed = 1;
+                break;
+
+            case 'approved':
+                $strikeFixed = 2;
+                break;
+        }
+        if ($strikeFixed > 0) {
+            $weeklyProgram = $slutUser->weeklyProgram;
+            $weeklyProgram->strikes_done -= $strikeFixed;
+            $weeklyProgram->save();
+        }
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
