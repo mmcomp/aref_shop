@@ -261,7 +261,6 @@ class ReadingStationUsersController extends Controller
             if (str_starts_with('late_', $userSlut->status)) {
                 $weeklyProgram->strikes_done += 1;
             }
-            $weeklyProgram->strike_done += 1;
         } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
             switch ($oldStatus) {
                 case 'late_15':
