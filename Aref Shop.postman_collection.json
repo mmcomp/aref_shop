@@ -6140,6 +6140,12 @@
 											"key": "per_page",
 											"value": "1",
 											"disabled": true
+										},
+										{
+											"key": "is_point",
+											"value": "true",
+											"description": "Optional",
+											"disabled": true
 										}
 									]
 								}

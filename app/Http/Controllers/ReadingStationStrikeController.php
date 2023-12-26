@@ -90,7 +90,7 @@ class ReadingStationStrikeController extends Controller
         }
         $paginatedReadingStations = ReadingStationStrike::where('id', '>', 0);
         if ($request->exists('is_point')) {
-            $paginatedReadingStations->where('is_point', $request->is_point);
+            $paginatedReadingStations->where('is_point', $request->is_point === 'true');
         }
         if ($request->get('per_page') == "all") {
             $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->get();
