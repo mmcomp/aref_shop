@@ -148,6 +148,19 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        $beforeSluts = $readingStation->sluts->where('id', '!=', $slut->id)->where('start', '<', $slut->start)->pluck('id');
+        if (
+            count($beforeSluts) > 0 &&
+            ReadingStationSlutUser::whereIn('reading_station_slut_id', $beforeSluts)
+            ->where('status', 'defined')
+            ->where('day', Carbon::now()->toDateString())
+            ->count() > 0
+        ) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['There are defined statuses before this Slut!']],
+            ])->response()->setStatusCode(400);
+        }
+
         return (new ReadingStationUserSlutsResource($readingStation->users, $slut))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
