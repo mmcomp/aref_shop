@@ -88,14 +88,18 @@ class ReadingStationStrikeController extends Controller
             $sort = $request->get('sort');
             $sortDir = $request->get('sort_dir');
         }
+        $paginatedReadingStations = ReadingStationStrike::where('id', '>', 0);
+        if ($request->exists('is_point')) {
+            $paginatedReadingStations->where('is_point', $request->is_point);
+        }
         if ($request->get('per_page') == "all") {
-            $paginatedReadingStations = ReadingStationStrike::orderBy($sort, $sortDir)->get();
+            $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->get();
         } else {
             $perPage = $request->get('per_page');
             if (!$perPage) {
                 $perPage = env('PAGE_COUNT');
             }
-            $paginatedReadingStations = ReadingStationStrike::orderBy($sort, $sortDir)->paginate($perPage);
+            $paginatedReadingStations = $paginatedReadingStations->orderBy($sort, $sortDir)->paginate($perPage);
         }
         return (new ReadingStationStrikesCollection($paginatedReadingStations))->additional([
             'errors' => null,
