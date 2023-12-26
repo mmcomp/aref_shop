@@ -30,7 +30,15 @@ class ReadingStationStrikeController extends Controller
                 'errors' => ['reading_station_strike' => ['Reading station strike with this name exists!']],
             ])->response()->setStatusCode(400);
         }
-        ReadingStationStrike::create(["name" => $request->name, "score" => $request->score]);
+        $isPoint = false;
+        if ($request->exists('is_point')) {
+            $isPoint = $request->is_point;
+        }
+        ReadingStationStrike::create([
+            "name" => $request->name, 
+            "score" => $request->score,
+            "is_point" => $isPoint,
+        ]);
         return (new ReadingStationStrikesResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(204);
@@ -39,7 +47,7 @@ class ReadingStationStrikeController extends Controller
     function update(ReadingStationStrikesUpdateRequest $request)
     {
         $readingStationStrike = ReadingStationStrike::find($request->id);
-        if ($request->name) {
+        if ($request->exists('name')) {
             if ($request->name !== $readingStationStrike->name) {
                 $found = ReadingStationStrike::where("name", $request->name)->first();
                 if ($found) {
@@ -50,8 +58,11 @@ class ReadingStationStrikeController extends Controller
             }
             $readingStationStrike->name = $request->name;
         }
-        if ($request->score) {
+        if ($request->exists('score')) {
             $readingStationStrike->score = $request->score;
+        }
+        if ($request->exists('is_point')) {
+            $readingStationStrike->is_point = $request->is_point;
         }
 
         $readingStationStrike->save();

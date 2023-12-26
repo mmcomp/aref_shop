@@ -29,6 +29,7 @@ class ReadingStationStrikesUpdateRequest extends FormRequest
             'id' => 'required|exists:reading_station_strikes,id',
             'name' => 'max:255|min:3',
             'score' => 'int|min:1',
+            'is_point' => 'nullable|boolean',
         ];
     }
      /**

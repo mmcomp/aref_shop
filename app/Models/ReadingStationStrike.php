@@ -11,5 +11,5 @@ class ReadingStationStrike extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['name', 'score'];
+    protected $fillable = ['name', 'score', 'is_point'];
 }

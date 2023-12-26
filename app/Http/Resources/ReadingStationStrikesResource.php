@@ -22,6 +22,7 @@ class ReadingStationStrikesResource extends JsonResource
                 'id' => $this->id,
                 'name' => $this->name,
                 'score' => $this->score,
+                'is_point' => $this->is_point,
             ];
         }
     }

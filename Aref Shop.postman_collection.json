@@ -6052,7 +6052,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"a01\",\n    \"score\": 1\n}",
+									"raw": "{\n    \"name\": \"a01\",\n    \"score\": 1,\n    \"is_point\": false //Optional default FALSE\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6080,7 +6080,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": 1,\n    \"name\": \"a12\",\n    \"score\": 3\n}",
+									"raw": "{\n    \"id\": 1,\n    \"name\": \"a12\",\n    \"score\": 3,\n    \"is_point\": true\n}",
 									"options": {
 										"raw": {
 											"language": "json"
