@@ -23,6 +23,8 @@ class ReadingStationPackagesResource extends JsonResource
                 'name' => $this->name,
                 'required_time' => $this->required_time,
                 'optional_time' => $this->optional_time,
+                'grade' => $this->grade,
+                'step' => $this->step,
             ];
         }
     }

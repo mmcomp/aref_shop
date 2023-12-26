@@ -5804,7 +5804,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"a0\",\n    \"required_time\": 1,\n    \"optional_time\": 1\n}",
+									"raw": "{\n    \"name\": \"a0\",\n    \"required_time\": 1,\n    \"optional_time\": 1,\n    \"grade\": 1,\n    \"step\": 10\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -5832,7 +5832,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": 1,\n    \"name\": \"a1\",\n    \"required_time\": 1,\n    \"optional_time\": 1\n}",
+									"raw": "{\n    \"id\": 1,\n    \"name\": \"a1\",\n    \"required_time\": 1,\n    \"optional_time\": 1,\n    \"grade\": 1,\n    \"step\": 10\n}",
 									"options": {
 										"raw": {
 											"language": "json"

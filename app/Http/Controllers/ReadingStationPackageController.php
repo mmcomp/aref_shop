@@ -19,7 +19,13 @@ class ReadingStationPackageController extends Controller
                 'errors' => ['reading_station_package' => ['Reading station package with this name exists!']],
             ])->response()->setStatusCode(400);
         }
-        ReadingStationPackage::create(["name" => $request->name, "required_time" => $request->required_time, "optional_time" => $request->optional_time]);
+        ReadingStationPackage::create([
+            "name" => $request->name, 
+            "required_time" => $request->required_time, 
+            "optional_time" => $request->optional_time,
+            "grade" => $request->grade,
+            "step" => $request->step,
+        ]);
         return (new ReadingStationPackagesResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(204);
@@ -33,15 +39,13 @@ class ReadingStationPackageController extends Controller
                 'errors' => ['reading_station' => ['Reading station not found!']],
             ])->response()->setStatusCode(404);
         }
-        if ($request->name) {
-            $readingStationPackage->name = $request->name;
-        }
-        if ($request->required_time) {
-            $readingStationPackage->required_time = $request->required_time;
-        }
-        if ($request->optional_time) {
-            $readingStationPackage->optional_time = $request->optional_time;
-        }
+
+        $readingStationPackage->name = $request->exists('name') ? $request->name : $readingStationPackage->name;
+        $readingStationPackage->required_time = $request->exists('required_time') ? $request->required_time : $readingStationPackage->required_time;
+        $readingStationPackage->optional_time = $request->exists('optional_time') ? $request->optional_time : $readingStationPackage->optional_time;
+        $readingStationPackage->grade = $request->exists('grade') ? $request->grade : $readingStationPackage->grade;
+        $readingStationPackage->step = $request->exists('step') ? $request->step : $readingStationPackage->step;
+
         $readingStationPackage->save();
         return (new ReadingStationPackagesResource(null))->additional([
             'errors' => null,

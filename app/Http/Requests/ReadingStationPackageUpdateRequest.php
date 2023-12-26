@@ -32,6 +32,8 @@ class ReadingStationPackageUpdateRequest extends FormRequest
             'name' => 'nullable|string|between:2,100',
             'required_time' => 'nullable|int|min:1',
             'optional_time' => 'nullable|int|min:1',
+            'grade' => 'nullable|int|min:1|max:14',
+            'step' => 'nullable|int|min:1',
         ];
     }
      /**

@@ -11,5 +11,5 @@ class ReadingStationPackage extends Model
     use HasFactory;    
     use SoftDeletes;
 
-    protected $fillable = ['name', 'required_time', 'optional_time'];
+    protected $fillable = ['name', 'required_time', 'optional_time', 'grade', 'step'];
 }

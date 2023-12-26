@@ -31,6 +31,8 @@ class ReadingStationPackageCreateRequest extends FormRequest
             'name' => 'required|string|between:2,100',
             'required_time' => 'required|int|min:1',
             'optional_time' => 'required|int|min:1',
+            'grade' => 'required|int|min:1|max:14',
+            'step' => 'required|int|min:1',
         ];
     }
      /**
