@@ -231,7 +231,13 @@ class ReadingStationUsersController extends Controller
                     $time -= 60;
                     break;
                 case 'late_60_plus':
-                    $time -= 75;
+                    $time = 0;
+                    break;
+                case 'present':
+                    $weeklyProgram->present_day += 1;
+                    if ($oldStatus && $oldStatus === 'absent') {
+                        $weeklyProgram->absent_day -= 1;
+                    }
                     break;
             }
             if ($userSlut->is_required) {
@@ -265,6 +271,12 @@ class ReadingStationUsersController extends Controller
         } else if ($userSlut->is_required && $userSlut->status === 'absent') {
             $weeklyProgram->absence_done += $time;
             $weeklyProgram->strikes_done += 2;
+        }
+        if ($userSlut->status === 'absent') {
+            $weeklyProgram->absent_day += 1;
+            if ($oldStatus && $oldStatus === 'present') {
+                $weeklyProgram->present_day -= 1;
+            }
         }
         $weeklyProgram->save();
         if ($deleted) {
