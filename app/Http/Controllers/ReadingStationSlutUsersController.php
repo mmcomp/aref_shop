@@ -8,6 +8,7 @@ use App\Http\Requests\ReadingStationUserAbsentIndexRequest;
 use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
+use App\Http\Resources\ReadingStationWeeklyProgramHoursResource;
 use App\Http\Resources\ReadingStationWeeklyPrograms3Collection;
 use App\Http\Resources\ReadingStationWeeklyPrograms4Resource;
 use App\Models\ReadingStation;
@@ -285,6 +286,19 @@ class ReadingStationSlutUsersController extends Controller
             'daily_avarage_reading_minutes' => intval($avarage_reading_hours / 7),
         ];
         return (new ReadingStationWeeklyPrograms4Resource($weeklyProgram, $readingStationData))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function loadHoursWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
+    {
+        if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        return (new ReadingStationWeeklyProgramHoursResource($weeklyProgram))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

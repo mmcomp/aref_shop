@@ -113,6 +113,7 @@ Route::group([
     Route::get('/{user}/reading-station-user/weekly-program-list', [ReadingStationSlutUsersController::class, 'weeklyProgramList']);
     Route::get('/{user}/reading-station-user/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgram']);
     Route::get('/{user}/reading-station-user/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgram']);
+    Route::get('/{user}/reading-station-user/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgram']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
