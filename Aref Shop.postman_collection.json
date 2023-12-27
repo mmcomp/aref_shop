@@ -509,6 +509,29 @@
 									"response": []
 								},
 								{
+									"name": "Load User's a Weekly Program Summary",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/1/reading-station-user/load-summary-weekly-program/5",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"1",
+												"reading-station-user",
+												"load-summary-weekly-program",
+												"5"
+											]
+										},
+										"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+									},
+									"response": []
+								},
+								{
 									"name": "Update a Reading Station",
 									"request": {
 										"method": "PUT",
