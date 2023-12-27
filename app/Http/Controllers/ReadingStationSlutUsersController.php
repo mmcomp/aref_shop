@@ -8,6 +8,7 @@ use App\Http\Requests\ReadingStationUserAbsentIndexRequest;
 use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
+use App\Http\Resources\ReadingStationWeeklyPrograms3Collection;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationSlut;
@@ -238,6 +239,21 @@ class ReadingStationSlutUsersController extends Controller
         }
 
         return (new ReadingStationSlutUserAbsentsCollection($output))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function weeklyProgramList(User $user)
+    {
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)->orderBy('start')->get();
+        return (new ReadingStationWeeklyPrograms3Collection($weeklyPrograms))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function loadWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
+    {
+        return (new ReadingStationUserWeeklyProgramStructureResource($user, [$weeklyProgram]))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

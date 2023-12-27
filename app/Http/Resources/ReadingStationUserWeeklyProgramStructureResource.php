@@ -8,6 +8,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
 {
+    private $weeklyPrograms;
+    function __construct($resource, $weeklyPrograms = null)
+    {
+        $this->weeklyPrograms = $weeklyPrograms;
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -24,8 +31,7 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
             $tableNumber = $this->readingStationUser->table_number;
             $package = $this->readingStationUser->package;
             $sluts = $this->readingStationUser->readingStation->sluts->sortBy('start');
-            $weeklyPrograms = $this->readingStationUser->weeklyPrograms;
-
+            $weeklyPrograms = $this->weeklyPrograms ?? $this->readingStationUser->weeklyPrograms;
             return [
                 'tableNumber' => $tableNumber,
                 'name' => $package->name,
