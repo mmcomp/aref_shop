@@ -260,6 +260,7 @@ class ReadingStationUsersController extends Controller
             }
             if (str_starts_with('late_', $userSlut->status)) {
                 $weeklyProgram->strikes_done += 1;
+                $weeklyProgram->late_day++;
             }
         } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
             switch ($oldStatus) {
@@ -806,17 +807,19 @@ class ReadingStationUsersController extends Controller
         $slutUser->save();
 
         $strikeFixed = 0;
+        $weeklyProgram = $slutUser->weeklyProgram;
         switch ($request->absense_approved_status) {
             case 'semi_approved':
                 $strikeFixed = 1;
+                $weeklyProgram->semi_approved_absent_day++;
                 break;
 
             case 'approved':
                 $strikeFixed = 2;
+                $weeklyProgram->approved_absent_day++;
                 break;
         }
         if ($strikeFixed > 0) {
-            $weeklyProgram = $slutUser->weeklyProgram;
             $weeklyProgram->strikes_done -= $strikeFixed;
             $weeklyProgram->save();
         }

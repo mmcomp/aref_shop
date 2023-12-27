@@ -9,6 +9,7 @@ use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
 use App\Http\Resources\ReadingStationWeeklyPrograms3Collection;
+use App\Http\Resources\ReadingStationWeeklyPrograms4Resource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationSlut;
@@ -253,7 +254,37 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
+        if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
+            ])->response()->setStatusCode(400);
+        }
         return (new ReadingStationUserWeeklyProgramStructureResource($user, [$weeklyProgram]))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function loadSummaryWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
+    {
+        if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
+            ])->response()->setStatusCode(400);
+        }
+        $readingStation = $user->readingStationUser->readingStation;
+        $start = $weeklyProgram->start;
+        $end = $weeklyProgram->end;
+        $users = $readingStation->users->pluck('id');
+        $weeklyPrograms = ReadingStationWeeklyProgram::whereIn('reading_station_user_id', $users)
+            ->where('start', $start)
+            ->where('end', $end)
+            ->get();
+        $avarage_reading_hours = intval(($weeklyPrograms->sum('required_time_done') + $weeklyPrograms->sum('optional_time_done'))/count($users));
+        $readingStationData = [
+            'avarage_reading_minutes' => $avarage_reading_hours,
+            'daily_avarage_reading_minutes' => intval($avarage_reading_hours / 7),
+        ];
+        return (new ReadingStationWeeklyPrograms4Resource($weeklyProgram, $readingStationData))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

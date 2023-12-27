@@ -112,6 +112,7 @@ Route::group([
     Route::patch('/{user}/enable', [UserController::class, 'enableUser']);
     Route::get('/{user}/reading-station-user/weekly-program-list', [ReadingStationSlutUsersController::class, 'weeklyProgramList']);
     Route::get('/{user}/reading-station-user/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgram']);
+    Route::get('/{user}/reading-station-user/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgram']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
