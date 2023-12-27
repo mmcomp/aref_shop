@@ -228,6 +228,7 @@ class ReadingStationUsersController extends Controller
         }
 
         $weeklyProgram = $userSlut->weeklyProgram;
+        $readingStationUser = $weeklyProgram->user;
         $time = $userSlut->slut->duration;
         if ($userSlut->status !== 'absent' && $userSlut->status !== 'defined') {
             switch ($userSlut->status) {
@@ -260,6 +261,7 @@ class ReadingStationUsersController extends Controller
             }
             if (str_starts_with('late_', $userSlut->status)) {
                 $weeklyProgram->strikes_done += 1;
+                $readingStationUser->total -= 1;
                 $weeklyProgram->late_day++;
             }
         } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
@@ -284,14 +286,14 @@ class ReadingStationUsersController extends Controller
         } else if ($userSlut->is_required && $userSlut->status === 'absent') {
             $weeklyProgram->absence_done += $time;
             $weeklyProgram->strikes_done += 2;
-        }
-        if ($userSlut->status === 'absent') {
             $weeklyProgram->absent_day += 1;
+            $readingStationUser->total -= 2;
             if ($oldStatus && $oldStatus === 'present') {
                 $weeklyProgram->present_day -= 1;
             }
         }
         $weeklyProgram->save();
+        $readingStationUser->save();
         if ($deleted) {
             $userSlut->delete();
         }
@@ -808,6 +810,7 @@ class ReadingStationUsersController extends Controller
 
         $strikeFixed = 0;
         $weeklyProgram = $slutUser->weeklyProgram;
+        $readingStationUser = $weeklyProgram->user;
         switch ($request->absense_approved_status) {
             case 'semi_approved':
                 $strikeFixed = 1;
@@ -822,6 +825,9 @@ class ReadingStationUsersController extends Controller
         if ($strikeFixed > 0) {
             $weeklyProgram->strikes_done -= $strikeFixed;
             $weeklyProgram->save();
+
+            $readingStationUser->total += $strikeFixed;
+            $readingStationUser->save();
         }
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,

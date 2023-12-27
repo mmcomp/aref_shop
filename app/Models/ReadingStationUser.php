@@ -12,7 +12,7 @@ class ReadingStationUser extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['reading_station_id', 'user_id', 'table_number', 'default_package_id'];
+    protected $fillable = ['reading_station_id', 'user_id', 'table_number', 'default_package_id', 'total'];
 
     function readingStation()
     {

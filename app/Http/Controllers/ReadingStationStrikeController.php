@@ -203,8 +203,12 @@ class ReadingStationStrikeController extends Controller
         $userStrike->save();
 
         $weeklyProgram =  $slutUser->weeklyProgram;
-        $weeklyProgram->strikes_done += $userStrike->reading_station_strike_score;
+        $weeklyProgram->strikes_done += ($strike->is_point ? -1 : 1) * $userStrike->reading_station_strike_score;
         $weeklyProgram->save();
+
+        $readingStationUser = $weeklyProgram->user;
+        $readingStationUser->total -= ($strike->is_point ? -1 : 1) *  $userStrike->reading_station_strike_score;
+        $readingStationUser->save();
 
         return (new ReadingStationStrikesResource(null))->additional([
             'errors' => null,
