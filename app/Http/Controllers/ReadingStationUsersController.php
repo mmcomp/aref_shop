@@ -228,7 +228,7 @@ class ReadingStationUsersController extends Controller
         }
 
         $weeklyProgram = $userSlut->weeklyProgram;
-        $readingStationUser = $weeklyProgram->user;
+        $readingStationUser = $weeklyProgram->readingStationUser;
         $time = $userSlut->slut->duration;
         if ($userSlut->status !== 'absent' && $userSlut->status !== 'defined') {
             switch ($userSlut->status) {
@@ -810,7 +810,7 @@ class ReadingStationUsersController extends Controller
 
         $strikeFixed = 0;
         $weeklyProgram = $slutUser->weeklyProgram;
-        $readingStationUser = $weeklyProgram->user;
+        $readingStationUser = $weeklyProgram->readingStationUser;
         switch ($request->absense_approved_status) {
             case 'semi_approved':
                 $strikeFixed = 1;

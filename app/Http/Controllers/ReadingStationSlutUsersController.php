@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReadingStationSlutUsersCreateRequest;
 use App\Http\Requests\ReadingStationSlutUsersNextWeekPackageChangeRequest;
 use App\Http\Requests\ReadingStationUserAbsentIndexRequest;
+use App\Http\Requests\ReadingStationUserAbsentsIndexRequest;
+use App\Http\Resources\ReadingStationSlutUserAbsents2Collection;
 use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
@@ -247,6 +249,14 @@ class ReadingStationSlutUsersController extends Controller
 
     public function weeklyProgramList(User $user)
     {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
         $weeklyPrograms = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)->orderBy('start', 'desc')->get();
         return (new ReadingStationWeeklyPrograms3Collection($weeklyPrograms))->additional([
             'errors' => null,
@@ -255,6 +265,14 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
         if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
             return (new ReadingStationSlutUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
@@ -267,6 +285,14 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadSummaryWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
         if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
             return (new ReadingStationSlutUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
@@ -280,7 +306,7 @@ class ReadingStationSlutUsersController extends Controller
             ->where('start', $start)
             ->where('end', $end)
             ->get();
-        $avarage_reading_hours = intval(($weeklyPrograms->sum('required_time_done') + $weeklyPrograms->sum('optional_time_done'))/count($users));
+        $avarage_reading_hours = intval(($weeklyPrograms->sum('required_time_done') + $weeklyPrograms->sum('optional_time_done')) / count($users));
         $readingStationData = [
             'avarage_reading_minutes' => $avarage_reading_hours,
             'daily_avarage_reading_minutes' => intval($avarage_reading_hours / 7),
@@ -292,6 +318,14 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadHoursWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
         if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
             return (new ReadingStationSlutUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
@@ -299,6 +333,78 @@ class ReadingStationSlutUsersController extends Controller
         }
 
         return (new ReadingStationWeeklyProgramHoursResource($weeklyProgram))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function absents(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $slutUsers = ReadingStationSlutUser::where('status', 'absent');
+        $slutUsers->whereHas('weeklyProgram', function ($q1) use ($user) {
+            $q1->whereHas('readingStationUser', function ($q2) use ($user) {
+                $q2->where('user_id', $user->id);
+            });
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $slutUsers->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $slutUsers->get();
+        } else {
+            $output = $slutUsers->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserAbsents2Collection($output))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function lates(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $slutUsers = ReadingStationSlutUser::where('status', 'like', 'late%');
+        $slutUsers->whereHas('weeklyProgram', function ($q1) use ($user) {
+            $q1->whereHas('readingStationUser', function ($q2) use ($user) {
+                $q2->where('user_id', $user->id);
+            });
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $slutUsers->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $slutUsers->get();
+        } else {
+            $output = $slutUsers->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserAbsents2Collection($output))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

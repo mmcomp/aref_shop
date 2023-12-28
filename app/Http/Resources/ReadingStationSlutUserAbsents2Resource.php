@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-class ReadingStationSlutUserAbsentsResource extends JsonResource
+class ReadingStationSlutUserAbsents2Resource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -22,9 +22,8 @@ class ReadingStationSlutUserAbsentsResource extends JsonResource
                 'first_name' => $this->weeklyProgram->readingStationUser->user->first_name,
                 'last_name' => $this->weeklyProgram->readingStationUser->user->last_name,
                 'day' => $this->day,
-                'reason' => $this->absenseReason ? $this->absenseReason->name : null,
-                'slut' => $this->slut->name,
-                'status' => $this->absense_approved_status,
+                'count' => $this->count,
+                'details' => $this->details,
             ];
         }
     }

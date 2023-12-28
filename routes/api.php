@@ -90,7 +90,6 @@ Route::group([
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::delete('/avatar/{id}', [UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
-    // Route::post('/block', [UserController::class, 'block']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
@@ -114,6 +113,8 @@ Route::group([
     Route::get('/{user}/reading-station-user/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgram']);
     Route::get('/{user}/reading-station-user/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgram']);
     Route::get('/{user}/reading-station-user/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgram']);
+    Route::get('/{user}/absents', [ReadingStationSlutUsersController::class, 'absents']);
+    Route::get('/{user}/lates', [ReadingStationSlutUsersController::class, 'lates']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

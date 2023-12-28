@@ -10,14 +10,11 @@ use App\Http\Requests\ReadingStationStrikesUpdateRequest;
 use App\Http\Resources\ReadingStationStrikesCollection;
 use App\Http\Resources\ReadingStationStrikesResource;
 use App\Http\Resources\ReadingStationUserStrikesCollection;
-use App\Http\Resources\ReadingStationUserStrikesResource;
 use App\Models\ReadingStation;
-use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationStrike;
 use App\Models\ReadingStationUserStrike;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class ReadingStationStrikeController extends Controller
@@ -206,7 +203,7 @@ class ReadingStationStrikeController extends Controller
         $weeklyProgram->strikes_done += ($strike->is_point ? -1 : 1) * $userStrike->reading_station_strike_score;
         $weeklyProgram->save();
 
-        $readingStationUser = $weeklyProgram->user;
+        $readingStationUser = $weeklyProgram->readingStationUser;
         $readingStationUser->total -= ($strike->is_point ? -1 : 1) *  $userStrike->reading_station_strike_score;
         $readingStationUser->save();
 
