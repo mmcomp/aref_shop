@@ -8,6 +8,7 @@ use App\Http\Requests\ReadingStationUserAbsentIndexRequest;
 use App\Http\Requests\ReadingStationUserAbsentsIndexRequest;
 use App\Http\Resources\ReadingStationSlutUserAbsents2Collection;
 use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
+use App\Http\Resources\ReadingStationSlutUserLatesCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
 use App\Http\Resources\ReadingStationWeeklyProgramHoursResource;
@@ -404,8 +405,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $slutUsers->paginate($perPage);
         }
 
-        dd($output);
-        return (new ReadingStationSlutUserAbsents2Collection($output))->additional([
+        return (new ReadingStationSlutUserLatesCollection($output))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
