@@ -24,8 +24,9 @@ class ReadingStationUserAbsentsCollection extends ResourceCollection
 
             $a = $this->collection[$indx - 1];
             $b = $cell;
+
             if ($this->near($a, $b)) {
-                if ($a->groupId) {
+                if (property_exists($a, 'groupId')) {
                     $this->collection[$indx]->groupId = $a->groupId;
                 } else {
                     $this->collection[$indx - 1]->groupId = $groupId;

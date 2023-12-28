@@ -404,6 +404,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $slutUsers->paginate($perPage);
         }
 
+        dd($output);
         return (new ReadingStationSlutUserAbsents2Collection($output))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);

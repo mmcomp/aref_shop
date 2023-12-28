@@ -18,11 +18,9 @@ class ReadingStationSlutUserAbsents2Resource extends JsonResource
 
         if ($this->resource != null) {
             return [
-                'table_number' => $this->weeklyProgram->readingStationUser->table_number,
-                'first_name' => $this->weeklyProgram->readingStationUser->user->first_name,
-                'last_name' => $this->weeklyProgram->readingStationUser->user->last_name,
                 'day' => $this->day,
                 'count' => $this->count,
+                'score' => $this->score,
                 'details' => $this->details,
             ];
         }
