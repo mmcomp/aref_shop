@@ -622,8 +622,14 @@ class ReadingStationUsersController extends Controller
         if ($request->reading_station_slut_user_exit_id) {
             $absentPresents->where('reading_station_slut_user_exit_id', $request->reading_station_slut_user_exit_id);
         }
+
         $absentPresents = $absentPresents->get()->sort(function ($a, $b) {
-            return $a->slutUserExit->start > $b->slutUserExit->start;
+            if ($a->reading_station_slut_user_exit_id && $b->reading_station_slut_user_exit_id) {
+                return $a->slutUserExit->start > $b->slutUserExit->start;
+            } else if ($a->reading_station_slut_user_exit_id) {
+                return true;
+            }
+            return false;
         });
 
         return (new ReadingStationExitsResource($absentPresents))->additional([
