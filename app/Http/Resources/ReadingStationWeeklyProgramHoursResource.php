@@ -23,7 +23,7 @@ class ReadingStationWeeklyProgramHoursResource extends JsonResource
                 "Saturday" => 0,
                 "Sunday" => 0,
                 "Monday" => 0,
-                "Thuesday" => 0,
+                "Tuesday" => 0,
                 "Wednesday" => 0,
                 "Thursday" => 0,
                 "Friday" => 0,

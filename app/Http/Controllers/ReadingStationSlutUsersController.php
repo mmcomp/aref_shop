@@ -247,7 +247,7 @@ class ReadingStationSlutUsersController extends Controller
 
     public function weeklyProgramList(User $user)
     {
-        $weeklyPrograms = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)->orderBy('start')->get();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)->orderBy('start', 'desc')->get();
         return (new ReadingStationWeeklyPrograms3Collection($weeklyPrograms))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
