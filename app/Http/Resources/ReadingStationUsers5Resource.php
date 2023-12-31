@@ -20,6 +20,7 @@ class ReadingStationUsers5Resource extends JsonResource
 
             return [
                 'id' => $this->user->id,
+                'reading_station_user_id' => $this->id,
                 'table_number' => $this->table_number,
                 'first_name' => $this->user->first_name,
                 'last_name' => $this->user->last_name,

@@ -51,12 +51,14 @@ class CheckWeeklyPrograms extends Command
             // no absent score
             if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0) {
                 $score += 3;
+                $weeklyProgram->being_point += 3;
             }
 
             // package grade score
             if ($package->grade && $user->grade) {
                 if ($package->grade > $user->grade) {
                     $score += ($package->grade - $user->grade) * 3;
+                    $weeklyProgram->being_point += ($package->grade - $user->grade) * 3;
                 }
             }
 
@@ -66,6 +68,6 @@ class CheckWeeklyPrograms extends Command
             $readingStationUser->last_weekly_program = $weeklyProgram->id;
             $readingStationUser->total += $score;
             $readingStationUser->save();
-        } 
+        }
     }
 }

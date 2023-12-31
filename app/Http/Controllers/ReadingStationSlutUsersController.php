@@ -445,4 +445,74 @@ class ReadingStationSlutUsersController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+
+    public function being(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserWeeklyProgramCollection($output))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function package(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserWeeklyProgramCollection($output))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
 }

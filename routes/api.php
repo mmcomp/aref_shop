@@ -116,6 +116,8 @@ Route::group([
     Route::get('/{user}/absents', [ReadingStationSlutUsersController::class, 'absents']);
     Route::get('/{user}/lates', [ReadingStationSlutUsersController::class, 'lates']);
     Route::get('/{user}/availables', [ReadingStationSlutUsersController::class, 'availables']);
+    Route::get('/{user}/being', [ReadingStationSlutUsersController::class, 'being']);
+    Route::get('/{user}/package', [ReadingStationSlutUsersController::class, 'package']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

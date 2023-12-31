@@ -25,6 +25,9 @@ class ReadingStationWeeklyProgram extends Model
         'approved_absent_day',
         'semi_approved_absent_day',
         'late_day',
+        'being_point',
+        'package_point',
+        'point',
     ];
 
     function sluts()

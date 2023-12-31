@@ -17,14 +17,6 @@ class ReadingStationSlutUserWeeklyProgramResource extends JsonResource
     {
 
         if ($this->resource != null) {
-            $score = 0;
-            if ($this->required_time_done + $this->optional_time_done < $this->required_time + $this->optional_time) {
-                $score = -2;
-            } else if ($this->required_time_done + $this->optional_time_done > $this->required_time + $this->optional_time) {
-                $diff = ($this->required_time_done + $this->optional_time_done) - ($this->required_time + $this->optional_time);
-                $step = $this->readingStationUser->package->step ?? 10;
-                $score = (($diff - ($diff % $step)) / $step) + 1 ;
-            }
             return [
                 'id' => $this->id,
                 'start' => $this->start,
@@ -34,7 +26,9 @@ class ReadingStationSlutUserWeeklyProgramResource extends JsonResource
                 'optional_time' => $this->optional_time,
                 'required_time_done' => $this->required_time_done,
                 'optional_time_done' => $this->optional_time_done,
-                'score' => $score,
+                'being_point' => $this->being_point,
+                'package_point' => $this->package_point,
+                'point' => $this->point,
             ];
         }
     }
