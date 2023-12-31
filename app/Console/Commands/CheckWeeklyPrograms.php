@@ -39,7 +39,7 @@ class CheckWeeklyPrograms extends Command
             if ($readingStationUser->last_weekly_program === $weeklyProgram->id) {
                 continue;
             }
-            
+
             // package diff done score
             if ($diff < 0) {
                 $score = -2;
@@ -49,7 +49,7 @@ class CheckWeeklyPrograms extends Command
             }
 
             // no absent score
-            if ($weeklyProgram->absent_day === 0) {
+            if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0) {
                 $score += 3;
             }
 
