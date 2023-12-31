@@ -489,6 +489,11 @@ class ReadingStationUsersController extends Controller
         $userStationTables = collect($request->data)->map(function ($data) {
             return $data['table_number'];
         })->toArray();
+        if (count($userStationTables) !== count(array_unique($userStationTables))) {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station table is assigned to more than one person!']],
+            ])->response()->setStatusCode(400);
+        }
         $otherTables = ReadingStationUser::whereNotIn('id', $userStations)
             ->where('reading_station_id', $readingStation->id)
             ->pluck(
