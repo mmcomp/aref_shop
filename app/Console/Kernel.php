@@ -42,7 +42,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('app:check-weekly-programs')
             ->sundays()
-            ->at('10:27');
+            ->at('10:30');
     }
 
     public function putBlockedUserToRedis($blocketUsers)
