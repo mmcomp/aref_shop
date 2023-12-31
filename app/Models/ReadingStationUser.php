@@ -12,7 +12,7 @@ class ReadingStationUser extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['reading_station_id', 'user_id', 'table_number', 'default_package_id', 'total'];
+    protected $fillable = ['reading_station_id', 'user_id', 'table_number', 'default_package_id', 'total', 'last_weekly_program'];
 
     function readingStation()
     {
@@ -33,5 +33,10 @@ class ReadingStationUser extends Model
     {
         $startOfCurrentWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
         return $this->hasMany(ReadingStationWeeklyProgram::class)->where('start', '>=', $startOfCurrentWeek);    
+    }
+
+    function lastWeeklyProgram() 
+    {
+        return $this->belongsTo(ReadingStationWeeklyProgram::class, 'last_weekly_program');    
     }
 }
