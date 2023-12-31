@@ -23,20 +23,22 @@ class ReadingStationUser extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     function package()
     {
         return $this->belongsTo(ReadingStationPackage::class, 'default_package_id');
     }
 
-    function weeklyPrograms() 
+    function weeklyPrograms()
     {
         $startOfCurrentWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
-        return $this->hasMany(ReadingStationWeeklyProgram::class)->where('start', '>=', $startOfCurrentWeek);    
+        return $this->hasMany(ReadingStationWeeklyProgram::class)
+            ->where('start', '>=', $startOfCurrentWeek)
+            ->whereHas('sluts', operator: '>', count: 0);
     }
 
-    function lastWeeklyProgram() 
+    function lastWeeklyProgram()
     {
-        return $this->belongsTo(ReadingStationWeeklyProgram::class, 'last_weekly_program');    
+        return $this->belongsTo(ReadingStationWeeklyProgram::class, 'last_weekly_program');
     }
 }
