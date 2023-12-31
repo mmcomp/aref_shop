@@ -39,10 +39,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:check-weekly-programs')
             ->fridays()
             ->at('23:00');
-
-        $schedule->command('app:check-weekly-programs')
-            ->sundays()
-            ->at('10:30');
     }
 
     public function putBlockedUserToRedis($blocketUsers)
