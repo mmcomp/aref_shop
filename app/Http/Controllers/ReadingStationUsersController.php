@@ -489,7 +489,11 @@ class ReadingStationUsersController extends Controller
         $userStationTables = collect($request->data)->map(function ($data) {
             return $data['table_number'];
         })->toArray();
-        $otherTables = ReadingStationUser::whereNotIn('id', $userStations)->pluck('table_number')->toArray();
+        $otherTables = ReadingStationUser::whereNotIn('id', $userStations)
+            ->where('reading_station_id', $readingStation->id)
+            ->pluck(
+                'table_number'
+            )->toArray();
         if (array_intersect($otherTables, $userStationTables)) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station table belongs to other!']],
