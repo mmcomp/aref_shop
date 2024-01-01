@@ -225,8 +225,12 @@ class ReadingStationStrikeController extends Controller
         }
 
         $strikes = ReadingStationUserStrike::whereHas('readingStationSlutUser', function ($q1) use ($user) {
-            $q1->whereHas('user', function ($q2) use ($user) {
-                $q2->where('id', $user->id);
+            $q1->whereHas('weeklyProgram', function ($q2) use ($user) {
+                $q2->whereHas('readingStationUser', function ($q3) use ($user) {
+                    $q3->whereHas('user', function ($q4) use ($user) {
+                        $q4->where('id', $user->id);                        
+                    });
+                });
             });
         });
 

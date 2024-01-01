@@ -54,11 +54,6 @@ class ReadingStationSlutUser extends Model
         return $this->hasMany(ReadingStationCall::class);
     }
 
-    function user()
-    {
-        return $this->belongsTo(User::class);    
-    }
-
     function strikes()
     {
         return $this->hasMany(ReadingStationUserStrike::class);
