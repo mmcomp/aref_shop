@@ -21,6 +21,7 @@ class ReadingStationSlutUserLatesResource extends JsonResource
                 'day' => $this->day,
                 'count' => $this->count,
                 'score' => $this->score,
+                'minutes' => $this->minutes,
                 'details' => $this->details,
             ];
         }
