@@ -2,12 +2,21 @@
 
 namespace App\Http\Resources;
 
+use App\Utils\CollectionPaginator;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class ReadingStationSlutUserLatesCollection extends ResourceCollection
 {
+    private $perPage;
+    private $pageNumber;
+    function __construct($resource, $perPage = null, $pageNumber = null)
+    {
+        $this->perPage = $perPage;
+        $this->pageNumber = $pageNumber;
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource collection into an array.
      *
@@ -35,6 +44,9 @@ class ReadingStationSlutUserLatesCollection extends ResourceCollection
             }
             $out[] = $data;
         }
-        return $out;
+        if ($this->perPage === 'all') {
+            return $out;
+        }
+        return new CollectionPaginator($out->forPage($this->pageNumber,$this->perPage), count($out),$this->perPage, $this->pageNumber);
     }
 }

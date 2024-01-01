@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use App\Utils\CollectionPaginator;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use Illuminate\Support\Facades\DB;
 use stdClass;
 
 class ReadingStationSlutUserAbsents2Collection extends ResourceCollection

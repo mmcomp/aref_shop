@@ -389,17 +389,11 @@ class ReadingStationSlutUsersController extends Controller
         $sortDir = "desc";
 
         $slutUsers->orderBy($sort, $sortDir);
-        $perPage = $request->per_page;
-        if (!$perPage) {
-            $perPage = env('PAGE_COUNT');
-        }
-        if ($request->per_page === 'all') {
-            $output = $slutUsers->get();
-        } else {
-            $output = $slutUsers->paginate($perPage);
-        }
+        $perPage = $request->per_page ?? env('PAGE_COUNT');
+        $output = $slutUsers->get();
+        
 
-        return (new ReadingStationSlutUserLatesCollection($output))->additional([
+        return (new ReadingStationSlutUserLatesCollection($output, $perPage, $request->page ?? 1))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
