@@ -49,6 +49,11 @@ class ReadingStationSlutUser extends Model
                     ->where('is_processed', 0);
     }
 
+    function user()
+    {
+        return $this->belongsTo(User::class);    
+    }
+
     function calls()
     {
         return $this->hasMany(ReadingStationCall::class);
