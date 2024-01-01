@@ -7,6 +7,8 @@ use App\Http\Requests\ReadingStationIndexStrikesRequest;
 use App\Http\Requests\ReadingStationStrikesCreateRequest;
 use App\Http\Requests\ReadingStationStrikesIndexRequest;
 use App\Http\Requests\ReadingStationStrikesUpdateRequest;
+use App\Http\Requests\ReadingStationUserAbsentsIndexRequest;
+use App\Http\Resources\ReadingStationSlutUserWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationStrikesCollection;
 use App\Http\Resources\ReadingStationStrikesResource;
 use App\Http\Resources\ReadingStationUserStrikesCollection;
@@ -210,5 +212,40 @@ class ReadingStationStrikeController extends Controller
         return (new ReadingStationStrikesResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+    }
+
+    public function strikes(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationStrikesResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $strikes = ReadingStationUserStrike::whereHas('readingStationSlutUser', function ($q1) use ($user) {
+            $q1->whereHas('user', function ($q2) use ($user) {
+                $q2->where('id', $user->id);
+            });
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $strikes->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $strikes->get();
+        } else {
+            $output = $strikes->paginate($perPage);
+        }
+
+        return (new ReadingStationUserStrikesCollection($output))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

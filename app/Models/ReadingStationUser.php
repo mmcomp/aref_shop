@@ -41,4 +41,9 @@ class ReadingStationUser extends Model
     {
         return $this->belongsTo(ReadingStationWeeklyProgram::class, 'last_weekly_program');
     }
+
+    function allWeeklyPrograms()
+    {
+        return $this->hasMany(ReadingStationWeeklyProgram::class);
+    }
 }
