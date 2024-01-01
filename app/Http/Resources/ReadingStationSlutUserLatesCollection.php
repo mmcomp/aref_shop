@@ -26,11 +26,19 @@ class ReadingStationSlutUserLatesCollection extends ResourceCollection
     public function toArray($request)
     {
         $out = collect([]);
+        $lateToMinute = [
+            'late_15' =>15,
+            'late_30' =>30,
+            'late_45' =>45,
+            'late_60' =>60,
+            'late_60_plus' =>90,
+        ];
         $groupByResult = $this->collection->groupBy('day');
         foreach ($groupByResult as $day => $items) {
             $data = $items[0];
             $data->count = count($items);
             $data->score = 0;
+            $data->minutes = 0;
             $data->details = [];
             foreach ($items as $item) {
                 $reason = new stdClass;
@@ -41,6 +49,7 @@ class ReadingStationSlutUserLatesCollection extends ResourceCollection
                 }
                 $data->score += $reason->score;
                 $data->details[] = $reason;
+                $data->minutes += $lateToMinute[$item->status];
             }
             $out[] = $data;
         }
