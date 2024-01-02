@@ -602,7 +602,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/users/1/availables",
+											"raw": "{{base_url}}/api/users/1/availables?per_page=all",
 											"host": [
 												"{{base_url}}"
 											],
@@ -611,6 +611,12 @@
 												"users",
 												"1",
 												"availables"
+											],
+											"query": [
+												{
+													"key": "per_page",
+													"value": "all"
+												}
 											]
 										},
 										"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."

@@ -8,7 +8,10 @@ use App\Http\Requests\ReadingStationUserAbsentIndexRequest;
 use App\Http\Requests\ReadingStationUserAbsentsIndexRequest;
 use App\Http\Resources\ReadingStationSlutUserAbsents2Collection;
 use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
+use App\Http\Resources\ReadingStationSlutUserAvailableWeeklyProgramCollection;
+use App\Http\Resources\ReadingStationSlutUserBeingWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationSlutUserLatesCollection;
+use App\Http\Resources\ReadingStationSlutUserPackageWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationSlutUserWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationUserWeeklyProgramStructureResource;
@@ -428,7 +431,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserWeeklyProgramCollection($output))->additional([
+        return (new ReadingStationSlutUserAvailableWeeklyProgramCollection($output))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -448,6 +451,7 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
+        $weeklyPrograms->where('being_point', '>', 0);
 
         $sort = "end";
         $sortDir = "desc";
@@ -463,7 +467,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserWeeklyProgramCollection($output))->additional([
+        return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -483,6 +487,7 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
+        $weeklyPrograms->where('package_point', '>', 0);
 
         $sort = "end";
         $sortDir = "desc";
@@ -498,7 +503,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserWeeklyProgramCollection($output))->additional([
+        return (new ReadingStationSlutUserPackageWeeklyProgramCollection($output))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
