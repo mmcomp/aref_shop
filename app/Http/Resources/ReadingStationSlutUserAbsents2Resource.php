@@ -20,7 +20,7 @@ class ReadingStationSlutUserAbsents2Resource extends JsonResource
             return [
                 'day' => $this->day,
                 'count' => $this->count,
-                'score' => $this->score,
+                'point' => $this->point,
                 'details' => $this->details,
             ];
         }

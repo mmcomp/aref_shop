@@ -141,6 +141,7 @@ class ReadingStationStrikeController extends Controller
         if ($request->exists('reading_station_strike_id')) {
             $strikes->where('reading_station_strike_id', $request->reading_station_strike_id);
         }
+        $total = -1 * $strikes->sum('reading_station_strike_score');
         $strikes->orderBy($sort, $sortDir);
         if ($request->get('per_page') == "all") {
             $strikes = $strikes->get();
@@ -153,7 +154,7 @@ class ReadingStationStrikeController extends Controller
             $strikes = $strikes->paginate($perPage);
         }
 
-        return (new ReadingStationUserStrikesCollection($strikes))->additional([
+        return (new ReadingStationUserStrikesCollection($strikes, $total))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -233,6 +234,7 @@ class ReadingStationStrikeController extends Controller
                 });
             });
         });
+        $total = -1 * $strikes->sum('reading_station_strike_score');
 
         $sort = "day";
         $sortDir = "desc";
@@ -248,7 +250,7 @@ class ReadingStationStrikeController extends Controller
             $output = $strikes->paginate($perPage);
         }
 
-        return (new ReadingStationUserStrikesCollection($output))->additional([
+        return (new ReadingStationUserStrikesCollection($output, $total))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

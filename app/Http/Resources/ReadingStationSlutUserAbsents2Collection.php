@@ -30,30 +30,31 @@ class ReadingStationSlutUserAbsents2Collection extends ResourceCollection
         foreach ($groupByResult as $day => $items) {
             $data = $items[0];
             $data->count = count($items);
-            $data->score = 0;
+            $data->point = 0;
             $data->details = [];
             foreach ($items as $item) {
                 $reason = new stdClass;
                 $reason->reason = $item->absenseReason ? $item->absenseReason->name : null;
-                $reason->score = 2;
+                $reason->point = -2;
                 switch ($item->absense_approved_status) {
                     case 'semi_approved':
-                        $reason->score = 1;
+                        $reason->point = -1;
                         break;
 
                     case 'approved':
-                        $reason->score = 0;
+                        $reason->point = 0;
                         break;
                 }
                 $reason->status = $item->absense_approved_status;
-                $data->score += $reason->score;
+                $data->point += $reason->point;
                 $data->details[] = $reason;
             }
             $out[] = $data;
         }
+        $total = $out->sum('point');
         if ($this->perPage === 'all') {
-            return $out;
+            return ['data' => $out, 'total_value' => $total];
         }
-        return new CollectionPaginator($out->forPage($this->pageNumber,$this->perPage), count($out),$this->perPage, $this->pageNumber);
+        return new CollectionPaginator($out->forPage($this->pageNumber,$this->perPage), count($out),$this->perPage, $total, $this->pageNumber);
     }
 }

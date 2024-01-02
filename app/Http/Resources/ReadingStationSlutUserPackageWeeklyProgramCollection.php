@@ -6,6 +6,13 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ReadingStationSlutUserPackageWeeklyProgramCollection extends ResourceCollection
 {
+    protected $total;
+    public function __construct($resource, $total)
+    {
+        parent::__construct($resource);
+        $this->total = $total;
+    }
+
     /**
      * Transform the resource collection into an array.
      *
@@ -14,6 +21,6 @@ class ReadingStationSlutUserPackageWeeklyProgramCollection extends ResourceColle
      */
     public function toArray($request)
     {
-        return $this->collection;
+        return [ 'data' => $this->collection, 'total_value' => $this->total];
     }
 }

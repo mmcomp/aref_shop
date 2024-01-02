@@ -416,6 +416,20 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
+        $all = $weeklyPrograms->get();
+        $total = 0;
+        $all->map(function ($weeklyProgram) use (&$total) {
+            $point = 0;
+            $toDo = $weeklyProgram->readingStationUser->package->required_time + $weeklyProgram->readingStationUser->package->optional_time;
+            $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
+            if ($done < $toDo) {
+                $point = -2;
+            } else {
+                $step = $weeklyProgram->readingStationUser->package->step ?? 10;
+                $point = ($done - ($done % $step)) * 2 / $step;
+            }
+            $total += $point;
+        });
 
         $sort = "end";
         $sortDir = "desc";
@@ -431,7 +445,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserAvailableWeeklyProgramCollection($output))->additional([
+        return (new ReadingStationSlutUserAvailableWeeklyProgramCollection($output, $total))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -452,6 +466,7 @@ class ReadingStationSlutUsersController extends Controller
             $q->where('user_id', $user->id);
         });
         $weeklyPrograms->where('being_point', '>', 0);
+        $total = $weeklyPrograms->sum('being_point');
 
         $sort = "end";
         $sortDir = "desc";
@@ -467,7 +482,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output))->additional([
+        return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output, $total))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -488,6 +503,7 @@ class ReadingStationSlutUsersController extends Controller
             $q->where('user_id', $user->id);
         });
         $weeklyPrograms->where('package_point', '>', 0);
+        $total = $weeklyPrograms->sum('package_point');
 
         $sort = "end";
         $sortDir = "desc";
@@ -503,7 +519,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserPackageWeeklyProgramCollection($output))->additional([
+        return (new ReadingStationSlutUserPackageWeeklyProgramCollection($output, $total))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

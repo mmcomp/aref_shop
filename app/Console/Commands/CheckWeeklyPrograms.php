@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -21,7 +20,7 @@ class CheckWeeklyPrograms extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Calculate Student Weekly Points';
 
     /**
      * Execute the console command.

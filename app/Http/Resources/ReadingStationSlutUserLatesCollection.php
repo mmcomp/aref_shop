@@ -25,6 +25,7 @@ class ReadingStationSlutUserLatesCollection extends ResourceCollection
      */
     public function toArray($request)
     {
+        $total = 0;
         $out = collect([]);
         $lateToMinute = [
             'late_15' =>15,
@@ -37,25 +38,26 @@ class ReadingStationSlutUserLatesCollection extends ResourceCollection
         foreach ($groupByResult as $day => $items) {
             $data = $items[0];
             $data->count = count($items);
-            $data->score = 0;
+            $data->point = 0;
             $data->minutes = 0;
             $data->details = [];
             foreach ($items as $item) {
                 $reason = new stdClass;
                 $reason->status = $item->status;
-                $reason->score = 1;
+                $reason->point = -1;
                 if ($item->status === 'late_60_plus') {
-                    $reason->score = 2;
+                    $reason->point = -2;
                 }
-                $data->score += $reason->score;
+                $data->point += $reason->point;
                 $data->details[] = $reason;
                 $data->minutes += $lateToMinute[$item->status];
             }
             $out[] = $data;
         }
+        $total = $out->sum('point');
         if ($this->perPage === 'all') {
-            return $out;
+            return ['data' => $out, 'total_value' => $total];
         }
-        return new CollectionPaginator($out->forPage($this->pageNumber,$this->perPage), count($out),$this->perPage, $this->pageNumber);
+        return new CollectionPaginator($out->forPage($this->pageNumber,$this->perPage), count($out),$this->perPage, $total, $this->pageNumber);
     }
 }
