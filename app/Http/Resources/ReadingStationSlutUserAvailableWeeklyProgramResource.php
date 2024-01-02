@@ -19,7 +19,7 @@ class ReadingStationSlutUserAvailableWeeklyProgramResource extends JsonResource
         if ($this->resource != null) {
             $point = 0;
             $toDo = $this->readingStationUser->package->required_time + $this->readingStationUser->package->optional_time;
-            $done =  $this->readingStationUser->package->required_time_done + $this->readingStationUser->package->optional_time_done;
+            $done =  $this->required_time_done + $this->optional_time_done;
             if ($done < $toDo) {
                 $point = -2;
             } else {
