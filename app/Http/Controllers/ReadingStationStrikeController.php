@@ -141,7 +141,11 @@ class ReadingStationStrikeController extends Controller
         if ($request->exists('reading_station_strike_id')) {
             $strikes->where('reading_station_strike_id', $request->reading_station_strike_id);
         }
-        $total = -1 * $strikes->sum('reading_station_strike_score');
+        $total = 0;
+        $all = $strikes->get();
+        $all->map(function ($strike) use (&$total) {
+            $total += ($strike->readingStationStrike->is_point ? 1 : -1) * $strike->reading_station_strike_score;
+        });
         $strikes->orderBy($sort, $sortDir);
         if ($request->get('per_page') == "all") {
             $strikes = $strikes->get();
@@ -234,7 +238,11 @@ class ReadingStationStrikeController extends Controller
                 });
             });
         });
-        $total = -1 * $strikes->sum('reading_station_strike_score');
+        $total = 0;
+        $all = $strikes->get();
+        $all->map(function ($strike) use (&$total) {
+            $total += ($strike->readingStationStrike->is_point ? 1 : -1) * $strike->reading_station_strike_score;
+        });
 
         $sort = "day";
         $sortDir = "desc";
