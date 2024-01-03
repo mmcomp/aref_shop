@@ -28,7 +28,11 @@ class ReadingStationEducationalReportRequest extends FormRequest
         return [
             'sort' => 'required_with:type|in:id,name,table_start_number,table_end_number',
             'sort_dir' => 'required_with:sort|in:asc,desc',
-            'per_page' => 'string|max:255'
+            'per_page' => 'string|max:255',
+            'table_number' => 'nullable|int|min:1|max:300',
+            'name' => 'nullable|string|min:3|max:1000',
+            'from_date' => 'required|date_format:Y-m-d',
+            'to_date' => 'required|date_format:Y-m-d',
         ];
     }
      /**

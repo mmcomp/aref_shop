@@ -164,6 +164,12 @@ Route::group([
     Route::get('/{readingStation}/absent-verify-document/{slutUser}', [ReadingStationUsersController::class, 'getVerfyAbsent']);
     Route::get('/{readingStation}/absent-list', [ReadingStationSlutUsersController::class, 'listAbsentUsers']);
     Route::get('/{readingStation}/none-users', [ReadingStationUsersController::class, 'oneNoneUserIndex']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station_report'],
+    'prefix' => 'reading-stations',
+
+], function ($router) {
     Route::get('/{readingStation}/reports/educational', [ReadingStationReportController::class, 'educational']);
 });
 Route::group([
