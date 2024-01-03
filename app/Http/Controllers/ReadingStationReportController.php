@@ -21,7 +21,7 @@ class ReadingStationReportController extends Controller
                 'errors' => ['reading_station_report' => ['from date should be before to date!']],
             ])->response()->setStatusCode(400);
         }
-        $diff = intval(env('EDUCATIONAL_REPORT_DATE_DIFF')) ?? 7;
+        $diff = intval(env('EDUCATIONAL_REPORT_DATE_DIFF') ?? 7);
         if($to->diffInDays($from) > $diff) {
             return (new ReadingStationEducationalReportResource(null))->additional([
                 'errors' => ['reading_station_report' => ['report time difference is higher than it should be!', $diff]],
