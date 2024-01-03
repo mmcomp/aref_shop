@@ -10,13 +10,20 @@ use App\Http\Resources\ReadingStationOffdaysResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationOffday;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class ReadingStationOffdaysController extends Controller
 {
     function store(ReadingStationOffdaysCreateRequest $request, ReadingStation $readingStation)
     {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            return (new ReadingStationOffdaysResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Access Denied!']],
+            ])->response()->setStatusCode(403);
+        }
+
         $offday = Carbon::parse($request->offday)->toDateString();
-        $found = ReadingStationOffday::where([["offday", $offday],["reading_station_id", $readingStation->id]])->first();
+        $found = ReadingStationOffday::where([["offday", $offday], ["reading_station_id", $readingStation->id]])->first();
         if ($found) {
             return (new ReadingStationOffdaysResource(null))->additional([
                 'errors' => ['reading_station_offday' => ['Reading station offday exists!']],
@@ -31,6 +38,11 @@ class ReadingStationOffdaysController extends Controller
 
     public function destroy($id)
     {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            return (new ReadingStationOffdaysResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Access Denied!']],
+            ])->response()->setStatusCode(403);
+        }
         ReadingStationOffday::find($id)->delete();
         return (new ReadingStationOffdaysResource(null))->additional([
             'errors' => null,
@@ -38,7 +50,13 @@ class ReadingStationOffdaysController extends Controller
     }
 
 
-    function index(ReadingStationOffdaysIndexRequest $request) {
+    function index(ReadingStationOffdaysIndexRequest $request)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            return (new ReadingStationOffdaysResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Access Denied!']],
+            ])->response()->setStatusCode(403);
+        }
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = [];
@@ -61,7 +79,7 @@ class ReadingStationOffdaysController extends Controller
     }
 
     function oneIndex(ReadingStationOffdaysIndexRequest $request, ReadingStation $readingStation)
-    {      
+    {
         $sort = "id";
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationOffday::where("reading_station_id", $readingStation->id);

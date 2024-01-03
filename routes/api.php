@@ -125,10 +125,6 @@ Route::group([
     'middleware' => ['auth:api', 'can:user'],
     'prefix' => 'reading-stations',
 ], function ($router) {
-    Route::post('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'store']);
-    Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
-    Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
-
     Route::get('/sluts', [ReadingStationSlutsController::class, 'index']);
     Route::post('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'store']);
     Route::delete('/sluts/{id}', [ReadingStationSlutsController::class, 'destroy']);
@@ -147,6 +143,10 @@ Route::group([
     'prefix' => 'reading-stations',
 
 ], function ($router) {
+    Route::post('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'store']);
+    Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
+    Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
+    
     Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
     Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
