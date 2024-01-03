@@ -146,7 +146,7 @@ Route::group([
     Route::post('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'store']);
     Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
     Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
-    
+
     Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
     Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
@@ -172,6 +172,7 @@ Route::group([
 ], function ($router) {
     Route::get('/{readingStation}/reports/educational', [ReadingStationReportController::class, 'educational']);
     Route::get('/{readingStation}/reports/reading-statistics', [ReadingStationReportController::class, 'readingStatics']);
+    Route::get('/{readingStation}/reports/absent-present', [ReadingStationReportController::class, 'absentPresent']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
