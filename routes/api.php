@@ -171,6 +171,7 @@ Route::group([
 
 ], function ($router) {
     Route::get('/{readingStation}/reports/educational', [ReadingStationReportController::class, 'educational']);
+    Route::get('/{readingStation}/reports/reading-statistics', [ReadingStationReportController::class, 'readingStatics']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],

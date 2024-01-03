@@ -5885,7 +5885,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{base_url}}/api/reading-stations/1/reports/educational?from_date=2000-01-01&to_date=2025-01-01",
+											"raw": "{{base_url}}/api/reading-stations/1/reports/educational?from_date=2023-01-01&to_date=2024-01-08",
 											"host": [
 												"{{base_url}}"
 											],
@@ -5904,11 +5904,57 @@
 												},
 												{
 													"key": "from_date",
-													"value": "2000-01-01"
+													"value": "2023-01-01"
 												},
 												{
 													"key": "to_date",
-													"value": "2025-01-01"
+													"value": "2024-01-08"
+												},
+												{
+													"key": "name",
+													"value": "بان",
+													"disabled": true
+												},
+												{
+													"key": "table_number",
+													"value": "1",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Reading Statistics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/reports/reading-statistics?from_date=2023-01-01&to_date=2024-01-08",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"reports",
+												"reading-statistics"
+											],
+											"query": [
+												{
+													"key": "per_page",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "from_date",
+													"value": "2023-01-01"
+												},
+												{
+													"key": "to_date",
+													"value": "2024-01-08"
 												},
 												{
 													"key": "name",
