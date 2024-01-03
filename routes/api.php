@@ -173,6 +173,7 @@ Route::group([
     Route::get('/{readingStation}/reports/educational', [ReadingStationReportController::class, 'educational']);
     Route::get('/{readingStation}/reports/reading-statistics', [ReadingStationReportController::class, 'readingStatics']);
     Route::get('/{readingStation}/reports/absent-present', [ReadingStationReportController::class, 'absentPresent']);
+    Route::get('/{readingStation}/reports/strike', [ReadingStationReportController::class, 'strike']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
