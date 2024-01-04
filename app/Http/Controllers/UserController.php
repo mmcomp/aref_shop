@@ -163,12 +163,6 @@ class UserController extends Controller
             ])->response()->setStatusCode(404);
         }
 
-        // if (!$request->groups_id) {
-        //     $userGroup = Group::where('type', 'user')->first();
-        //     if ($userGroup) {
-        //         $request->groups_id = $userGroup->id;
-        //     }
-        // }
         $user = new User;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
@@ -190,6 +184,8 @@ class UserController extends Controller
         $user->grade = $request->grade ?? 1;
         $user->description = $request->description;
         $user->reading_station_id = $request->reading_station_id;
+        $user->school = $request->school;
+        $user->major = $request->major;
         $user->saver_users_id = Auth::user()->id;
         $user->save();
         return (new UserResource($user))->additional([
@@ -228,6 +224,8 @@ class UserController extends Controller
             $user->description = $request->description ?? $user->description;
             $user->reading_station_id = $request->reading_station_id ?? $user->reading_station_id;
             $user->disabled = $request->exists('disabled') ? $request->disabled : $user->disabled;
+            $user->school = $request->school;
+            $user->major = $request->major;
             $user->saver_users_id = Auth::user()->id;
             $user->save();
             return (new UserResource(null))->additional([

@@ -59,6 +59,8 @@ class UserEditRequest extends FormRequest
             ],
             'reading_station_id' => 'nullable|exists:reading_stations,id',
             'disabled' => 'nullable|boolean',
+            'school' => 'nullable|string|between:3,100',
+            'major' => 'nullable|string|between:3,100',
         ];
     }
      /**

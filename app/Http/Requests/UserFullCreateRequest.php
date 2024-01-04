@@ -60,6 +60,8 @@ class UserFullCreateRequest extends FormRequest
             ],
             'reading_station_id' => 'nullable|exists:reading_stations,id',
             'national_code' => ['required', 'string', new NationalCode],
+            'school' => 'nullable|string|between:3,100',
+            'major' => 'nullable|string|between:3,100',
         ];
     }
      /**
