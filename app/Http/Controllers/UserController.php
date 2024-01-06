@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\BlockAUserRequest;
 use App\Http\Requests\SearchRequest;
 use App\Http\Requests\UserBulkDeleteRequest;
 use App\Http\Requests\UserCreateRequest;
@@ -11,16 +10,13 @@ use App\Http\Requests\UserFullCreateRequest;
 use App\Http\Requests\UserIndexRequest;
 use App\Http\Requests\UserSetAvatarRequest;
 use App\Http\Resources\GroupCollection;
-use App\Http\Resources\GroupResource;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Hash;
 use App\Utils\UploadImage;
 use Illuminate\Support\Facades\Auth;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeUsersWithCrmJob;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\UsersExport;
 use App\Http\Requests\ReadingStationAbsentPresentReportRequest;
 use App\Http\Requests\ReadingStationEducationalReportRequest;
 use App\Http\Requests\ReadingStationManagerReportRequest;
@@ -16,6 +17,8 @@ use App\Http\Resources\ReadingStationLateReportCollection;
 use App\Http\Resources\ReadingStationReadingStaticsReportCollection;
 use App\Http\Resources\ReadingStationStrikeReportCollection;
 use App\Http\Resources\ReadingStationStudentReportCollection;
+use App\Http\Resources\ReadingStudentsExcelResource;
+use App\Jobs\ExportFinished;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationAbsentPresent;
 use App\Models\ReadingStationSlutUser;
@@ -24,7 +27,12 @@ use App\Models\ReadingStationUserStrike;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Queue\Jobs\Job;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Jobs\QueueExport;
 
 class ReadingStationReportController extends Controller
 {
@@ -408,5 +416,32 @@ class ReadingStationReportController extends Controller
             'notApprovedAbsentsCount' => $notApprovedAbsentsCount,
             'lateCount' => $lateCount,
         ];
+    }
+
+    public function export(ReadingStation $readingStation)
+    {
+        $storage = env('DEFAULT_STORAGE', 'ftp');
+        $disk = Storage::disk($storage);
+        $fileName = Auth::user()->id . '_' . 'users';
+        if ($disk ->exists($fileName . '.xlsx')) {
+            $time = Carbon::parse($disk->lastModified($fileName . '.xlsx'))->diffInSeconds(Carbon::now());
+            if ($time > 120) {
+                $disk ->delete($fileName . '.xlsx');
+            }
+        }
+        if (!$disk ->exists($fileName . '.xlsx')) {
+            if (!$disk ->exists($fileName . '.tmp')) {
+                $disk ->put($fileName . '.tmp', '');
+
+                Excel::store(new UsersExport($readingStation->id), $fileName . '.xlsx', $storage)->chain([
+                    new ExportFinished($fileName . '.tmp'),
+                ]);
+            }
+            return (new ReadingStudentsExcelResource('in progress'))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(201);
+        } else {
+            return Storage::drive('local')->download($fileName . '.xlsx');
+        }
     }
 }

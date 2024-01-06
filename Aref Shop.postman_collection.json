@@ -6299,6 +6299,59 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Students Excel",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/reports/student/export",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"reports",
+												"student",
+												"export"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Manager",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/reports/manager?from_date=2023-01-01&to_date=2024-01-08",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"reports",
+												"manager"
+											],
+											"query": [
+												{
+													"key": "from_date",
+													"value": "2023-01-01"
+												},
+												{
+													"key": "to_date",
+													"value": "2024-01-08"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
