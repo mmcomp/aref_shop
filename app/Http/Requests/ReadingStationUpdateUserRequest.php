@@ -30,6 +30,10 @@ class ReadingStationUpdateUserRequest extends FormRequest
             'reading_station_id' => 'required|exists:reading_stations,id',
             'table_number' => 'required|int|between:1,1000',
             'default_package_id' => 'required|exists:reading_station_packages,id',
+            'consultant' => 'nullable|string|between:2,256',
+            'representative' => 'nullable|string|between:2,256',
+            'contract_start' => 'string|date_format:Y-m-d',
+            'contract_end' => 'string|date_format:Y-m-d',
         ];
     }
      /**

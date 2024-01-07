@@ -346,11 +346,11 @@ class ReadingStationUsersController extends Controller
         }
         $package = ReadingStationPackage::find($request->default_package_id);
         $requiredTime = $request->required_time;
-        if (!$requiredTime) {
+        if (!$request->exists('required_time')) {
             $requiredTime = $package->required_time;
         }
         $optionalTime = $request->optional_time;
-        if (!$optionalTime) {
+        if (!$request->exists('optional_time')) {
             $optionalTime = $package->optional_time;
         }
         $start = $date->toDateString();
@@ -370,6 +370,10 @@ class ReadingStationUsersController extends Controller
             "end" => $end,
             "required_time" => $requiredTime,
             "optional_time" => $optionalTime,
+            "consultant" => $request->consultant,
+            "representative" => $request->representative,
+            "contract_start" => $request->contract_start,
+            "contract_end" => $request->contract_end,
         ]);
         $user->is_reading_station_user = true;
         $user->save();
@@ -433,6 +437,10 @@ class ReadingStationUsersController extends Controller
         $found->default_package_id = $request->default_package_id;
         $found->reading_station_id = $request->reading_station_id;
         $found->user_id = $user->id;
+        $found->consultant = $request->consultant;
+        $found->representative = $request->representative;
+        $found->contract_start = $request->contract_start;
+        $found->contract_end = $request->contract_end;
         $found->save();
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,

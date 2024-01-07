@@ -30,8 +30,12 @@ class ReadingStationCreateUserRequest extends FormRequest
             'table_number' => 'nullable|int|between:1,1000',
             'default_package_id' => 'required|exists:reading_station_packages,id',
             'start_date' => 'required|date_format:Y-m-d',
-            'required_time' => 'int|min:1',
-            'optional_time' => 'int|min:1',
+            'required_time' => 'nullable|int|min:1',
+            'optional_time' => 'nullable|int|min:0',
+            'consultant' => 'nullable|string|between:2,256',
+            'representative' => 'nullable|string|between:2,256',
+            'contract_start' => 'string|date_format:Y-m-d',
+            'contract_end' => 'string|date_format:Y-m-d',
         ];
     }
      /**
