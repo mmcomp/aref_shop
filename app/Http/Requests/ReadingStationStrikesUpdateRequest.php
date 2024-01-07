@@ -27,8 +27,8 @@ class ReadingStationStrikesUpdateRequest extends FormRequest
     {
         return [
             'id' => 'required|exists:reading_station_strikes,id',
-            'name' => 'max:255|min:3',
-            'score' => 'int|min:1',
+            'name' => 'nullable|max:255|min:3',
+            'score' => 'nullable|int|min:0',
             'is_point' => 'nullable|boolean',
         ];
     }
