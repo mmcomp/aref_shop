@@ -422,16 +422,19 @@ class ReadingStationReportController extends Controller
     {
         $storage = env('DEFAULT_STORAGE', 'ftp');
         $disk = Storage::disk($storage);
-        $fileName = Auth::user()->id . '_' . 'users';
-        if ($disk ->exists($fileName . '.xlsx')) {
+        $fileName = $readingStation->id . '_' . 'users';
+        if ($storage === 'ftp') {
+            $fileName = env('FTP_PATH') . '/' . $fileName;
+        }
+        if ($disk->exists($fileName . '.xlsx')) {
             $time = Carbon::parse($disk->lastModified($fileName . '.xlsx'))->diffInSeconds(Carbon::now());
             if ($time > 120) {
-                $disk ->delete($fileName . '.xlsx');
+                $disk->delete($fileName . '.xlsx');
             }
         }
-        if (!$disk ->exists($fileName . '.xlsx')) {
-            if (!$disk ->exists($fileName . '.tmp')) {
-                $disk ->put($fileName . '.tmp', '');
+        if (!$disk->exists($fileName . '.xlsx')) {
+            if (!$disk->exists($fileName . '.tmp')) {
+                $disk->put($fileName . '.tmp', '');
 
                 Excel::store(new UsersExport($readingStation->id), $fileName . '.xlsx', $storage)->chain([
                     new ExportFinished($fileName . '.tmp'),

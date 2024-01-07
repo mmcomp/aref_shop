@@ -14,13 +14,13 @@ class ExportFinished implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private $filename;
+    private $fileName;
     /**
      * Create a new job instance.
      */
-    public function __construct($filename)
+    public function __construct($fileName)
     {
-        $this->filename = $filename;
+        $this->fileName = $fileName;
     }
 
     /**
@@ -29,6 +29,6 @@ class ExportFinished implements ShouldQueue
     public function handle(): void
     {
         $storage = env('DEFAULT_STORAGE', 'ftp');
-        Storage::disk($storage)->delete($this->filename);
+        Storage::disk($storage)->delete($this->fileName);
     }
 }
