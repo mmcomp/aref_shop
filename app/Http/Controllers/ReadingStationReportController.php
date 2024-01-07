@@ -444,7 +444,7 @@ class ReadingStationReportController extends Controller
                 'errors' => null,
             ])->response()->setStatusCode(201);
         } else {
-            return Storage::drive('local')->download($fileName . '.xlsx');
+            return Storage::drive($storage)->download($fileName . '.xlsx');
         }
     }
 }

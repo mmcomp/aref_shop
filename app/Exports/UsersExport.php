@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class UsersExport implements FromQuery, WithMapping, WithHeadings, ShouldQueue
 {
@@ -30,6 +31,14 @@ class UsersExport implements FromQuery, WithMapping, WithHeadings, ShouldQueue
             $user->school,
             $user->major,
             $user->grade,
+        ];
+    }
+
+        
+    public function columnFormats(): array
+    {
+        return [
+            'D' => NumberFormat::FORMAT_TEXT,
         ];
     }
 
