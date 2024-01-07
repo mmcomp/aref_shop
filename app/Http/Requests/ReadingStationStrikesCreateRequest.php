@@ -27,7 +27,7 @@ class ReadingStationStrikesCreateRequest extends FormRequest
     {
         return [
             'name' => 'required|max:255|min:3',
-            'score' => 'required|int|min:1',
+            'score' => 'required|int|min:0',
             'is_point' => 'nullable|boolean',
         ];
     }
