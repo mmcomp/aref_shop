@@ -208,7 +208,11 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
             ])->response()->setStatusCode(400);
         }
-
+        if (!$slut->is_sleep && $request->status === 'sleep') {
+            return (new ReadingStationUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['The selected slut is not sleepable!']],
+            ])->response()->setStatusCode(400);
+        }
 
         $today = Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
