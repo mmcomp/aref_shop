@@ -316,6 +316,9 @@ class ReadingStationUsersController extends Controller
         $weeklyProgram->save();
         $readingStationUser->save();
         if ($deleted) {
+            if ($weeklyProgram->sluts->where('day', $today)->where('status', '!=', 'defined')->count() === 0) {
+                $userSlut->absentPresent->delete();
+            }
             $userSlut->delete();
         }
 
