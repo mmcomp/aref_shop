@@ -216,6 +216,18 @@ class ReadingStationUsersController extends Controller
 
         $today = Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
+        if ($request->status === 'defined' && $userSlut) {
+            $nextUserSluts = ReadingStationSlutUser::withAggregate('slut', 'start')
+                ->where('reading_station_weekly_program_id', $thisWeeklyProgram->id)
+                ->where('day', $today)
+                ->get()
+                ->where('slut_start', '>', $slut->start)
+                ->sortByDesc('slut_start')
+                ->pluck('id');
+            ReadingStationSlutUser::whereIn('id', $nextUserSluts)->update(['status' => 'defined', 'user_id' => Auth::user()->id]);
+        }
+
+
         $oldStatus = null;
         $deleted = false;
 
@@ -245,6 +257,7 @@ class ReadingStationUsersController extends Controller
             $absentPresent->user_id = $user->id;
             $absentPresent->reading_station_id = $readingStation->id;
             $absentPresent->day = $userSlut->day;
+            $absentPresent->operator_id = Auth::user()->id;
             $absentPresent->save();
         }
 
