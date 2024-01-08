@@ -171,17 +171,6 @@ class ReadingStationUsersController extends Controller
         return $user->absentPresents->where('is_processed', 0)->first() ? true : false;
     }
 
-    private function checkSlutValidation(ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
-    {
-        $readingStationSluts = $readingStation->sluts->sortByDesc('start');
-        $beforeSlut = $readingStationSluts->where('start', '<', $slut->start)->first();
-        if ($beforeSlut) {
-            $userSlutUsers = $user->readingStationUser->sluts;
-
-            dd($beforeSlut);
-        }
-    }
-
     public function setUserSlutStatus(ReadingStationSetUserSlutStatusRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
     {
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
