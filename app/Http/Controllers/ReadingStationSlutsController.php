@@ -100,7 +100,8 @@ class ReadingStationSlutsController extends Controller
             "name" => $request->name, 
             "start" => $request->start, 
             "end" => $request->end, 
-            "duration" => $duration
+            "duration" => $duration,
+            "is_sleep", $request->exists('is_sleep') ? $request->is_sleep : false,
         ]);
         return (new ReadingStationSlutsResource(null))->additional([
             'errors' => null,

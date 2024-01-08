@@ -29,6 +29,7 @@ class ReadingStationSlutsCreateRequest extends FormRequest
             'name' => 'required|max:255|min:3',
             'start' => 'required|date_format:H:i',
             'end' => 'required|date_format:H:i',
+            'is_sleep' => 'nullable|boolean',
         ];
     }
      /**
