@@ -17,4 +17,12 @@ class ReadingStationSlut extends Model
     {
         return $this->belongsTo(ReadingStation::class);
     }
+
+    function previesSlut()
+    {
+        return $this->where('id', '!=', $this->id)
+            ->where('start', '<', $this->start)
+            ->orderBy('start', 'desc')
+            ->first();
+    }
 }
