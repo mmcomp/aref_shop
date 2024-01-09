@@ -40,6 +40,7 @@ use App\Http\Resources\ReadingStationUsers5Collection;
 use App\Http\Resources\UserCollection;
 use App\Models\Group;
 use App\Models\ReadingStationCall;
+use App\Utils\SlutUserValidation;
 use Illuminate\Support\Facades\Storage;
 
 class ReadingStationUsersController extends Controller
@@ -179,11 +180,11 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        if (($request->status === 'absent' || str_starts_with($request->status, 'late_')) && $this->checkIfUserIsIn($user)) {
-            return (new ReadingStationUsersResource(null))->additional([
-                'errors' => ['reading_station_user' => ['You should exit the user first!']],
-            ])->response()->setStatusCode(400);
-        }
+        // if (($request->status === 'absent' || str_starts_with($request->status, 'late_')) && $this->checkIfUserIsIn($user)) {
+        //     return (new ReadingStationUsersResource(null))->additional([
+        //         'errors' => ['reading_station_user' => ['You should exit the user first!']],
+        //     ])->response()->setStatusCode(400);
+        // }
 
         $thisWeeklyProgram = null;
         foreach ($user->readingStationUser->weeklyPrograms as $weeklyProgram) {
@@ -202,6 +203,9 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['The selected slut is not sleepable!']],
             ])->response()->setStatusCode(400);
         }
+
+        $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
+        $slutUserValidation->start();
 
         $today = Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
