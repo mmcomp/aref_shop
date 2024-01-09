@@ -17,6 +17,7 @@ class SlutUserValidation
     private $absentPresent;
     private $lastAbsentPresent;
     private $lastExitSlut;
+    private $firstSlutUser;
     function __construct(private ReadingStationWeeklyProgram $weeklyProgram, private ReadingStationSlut $slut, private User $user, private string $status, string $day = null)
     {
         $this->day = $day ?? Carbon::now()->toDateString();
@@ -40,10 +41,18 @@ class SlutUserValidation
         if ($this->lastAbsentPresent && $this->lastAbsentPresent->reading_station_slut_user_exit_id) {
             $this->lastExitSlut = $this->lastAbsentPresent->slutUserExit;
         }
+        $this->firstSlutUser = $this->userSluts[0];
+        if ($this->lastExitSlut) {
+            $this->firstSlutUser = $this->userSluts;
+            $this->firstSlutUser = $this->firstSlutUser->where('slut_start', '>', $this->lastExitSlut->start)->first();
+        }
     }
 
     public function start(): void
     {
+        if ($this->isSlutPassed()) {
+            throw new HttpException(400, 'User exited after this slut!');
+        }
         switch ($this->status) {
             case 'absent':
                 if (!$this->isTheFirstSlut()) {
@@ -65,13 +74,13 @@ class SlutUserValidation
         }
     }
 
+    public function isSlutPassed() : bool 
+    {
+        return $this->firstSlutUser->start > $this->slut->start;
+    }
+
     public function isTheFirstSlut(): bool
     {
-        $firstSlutUser = $this->userSluts[0];
-        if ($this->lastExitSlut) {
-            $firstSlutUser = $this->userSluts;
-            $firstSlutUser = $firstSlutUser->where('slut_start', '>', $this->lastExitSlut->start)->first();
-        }
-        return $firstSlutUser->reading_station_slut_id === $this->slut->id;
+        return $this->firstSlutUser->reading_station_slut_id === $this->slut->id;
     }
 }
