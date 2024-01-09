@@ -61,7 +61,6 @@ class SlutUserValidation
                 break;
 
             default:
-                throw new HttpException(400, 'You should exit the user first!');
                 break;
         }
     }
