@@ -44,8 +44,7 @@ class ReadingStationUser extends Model
     {
         $startOfCurrentWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
         return $this->hasMany(ReadingStationWeeklyProgram::class)
-            ->where('start', '>=', $startOfCurrentWeek)
-            ->whereHas('sluts', operator: '>', count: 0);
+            ->where('start', '>=', $startOfCurrentWeek);
     }
 
     function lastWeeklyProgram()
@@ -56,5 +55,13 @@ class ReadingStationUser extends Model
     function allWeeklyPrograms()
     {
         return $this->hasMany(ReadingStationWeeklyProgram::class);
+    }
+
+    function noneZeroSlutWeeklyPrograms()
+    {
+        $startOfCurrentWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+        return $this->hasMany(ReadingStationWeeklyProgram::class)
+            ->where('start', '>=', $startOfCurrentWeek)
+            ->whereHas('sluts', operator: '>', count: 0);
     }
 }
