@@ -174,6 +174,28 @@ class ReadingStationSlutUsersController extends Controller
         $nextWeekEnd = $nextWeekEndDate->toDateString();
         $package = ReadingStationPackage::find($request->next_week_package_id);
         $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
+        $curentWeeklyProgram = $user->readingStationUser->weeklyPrograms->where('start', Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString())->first();
+        $readingStationUser = $user->readingStationUser;
+        if ($readingStationUser->contract_end && Carbon::parse($nextWeekEnd)->greaterThan(Carbon::parse($readingStationUser->contract_end))) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_slut_user' => ['User contract end is before the requested week end!']],
+            ])->response()->setStatusCode(400);
+        }
+        if (!$curentWeeklyProgram) {
+            if ($readingStationUser->contract_end && Carbon::parse(Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString())->greaterThan(Carbon::parse($readingStationUser->contract_end))) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_slut_user' => ['User contract end is before the requested week end!']],
+                ])->response()->setStatusCode(400);
+            }
+            $weeklyProgram = new ReadingStationWeeklyProgram();
+            $weeklyProgram->reading_station_user_id = $user->readingStationUser->id;
+            $weeklyProgram->name = $readingStationUser->package->name;
+            $weeklyProgram->required_time = $readingStationUser->package->required_time;
+            $weeklyProgram->optional_time = $readingStationUser->package->optional_time;
+            $weeklyProgram->start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+            $weeklyProgram->end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+            $weeklyProgram->save();
+        }
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (Carbon::parse($weeklyProgram->start)->diffInDays($nextWeekStartDate) === 0) {
                 if ($weeklyProgram->name !== $package->name && count($weeklyProgram->sluts) === 0) {
@@ -187,12 +209,7 @@ class ReadingStationSlutUsersController extends Controller
                 ])->response()->setStatusCode(204);
             }
         }
-        $readingStationUser = $user->readingStationUser;
-        if ($readingStationUser->contract_end && Carbon::parse($nextWeekEnd)->greaterThan(Carbon::parse($readingStationUser->contract_end))) {
-            return (new ReadingStationSlutUsersResource(null))->additional([
-                'errors' => ['reading_station_slut_user' => ['User contract end is before the requested week end!']],
-            ])->response()->setStatusCode(400);
-        }
+
         $weeklyProgram = new ReadingStationWeeklyProgram();
         $weeklyProgram->reading_station_user_id = $user->readingStationUser->id;
         $weeklyProgram->name = $package->name;
