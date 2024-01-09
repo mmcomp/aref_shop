@@ -24,7 +24,7 @@ class ReadingStationUsers2Resource extends JsonResource
                 'user'=> new UserResource($this->user),
                 'package' => new ReadingStationPackagesResource($this->package),
                 'total' => $this->total,
-                'weeklyPrograms' => new ReadingStationWeeklyProgramsCollection($this->weeklyPrograms),
+                'weeklyPrograms' => new ReadingStationWeeklyProgramsCollection($this->noneZeroSlutWeeklyPrograms),
             ];
         }
     }
