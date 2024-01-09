@@ -174,7 +174,7 @@ class ReadingStationSlutUsersController extends Controller
         $nextWeekEnd = $nextWeekEndDate->toDateString();
         $package = ReadingStationPackage::find($request->next_week_package_id);
         $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
-        dd($weeklyPrograms);
+        dd($user->readingStationUser);
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (Carbon::parse($weeklyProgram->start)->diffInDays($nextWeekStartDate) === 0) {
                 dump('found');
