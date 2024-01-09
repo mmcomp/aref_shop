@@ -57,7 +57,7 @@ class SlutUserValidation
         switch ($this->status) {
             case 'absent':
                 if (!$this->isTheFirstSlut()) {
-                    $previousSlutUser = $this->previousSlutUser();
+                    $previousSlutUser = $this->previousSlutsAreAbsent();
                     dd($previousSlutUser);
                     throw new HttpException(400, 'You should exit the user first!');
                 }
@@ -78,15 +78,15 @@ class SlutUserValidation
         }
     }
 
-    public function previousSlutUser()
+    public function previousSlutsAreAbsent(): bool
     {
         $previousSlutUser = ReadingStationSlutUser::where('reading_station_weekly_program_id', $this->weeklyProgram->id)
             ->where('day', $this->day)
             ->withAggregate('slut', 'start')
             ->get();
-        $previousSlutUser = $previousSlutUser->where('slut_start', '<', $this->slut->start)->sortByDesc('slut_user')->first();
+        $previousSlutUser = $previousSlutUser->where('slut_start', '<', $this->slut->start)->where('status', '!=', 'absent')->sortByDesc('slut_user')->first();
 
-        return $previousSlutUser;
+        return $previousSlutUser === null;
     }
 
     public function isSlutPassed(): bool

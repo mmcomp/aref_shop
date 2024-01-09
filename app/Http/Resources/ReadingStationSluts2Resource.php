@@ -24,6 +24,7 @@ class ReadingStationSluts2Resource extends JsonResource
                 'start' => $this->start,
                 'end' => $this->end,
                 'duration' => $this->duration,
+                'is_sleep' => $this->is_sleep ? true : false,
             ];
         }
     }
