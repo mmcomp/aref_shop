@@ -153,6 +153,7 @@ class ReadingStationUsersController extends Controller
         if (
             count($beforeSluts) > 0 &&
             ReadingStationSlutUser::whereIn('reading_station_slut_id', $beforeSluts)
+            ->where('is_required', 1)
             ->where('status', 'defined')
             ->where('day', Carbon::now()->toDateString())
             ->count() > 0
