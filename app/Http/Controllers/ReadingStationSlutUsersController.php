@@ -176,8 +176,6 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (Carbon::parse($weeklyProgram->start)->diffInDays($nextWeekStartDate) === 0) {
-                dump('found');
-                dump($weeklyProgram);
                 if ($weeklyProgram->name !== $package->name && count($weeklyProgram->sluts) === 0) {
                     $weeklyProgram->name = $package->name;
                     $weeklyProgram->required_time = $package->required_time;
@@ -203,8 +201,7 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyProgram->start = $nextWeekStart;
         $weeklyProgram->end = $nextWeekEnd;
         $weeklyProgram->save();
-        dump('not found');
-        dump($weeklyProgram);
+
 
         return (new ReadingStationSlutUsersResource(null))->additional([
             'errors' => null,
