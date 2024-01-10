@@ -189,8 +189,8 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
-        $slutUserValidation->start();
+        // $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
+        // $slutUserValidation->start();
 
         $today = Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
@@ -414,17 +414,6 @@ class ReadingStationUsersController extends Controller
     public function update(ReadingStationUpdateUserRequest $request, User $user)
     {
         $found = ReadingStationUser::find($request->id);
-        if (
-            $found->table_number === $request->table_number &&
-            $found->reading_station_id === $request->reading_station_id &&
-            $found->default_package_id === $request->default_package_id &&
-            $found->user_id === $user->id
-        ) {
-            // no changes
-            return (new ReadingStationUsersResource(null))->additional([
-                'errors' => null,
-            ])->response()->setStatusCode(201);
-        }
         $readingStation = ReadingStation::find($request->reading_station_id);
 
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
