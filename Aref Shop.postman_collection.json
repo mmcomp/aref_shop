@@ -387,7 +387,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"reading_station_id\":1,\n    \"table_number\":2,\n    \"default_package_id\": 1,\n    \"start_date\": \"2023-10-08\",\n    \"required_time\": 2,\n    \"optional_time\": 2\n}",
+											"raw": "{\n    \"reading_station_id\":1,\n    \"table_number\":2,\n    \"default_package_id\": 1,\n    \"start_date\": \"2023-10-08\",\n    \"required_time\": 2,\n    \"optional_time\": 2,\n    \"consultant\" : \"abbas\", //Optional\n    \"representative\" : \"gholi\", //Optional\n    \"contract_start\" : \"2023-01-01\", //Optional\n    \"contract_end\" : \"2025-01-01\" //Optional\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -417,7 +417,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"data\": [\n        // {\n        //     \"reading_station_slut_id\": 2,\n        //     \"day\": \"2023-11-26\"\n        // },\n        {\n            \"reading_station_slut_id\": 3,\n            \"day\": \"2023-12-28\"\n        }\n    ],\n    \"week\": \"current\"\n}",
+											"raw": "{\n    \"data\": [\n        {\n            \"reading_station_slut_id\": 2,\n            \"day\": \"2024-01-08\"\n        },\n        {\n            \"reading_station_slut_id\": 3,\n            \"day\": \"2024-01-08\"\n        }\n    ],\n    \"week\": \"current\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5112,7 +5112,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"name\": \"test2\",\n    \"start\": \"10:00\",\n    \"end\": \"11:00\"\n}",
+											"raw": "{\n    \"name\": \"sleep2\",\n    \"start\": \"10:00\",\n    \"end\": \"11:00\",\n    \"is_sleep\": true\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5564,7 +5564,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"status\": \"present\"\n}",
+											"raw": "{\n    \"status\": \"absent\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
