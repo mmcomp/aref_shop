@@ -168,11 +168,6 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
-    private function checkIfUserIsIn(User $user): bool
-    {
-        return $user->absentPresents->where('is_processed', 0)->first() ? true : false;
-    }
-
     public function setUserSlutStatus(ReadingStationSetUserSlutStatusRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
     {
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
@@ -181,19 +176,8 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        // if (($request->status === 'absent' || str_starts_with($request->status, 'late_')) && $this->checkIfUserIsIn($user)) {
-        //     return (new ReadingStationUsersResource(null))->additional([
-        //         'errors' => ['reading_station_user' => ['You should exit the user first!']],
-        //     ])->response()->setStatusCode(400);
-        // }
-
-        $thisWeeklyProgram = null;
-        foreach ($user->readingStationUser->weeklyPrograms as $weeklyProgram) {
-            if (Carbon::now()->between(Carbon::parse($weeklyProgram->start), Carbon::parse($weeklyProgram->end), true)) {
-                $thisWeeklyProgram = $weeklyProgram;
-                break;
-            }
-        }
+        $userWeeklyPrograms = $user->readingStationUser->weeklyPrograms;
+        $thisWeeklyProgram = $userWeeklyPrograms->where('end', Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
         if (!$thisWeeklyProgram || ($thisWeeklyProgram && count($thisWeeklyProgram->sluts) === 0)) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],

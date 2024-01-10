@@ -57,9 +57,9 @@ class SlutUserValidation
         switch ($this->status) {
             case 'absent':
                 if (!$this->isTheFirstSlut()) {
-                    $previousSlutUser = $this->previousSlutsAreAbsent();
-                    dd($previousSlutUser);
-                    throw new HttpException(400, 'You should exit the user first!');
+                    $previousSlutsAreAbsent = $this->previousSlutsAreAbsent();
+                    if (!$previousSlutsAreAbsent)
+                        throw new HttpException(400, 'You should exit the user first!');
                 }
                 break;
             case 'late_15':
@@ -84,7 +84,14 @@ class SlutUserValidation
             ->where('day', $this->day)
             ->withAggregate('slut', 'start')
             ->get();
-        $previousSlutUser = $previousSlutUser->where('slut_start', '<', $this->slut->start)->where('status', '!=', 'absent')->sortByDesc('slut_user')->first();
+        $previousSlutUser
+            ->where('slut_start', '<', $this->slut->start)
+            ->where('status', '!=', 'absent');
+        if ($this->lastExitSlut) {
+            $previousSlutUser
+                ->where('slut_start', '>', $this->lastExitSlut->start);
+        }
+        $previousSlutUser = $previousSlutUser->sortByDesc('slut_user')->first();
 
         return $previousSlutUser === null;
     }
