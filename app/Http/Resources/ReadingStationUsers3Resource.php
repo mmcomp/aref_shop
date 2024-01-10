@@ -21,6 +21,10 @@ class ReadingStationUsers3Resource extends JsonResource
             return [
                 'id' => $this->id,
                 'table_number' => $this->table_number,
+                'consultant' => $this->consultant,
+                'representative' => $this->representative,
+                'contract_start' => $this->contract_start,
+                'contract_end' => $this->contract_end,
                 'readingStation' => new ReadingStation2Resource($this->readingStation),
                 'package' => new ReadingStationPackagesResource($this->package),
                 'weeklyPrograms' => new ReadingStationWeeklyProgramsCollection($this->weeklyPrograms),
