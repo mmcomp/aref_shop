@@ -24,4 +24,14 @@ class ReadingStationSlutChangeWarning extends Model
     {
         return $this->belongsTo(ReadingStationSlutUser::class);
     }
+
+    function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_id');
+    }
+
+    function reader()
+    {
+        return $this->belongsTo(User::class, 'reader_id');
+    }
 }

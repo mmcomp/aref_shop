@@ -22,6 +22,8 @@ class ReadingStationSlutChangeWarningResource extends JsonResource
                 'id' => $this->id,
                 'description' => $this->description,
                 'is_read' => $this->is_read ? true : false,
+                'operator' => new UserResource($this->operator),
+                'reader' => new UserResource($this->reader),
             ];
         }
     }
