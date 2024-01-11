@@ -63,4 +63,14 @@ class ReadingStationSlutUser extends Model
     {
         return $this->hasMany(ReadingStationUserStrike::class);
     }
+
+    function warnings()
+    {
+        return $this->hasMany(ReadingStationSlutChangeWarning::class);    
+    }
+
+    function unReadWarnings()
+    {
+        return $this->hasMany(ReadingStationSlutChangeWarning::class)->where('is_read', false);    
+    }
 }

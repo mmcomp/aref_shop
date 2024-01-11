@@ -29,6 +29,7 @@ class ReadingStationSlutUsers2Resource extends JsonResource
                 'absense_approved_status' => $this->absense_approved_status,
                 'absentPresent' => new ReadingStationAbsentPresent2Resource($this->absentPresent),
                 'calls' => new ReadingStationCallsCollection($this->calls),
+                'warnings' => new ReadingStationSlutChangeWarningCollection($this->unReadWarnings),
             ];
         }
     }

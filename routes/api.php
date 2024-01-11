@@ -35,6 +35,7 @@ use App\Http\Controllers\ReadingStationController;
 use App\Http\Controllers\ReadingStationOffdaysController;
 use App\Http\Controllers\ReadingStationPackageController;
 use App\Http\Controllers\ReadingStationReportController;
+use App\Http\Controllers\ReadingStationSlutChangeWarningController;
 use App\Http\Controllers\ReadingStationSlutsController;
 use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
@@ -164,6 +165,7 @@ Route::group([
     Route::get('/{readingStation}/absent-verify-document/{slutUser}', [ReadingStationUsersController::class, 'getVerfyAbsent']);
     Route::get('/{readingStation}/absent-list', [ReadingStationSlutUsersController::class, 'listAbsentUsers']);
     Route::get('/{readingStation}/none-users', [ReadingStationUsersController::class, 'oneNoneUserIndex']);
+    Route::get('/{readingStation}/slut-change-warnings', [ReadingStationSlutChangeWarningController::class, 'index']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station_report'],

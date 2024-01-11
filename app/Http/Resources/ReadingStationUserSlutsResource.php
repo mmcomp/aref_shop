@@ -11,10 +11,12 @@ class ReadingStationUserSlutsResource extends JsonResource
 {
     private $slut;
     private $users = [];
-    function __construct($resource, $slut)
+    private $warnings = [];
+    function __construct($resource, $slut, $warnings = [])
     {
         $this->slut = $slut;
         $this->users = $resource;
+        $this->warnings = $warnings;
         parent::__construct($resource[0]);
     }
 
@@ -92,7 +94,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "latestOperator" => $latestOperator,
                 ];
             }
-            return $userInformations;
+            return ["data" => $userInformations, "warning" => $this->warnings];
         }
     }
 }

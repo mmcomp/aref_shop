@@ -48,10 +48,11 @@ class SlutUserValidation
         }
     }
 
-    public function start(): void
+    public function start(): array
     {
+        $warnings = [];
         if ($this->isSlutPassed()) {
-            throw new HttpException(400, 'User exited after this slut!');
+            $warnings[] = 'User exited after this slut!';
         }
 
         switch ($this->status) {
@@ -59,7 +60,7 @@ class SlutUserValidation
                 if (!$this->isTheFirstSlut()) {
                     $previousSlutsAreAbsent = $this->previousSlutsAreAbsent();
                     if (!$previousSlutsAreAbsent)
-                        throw new HttpException(400, 'You should exit the user first!');
+                        $warnings[] =  'You should exit the user first!';
                 }
                 break;
             case 'late_15':
@@ -68,7 +69,7 @@ class SlutUserValidation
             case 'late_60':
             case 'late_60_plus':
                 if (!$this->isTheFirstSlut()) {
-                    throw new HttpException(400, 'You should exit the user first!');
+                    $warnings[] =  'You should exit the user first!';
                 }
                 break;
             case 'present':
@@ -76,6 +77,8 @@ class SlutUserValidation
             default:
                 break;
         }
+
+        return $warnings;
     }
 
     public function previousSlutsAreAbsent(): bool

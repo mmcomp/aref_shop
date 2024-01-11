@@ -40,6 +40,7 @@ use App\Http\Resources\ReadingStationUsers5Collection;
 use App\Http\Resources\UserCollection;
 use App\Models\Group;
 use App\Models\ReadingStationCall;
+use App\Models\ReadingStationSlutChangeWarning;
 use App\Utils\SlutUserValidation;
 use Illuminate\Support\Facades\Storage;
 
@@ -189,8 +190,8 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        // $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
-        // $slutUserValidation->start();
+        $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
+        $warnings = $slutUserValidation->start();
 
         $today = Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
@@ -317,9 +318,22 @@ class ReadingStationUsersController extends Controller
         }
         if ($deleted) {
             $userSlut->delete();
+        } else if(count($warnings) > 0) {
+            $query = [];
+            foreach ($warnings as $warning) {
+                $query[] = [
+                    "reading_station_slut_user_id" => $userSlut->id,
+                    "description" => $warning,
+                    "is_read" => false,
+                    "operator_id" => Auth::user()->id,
+                    "created_at" => Carbon::now(),
+                    "updated_at" => Carbon::now(),
+                ];
+            }
+            ReadingStationSlutChangeWarning::insert($query);
         }
 
-        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut))->additional([
+        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut, $warnings))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

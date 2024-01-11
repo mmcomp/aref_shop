@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ReadingStationSlutChangeWarning;
 use App\Models\ReadingStationUser;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,10 +24,8 @@ class ReadingStationUserSlutResource extends JsonResource
                 'day' => $this->day,
                 'is_required' => $this->is_required,
                 'status' => $this->status,
-                // 'absenseReason' => new ReadingStationAbsentReasonsResource($this->absenseReason),
-                // 'reading_station_absent_reason_score' => $this->reading_station_absent_reason_score,
-                // 'absense_approved_status' => $this->absense_approved_status,
                 'absentPresent' => new ReadingStationAbsentPresentResource( $this->absentPresent),
+                // 'warnings' => new ReadingStationSlutChangeWarningCollection($this->unReadWarnings),
             ];
         }
     }
