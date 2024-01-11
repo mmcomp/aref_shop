@@ -6356,6 +6356,62 @@
 							]
 						},
 						{
+							"name": "Slut Change Warnings",
+							"item": [
+								{
+									"name": "List",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/reading-stations/1/slut-change-warnings?per_page=all",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"reading-stations",
+												"1",
+												"slut-change-warnings"
+											],
+											"query": [
+												{
+													"key": "sort",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "sort_dir",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "per_page",
+													"value": "all"
+												},
+												{
+													"key": "reading_station_slut_user_id",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "is_read",
+													"value": "false",
+													"disabled": true
+												},
+												{
+													"key": "mark_as_read",
+													"value": "true",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Create",
 							"request": {
 								"method": "POST",
