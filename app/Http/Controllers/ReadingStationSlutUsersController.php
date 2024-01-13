@@ -26,6 +26,7 @@ use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ReadingStationSlutUsersController extends Controller
 {
@@ -53,9 +54,7 @@ class ReadingStationSlutUsersController extends Controller
         }
         $readingStationUser = $user->readingStationUser;
         if ($readingStationUser->contract_end && Carbon::parse($end)->greaterThan(Carbon::parse($readingStationUser->contract_end))) {
-            return (new ReadingStationSlutUsersResource(null))->additional([
-                'errors' => ['reading_station_slut_user' => ['User contract end is before the requested week end!']],
-            ])->response()->setStatusCode(400);
+            throw new HttpException('User contract end is before the requested week end!', 400);
         }
         foreach ($weeklyPrograms as $weekProgram) {
             if ($week === 'current' && Carbon::now()->between(Carbon::parse($weekProgram->start), Carbon::parse($weekProgram->end), true)) {
