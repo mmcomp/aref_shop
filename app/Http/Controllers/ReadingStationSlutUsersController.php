@@ -54,7 +54,7 @@ class ReadingStationSlutUsersController extends Controller
         }
         $readingStationUser = $user->readingStationUser;
         if ($readingStationUser->contract_end && Carbon::parse($end)->greaterThan(Carbon::parse($readingStationUser->contract_end))) {
-            throw new HttpException('User contract end is before the requested week end!', 400);
+            throw new HttpException(400, 'User contract end is before the requested week end!');
         }
         foreach ($weeklyPrograms as $weekProgram) {
             if ($week === 'current' && Carbon::now()->between(Carbon::parse($weekProgram->start), Carbon::parse($weekProgram->end), true)) {
