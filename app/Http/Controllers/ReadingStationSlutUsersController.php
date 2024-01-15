@@ -553,4 +553,22 @@ class ReadingStationSlutUsersController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+
+    public function loadUser(User $user)
+    {
+        if ($user->id !== Auth::user()->id) {
+            throw new HttpException(401, 'You do not have access here!');
+        }
+
+        return $this->load($user);
+    }
+
+    public function storeUser(ReadingStationSlutUsersCreateRequest $request, User $user)
+    {
+        if ($user->id !== Auth::user()->id) {
+            throw new HttpException(401, 'You do not have access here!');
+        }
+
+        return $this->store($request, $user);
+    }
 }

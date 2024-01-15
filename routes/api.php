@@ -94,6 +94,14 @@ Route::group([
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
 });
 Route::group([
+    'middleware' => ['auth:api', 'can:reading_station_student'],
+    'prefix' => 'users',
+
+], function ($router) {
+    Route::post('/{user}/reading-station-users/weekly-program', [ReadingStationSlutUsersController::class, 'storeUser']);
+    Route::get('/{user}/reading-station-users/weekly-program', [ReadingStationSlutUsersController::class, 'loadUser']);
+});
+Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
     'prefix' => 'users',
 
