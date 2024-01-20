@@ -100,6 +100,10 @@ Route::group([
 ], function ($router) {
     Route::post('/{user}/reading-station-users/weekly-program', [ReadingStationSlutUsersController::class, 'storeUser']);
     Route::get('/{user}/reading-station-users/weekly-program', [ReadingStationSlutUsersController::class, 'loadUser']);
+    Route::get('/{user}/reading-station-users/weekly-program-list', [ReadingStationSlutUsersController::class, 'weeklyProgramListUser']);
+    Route::get('/{user}/reading-station-users/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgramUser']);
+    Route::get('/{user}/reading-station-users/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgramUser']);
+    Route::get('/{user}/reading-station-users/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgramUser']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],

@@ -9644,6 +9644,97 @@
 								"description": "## Status\n\ndefined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep\n\n### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n- The selected week is invalid.\n- Total time exceeded the maximum!\n    \n- User has a recorded slut for the requested week!"
 							},
 							"response": []
+						},
+						{
+							"name": "List User Weekly Programs",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/1/reading-station-users/weekly-program-list",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"1",
+										"reading-station-users",
+										"weekly-program-list"
+									]
+								},
+								"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+							},
+							"response": []
+						},
+						{
+							"name": "Load User's a Weekly Program Structure",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/1/reading-station-users/load-weekly-program/5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"1",
+										"reading-station-users",
+										"load-weekly-program",
+										"5"
+									]
+								},
+								"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+							},
+							"response": []
+						},
+						{
+							"name": "Load User's a Weekly Program Summary",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/1/reading-station-users/load-summary-weekly-program/5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"1",
+										"reading-station-users",
+										"load-summary-weekly-program",
+										"5"
+									]
+								},
+								"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+							},
+							"response": []
+						},
+						{
+							"name": "Load User's a Weekly Program Reading Hours per Day",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/users/1/reading-station-users/load-hours-weekly-program/5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"1",
+										"reading-station-users",
+										"load-hours-weekly-program",
+										"5"
+									]
+								},
+								"description": "### Errors\n\n- The data field is required.\n- The data must be an array.\n- The data.0.reading_station_slut_id field is required.\n- The data.0.day field is required.\n- The data.0.day does not match the format Y-m-d.\n- User does not have blong to any Reading Station!\n- Some of sluts are not correct!\n- User has a program for the requested week!\n- The week field is required.\n    \n- The selected week is invalid."
+							},
+							"response": []
 						}
 					]
 				},

@@ -424,7 +424,7 @@ class ReadingStationSlutUsersController extends Controller
         $slutUsers->orderBy($sort, $sortDir);
         $perPage = $request->per_page ?? env('PAGE_COUNT');
         $output = $slutUsers->get();
-        
+
 
         return (new ReadingStationSlutUserLatesCollection($output, $perPage, $request->page ?? 1))->additional([
             'errors' => null,
@@ -570,5 +570,41 @@ class ReadingStationSlutUsersController extends Controller
         }
 
         return $this->store($request, $user);
+    }
+
+    public function weeklyProgramListUser(User $user)
+    {
+        if ($user->id !== Auth::user()->id) {
+            throw new HttpException(401, 'You do not have access here!');
+        }
+
+        return $this->weeklyProgramListUser($user);
+    }
+
+    public function loadWeeklyProgramUser(User $user, ReadingStationWeeklyProgram $weeklyProgram)
+    {
+        if ($user->id !== Auth::user()->id) {
+            throw new HttpException(401, 'You do not have access here!');
+        }
+
+        return $this->loadWeeklyProgramUser($user, $weeklyProgram);
+    }
+
+    public function loadSummaryWeeklyProgramUser(User $user, ReadingStationWeeklyProgram $weeklyProgram)
+    {
+        if ($user->id !== Auth::user()->id) {
+            throw new HttpException(401, 'You do not have access here!');
+        }
+
+        return $this->loadSummaryWeeklyProgram($user, $weeklyProgram);
+    }
+
+    public function loadHoursWeeklyProgramUser(User $user, ReadingStationWeeklyProgram $weeklyProgram)
+    {
+        if ($user->id !== Auth::user()->id) {
+            throw new HttpException(401, 'You do not have access here!');
+        }
+
+        return $this->loadHoursWeeklyProgram($user, $weeklyProgram);
     }
 }
