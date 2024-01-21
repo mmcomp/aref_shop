@@ -578,7 +578,7 @@ class ReadingStationSlutUsersController extends Controller
             throw new HttpException(401, 'You do not have access here!');
         }
 
-        return $this->weeklyProgramListUser($user);
+        return $this->weeklyProgramList($user);
     }
 
     public function loadWeeklyProgramUser(User $user, ReadingStationWeeklyProgram $weeklyProgram)
@@ -587,7 +587,7 @@ class ReadingStationSlutUsersController extends Controller
             throw new HttpException(401, 'You do not have access here!');
         }
 
-        return $this->loadWeeklyProgramUser($user, $weeklyProgram);
+        return $this->loadWeeklyProgram($user, $weeklyProgram);
     }
 
     public function loadSummaryWeeklyProgramUser(User $user, ReadingStationWeeklyProgram $weeklyProgram)
