@@ -147,7 +147,7 @@ class RegisterController extends Controller
         );
     }
     public function sendSmsCode($receptor,$token,$template='aref'){
-        $api_key = "553133726A6962423652346246504B544C72766668784A6E384C61682B4D565349756B2B374D374C4A6D553D";
+        $api_key = "432F3752543972436F4A6E4A4F4A4A757663566F6B6645754E79367242672B36506A5A52566945334E45343D";
         $url = "https://api.kavenegar.com/v1/$api_key/verify/lookup.json";
         $ch = curl_init();
         $url = $url."?receptor=$receptor&token=$token&template=$template";
