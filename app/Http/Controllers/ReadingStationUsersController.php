@@ -164,7 +164,8 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        return (new ReadingStationUserSlutsResource($readingStation->users, $slut))->additional([
+        $slutUsers = $readingStation->users->sortBy('table_number');
+        return (new ReadingStationUserSlutsResource($slutUsers, $slut))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
