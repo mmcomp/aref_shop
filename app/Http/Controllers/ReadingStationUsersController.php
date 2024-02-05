@@ -398,6 +398,13 @@ class ReadingStationUsersController extends Controller
             "user_id" => $user->id,
             "table_number" => $request->table_number,
             "default_package_id" => $request->default_package_id,
+            "start_date" => $request->start_date,
+            "required_time" => $requiredTime,
+            "optional_time" => $optionalTime,
+            "consultant" => $request->consultant,
+            "representative" => $request->representative,
+            "contract_start" => $request->contract_start,
+            "contract_end" => $request->contract_end,
         ])->id;
         ReadingStationWeeklyProgram::create([
             "reading_station_user_id" => $id,
