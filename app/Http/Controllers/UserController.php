@@ -119,6 +119,7 @@ class UserController extends Controller
                     ])->response()->setStatusCode(403);
                 }
                 break;
+            case 'user':
             case 'user_reading_station_branch':
                 if (!in_array($authGroup->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
                     return (new UserResource(null))->additional([
@@ -142,7 +143,7 @@ class UserController extends Controller
                 break;
             default:
                 return (new UserResource(null))->additional([
-                    'errors' => ['user' => ['Un recognizable group!', $group->type]],
+                    'errors' => ['user' => ['Unrecognizable group!', $group->type]],
                 ])->response()->setStatusCode(403);
         }
 
