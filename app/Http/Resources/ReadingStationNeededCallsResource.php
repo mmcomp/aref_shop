@@ -31,14 +31,14 @@ class ReadingStationNeededCallsResource extends JsonResource
             $exits = 0;
             $data = [];
             $exitUsers = [];
-            $this->resource->sort(function ($a, $b) {
+            $resource = $this->resource->sort(function ($a, $b) {
                 if ($a->absentPresent && $b->absentPresent) {
                     return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
                 }
                 return 1;
             });
 
-            foreach ($this->resource as $userSlut) {
+            foreach ($resource as $userSlut) {
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
