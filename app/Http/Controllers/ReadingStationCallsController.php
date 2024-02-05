@@ -47,8 +47,6 @@ class ReadingStationCallsController extends Controller
             ->where('day', $today)
             ->whereIn('reading_station_slut_id', $availableSluts)
             ->where('status', '!=', 'defined')
-            // ->withAggregate('absentPresent', 'possible_end')
-            // ->orderBy('absentPresent_possible_end')
             ->get();
 
         return (new ReadingStationNeededCallsResource($todaySluts))->additional([
