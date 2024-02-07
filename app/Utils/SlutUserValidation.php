@@ -68,9 +68,9 @@ class SlutUserValidation
             case 'late_45':
             case 'late_60':
             case 'late_60_plus':
-                if (!$this->isTheFirstSlut()) {
-                    $warnings[] =  'You should exit the user first!';
-                }
+                // if (!$this->isTheFirstSlut()) {
+                //     $warnings[] =  'You should exit the user first!';
+                // }
                 break;
             case 'present':
 
