@@ -28,6 +28,7 @@ class ReadingStationUserAbsentsResource extends JsonResource
                 'slut_end' => $this->slut->end,
                 'groupId' => $this->groupId,
                 'score' => 2,
+                'status' => $this->absense_approved_status,
             ];
         }
     }
