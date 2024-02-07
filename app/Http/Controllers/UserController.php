@@ -146,20 +146,6 @@ class UserController extends Controller
                         'errors' => ['user' => ['This groups id is forbidden!']],
                     ])->response()->setStatusCode(403);
                 }
-                if (
-                    $authGroup->type === 'admin_reading_station_branch' &&
-                    (
-                        !$authUser->reading_station_id ||
-                        (
-                            $authUser->reading_station_id &&
-                            $authUser->reading_station_id !== $request->reading_station_id
-                        )
-                    )
-                ) {
-                    return (new UserResource(null))->additional([
-                        'errors' => ['user' => ['This does not bellong to your reading station!']],
-                    ])->response()->setStatusCode(403);
-                }
                 break;
             default:
                 return (new UserResource(null))->additional([
