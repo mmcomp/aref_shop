@@ -744,7 +744,7 @@ class ReadingStationUsersController extends Controller
             }
         }
 
-        $users = ReadingStationUser::where("reading_station_id", $readingStation->id)->get();
+        $users = ReadingStationUser::where("reading_station_id", $readingStation->id)->orderBy('table_number')->get();
 
         return (new ReadingStationUsers5Collection($users))->additional([
             'errors' => null,
