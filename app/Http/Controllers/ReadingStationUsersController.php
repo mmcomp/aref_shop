@@ -819,8 +819,8 @@ class ReadingStationUsersController extends Controller
         })
             ->where('day', $request->day)
             ->where('status', 'absent')
-            ->where('is_required', 1)
-            ->where('absense_approved_status', 'not_approved');
+            ->where('is_required', 1);
+            // ->where('absense_approved_status', 'not_approved');
 
 
         return (new ReadingStationUserAbsentTablesCollection($slutUsers->get()))->additional([
