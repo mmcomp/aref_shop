@@ -57,11 +57,11 @@ class SlutUserValidation
 
         switch ($this->status) {
             case 'absent':
-                if (!$this->isTheFirstSlut()) {
-                    $previousSlutsAreAbsent = $this->previousSlutsAreAbsent();
-                    if (!$previousSlutsAreAbsent)
-                        $warnings[] =  'You should exit the user first!';
-                }
+                // if (!$this->isTheFirstSlut()) {
+                //     $previousSlutsAreAbsent = $this->previousSlutsAreAbsent();
+                //     if (!$previousSlutsAreAbsent)
+                //         $warnings[] =  'You should exit the user first!';
+                // }
                 break;
             case 'late_15':
             case 'late_30':
