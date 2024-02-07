@@ -119,8 +119,28 @@ class UserController extends Controller
                     ])->response()->setStatusCode(403);
                 }
                 break;
-            case 'user':
             case 'user_reading_station_branch':
+                if (!in_array($authGroup->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['This groups id is forbidden!']],
+                    ])->response()->setStatusCode(403);
+                }
+                if (
+                    $authGroup->type === 'admin_reading_station_branch' &&
+                    (
+                        !$authUser->reading_station_id ||
+                        (
+                            $authUser->reading_station_id &&
+                            $authUser->reading_station_id !== $request->reading_station_id
+                        )
+                    )
+                ) {
+                    return (new UserResource(null))->additional([
+                        'errors' => ['user' => ['This groups id is forbidden!']],
+                    ])->response()->setStatusCode(403);
+                }
+                break;
+            case 'user':
                 if (!in_array($authGroup->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
                     return (new UserResource(null))->additional([
                         'errors' => ['user' => ['This groups id is forbidden!']],
