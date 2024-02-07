@@ -27,7 +27,7 @@ class ReadingStationIndexUserAbsentVerifyRequest extends FormRequest
     public function rules()
     {
         return [
-            'reading_station_slut_user_id' => 'required|exists:reading_station_slut_users,id',
+            'reading_station_slut_user_ids' => 'requierd|string', // 'required|exists:reading_station_slut_users,id',
             'absense_approved_status' => 'required|in:not_approved,semi_approved,approved',
             'absense_file' => [
                 'nullable',

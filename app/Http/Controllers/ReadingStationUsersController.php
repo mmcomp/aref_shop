@@ -319,7 +319,7 @@ class ReadingStationUsersController extends Controller
         }
         if ($deleted) {
             $userSlut->delete();
-        } else if(count($warnings) > 0) {
+        } else if (count($warnings) > 0) {
             $query = [];
             foreach ($warnings as $warning) {
                 $query[] = [
@@ -830,6 +830,19 @@ class ReadingStationUsersController extends Controller
 
     public function verfyAbsent(ReadingStationIndexUserAbsentVerifyRequest $request, ReadingStation $readingStation)
     {
+        $readingStationSlutUserIds = explode(',', $request->reading_station_slut_user_ids);
+        foreach ($readingStationSlutUserIds as $readingStationSlutUserId) {
+            if (!is_numeric($readingStationSlutUserId)) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station slut user is not valid!', $readingStationSlutUserId]],
+                ])->response()->setStatusCode(400);
+            }
+            if (!ReadingStationSlutUser::find($readingStationSlutUserId)) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station slut user is not found!', $readingStationSlutUserId]],
+                ])->response()->setStatusCode(400);
+            }
+        }
         $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
@@ -840,51 +853,45 @@ class ReadingStationUsersController extends Controller
             }
         }
 
-        $slutUser = ReadingStationSlutUser::where('id', $request->reading_station_slut_user_id)
-            ->whereHas('slut', function ($q) use ($readingStation) {
-                $q->where('reading_station_id', $readingStation->id);
-            })->first();
-        if (!$slutUser) {
-            return (new ReadingStationUsersResource(null))->additional([
-                'errors' => ['reading_station_user' => ['Reading station slut user not found!']],
-            ])->response()->setStatusCode(404);
-        }
-        $absense_file = null;
-        $file = $request->file('absense_file');
-        if ($file) {
-            $fileName = $file->hashName();
-            $absense_file = env('FTP_PATH') . '/' . $fileName . '/' . $fileName;
-            if (!$file->store(env('FTP_PATH') . '/' . $fileName, 'ftp')) {
-                return (new ReadingStationUsersResource(null))->additional([
-                    'errors' => ['reading_station_user' => ['Attachment Store Error!']],
-                ])->response()->setStatusCode(500);
+        foreach ($readingStationSlutUserIds as $readingStationSlutUserId) {
+            $slutUser = !ReadingStationSlutUser::find($readingStationSlutUserId);
+            $absense_file = null;
+            $file = $request->file('absense_file');
+            if ($file) {
+                $fileName = $file->hashName();
+                $absense_file = env('FTP_PATH') . '/' . $fileName . '/' . $fileName;
+                if (!$file->store(env('FTP_PATH') . '/' . $fileName, 'ftp')) {
+                    return (new ReadingStationUsersResource(null))->additional([
+                        'errors' => ['reading_station_user' => ['Attachment Store Error!']],
+                    ])->response()->setStatusCode(500);
+                }
             }
-        }
-        $slutUser->absense_approved_status = $request->absense_approved_status;
-        $slutUser->absense_file = $absense_file;
-        $slutUser->user_id = Auth::user()->id;
-        $slutUser->save();
+            $slutUser->absense_approved_status = $request->absense_approved_status;
+            $slutUser->absense_file = $absense_file;
+            $slutUser->user_id = Auth::user()->id;
+            $slutUser->save();
 
-        $strikeFixed = 0;
-        $weeklyProgram = $slutUser->weeklyProgram;
-        $readingStationUser = $weeklyProgram->readingStationUser;
-        switch ($request->absense_approved_status) {
-            case 'semi_approved':
-                $strikeFixed = 1;
-                $weeklyProgram->semi_approved_absent_day++;
-                break;
+            $strikeFixed = 0;
+            $weeklyProgram = $slutUser->weeklyProgram;
+            $readingStationUser = $weeklyProgram->readingStationUser;
+            switch ($request->absense_approved_status) {
+                case 'semi_approved':
+                    $strikeFixed = 1;
+                    $weeklyProgram->semi_approved_absent_day++;
+                    break;
 
-            case 'approved':
-                $strikeFixed = 2;
-                $weeklyProgram->approved_absent_day++;
-                break;
-        }
-        if ($strikeFixed > 0) {
-            $weeklyProgram->strikes_done -= $strikeFixed;
-            $weeklyProgram->save();
+                case 'approved':
+                    $strikeFixed = 2;
+                    $weeklyProgram->approved_absent_day++;
+                    break;
+            }
+            if ($strikeFixed > 0) {
+                $weeklyProgram->strikes_done -= $strikeFixed;
+                $weeklyProgram->save();
 
-            $readingStationUser->total += $strikeFixed;
-            $readingStationUser->save();
+                $readingStationUser->total += $strikeFixed;
+                $readingStationUser->save();
+            }
         }
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
