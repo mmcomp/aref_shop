@@ -157,7 +157,7 @@ class UserController extends Controller
                     )
                 ) {
                     return (new UserResource(null))->additional([
-                        'errors' => ['user' => ['This groups id is forbidden!']],
+                        'errors' => ['user' => ['This does not bellong to your reading station!']],
                     ])->response()->setStatusCode(403);
                 }
                 break;
