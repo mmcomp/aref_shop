@@ -854,7 +854,7 @@ class ReadingStationUsersController extends Controller
         }
 
         foreach ($readingStationSlutUserIds as $readingStationSlutUserId) {
-            $slutUser = !ReadingStationSlutUser::find($readingStationSlutUserId);
+            $slutUser = ReadingStationSlutUser::find($readingStationSlutUserId);
             $absense_file = null;
             $file = $request->file('absense_file');
             if ($file) {
