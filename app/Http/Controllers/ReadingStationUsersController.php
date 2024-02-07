@@ -767,8 +767,8 @@ class ReadingStationUsersController extends Controller
             $q->where('reading_station_id', $readingStation->id);
         })
             ->where('status', 'absent')
-            ->where('is_required', 1)
-            ->where('absense_approved_status', 'not_approved');
+            ->where('is_required', 1);
+            // ->where('absense_approved_status', 'not_approved');
         if ($request->exists('table_number')) {
             if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
                 return (new ReadingStationUsersResource(null))->additional([
