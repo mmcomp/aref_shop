@@ -38,7 +38,7 @@ class ReadingStationNeededCallsResource extends JsonResource
             //     return 0;
             // });
 
-            foreach ($resource as $userSlut) {
+            foreach ($this->resource as $userSlut) {
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
