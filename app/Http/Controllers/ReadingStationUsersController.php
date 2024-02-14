@@ -706,18 +706,18 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        if ($request->exists('exit_way') || $request->exists('exited')) {
-            $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
-            $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
-            ReadingStationCall::insert([[
-                "reading_station_absent_present_id" => $readingStationAbsentPresent->id,
-                "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
-                "reason" => "exit",
-                "caller_user_id" => Auth::user()->id,
-                "created_at" => $now,
-                "updated_at" => $now,
-            ]]);
-        }
+        // if ($request->exists('exit_way') || $request->exists('exited')) {
+        //     $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
+        //     $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
+        //     ReadingStationCall::insert([[
+        //         "reading_station_absent_present_id" => $readingStationAbsentPresent->id,
+        //         "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
+        //         "reason" => "exit",
+        //         "caller_user_id" => Auth::user()->id,
+        //         "created_at" => $now,
+        //         "updated_at" => $now,
+        //     ]]);
+        // }
         if ($request->exists('exited') && !$readingStationAbsentPresent->exit_way) {
             $readingStationAbsentPresent->exit_way = $readingStationAbsentPresent->possible_exit_way;
         }
