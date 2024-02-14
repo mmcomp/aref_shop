@@ -498,6 +498,15 @@ Route::group([
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
 });
+
+
+Route::group([
+    'middleware' => ['auth:api','can:product'],
+    'prefix' => 'sessions',
+], function ($router) {
+    Route::get('/free', [VideoSessionsController::class, 'allFreeSessions']);
+});
+
 Route::get('/publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
