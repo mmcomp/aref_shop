@@ -40,6 +40,7 @@ use App\Http\Controllers\ReadingStationSlutsController;
 use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
+use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -504,7 +505,7 @@ Route::group([
     'middleware' => ['auth:api','can:product'],
     'prefix' => 'sessions',
 ], function ($router) {
-    Route::get('/free', [VideoSessionsController::class, 'allFreeSessions']);
+    Route::get('/free', [UserVideoSessionsController::class, 'allFreeSessions']);
 });
 
 Route::get('/publish', function () {
