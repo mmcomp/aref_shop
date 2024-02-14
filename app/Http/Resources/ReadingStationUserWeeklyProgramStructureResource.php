@@ -43,6 +43,8 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
                 'endOfThisWeek' => $endOfThisWeek,
                 'startOfNextWeek' => $startOfNextWeek,
                 'endOfNextWeek' => $endOfNextWeek,
+                'first_name' => $this->readingStationUser->user->first_name,
+                'last_name' => $this->readingStationUser->user->last_name,
             ];
         }
     }
