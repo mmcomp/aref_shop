@@ -44,6 +44,7 @@ class ProductDetailVideosEditRequest extends FormRequest
             'extraordinary' => 'in:0,1',
             'single_purchase' => 'in:0,1' ,
             'is_hidden' => 'in:0,1',
+            'free_hidden' => 'in:0,1',
             'free_conference_description'=> 'nullable|string',
             'free_conference_start_mode'=>'in:playPage,productPage'
         ];

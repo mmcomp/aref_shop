@@ -53,7 +53,7 @@ class VideoSessionsController extends Controller
                 $q->where('is_deleted', false);
             });
         if (!$showAll)
-            $free_sessions->where('is_hidden', 0);
+            $free_sessions->where('free_hidden', 0);
         $free_sessions = $free_sessions->get();
         for ($i = 0; $i < count($free_sessions); $i++) {
             $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
