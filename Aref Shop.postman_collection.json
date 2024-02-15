@@ -2508,6 +2508,46 @@
 							"response": []
 						},
 						{
+							"name": "Hide Product Detail Video",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/product-detail-videos/1/hide-in-free",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"product-detail-videos",
+										"1",
+										"hide-in-free"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show Product Detail Video",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/product-detail-videos/1/show-in-free",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"product-detail-videos",
+										"1",
+										"show-in-free"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "AssignVideoToProduct",
 							"request": {
 								"method": "POST",
@@ -6930,6 +6970,30 @@
 										"api",
 										"reading-station-strikes",
 										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "VideoSessions",
+					"item": [
+						{
+							"name": "free-sessions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/sessions/free",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"sessions",
+										"free"
 									]
 								}
 							},

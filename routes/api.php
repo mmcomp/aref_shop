@@ -342,6 +342,8 @@ Route::group([
     Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
     Route::post('/assign-video-to-a-product', [ProductDetailVideosController::class, 'assignVideoToProduct']);
     Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
+    Route::patch('/{productDetailVideo}/hide-in-free', [ProductDetailVideosController::class, 'hideFree']);
+    Route::patch('/{productDetailVideo}/show-in-free', [ProductDetailVideosController::class, 'showFree']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:province'],
