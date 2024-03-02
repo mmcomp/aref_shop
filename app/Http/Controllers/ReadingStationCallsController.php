@@ -50,7 +50,7 @@ class ReadingStationCallsController extends Controller
             ->where('status', '!=', 'defined')
             ->get();
 
-        return (new ReadingStationNeededCallsResource($todaySluts))->additional([
+        return (new ReadingStationNeededCallsResource($todaySluts, $request->type))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
