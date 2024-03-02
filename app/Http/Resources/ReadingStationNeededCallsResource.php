@@ -137,7 +137,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     if ($type === "absent" && $absent === null) continue;
                     if ($type === "delay" && $delay === null) continue;
                     if ($type === "exit" && $exit === null) continue;
-                    if ($type === "optional_enter" && $optional_enter === null) continue;
+                    if ($type === "optional_enter" && $optional_enter !== true) continue;
                 }
                 $data[] = [
                     "slut" => [
