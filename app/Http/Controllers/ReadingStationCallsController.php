@@ -7,6 +7,7 @@ use App\Models\ReadingStation;
 use App\Models\User;
 use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationCallCreateRequest;
+use App\Http\Requests\ReadingStationCallIndexRequest;
 use App\Http\Requests\ReadingStationExitSlutUpdateRequest;
 use App\Http\Resources\ReadingStationAllCallsResource;
 use App\Http\Resources\ReadingStationNeededCallsResource;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Auth;
 class ReadingStationCallsController extends Controller
 {
 
-    function index(ReadingStation $readingStation)
+    function index(ReadingStationCallIndexRequest $request, ReadingStation $readingStation)
     {
         if (!$this->checkUserWithReadingStationAuth($readingStation)) {
             return (new ReadingStationResource(null))->additional([

@@ -9,6 +9,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReadingStationNeededCallsResource extends JsonResource
 {
+    protected $type;
+    public function __construct($resource, $type = "all")
+    {
+        parent::__construct($resource);
+        $this->type = $type;
+    }
 
     /**
      * Transform the resource into an array.
@@ -23,6 +29,7 @@ class ReadingStationNeededCallsResource extends JsonResource
 
     public function processSlutUser(bool $filter = false)
     {
+        $type = $this->type;
         if ($this->resource != null) {
             $all = 0;
             $optional_enters = 0;
@@ -126,6 +133,12 @@ class ReadingStationNeededCallsResource extends JsonResource
 
                 if ($exitCallSituation && $noneExitCallSituation && $filter) continue;
                 $all++;
+                if ($type !== "all") {
+                    if ($type === "absent" && $absent === null) continue;
+                    if ($type === "delay" && $delay === null) continue;
+                    if ($type === "exit" && $exit === null) continue;
+                    if ($type === "optional_enter" && $optional_enter === null) continue;
+                }
                 $data[] = [
                     "slut" => [
                         "id" => $userSlut->slut->id,
