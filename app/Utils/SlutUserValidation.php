@@ -20,40 +20,40 @@ class SlutUserValidation
     private $firstSlutUser;
     function __construct(private ReadingStationWeeklyProgram $weeklyProgram, private ReadingStationSlut $slut, private User $user, private string $status, string $day = null)
     {
-        $this->day = $day ?? Carbon::now()->toDateString();
-        $this->userSluts = ReadingStationSlutUser::where('reading_station_weekly_program_id', $this->weeklyProgram->id)
-            ->where('day', $this->day)
-            ->where('is_required', 1)
-            ->withAggregate('slut', 'start')
-            ->orderBy('slut_start')
-            ->get();
-        $this->absentPresent = ReadingStationAbsentPresent::where('reading_station_id', $slut->reading_station_id)
-            ->where('user_id', $user->id)
-            ->where('day', $this->day)
-            ->where('is_processed', 0)
-            ->first();
-        $this->lastAbsentPresent = ReadingStationAbsentPresent::where('reading_station_id', $slut->reading_station_id)
-            ->where('user_id', $user->id)
-            ->where('day', $this->day)
-            ->where('is_processed', 1)
-            ->orderBy('updated_at', 'desc')
-            ->first();
-        if ($this->lastAbsentPresent && $this->lastAbsentPresent->reading_station_slut_user_exit_id) {
-            $this->lastExitSlut = $this->lastAbsentPresent->slutUserExit;
-        }
-        $this->firstSlutUser = $this->userSluts[0];
-        if ($this->lastExitSlut) {
-            $this->firstSlutUser = $this->userSluts;
-            $this->firstSlutUser = $this->firstSlutUser->where('slut_start', '>', $this->lastExitSlut->start)->first();
-        }
+        // $this->day = $day ?? Carbon::now()->toDateString();
+        // $this->userSluts = ReadingStationSlutUser::where('reading_station_weekly_program_id', $this->weeklyProgram->id)
+        //     ->where('day', $this->day)
+        //     ->where('is_required', 1)
+        //     ->withAggregate('slut', 'start')
+        //     ->orderBy('slut_start')
+        //     ->get();
+        // $this->absentPresent = ReadingStationAbsentPresent::where('reading_station_id', $slut->reading_station_id)
+        //     ->where('user_id', $user->id)
+        //     ->where('day', $this->day)
+        //     ->where('is_processed', 0)
+        //     ->first();
+        // $this->lastAbsentPresent = ReadingStationAbsentPresent::where('reading_station_id', $slut->reading_station_id)
+        //     ->where('user_id', $user->id)
+        //     ->where('day', $this->day)
+        //     ->where('is_processed', 1)
+        //     ->orderBy('updated_at', 'desc')
+        //     ->first();
+        // if ($this->lastAbsentPresent && $this->lastAbsentPresent->reading_station_slut_user_exit_id) {
+        //     $this->lastExitSlut = $this->lastAbsentPresent->slutUserExit;
+        // }
+        // $this->firstSlutUser = $this->userSluts[0];
+        // if ($this->lastExitSlut) {
+        //     $this->firstSlutUser = $this->userSluts;
+        //     $this->firstSlutUser = $this->firstSlutUser->where('slut_start', '>', $this->lastExitSlut->start)->first();
+        // }
     }
 
     public function start(): array
     {
         $warnings = [];
-        if ($this->isSlutPassed()) {
-            $warnings[] = 'User exited after this slut!';
-        }
+        // if ($this->isSlutPassed()) {
+        //     $warnings[] = 'User exited after this slut!';
+        // }
 
         switch ($this->status) {
             case 'absent':
@@ -81,31 +81,31 @@ class SlutUserValidation
         return $warnings;
     }
 
-    public function previousSlutsAreAbsent(): bool
-    {
-        $previousSlutUser = ReadingStationSlutUser::where('reading_station_weekly_program_id', $this->weeklyProgram->id)
-            ->where('day', $this->day)
-            ->withAggregate('slut', 'start')
-            ->get();
-        $previousSlutUser
-            ->where('slut_start', '<', $this->slut->start)
-            ->where('status', '!=', 'absent');
-        if ($this->lastExitSlut) {
-            $previousSlutUser
-                ->where('slut_start', '>', $this->lastExitSlut->start);
-        }
-        $previousSlutUser = $previousSlutUser->sortByDesc('slut_user')->first();
+    // public function previousSlutsAreAbsent(): bool
+    // {
+    //     $previousSlutUser = ReadingStationSlutUser::where('reading_station_weekly_program_id', $this->weeklyProgram->id)
+    //         ->where('day', $this->day)
+    //         ->withAggregate('slut', 'start')
+    //         ->get();
+    //     $previousSlutUser
+    //         ->where('slut_start', '<', $this->slut->start)
+    //         ->where('status', '!=', 'absent');
+    //     if ($this->lastExitSlut) {
+    //         $previousSlutUser
+    //             ->where('slut_start', '>', $this->lastExitSlut->start);
+    //     }
+    //     $previousSlutUser = $previousSlutUser->sortByDesc('slut_user')->first();
 
-        return $previousSlutUser === null;
-    }
+    //     return $previousSlutUser === null;
+    // }
 
-    public function isSlutPassed(): bool
-    {
-        return $this->firstSlutUser->start > $this->slut->start;
-    }
+    // public function isSlutPassed(): bool
+    // {
+    //     return $this->firstSlutUser->start > $this->slut->start;
+    // }
 
-    public function isTheFirstSlut(): bool
-    {
-        return $this->firstSlutUser->reading_station_slut_id === $this->slut->id;
-    }
+    // public function isTheFirstSlut(): bool
+    // {
+    //     return $this->firstSlutUser->reading_station_slut_id === $this->slut->id;
+    // }
 }
