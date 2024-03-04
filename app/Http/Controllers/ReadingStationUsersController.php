@@ -668,8 +668,8 @@ class ReadingStationUsersController extends Controller
 
         $absentPresents = ReadingStationAbsentPresent::where('reading_station_id', $readingStation->id)
             ->where('day', Carbon::now()->toDateString())
-            ->where('reading_station_slut_user_exit_id', '!=', null)
-            ->where('is_processed', 0);
+            ->where('reading_station_slut_user_exit_id', '!=', null);
+            // ->where('is_processed', 0);
         if ($request->reading_station_slut_user_exit_id) {
             $absentPresents->where('reading_station_slut_user_exit_id', $request->reading_station_slut_user_exit_id);
         }
