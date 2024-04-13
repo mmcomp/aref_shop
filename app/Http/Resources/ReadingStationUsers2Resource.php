@@ -21,10 +21,10 @@ class ReadingStationUsers2Resource extends JsonResource
             return [
                 'id' => $this->id,
                 'table_number' => $this->table_number,
-                'user'=> new UserSmallResource($this->user),
-                // 'package' => new ReadingStationPackagesResource($this->package),
+                'user'=> new UserResource($this->user),
+                'package' => new ReadingStationPackagesResource($this->package),
                 'total' => $this->total,
-                // 'weeklyPrograms' => new ReadingStationWeeklyPrograms2Collection($this->weeklyPrograms),
+                'weeklyPrograms' => new ReadingStationWeeklyPrograms2Collection($this->weeklyPrograms),
             ];
         }
     }
