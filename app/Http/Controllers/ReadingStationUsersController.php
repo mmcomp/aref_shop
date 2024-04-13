@@ -88,7 +88,6 @@ class ReadingStationUsersController extends Controller
 
     public function oneIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
     {
-        DB::enableQueryLog();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationUsersResource(null))->additional([
@@ -133,10 +132,7 @@ class ReadingStationUsersController extends Controller
         $result =  (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
-        DB::disableQueryLog();
 
-        dump(DB::getQueryLog());
-        dd($result);
         return $result;
     }
 
