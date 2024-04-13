@@ -129,11 +129,9 @@ class ReadingStationUsersController extends Controller
             }
             $paginatedReadingStationOffdays = $paginatedReadingStationOffdays->orderBy($sort, $sortDir)->paginate($perPage);
         }
-        $result =  (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
+        return (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
-
-        return $result;
     }
 
     public function oneSlutIndex(ReadingStation $readingStation, ReadingStationSlut $slut)
@@ -672,7 +670,7 @@ class ReadingStationUsersController extends Controller
         $absentPresents = ReadingStationAbsentPresent::where('reading_station_id', $readingStation->id)
             ->where('day', Carbon::now()->toDateString())
             ->where('reading_station_slut_user_exit_id', '!=', null);
-            // ->where('is_processed', 0);
+        // ->where('is_processed', 0);
         if ($request->reading_station_slut_user_exit_id) {
             $absentPresents->where('reading_station_slut_user_exit_id', $request->reading_station_slut_user_exit_id);
         }
@@ -771,7 +769,7 @@ class ReadingStationUsersController extends Controller
         })
             ->where('status', 'absent')
             ->where('is_required', 1);
-            // ->where('absense_approved_status', 'not_approved');
+        // ->where('absense_approved_status', 'not_approved');
         if ($request->exists('table_number')) {
             if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
                 return (new ReadingStationUsersResource(null))->additional([
@@ -823,7 +821,7 @@ class ReadingStationUsersController extends Controller
             ->where('day', $request->day)
             ->where('status', 'absent')
             ->where('is_required', 1);
-            // ->where('absense_approved_status', 'not_approved');
+        // ->where('absense_approved_status', 'not_approved');
 
 
         return (new ReadingStationUserAbsentTablesCollection($slutUsers->get()))->additional([

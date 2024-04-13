@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class ReadingStationUsers2Collection extends ResourceCollection
@@ -14,6 +15,16 @@ class ReadingStationUsers2Collection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return $this->collection;
+        $collection =  $this->collection;
+        // $today = Carbon::now()->toDateString();
+
+        foreach ($collection as $indx => $row) {
+            $weeklyPrograms = $row->weeklyPrograms;
+            if (isset($weeklyPrograms[0]) && Carbon::parse($weeklyPrograms[0]->start)->gt(Carbon::now())) {
+                $collection[$indx]->weeklyPrograms = [null, $weeklyPrograms[0]];
+            }
+        }
+
+        return $collection;
     }
 }
