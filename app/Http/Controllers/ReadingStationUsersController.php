@@ -133,6 +133,7 @@ class ReadingStationUsersController extends Controller
         $result =  (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+        DB::disableQueryLog();
 
         dd(DB::getQueryLog());
         return $result;
