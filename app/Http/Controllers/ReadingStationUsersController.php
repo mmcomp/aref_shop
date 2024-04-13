@@ -135,7 +135,8 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(201);
         DB::disableQueryLog();
 
-        dd(DB::getQueryLog());
+        dump(DB::getQueryLog());
+        dd($result);
         return $result;
     }
 
