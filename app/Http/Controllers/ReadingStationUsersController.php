@@ -43,6 +43,7 @@ use App\Models\ReadingStationCall;
 use App\Models\ReadingStationSlutChangeWarning;
 use App\Utils\SlutUserValidation;
 use Illuminate\Support\Facades\Storage;
+use Log;
 
 class ReadingStationUsersController extends Controller
 {
@@ -87,6 +88,7 @@ class ReadingStationUsersController extends Controller
 
     public function oneIndex(ReadingStationUsersIndexRequest $request, ReadingStation $readingStation)
     {
+        DB::enableQueryLog();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationUsersResource(null))->additional([
@@ -128,9 +130,12 @@ class ReadingStationUsersController extends Controller
             }
             $paginatedReadingStationOffdays = $paginatedReadingStationOffdays->orderBy($sort, $sortDir)->paginate($perPage);
         }
-        return (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
+        $result =  (new ReadingStationUsers2Collection($paginatedReadingStationOffdays))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
+
+        dd(DB::getQueryLog());
+        return $result;
     }
 
     public function oneSlutIndex(ReadingStation $readingStation, ReadingStationSlut $slut)
