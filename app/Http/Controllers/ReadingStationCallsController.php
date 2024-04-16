@@ -33,23 +33,55 @@ class ReadingStationCallsController extends Controller
         $today = Carbon::now()->toDateString();
         $now = Carbon::now()->format("H:i:s");
         $weeklyPrograms = [];
-        $availableSluts = $readingStation->sluts
+        $availableSluts = ReadingStationSlut::select('id')->where('reading_station_id', $readingStation->id)
             ->where('start', '<=', $now)
+            ->get()
             ->map(function ($slut) {
                 return $slut->id;
             })
             ->toArray();
-        $readingStation->users->map(function ($user) use (&$weeklyPrograms) {
-            return $user->weeklyPrograms->map(function ($weeklyProgram) use (&$weeklyPrograms) {
-                $weeklyPrograms[] = $weeklyProgram->id;
+
+        // dd($availableSluts);
+        $weeklyPrograms = ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($query) use ($readingStation) {
+            $query->where('reading_station_id', $readingStation->id);
+        })->get()
+            ->map(function ($slut) {
+                return $slut->id;
+            })
+            ->toArray();
+
+        // $availableSluts = $readingStation->sluts
+        //     ->where('start', '<=', $now)
+        //     ->map(function ($slut) {
+        //         return $slut->id;
+        //     })
+        //     ->toArray();
+        // $readingStation->users->map(function ($user) use (&$weeklyPrograms) {
+        //     return $user->weeklyPrograms->map(function ($weeklyProgram) use (&$weeklyPrograms) {
+        //         $weeklyPrograms[] = $weeklyProgram->id;
+        //     });
+        // })->toArray();
+        $absentPresents = ReadingStationAbsentPresent::whereHas('user', function ($q1) use ($weeklyPrograms) {
+            $q1->whereHas('readingStationUser', function ($q2) use ($weeklyPrograms) {
+                $q2->whereHas('allWeeklyPrograms', function ($q3) use ($weeklyPrograms) {
+                    $q3->whereIn('id', $weeklyPrograms);
+                });
             });
-        })->toArray();
+        })->with(['user', 'calls'])->get();
+        // return $absentPresents;
         $todaySluts = ReadingStationSlutUser::whereIn('reading_station_weekly_program_id', $weeklyPrograms)
+            ->with('weeklyProgram.readingStationUser.user')
+            // ->with('absentPresent.calls')
+            ->with('slut')
             ->where('day', $today)
             ->whereIn('reading_station_slut_id', $availableSluts)
             ->where('status', '!=', 'defined')
             ->get();
-
+        foreach($todaySluts as $indx => $todaySlut) {
+            $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
+            $todaySluts[$indx]->absentPresent = $absentPresent;
+        }
+        // return $todaySluts;
         return (new ReadingStationNeededCallsResource($todaySluts, $request->type))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
