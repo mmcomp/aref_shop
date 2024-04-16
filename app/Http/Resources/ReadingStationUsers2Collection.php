@@ -16,7 +16,6 @@ class ReadingStationUsers2Collection extends ResourceCollection
     public function toArray($request)
     {
         $collection =  $this->collection;
-        // $today = Carbon::now()->toDateString();
 
         foreach ($collection as $indx => $row) {
             $weeklyPrograms = $row->weeklyPrograms;

@@ -97,7 +97,13 @@ class ReadingStationUsersController extends Controller
         }
         $sort = "id";
         $sortDir = "desc";
-        $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
+        $paginatedReadingStationOffdays = ReadingStationUser::/*select(['id', 'table_number', 'total', 'user_id', 'default_package_id'])->with(['user' => function ($query) {
+            $query->select('id', 'first_name', 'last_name');
+        }])*/
+        with('user')
+        ->with('package')
+        ->with('weeklyPrograms.sluts')
+        ->where("reading_station_id", $readingStation->id);
         $userGroup = Group::where('type', 'user')->first();
         if ($request->get('name') || $request->get('phone')) {
             $paginatedReadingStationOffdays
