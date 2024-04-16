@@ -61,13 +61,13 @@ class ReadingStationCallsController extends Controller
         //         $weeklyPrograms[] = $weeklyProgram->id;
         //     });
         // })->toArray();
-        $absentPresents = ReadingStationAbsentPresent::whereHas('user', function ($q1) use ($weeklyPrograms) {
-            $q1->whereHas('readingStationUser', function ($q2) use ($weeklyPrograms) {
-                $q2->whereHas('allWeeklyPrograms', function ($q3) use ($weeklyPrograms) {
-                    $q3->whereIn('id', $weeklyPrograms);
-                });
-            });
-        })->with(['user', 'calls'])->get();
+        // $absentPresents = ReadingStationAbsentPresent::whereHas('user', function ($q1) use ($weeklyPrograms) {
+        //     $q1->whereHas('readingStationUser', function ($q2) use ($weeklyPrograms) {
+        //         $q2->whereHas('allWeeklyPrograms', function ($q3) use ($weeklyPrograms) {
+        //             $q3->whereIn('id', $weeklyPrograms);
+        //         });
+        //     });
+        // })->with(['user', 'calls'])->get();
         // return $absentPresents;
         $todaySluts = ReadingStationSlutUser::whereIn('reading_station_weekly_program_id', $weeklyPrograms)
             ->with('weeklyProgram.readingStationUser.user')
@@ -77,10 +77,10 @@ class ReadingStationCallsController extends Controller
             ->whereIn('reading_station_slut_id', $availableSluts)
             ->where('status', '!=', 'defined')
             ->get();
-        foreach($todaySluts as $indx => $todaySlut) {
-            $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
-            $todaySluts[$indx]->absentPresent = $absentPresent;
-        }
+        // foreach($todaySluts as $indx => $todaySlut) {
+        //     $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
+        //     $todaySluts[$indx]->absentPresent = $absentPresent;
+        // }
         // return $todaySluts;
         return (new ReadingStationNeededCallsResource($todaySluts, $request->type))->additional([
             'errors' => null,
