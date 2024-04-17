@@ -112,8 +112,8 @@ class ReadingStationNeededCallsResource extends JsonResource
                         ];
                         if (!$last_call_status) {
                             $absents++;
+                            $noneExitCallSituation = false;
                         }
-                        $noneExitCallSituation = false;
                         break;
                     case 'late_15':
                     case 'late_30':
@@ -123,8 +123,8 @@ class ReadingStationNeededCallsResource extends JsonResource
                         $delay = $userSlut->status;
                         if (!$last_call_status) {
                             $delays++;
+                            $noneExitCallSituation = false;
                         }
-                        $noneExitCallSituation = false;
                         break;
                 }
                 if ($last_call_status === true) {
@@ -135,7 +135,9 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $all++;
                 if ($type !== "all") {
                     if ($type === "absent" && $absent === null) continue;
+                    if ($type === "absent" && $last_call_status) continue;
                     if ($type === "delay" && $delay === null) continue;
+                    if ($type === "delay" && $last_call_status) continue;
                     if ($type === "exit" && $exit === null) continue;
                     if ($type === "optional_enter" && $optional_enter !== true) continue;
                 }
