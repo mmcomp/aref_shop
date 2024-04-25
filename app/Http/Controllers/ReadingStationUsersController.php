@@ -99,11 +99,10 @@ class ReadingStationUsersController extends Controller
         $sortDir = "desc";
         $paginatedReadingStationOffdays = ReadingStationUser::/*select(['id', 'table_number', 'total', 'user_id', 'default_package_id'])->with(['user' => function ($query) {
             $query->select('id', 'first_name', 'last_name');
-        }])*/
-        with('user')
-        ->with('package')
-        ->with('weeklyPrograms.sluts')
-        ->where("reading_station_id", $readingStation->id);
+        }])*/with('user')
+            ->with('package')
+            ->with('weeklyPrograms.sluts')
+            ->where("reading_station_id", $readingStation->id);
         $userGroup = Group::where('type', 'user')->first();
         if ($request->get('name') || $request->get('phone')) {
             $paginatedReadingStationOffdays
@@ -157,7 +156,11 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $beforeSluts = $readingStation->sluts->where('id', '!=', $slut->id)->where('start', '<', $slut->start)->pluck('id');
+        $beforeSluts = ReadingStationSlut::where('reading_station_id', $readingStation->id)
+            ->where('id', '!=', $slut->id)
+            ->where('start', '<', $slut->start)
+            ->pluck('id');
+        // $beforeSluts = $readingStation->sluts->where('id', '!=', $slut->id)->where('start', '<', $slut->start)->pluck('id');
         if (
             count($beforeSluts) > 0 &&
             ReadingStationSlutUser::whereIn('reading_station_slut_id', $beforeSluts)
@@ -171,7 +174,24 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $slutUsers = $readingStation->users->sortBy('table_number');
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+        $slutUsers = ReadingStationUser::where('reading_station_id', $readingStation->id)
+            ->whereHas('weeklyPrograms', function ($query) use ($end) {
+                $query->whereDate('end', $end);
+            })
+            ->whereHas('user', function ($query) use ($start, $end) {
+                $query->whereHas('absentPresents', function ($q) use ($start, $end) {
+                    $q->whereDate('day', '>=', $start)
+                        ->whereDate('day', '<=', $end);
+                });
+            })
+            ->with('weeklyPrograms.sluts')
+            ->with('user.absentPresents')
+            ->orderBy('table_number')
+            ->get();
+        // $slutUsers = $readingStation->users->sortBy('table_number');
+        // return  $slutUsers;
         return (new ReadingStationUserSlutsResource($slutUsers, $slut))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
