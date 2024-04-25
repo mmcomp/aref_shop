@@ -176,17 +176,23 @@ class ReadingStationUsersController extends Controller
 
         $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+        $now = Carbon::now()->toDateString();
         $slutUsers = ReadingStationUser::where('reading_station_id', $readingStation->id)
-            ->whereHas('weeklyPrograms', function ($query) use ($end) {
-                $query->whereDate('end', $end);
-            })
-            ->whereHas('user', function ($query) use ($start, $end) {
-                $query->whereHas('absentPresents', function ($q) use ($start, $end) {
-                    $q->whereDate('day', '>=', $start)
-                        ->whereDate('day', '<=', $end);
-                });
-            })
-            ->with('weeklyPrograms.sluts')
+            // ->whereHas('weeklyPrograms', function ($query) use ($end) {
+            //     $query->whereDate('end', $end);
+            // })
+            // ->whereHas('user', function ($query) use ($start, $end) {
+            //     $query->whereHas('absentPresents', function ($q) use ($start, $end) {
+            //         $q->whereDate('day', '>=', $start)
+            //             ->whereDate('day', '<=', $end);
+            //     });
+            // })s
+            ->with(['weeklyPrograms' => function ($q) use ($slut, $now) {
+                $q->with(['sluts' => function ($q1) use ($slut, $now) {
+                    $q1->where('reading_station_slut_id', $slut->id)
+                        ->whereDate('day', $now);
+                }]);
+            }])
             ->with('user.absentPresents')
             ->orderBy('table_number')
             ->get();
