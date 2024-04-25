@@ -24,7 +24,7 @@ class ReadingStationUserSlutResource extends JsonResource
                 'day' => $this->day,
                 'is_required' => $this->is_required,
                 'status' => $this->status,
-                // 'absentPresent' => new ReadingStationAbsentPresentResource( $this->absentPresent),
+                'absentPresent' => new ReadingStationAbsentPresentResource( $this->absentPresent),
                 // 'warnings' => new ReadingStationSlutChangeWarningCollection($this->unReadWarnings),
             ];
         }
