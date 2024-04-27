@@ -23,8 +23,11 @@ class ReadingStationSlutUserAvailableWeeklyProgramResource extends JsonResource
             if ($done < $toDo) {
                 $point = -2;
             } else {
-                $step = $this->readingStationUser->package->step ?? 10;
-                $point = ($done - ($done % $step)) * 2 / $step;
+                $step = ($this->readingStationUser->package->step ?? 10) * 60;
+                $extra = $done - $toDo;
+                if ($extra > 0) {
+                    $point = ceil(($extra % $step) * 2 / $step);
+                }
             }
             return [
                 'id' => $this->id,
