@@ -448,18 +448,18 @@ class ReadingStationSlutUsersController extends Controller
         });
         $all = $weeklyPrograms->get();
         $total = 0;
-        $all->map(function ($weeklyProgram) use (&$total) {
-            $point = 0;
-            $toDo = $weeklyProgram->readingStationUser->package->required_time + $weeklyProgram->readingStationUser->package->optional_time;
-            $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
-            if ($done < $toDo) {
-                $point = -2;
-            } else {
-                $step = $weeklyProgram->readingStationUser->package->step ?? 10;
-                $point = ($done - ($done % $step)) * 2 / $step;
-            }
-            $total += $point;
-        });
+        // $all->map(function ($weeklyProgram) use (&$total) {
+        //     $point = 0;
+        //     $toDo = $weeklyProgram->readingStationUser->package->required_time + $weeklyProgram->readingStationUser->package->optional_time;
+        //     $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
+        //     if ($done < $toDo) {
+        //         $point = -2;
+        //     } else {
+        //         $step = $weeklyProgram->readingStationUser->package->step ?? 10;
+        //         $point = ($done - ($done % $step)) * 2 / $step;
+        //     }
+        //     $total += $point;
+        // });
 
         $sort = "end";
         $sortDir = "desc";
