@@ -54,18 +54,18 @@ class CheckAllWeeklyPrograms extends Command
             // no absent score
             if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0) {
                 $score += 3;
+                echo "no absent +3 score = $score\n";
                 $weeklyProgram->being_point += 3;
             }
-            echo "no absent score = $score\n";
 
             // package grade score
             if ($package->grade && $user->grade) {
                 if ($package->grade > $user->grade) {
                     $score += ($package->grade - $user->grade) * 3;
                     $weeklyProgram->being_point += ($package->grade - $user->grade) * 3;
+                    echo "package grade " . (($package->grade - $user->grade) * 3) . " score = $score\n";
                 }
             }
-            echo "package grade score = $score\n";
 
             $weeklyProgram->point += $score;
             $weeklyProgram->save();
