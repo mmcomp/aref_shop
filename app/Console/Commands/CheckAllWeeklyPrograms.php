@@ -30,6 +30,8 @@ class CheckAllWeeklyPrograms extends Command
         $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
+            if (count($weeklyProgram->sluts) === 0) continue;
+            if ($weeklyProgram->sluts->where('status', 'defined')->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
             if ($readingStationUser->id !== 11) {
                 continue;
