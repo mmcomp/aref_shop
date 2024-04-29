@@ -29,13 +29,13 @@ class CheckAllWeeklyPrograms extends Command
     {
         $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
+            if (!$weeklyProgram->readingStationUser) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
             if ($readingStationUser->id !== 11) {
                 continue;
             }
             $score = 0;
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
-            if (!$weeklyProgram->readingStationUser) continue;
             $package = $weeklyProgram->readingStationUser->package;
             $user = $weeklyProgram->readingStationUser->user;
             if ($readingStationUser->last_weekly_program !== $weeklyProgram->id) {
