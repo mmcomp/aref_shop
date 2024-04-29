@@ -34,6 +34,7 @@ class CheckAllWeeklyPrograms extends Command
             if ($readingStationUser->id !== 11) {
                 continue;
             }
+            echo "package grade score = $readingStationUser->total\n";
             $score = 0;
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
             $package = $weeklyProgram->readingStationUser->package;
