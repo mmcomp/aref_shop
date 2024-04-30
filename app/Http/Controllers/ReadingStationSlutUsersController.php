@@ -505,7 +505,14 @@ class ReadingStationSlutUsersController extends Controller
             $q->where('user_id', $user->id);
         });
         $weeklyPrograms->where('being_point', '>', 0);
-        $total = $weeklyPrograms->sum('being_point');
+        // $total = $weeklyPrograms->sum('being_point');
+        $all = $weeklyPrograms;
+
+        $unCompletedWeeklyPrograms = $all->whereHas('sluts', function ($q) {
+            $q->where('status', '=', 'defined');
+        })->pluck('id');
+
+        $total = $all->whereNotIn('id', $unCompletedWeeklyPrograms)->sum('being_point');
 
         $sort = "end";
         $sortDir = "desc";
