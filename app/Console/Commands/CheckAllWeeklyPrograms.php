@@ -34,6 +34,7 @@ class CheckAllWeeklyPrograms extends Command
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
             if ($weeklyProgram->sluts->where('status', 'defined')->where('deleted_at', null)->first()) continue;
+            echo "Week : $weeklyProgram->start - $weeklyProgram->end";
             $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)->where('status', 'absent')->count()) * 2;
             $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
             $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
