@@ -511,6 +511,7 @@ class ReadingStationSlutUsersController extends Controller
         $unCompletedWeeklyPrograms = $all->whereHas('sluts', function ($q) {
             $q->where('status', '=', 'defined');
         })->pluck('id');
+        dd($unCompletedWeeklyPrograms);
 
         $total = $all->whereNotIn('id', $unCompletedWeeklyPrograms)->sum('being_point');
 
@@ -528,7 +529,7 @@ class ReadingStationSlutUsersController extends Controller
             $output = $weeklyPrograms->paginate($perPage);
         }
 
-        return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output, $total))->additional([
+        return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output, $total, $unCompletedWeeklyPrograms))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

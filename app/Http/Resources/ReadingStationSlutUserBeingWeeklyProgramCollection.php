@@ -7,10 +7,12 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class ReadingStationSlutUserBeingWeeklyProgramCollection extends ResourceCollection
 {
     protected $total;
-    public function __construct($resource, $total)
+    protected $unCompletedWeeklyPrograms;
+    public function __construct($resource, $total, $unCompletedWeeklyPrograms)
     {
         parent::__construct($resource);
         $this->total = $total;
+        $this->unCompletedWeeklyPrograms = $unCompletedWeeklyPrograms;
     }
 
     /**
