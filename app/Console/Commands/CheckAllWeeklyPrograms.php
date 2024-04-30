@@ -29,14 +29,14 @@ class CheckAllWeeklyPrograms extends Command
     public function handle()
     {
         DB::table('reading_station_users')->update(['total'=>0]);
-        $weeklyPrograms = ReadingStationWeeklyProgram::all();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('deleted_at', null)->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
-            if ($weeklyProgram->sluts->where('status', 'defined')->first()) continue;
-            $absentScore = -1 * ($weeklyProgram->sluts->where('status', 'absent')->count()) * 2;
-            $lateScore = -1 * $weeklyProgram->sluts->where('status', 'like', 'late_%')->count();
-            $late60PlusScore = -1 * $weeklyProgram->sluts->where('status', 'late_60_plus')->count();
+            if ($weeklyProgram->sluts->where('status', 'defined')->where('deleted_at', null)->first()) continue;
+            $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)->where('status', 'absent')->count()) * 2;
+            $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
+            $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
             echo "late60PlusScore = $late60PlusScore\n";
