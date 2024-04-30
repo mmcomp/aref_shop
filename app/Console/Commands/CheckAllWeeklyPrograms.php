@@ -32,12 +32,18 @@ class CheckAllWeeklyPrograms extends Command
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
             if ($weeklyProgram->sluts->where('status', 'defined')->first()) continue;
+            $absentScore = ($weeklyProgram->sluts->where('status', 'absent')->count()) * 2;
+            $lateScore = $weeklyProgram->sluts->where('status', 'like', 'late_%')->count();
+            $late60PlusScore = $weeklyProgram->sluts->where('status', 'late_60_plus')->count();
+            echo "absentScore = $absentScore\n";
+            echo "lateScore = $lateScore\n";
+            echo "late60PlusScore = $late60PlusScore\n";
             $readingStationUser = $weeklyProgram->readingStationUser;
             if ($readingStationUser->id !== 11) {
                 continue;
             }
-            echo "total = $readingStationUser->total\n";
-            $score = 0;
+            $score = $absentScore + $lateScore + $late60PlusScore;
+            echo "total = $readingStationUser->total score = $score\n";
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
             $package = $weeklyProgram->readingStationUser->package;
             $user = $weeklyProgram->readingStationUser->user;
