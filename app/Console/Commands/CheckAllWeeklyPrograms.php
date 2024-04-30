@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ReadingStationUserStrike;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -38,6 +39,7 @@ class CheckAllWeeklyPrograms extends Command
             if ($readingStationUser->id !== 11) {
                 continue;
             }
+
             echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
             $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)->where('status', 'absent')->count()) * 2;
             $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
@@ -46,6 +48,12 @@ class CheckAllWeeklyPrograms extends Command
             echo "lateScore = $lateScore\n";
             echo "late60PlusScore = $late60PlusScore\n";
             $score = $absentScore + $lateScore + $late60PlusScore;
+
+            $slutUsers = $weeklyProgram->sluts->pluck('id');
+            $strikes = ReadingStationUserStrike::whereIn('reading_staion_slut_user_id', $slutUsers)->sum('reading_station_strike_score');
+            $score -= $strikes;
+            echo "strikes = $strikes\n";
+
             echo "total = $readingStationUser->total score = $score\n";
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
             $package = $weeklyProgram->readingStationUser->package;
