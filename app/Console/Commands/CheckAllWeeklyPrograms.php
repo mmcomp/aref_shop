@@ -53,10 +53,10 @@ class CheckAllWeeklyPrograms extends Command
             if ($readingStationUser->last_weekly_program !== $weeklyProgram->id) {
                 // package diff done score
                 if ($diff < 0) {
-                    $score = -2;
+                    $score += -2;
                 } elseif ($diff > 0) {
                     $step = ($package->step ?? 10) * 60;
-                    $score = ($diff - ($diff % $step)) * 2 / $step;
+                    $score += ($diff - ($diff % $step)) * 2 / $step;
                 }
             }
             echo "diff = $diff score = $score\n";
