@@ -29,7 +29,7 @@ class CheckAllWeeklyPrograms extends Command
     public function handle()
     {
         DB::table('reading_station_users')->update(['total'=>0]);
-        $weeklyPrograms = ReadingStationWeeklyProgram::where('deleted_at', null)->get();
+        $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
