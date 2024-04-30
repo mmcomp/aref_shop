@@ -183,7 +183,8 @@ class ReadingStationStrikeController extends Controller
             ])->response()->setStatusCode(400);
         }
         $weeklyProgram = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)
-            ->where('end', Carbon::now()->endOfWeek(Carbon::FRIDAY))
+            ->whereDate('start', '<=', $request->day)
+            ->whereDate('end', '>=', $request->day)
             ->first();
         if (!$weeklyProgram) {
             return (new ReadingStationStrikesResource(null))->additional([
