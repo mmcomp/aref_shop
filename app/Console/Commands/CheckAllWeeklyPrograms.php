@@ -50,7 +50,7 @@ class CheckAllWeeklyPrograms extends Command
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
             $package = $weeklyProgram->readingStationUser->package;
             $user = $weeklyProgram->readingStationUser->user;
-            if ($readingStationUser->last_weekly_program !== $weeklyProgram->id) {
+            if (Carbon::now()->gte($weeklyProgram->end)) {
                 // package diff done score
                 if ($diff < 0) {
                     $score += -2;
