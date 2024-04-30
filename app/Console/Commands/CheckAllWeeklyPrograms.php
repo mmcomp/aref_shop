@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CheckAllWeeklyPrograms extends Command
 {
@@ -27,14 +28,15 @@ class CheckAllWeeklyPrograms extends Command
      */
     public function handle()
     {
+        DB::table('reading_station_users')->update(['total'=>0]);
         $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
             if ($weeklyProgram->sluts->where('status', 'defined')->first()) continue;
-            $absentScore = ($weeklyProgram->sluts->where('status', 'absent')->count()) * 2;
-            $lateScore = $weeklyProgram->sluts->where('status', 'like', 'late_%')->count();
-            $late60PlusScore = $weeklyProgram->sluts->where('status', 'late_60_plus')->count();
+            $absentScore = -1 * ($weeklyProgram->sluts->where('status', 'absent')->count()) * 2;
+            $lateScore = -1 * $weeklyProgram->sluts->where('status', 'like', 'late_%')->count();
+            $late60PlusScore = -1 * $weeklyProgram->sluts->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
             echo "late60PlusScore = $late60PlusScore\n";
