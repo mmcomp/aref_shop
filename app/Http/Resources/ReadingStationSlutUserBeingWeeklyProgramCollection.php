@@ -25,6 +25,9 @@ class ReadingStationSlutUserBeingWeeklyProgramCollection extends ResourceCollect
     {
         foreach($this->collection as $indx => $data) {
             $data->uncompleted = false;
+            // dump($data);
+            // dump($this->unCompletedWeeklyPrograms);
+            // dump(in_array($data->id, $this->unCompletedWeeklyPrograms));
             if (in_array($data->id, $this->unCompletedWeeklyPrograms)) {
                 $data->uncompleted = true;
             }
