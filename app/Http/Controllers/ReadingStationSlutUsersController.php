@@ -506,12 +506,11 @@ class ReadingStationSlutUsersController extends Controller
         });
         $weeklyPrograms->where('being_point', '>', 0);
         // $total = $weeklyPrograms->sum('being_point');
-        $all = $weeklyPrograms;
+        $all = clone $weeklyPrograms;
 
         $unCompletedWeeklyPrograms = $all->whereHas('sluts', function ($q) {
             $q->where('status', '=', 'defined');
         })->pluck('id');
-        dd($unCompletedWeeklyPrograms);
 
         $total = $all->whereNotIn('id', $unCompletedWeeklyPrograms)->sum('being_point');
 
