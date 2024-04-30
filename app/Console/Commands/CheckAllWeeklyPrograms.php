@@ -34,6 +34,10 @@ class CheckAllWeeklyPrograms extends Command
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
             if ($weeklyProgram->sluts->where('status', 'defined')->where('deleted_at', null)->first()) continue;
+            $readingStationUser = $weeklyProgram->readingStationUser;
+            if ($readingStationUser->id !== 11) {
+                continue;
+            }
             echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
             $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)->where('status', 'absent')->count()) * 2;
             $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
@@ -41,10 +45,6 @@ class CheckAllWeeklyPrograms extends Command
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
             echo "late60PlusScore = $late60PlusScore\n";
-            $readingStationUser = $weeklyProgram->readingStationUser;
-            if ($readingStationUser->id !== 11) {
-                continue;
-            }
             $score = $absentScore + $lateScore + $late60PlusScore;
             echo "total = $readingStationUser->total score = $score\n";
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
