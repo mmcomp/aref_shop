@@ -36,9 +36,9 @@ class CheckAllWeeklyPrograms extends Command
             if (count($weeklyProgram->sluts) === 0) continue;
             if ($weeklyProgram->sluts->where('status', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            if ($readingStationUser->id !== 11) {
-                continue;
-            }
+            // if ($readingStationUser->id !== 11) {
+            //     continue;
+            // }
 
             echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
             $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)
