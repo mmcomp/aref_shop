@@ -7,8 +7,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class ReadingStationSlutUserBeingWeeklyProgramCollection extends ResourceCollection
 {
     protected $total;
-    protected $unCompletedWeeklyPrograms;
-    public function __construct($resource, $total, $unCompletedWeeklyPrograms)
+    protected $unCompletedWeeklyPrograms = [];
+    public function __construct($resource, $total, $unCompletedWeeklyPrograms = [])
     {
         parent::__construct($resource);
         $this->total = $total;
@@ -23,6 +23,14 @@ class ReadingStationSlutUserBeingWeeklyProgramCollection extends ResourceCollect
      */
     public function toArray($request)
     {
+        foreach($this->collection as $indx => $data) {
+            $data->uncompleted = false;
+            if (in_array($data->id, $this->unCompletedWeeklyPrograms)) {
+                $data->uncompleted = true;
+            }
+
+            $this->collection[$indx] = $data;
+        }
         return [ 'data' => $this->collection, 'total_value' => $this->total];
     }
 }
