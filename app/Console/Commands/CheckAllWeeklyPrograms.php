@@ -29,7 +29,7 @@ class CheckAllWeeklyPrograms extends Command
      */
     public function handle()
     {
-        DB::table('reading_station_users')->update(['total'=>0]);
+        DB::table('reading_station_users')->update(['total' => 0]);
         $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
@@ -41,7 +41,14 @@ class CheckAllWeeklyPrograms extends Command
             }
 
             echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
-            $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)->where('status', 'absent')->count()) * 2;
+            $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->where('absense_approved_status', 'not_approved')
+                ->count()) * 2;
+            $absentScore += -1 * ($weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->where('absense_approved_status', 'semi_approved')
+                ->count());
             $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
             $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
