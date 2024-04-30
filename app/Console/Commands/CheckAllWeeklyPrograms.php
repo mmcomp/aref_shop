@@ -50,7 +50,7 @@ class CheckAllWeeklyPrograms extends Command
             $score = $absentScore + $lateScore + $late60PlusScore;
 
             $slutUsers = $weeklyProgram->sluts->pluck('id');
-            $strikes = ReadingStationUserStrike::whereIn('reading_staion_slut_user_id', $slutUsers)->sum('reading_station_strike_score');
+            $strikes = ReadingStationUserStrike::whereIn('reading_station_slut_user_id', $slutUsers)->sum('reading_station_strike_score');
             $score -= $strikes;
             echo "strikes = $strikes\n";
 
