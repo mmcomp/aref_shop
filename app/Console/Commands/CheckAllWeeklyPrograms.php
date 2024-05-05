@@ -30,7 +30,7 @@ class CheckAllWeeklyPrograms extends Command
     public function handle()
     {
         DB::table('reading_station_users')->update(['total' => 0]);
-        DB::table('reading_station_weekly_programs')->update(['being_point' => 0]);
+        DB::table('reading_station_weekly_programs')->update(['being_point' => 0, 'point' => 0]);
         $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
@@ -72,7 +72,7 @@ class CheckAllWeeklyPrograms extends Command
                     $score += -2;
                 } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                     $step = ($package->step ?? 10) * 60;
-                    $score += ($diff - ($diff % $step)) * 2 / $step;
+                    $score += (($diff - ($diff % $step)) * 2 / $step) - 1;
                 }
             }
             echo "diff = $diff score = $score\n";
