@@ -76,9 +76,9 @@ class CheckAllWeeklyPrograms extends Command
             }
             echo "diff = $diff score = $score\n";
 
-
+            $weeklyProgram->being_point = 0;
             // no absent score
-            if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0) {
+            if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                 $score += 3;
                 echo "no absent +3 score = $score\n";
                 $weeklyProgram->being_point += 3;
