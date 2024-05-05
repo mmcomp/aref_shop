@@ -22,6 +22,7 @@ use App\Models\ReadingStation;
 use App\Models\ReadingStationPackage;
 use App\Models\ReadingStationSlut;
 use App\Models\ReadingStationSlutUser;
+use App\Models\ReadingStationUser;
 use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
@@ -284,15 +285,16 @@ class ReadingStationSlutUsersController extends Controller
 
     public function weeklyProgramList(User $user)
     {
+        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->withTrashed()->first();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
-            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+            if ($readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
         }
 
-        $weeklyPrograms = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)->orderBy('start', 'desc')->get();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('reading_station_user_id', $readingStationUser->id)->orderBy('start', 'desc')->get();
         return (new ReadingStationWeeklyPrograms3Collection($weeklyPrograms))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
