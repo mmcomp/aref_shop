@@ -72,7 +72,7 @@ class CheckAllWeeklyPrograms extends Command
                     $score += -2;
                 } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                     $step = ($package->step ?? 10) * 60;
-                    $score += (($diff - ($diff % $step)) * 2 / $step) - 1;
+                    $score += (($diff - ($diff % $step)) * 2 / $step) - 2;
                 }
             }
             echo "diff = $diff score = $score\n";
