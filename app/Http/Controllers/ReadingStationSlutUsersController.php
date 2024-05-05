@@ -316,6 +316,7 @@ class ReadingStationSlutUsersController extends Controller
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
             ])->response()->setStatusCode(400);
         }
+
         return (new ReadingStationUserWeeklyProgramStructureResource($user, [$weeklyProgram]))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
