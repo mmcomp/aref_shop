@@ -337,7 +337,7 @@ class ReadingStationSlutUsersController extends Controller
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
             ])->response()->setStatusCode(400);
         }
-        $readingStation = $user->readingStationUser->readingStation;
+        $readingStation = $readingStationUser->readingStation;
         $start = $weeklyProgram->start;
         $end = $weeklyProgram->end;
         $users = $readingStation->users->pluck('id');
