@@ -508,7 +508,7 @@ class ReadingStationSlutUsersController extends Controller
         // $total = $weeklyPrograms->sum('being_point');
         $all = clone $weeklyPrograms;
 
-        $unCompletedWeeklyPrograms = $all->whereNotHas('sluts', function ($q) {
+        $unCompletedWeeklyPrograms = $all->whereDoesntHave('sluts', function ($q) {
             $q->where('status', '!=', 'defined');
         })->pluck('id')->toArray();
 
