@@ -464,7 +464,7 @@ class ReadingStationSlutUsersController extends Controller
                 $step = ($weeklyProgram->readingStationUser->package->step ?? 10) * 60;
                 $extra = $done - $toDo;
                 if ($extra > 0) {
-                    $point = (ceil(($extra % $step) * 2 / $step)) - 2;
+                    $point = intval($extra/ $step) * 2;
                 }
             }
             $total += $point;

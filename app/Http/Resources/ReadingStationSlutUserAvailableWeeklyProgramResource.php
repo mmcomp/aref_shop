@@ -26,7 +26,7 @@ class ReadingStationSlutUserAvailableWeeklyProgramResource extends JsonResource
                 $step = ($this->readingStationUser->package->step ?? 10) * 60;
                 $extra = $done - $toDo;
                 if ($extra > 0) {
-                    $point = ceil(($extra % $step) * 2 / $step);
+                    $point = intval($extra/ $step) * 2;
                 }
             }
             return [
