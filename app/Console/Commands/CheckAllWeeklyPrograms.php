@@ -34,7 +34,7 @@ class CheckAllWeeklyPrograms extends Command
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
-            if ($weeklyProgram->sluts->where('status', 'defined')->where('deleted_at', null)->first()) continue;
+            if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
             // if ($readingStationUser->id !== 11) {
             //     continue;
@@ -69,7 +69,7 @@ class CheckAllWeeklyPrograms extends Command
                 // package diff done score
                 if ($diff < 0) {
                     $score += -2;
-                } elseif ($diff > 0) {
+                } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                     $step = ($package->step ?? 10) * 60;
                     $score += ($diff - ($diff % $step)) * 2 / $step;
                 }
