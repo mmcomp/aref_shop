@@ -301,8 +301,12 @@ class ReadingStationUsersController extends Controller
                     }
                     break;
             }
+
             if ($userSlut->is_required) {
                 $weeklyProgram->required_time_done += $time;
+                if ($oldStatus && $oldStatus === 'absent') {
+                    $weeklyProgram->absent_day -= 1;
+                }
             } else {
                 $weeklyProgram->optional_time_done += $time;
             }
@@ -342,9 +346,8 @@ class ReadingStationUsersController extends Controller
             if ($oldStatus && $oldStatus === 'present') {
                 $weeklyProgram->present_day -= 1;
             }
-        } else if ($userSlut->is_required && $userSlut->status !== 'absent' && $oldStatus && $oldStatus === 'absent') {
-            $weeklyProgram->absent_day -= 1;
         }
+
         $weeklyProgram->save();
         $readingStationUser->save();
         if ($weeklyProgram->sluts->where('day', $today)->where('status', '!=', 'defined')->count() === 0) {
