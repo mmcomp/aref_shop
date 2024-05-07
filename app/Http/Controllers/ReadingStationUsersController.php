@@ -203,6 +203,31 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
+    public function getStatusTime(string $status, ReadingStationSlut $slut): int {
+        $time = $slut->duration;
+        switch ($status) {
+            case 'late_15':
+                $time -= 15;
+                break;
+            case 'late_30':
+                $time -= 30;
+                break;
+            case 'late_45':
+                $time -= 45;
+                break;
+            case 'late_60':
+                $time -= 60;
+                break;
+            case 'present':
+                break;
+            default:
+                $time = 0;
+                break;
+        }
+
+        return $time;
+    }
+
     public function setUserSlutStatus(ReadingStationSetUserSlutStatusRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
     {
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
@@ -301,9 +326,6 @@ class ReadingStationUsersController extends Controller
                     break;
                 case 'present':
                     $weeklyProgram->present_day += 1;
-                    if ($oldStatus && $oldStatus === 'absent') {
-                        $weeklyProgram->absent_day -= 1;
-                    }
                     break;
             }
 
@@ -324,7 +346,12 @@ class ReadingStationUsersController extends Controller
                 }
                 $weeklyProgram->late_day++;
             }
-        } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
+            $oldTime = 0;
+            if ($oldStatus) {
+                $oldTime = $this->getStatusTime($oldStatus, $userSlut->slut);
+            }
+            $weeklyProgram->time -= $oldTime;
+        } /*else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
             switch ($oldStatus) {
                 case 'late_15':
                     $time -= 15;
@@ -343,7 +370,7 @@ class ReadingStationUsersController extends Controller
                     break;
             }
             $weeklyProgram->required_time_done -= $time;
-        } else if ($userSlut->is_required && $userSlut->status === 'absent') {
+        }*/ else if ($userSlut->is_required && $userSlut->status === 'absent') {
             $weeklyProgram->absence_done += $time;
             $weeklyProgram->strikes_done += 2;
             $weeklyProgram->absent_day += 1;
