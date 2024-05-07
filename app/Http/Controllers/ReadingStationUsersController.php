@@ -342,6 +342,8 @@ class ReadingStationUsersController extends Controller
             if ($oldStatus && $oldStatus === 'present') {
                 $weeklyProgram->present_day -= 1;
             }
+        } else if ($userSlut->is_required && $userSlut->status !== 'absent' && $oldStatus && $oldStatus === 'absent') {
+            $weeklyProgram->absent_day -= 1;
         }
         $weeklyProgram->save();
         $readingStationUser->save();
