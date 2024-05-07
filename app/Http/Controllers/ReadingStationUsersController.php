@@ -203,7 +203,8 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
-    public function getStatusTime(string $status, ReadingStationSlut $slut): int {
+    public function getStatusTime(string $status, ReadingStationSlut $slut): int
+    {
         $time = $slut->duration;
         switch ($status) {
             case 'late_15':
@@ -350,7 +351,11 @@ class ReadingStationUsersController extends Controller
             if ($oldStatus) {
                 $oldTime = $this->getStatusTime($oldStatus, $userSlut->slut);
             }
-            $weeklyProgram->time -= $oldTime;
+            if ($userSlut->is_required) {
+                $weeklyProgram->required_time_done -= $oldTime;
+            } else {
+                $weeklyProgram->optional_time_done -= $time;
+            }
         } /*else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
             switch ($oldStatus) {
                 case 'late_15':
