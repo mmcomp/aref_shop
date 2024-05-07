@@ -257,6 +257,11 @@ class ReadingStationUsersController extends Controller
             $userSlut->is_required = false;
         } else {
             $oldStatus = $userSlut->status;
+            if ($oldStatus === $request->status) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Duplicated request']],
+                ])->response()->setStatusCode(400);
+            }
             if ($request->status === 'defined' && !$userSlut->is_required) {
                 $deleted = true;
             }
