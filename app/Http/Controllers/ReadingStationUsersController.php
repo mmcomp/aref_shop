@@ -327,6 +327,7 @@ class ReadingStationUsersController extends Controller
                 } else if (strpos($oldStatus, 'late_') === 0) {
                     $weeklyProgram->late_day -= 1;
                     $readingStationUser->total += 1;
+                    $weeklyProgram->strikes_done -= 1;
                     if ($oldStatus === 'late_60_plus') {
                         $weeklyProgram->strikes_done -= 1;
                         $readingStationUser->total += 1;
@@ -337,7 +338,6 @@ class ReadingStationUsersController extends Controller
             }
         }
         $newTime = $this->getStatusTime($userSlut->status, $slut);
-        // Log::info("is late:" . json_encode(strpos($userSlut->status, 'late_') === 0));
         if ($userSlut->is_required) {
             $weeklyProgram->required_time_done += $newTime;
             if ($userSlut->status === 'absent') {
@@ -348,10 +348,9 @@ class ReadingStationUsersController extends Controller
             } else if ($userSlut->status === 'present') {
                 $weeklyProgram->present_day += 1;
             } else if (strpos($userSlut->status, 'late_') === 0) {
-                Log::info("new status:" . $userSlut->status . ' late before:' . $weeklyProgram->late_day);
                 $weeklyProgram->late_day += 1;
-                Log::info("new status:" . $userSlut->status . ' late after:' . $weeklyProgram->late_day);
                 $readingStationUser->total -= 1;
+                $weeklyProgram->strikes_done += 1;
                 if ($userSlut->status === 'late_60_plus') {
                     $weeklyProgram->strikes_done += 1;
                     $readingStationUser->total -= 1;
