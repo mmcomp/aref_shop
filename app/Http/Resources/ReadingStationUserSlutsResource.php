@@ -56,9 +56,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                         $selectedSlut = $weeklyProgram->sluts
                             ->where('day', Carbon::now()->toDateString())
                             ->where('reading_station_slut_id', $slut->id)->first();
-                        // if ($readingStationUser->user->id === 19807) {
-                        //     dd($weeklyProgram);
-                        // }
+                        $slutNames = array_unique($slutNames);
                         break;
                     }
                 }
