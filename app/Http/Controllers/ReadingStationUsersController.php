@@ -256,14 +256,19 @@ class ReadingStationUsersController extends Controller
         $today = Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
         if ($request->status === 'defined' && $userSlut) {
-            $nextUserSluts = ReadingStationSlutUser::withAggregate('slut', 'start')
-                ->where('reading_station_weekly_program_id', $thisWeeklyProgram->id)
-                ->where('day', $today)
-                ->get()
-                ->where('slut_start', '>', $slut->start)
-                ->sortByDesc('slut_start')
-                ->pluck('id');
-            ReadingStationSlutUser::whereIn('id', $nextUserSluts)->update(['status' => 'defined', 'user_id' => Auth::user()->id]);
+            if ($userSlut->is_required) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['You can not change to defined for required sluts!']],
+                ])->response()->setStatusCode(400);
+            }
+            // $nextUserSluts = ReadingStationSlutUser::withAggregate('slut', 'start')
+            //     ->where('reading_station_weekly_program_id', $thisWeeklyProgram->id)
+            //     ->where('day', $today)
+            //     ->get()
+            //     ->where('slut_start', '>', $slut->start)
+            //     ->sortByDesc('slut_start')
+            //     ->pluck('id');
+            // ReadingStationSlutUser::whereIn('id', $nextUserSluts)->update(['status' => 'defined', 'user_id' => Auth::user()->id]);
         }
 
 
@@ -308,6 +313,51 @@ class ReadingStationUsersController extends Controller
         $weeklyProgram = $thisWeeklyProgram;
         $readingStationUser = $weeklyProgram->readingStationUser;
         $time = $userSlut->slut->duration;
+        if ($oldStatus) {
+            $oldTime = $this->getStatusTime($oldStatus, $slut);
+            if ($userSlut->is_required) {
+                $weeklyProgram->required_time_done -= $oldTime;
+                if ($oldStatus === 'absent') {
+                    $weeklyProgram->absent_day -= 1;
+                    $weeklyProgram->absence_done -= $time;
+                    $weeklyProgram->strikes_done -= 2;
+                    $readingStationUser->total += 2;
+                } else if ($oldStatus === 'present') {
+                    $weeklyProgram->present_day -= 1;
+                } else if (str_starts_with('late_', $oldStatus)) {
+                    $weeklyProgram->late_day -= 1;
+                    $readingStationUser->total += 1;
+                    if ($oldStatus === 'late_60_plus') {
+                        $weeklyProgram->strikes_done -= 1;
+                        $readingStationUser->total += 1;
+                    }
+                }
+            } else {
+                $weeklyProgram->optional_time_done -= $oldTime;
+            }
+        }
+        $newTime = $this->getStatusTime($userSlut->status, $slut);
+        if ($userSlut->is_required) {
+            $weeklyProgram->required_time_done += $newTime;
+            if ($userSlut->status === 'absent') {
+                $weeklyProgram->absent_day += 1;
+                $weeklyProgram->absence_done += $time;
+                $weeklyProgram->strikes_done += 2;
+                $readingStationUser->total -= 2;
+            } else if ($userSlut->status === 'present') {
+                $weeklyProgram->present_day += 1;
+            } else if (str_starts_with('late_', $userSlut->status)) {
+                $weeklyProgram->late_day += 1;
+                $readingStationUser->total -= 1;
+                if ($userSlut->status === 'late_60_plus') {
+                    $weeklyProgram->strikes_done += 1;
+                    $readingStationUser->total -= 1;
+                }
+            }
+        } else {
+            $weeklyProgram->optional_time_done += $newTime;
+        }
+        /*
         if ($userSlut->status !== 'absent' && $userSlut->status !== 'defined') {
             switch ($userSlut->status) {
                 case 'late_15':
@@ -356,26 +406,7 @@ class ReadingStationUsersController extends Controller
             } else {
                 $weeklyProgram->optional_time_done -= $time;
             }
-        } /*else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
-            switch ($oldStatus) {
-                case 'late_15':
-                    $time -= 15;
-                    break;
-                case 'late_30':
-                    $time -= 30;
-                    break;
-                case 'late_45':
-                    $time -= 45;
-                    break;
-                case 'late_60':
-                    $time -= 60;
-                    break;
-                case 'late_60_plus':
-                    $time -= 75;
-                    break;
-            }
-            $weeklyProgram->required_time_done -= $time;
-        }*/ else if ($userSlut->is_required && $userSlut->status === 'absent') {
+        } else if ($userSlut->is_required && $userSlut->status === 'absent') {
             $weeklyProgram->absence_done += $time;
             $weeklyProgram->strikes_done += 2;
             $weeklyProgram->absent_day += 1;
@@ -384,6 +415,7 @@ class ReadingStationUsersController extends Controller
                 $weeklyProgram->present_day -= 1;
             }
         }
+        */
 
         $weeklyProgram->save();
         $readingStationUser->save();
