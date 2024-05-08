@@ -337,6 +337,8 @@ class ReadingStationUsersController extends Controller
             }
         }
         $newTime = $this->getStatusTime($userSlut->status, $slut);
+        Log::info("new status:" . $userSlut->status);
+        Log::info("is late:" . json_encode(str_starts_with('late_', $userSlut->status)));
         if ($userSlut->is_required) {
             $weeklyProgram->required_time_done += $newTime;
             if ($userSlut->status === 'absent') {
