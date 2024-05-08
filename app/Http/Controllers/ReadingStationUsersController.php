@@ -189,7 +189,7 @@ class ReadingStationUsersController extends Controller
             // })s
             ->with(['weeklyPrograms' => function ($q) use ($slut, $now) {
                 $q->with(['sluts' => function ($q1) use ($slut, $now) {
-                    $q1->where('reading_station_slut_id', $slut->id)
+                    $q1/*->where('reading_station_slut_id', $slut->id)*/
                         ->whereDate('day', $now);
                 }]);
             }])
