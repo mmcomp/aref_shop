@@ -143,6 +143,7 @@ class CheckAllWeeklyPrograms extends Command
                 }
             }
 
+            echo "Final score:" . $score . "\n";
             $weeklyProgram->point += $score;
             $weeklyProgram->save();
 
