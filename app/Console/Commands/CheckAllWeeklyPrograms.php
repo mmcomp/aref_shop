@@ -100,8 +100,13 @@ class CheckAllWeeklyPrograms extends Command
             $score = $absentScore + $lateScore + $late60PlusScore;
 
             $slutUsers = $weeklyProgram->sluts->pluck('id');
-            $strikes = ReadingStationUserStrike::whereIn('reading_station_slut_user_id', $slutUsers)->sum('reading_station_strike_score');
-            $score -= $strikes;
+            $strikes = 0;
+            $strikesRecords = ReadingStationUserStrike::whereIn('reading_station_slut_user_id', $slutUsers)->with('readingStationStrike')->get();//->sum('reading_station_strike_score');
+            foreach($strikesRecords as $strikesRecord) {
+                $isPoint = $strikesRecord->readingStationStrike->is_point != 0 ? 1 : -1;
+                $strikes += $isPoint * $strikesRecord->reading_station_strike_score;
+            }
+            $score += $strikes;
             echo "strikes = $strikes\n";
 
             echo "total = $readingStationUser->total score = $score\n";
