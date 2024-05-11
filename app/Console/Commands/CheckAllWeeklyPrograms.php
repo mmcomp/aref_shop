@@ -64,10 +64,11 @@ class CheckAllWeeklyPrograms extends Command
                 ->where('absense_approved_status', 'semi_approved')
                 ->count();
             $late_day = $weeklyProgram->sluts->where('deleted_at', null)
-                ->where('status', 'like', 'late_%')
+                // ->where('status', 'like', 'late_%')
+                ->filter(function ($slt) {
+                    return strpos($slt->status, 'late_') === 0;
+                })
                 ->count();
-            dd($weeklyProgram->sluts->where('deleted_at', null)
-            ->where('status', 'like', 'late_%')->toSql());
             $present_day = $weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'present')
                 ->count();
