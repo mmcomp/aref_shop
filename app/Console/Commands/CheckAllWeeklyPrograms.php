@@ -30,7 +30,7 @@ class CheckAllWeeklyPrograms extends Command
     public function handle()
     {
         DB::table('reading_station_users')->update(['total' => 0]);
-        DB::table('reading_station_weekly_programs')->update(['being_point' => 0, 'point' => 0]);
+        DB::table('reading_station_weekly_programs')->update(['being_point' => 0, 'point' => 0, 'package_point' => 0]);
         $weeklyPrograms = ReadingStationWeeklyProgram::all();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
