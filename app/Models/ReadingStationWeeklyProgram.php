@@ -32,11 +32,11 @@ class ReadingStationWeeklyProgram extends Model
 
     function sluts()
     {
-        return $this->hasMany(ReadingStationSlutUser::class)->withTrashed();
+        return $this->hasMany(ReadingStationSlutUser::class);
     }
 
     function readingStationUser()
     {
-        return $this->belongsTo(ReadingStationUser::class)->withTrashed();
+        return $this->belongsTo(ReadingStationUser::class);
     }
 }
