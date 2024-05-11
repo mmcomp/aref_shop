@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ReadingStationUserStrike;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -27,29 +28,58 @@ class CheckWeeklyPrograms extends Command
      */
     public function handle()
     {
-        $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
-        $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('updated_at', '>=', $startOfThisWeek)->get();
+        $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('weeklyProgram.readingStationUser')->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
-            $score = 0;
+            if (!$weeklyProgram->readingStationUser) continue;
+            if (count($weeklyProgram->sluts) === 0) continue;
+            if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
+            $readingStationUser = $weeklyProgram->readingStationUser;
+            // if ($readingStationUser->id !== 11) {
+            //     continue;
+            // }
+
+            echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
+            $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->where('absense_approved_status', 'not_approved')
+                ->count()) * 2;
+            $absentScore += -1 * ($weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->where('absense_approved_status', 'semi_approved')
+                ->count());
+            $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
+            $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
+            echo "absentScore = $absentScore\n";
+            echo "lateScore = $lateScore\n";
+            echo "late60PlusScore = $late60PlusScore\n";
+            $score = $absentScore + $lateScore + $late60PlusScore;
+
+            $slutUsers = $weeklyProgram->sluts->pluck('id');
+            $strikes = ReadingStationUserStrike::whereIn('reading_station_slut_user_id', $slutUsers)->sum('reading_station_strike_score');
+            $score -= $strikes;
+            echo "strikes = $strikes\n";
+
+            echo "total = $readingStationUser->total score = $score\n";
             $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
             $package = $weeklyProgram->readingStationUser->package;
             $user = $weeklyProgram->readingStationUser->user;
-            $readingStationUser = $weeklyProgram->readingStationUser;
-            if ($readingStationUser->last_weekly_program === $weeklyProgram->id) {
-                continue;
+            if (Carbon::now()->gte($weeklyProgram->end)) {
+                // package diff done score
+                if ($diff < 0) {
+                    $score += -2;
+                } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+                    $step = ($package->step ?? 10) * 60;
+                    $score += (($diff - ($diff % $step)) * 2 / $step) - 2;
+                }
             }
+            echo "diff = $diff score = $score\n";
 
-            // package diff done score
-            if ($diff < 0) {
-                $score = -2;
-            } elseif ($diff > 0) {
-                $step = ($package->step ?? 10) * 60;
-                $score = ($diff - ($diff % $step)) * 2 / $step;
-            }
-
+            $weeklyProgram->being_point = 0;
             // no absent score
-            if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0) {
+            if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                 $score += 3;
+                echo "no absent +3 score = $score\n";
                 $weeklyProgram->being_point += 3;
             }
 

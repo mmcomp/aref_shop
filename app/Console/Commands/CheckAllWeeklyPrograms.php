@@ -86,13 +86,13 @@ class CheckAllWeeklyPrograms extends Command
             }
 
             // package grade score
-            if ($package->grade && $user->grade) {
-                if ($package->grade > $user->grade) {
-                    $score += ($package->grade - $user->grade) * 3;
-                    $weeklyProgram->being_point += ($package->grade - $user->grade) * 3;
-                    echo "package grade " . (($package->grade - $user->grade) * 3) . " score = $score\n";
-                }
-            }
+            // if ($package->grade && $user->grade) {
+            //     if ($package->grade > $user->grade) {
+            //         $score += ($package->grade - $user->grade) * 3;
+            //         $weeklyProgram->being_point += ($package->grade - $user->grade) * 3;
+            //         echo "package grade " . (($package->grade - $user->grade) * 3) . " score = $score\n";
+            //     }
+            // }
 
             $weeklyProgram->point += $score;
             $weeklyProgram->save();
