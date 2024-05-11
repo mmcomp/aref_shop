@@ -86,7 +86,7 @@ class CheckWeeklyPrograms extends Command
             // package grade score
             echo "beforeGrade score:" . $score . "\n";
             echo "Checking grade point:" . $package->grade . " !> ". $user->grade . "\n";
-            if ($package->grade && $user->grade) {
+            if ($package->grade && $user->grade && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                 if ($package->grade > $user->grade) {
                     $score += ($package->grade - $user->grade) * 3;
                     $weeklyProgram->package_point += ($package->grade - $user->grade) * 3;
