@@ -69,6 +69,11 @@ class CheckAllWeeklyPrograms extends Command
             $present_day = $weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'present')
                 ->count();
+            echo "absent_day = $absent_day\n";
+            echo "approved_absent_day = $approved_absent_day\n";
+            echo "semi_approved_absent_day = $semi_approved_absent_day\n";
+            echo "late_day = $late_day\n";
+            echo "present_day = $present_day\n";
             $weeklyProgram->absent_day = $absent_day;
             $weeklyProgram->approved_absent_day = $approved_absent_day;
             $weeklyProgram->semi_approved_absent_day = $semi_approved_absent_day;
