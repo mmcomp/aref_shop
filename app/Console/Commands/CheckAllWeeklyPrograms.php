@@ -150,6 +150,7 @@ class CheckAllWeeklyPrograms extends Command
             $readingStationUser->last_weekly_program = $weeklyProgram->id;
             $readingStationUser->total += $score;
             $readingStationUser->save();
+            echo "==============================================================\n";
         }
     }
 }
