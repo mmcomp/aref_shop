@@ -40,8 +40,8 @@ class CheckAllWeeklyPrograms extends Command
             'late_day' => 0,
             'present_day' => 0,
         ]);
-        $lastEnd = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7);
-        $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', '<=', $lastEnd->toDateString())->get();
+        // $lastEnd = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7);
+        $weeklyPrograms = ReadingStationWeeklyProgram::all(); // ::whereDate('end', '<=', $lastEnd->toDateString())->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
@@ -109,39 +109,39 @@ class CheckAllWeeklyPrograms extends Command
             $score += $strikes;
             echo "strikes = $strikes\n";
 
-            echo "total = $readingStationUser->total score = $score\n";
-            $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
-            $package = $weeklyProgram->readingStationUser->package;
-            $user = $weeklyProgram->readingStationUser->user;
-            // if (Carbon::now()->gte($weeklyProgram->end)) {
-            $scoreChange = 0;
-            // package diff done score
-            if ($diff < 0) {
-                $scoreChange = -2;
-            } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
-                $step = ($package->step ?? 10) * 60;
-                $scoreChange = (($diff - ($diff % $step)) * 2 / $step) - 2;
-            }
-            $score += $scoreChange;
-            // }
-            echo "Available : diff = $diff scoreChange = $scoreChange score = $score\n";
+            if (Carbon::now()->gte($weeklyProgram->end)) {
+                echo "total = $readingStationUser->total score = $score\n";
+                $diff = $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done - $weeklyProgram->required_time - $weeklyProgram->optional_time;
+                $package = $weeklyProgram->readingStationUser->package;
+                $user = $weeklyProgram->readingStationUser->user;
+                $scoreChange = 0;
+                // package diff done score
+                if ($diff < 0) {
+                    $scoreChange = -2;
+                } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+                    $step = ($package->step ?? 10) * 60;
+                    $scoreChange = (($diff - ($diff % $step)) * 2 / $step) - 2;
+                }
+                $score += $scoreChange;
+                echo "Available : diff = $diff scoreChange = $scoreChange score = $score\n";
 
-            $weeklyProgram->being_point = 0;
-            // no absent score
-            if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
-                $score += 3;
-                echo "no absent +3 score = $score\n";
-                $weeklyProgram->being_point += 3;
-            }
+                $weeklyProgram->being_point = 0;
+                // no absent score
+                if ($weeklyProgram->absent_day === 0 && $weeklyProgram->late_day === 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+                    $score += 3;
+                    echo "no absent +3 score = $score\n";
+                    $weeklyProgram->being_point += 3;
+                }
 
-            // package grade score
-            echo "beforeGrade score:" . $score . "\n";
-            echo "Checking grade point:" . $package->grade . " !> " . $user->grade . "\n";
-            if ($package->grade && $user->grade && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
-                if ($package->grade > $user->grade) {
-                    $score += ($package->grade - $user->grade) * 3;
-                    $weeklyProgram->package_point += ($package->grade - $user->grade) * 3;
-                    echo "Grade score:" . $score . "\n";
+                // package grade score
+                echo "beforeGrade score:" . $score . "\n";
+                echo "Checking grade point:" . $package->grade . " !> " . $user->grade . "\n";
+                if ($package->grade && $user->grade && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+                    if ($package->grade > $user->grade) {
+                        $score += ($package->grade - $user->grade) * 3;
+                        $weeklyProgram->package_point += ($package->grade - $user->grade) * 3;
+                        echo "Grade score:" . $score . "\n";
+                    }
                 }
             }
 

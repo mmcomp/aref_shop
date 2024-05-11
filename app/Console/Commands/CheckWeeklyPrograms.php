@@ -141,41 +141,5 @@ class CheckWeeklyPrograms extends Command
             $readingStationUser->total += $score;
             $readingStationUser->save();
         }
-
-        $weeklyPrograms = ReadingStationWeeklyProgram::with('readingStationUser')->get();
-        foreach ($weeklyPrograms as $weeklyProgram) {
-            echo "Week[$readingStationUser->id] : $weeklyProgram->start - $weeklyProgram->end\n";
-            $absent_day = $weeklyProgram->sluts->where('deleted_at', null)
-                ->where('status', 'absent')
-                ->count();
-            $approved_absent_day = $weeklyProgram->sluts->where('deleted_at', null)
-                ->where('status', 'absent')
-                ->where('absense_approved_status', 'approved')
-                ->count();
-            $semi_approved_absent_day = $weeklyProgram->sluts->where('deleted_at', null)
-                ->where('status', 'absent')
-                ->where('absense_approved_status', 'semi_approved')
-                ->count();
-            $late_day = $weeklyProgram->sluts->where('deleted_at', null)
-                // ->where('status', 'like', 'late_%')
-                ->filter(function ($slt) {
-                    return strpos($slt->status, 'late_') === 0;
-                })
-                ->count();
-            $present_day = $weeklyProgram->sluts->where('deleted_at', null)
-                ->where('status', 'present')
-                ->count();
-            echo "absent_day = $absent_day\n";
-            echo "approved_absent_day = $approved_absent_day\n";
-            echo "semi_approved_absent_day = $semi_approved_absent_day\n";
-            echo "late_day = $late_day\n";
-            echo "present_day = $present_day\n";
-            $weeklyProgram->absent_day = $absent_day;
-            $weeklyProgram->approved_absent_day = $approved_absent_day;
-            $weeklyProgram->semi_approved_absent_day = $semi_approved_absent_day;
-            $weeklyProgram->late_day = $late_day;
-            $weeklyProgram->present_day = $present_day;
-            $weeklyProgram->save();
-        }
     }
 }
