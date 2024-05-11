@@ -29,7 +29,7 @@ class CheckWeeklyPrograms extends Command
     public function handle()
     {
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
-        $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('weeklyProgram.readingStationUser')->get();
+        $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('readingStationUser')->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
@@ -84,10 +84,13 @@ class CheckWeeklyPrograms extends Command
             }
 
             // package grade score
+            echo "beforeGrade score:" . $score . "\n";
+            echo "Checking grade point:" . $package->grade . " !> ". $user->grade . "\n";
             if ($package->grade && $user->grade) {
                 if ($package->grade > $user->grade) {
                     $score += ($package->grade - $user->grade) * 3;
                     $weeklyProgram->being_point += ($package->grade - $user->grade) * 3;
+                    echo "Grade score:" . $score . "\n";
                 }
             }
 
