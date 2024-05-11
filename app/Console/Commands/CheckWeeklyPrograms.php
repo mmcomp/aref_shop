@@ -39,7 +39,7 @@ class CheckWeeklyPrograms extends Command
             //     continue;
             // }
 
-            echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
+            echo "Week[$readingStationUser->id] : $weeklyProgram->start - $weeklyProgram->end\n";
             $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'absent')
                 ->where('absense_approved_status', 'not_approved')
