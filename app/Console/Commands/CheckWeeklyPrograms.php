@@ -89,7 +89,7 @@ class CheckWeeklyPrograms extends Command
             if ($package->grade && $user->grade) {
                 if ($package->grade > $user->grade) {
                     $score += ($package->grade - $user->grade) * 3;
-                    $weeklyProgram->being_point += ($package->grade - $user->grade) * 3;
+                    $weeklyProgram->package_point += ($package->grade - $user->grade) * 3;
                     echo "Grade score:" . $score . "\n";
                 }
             }
