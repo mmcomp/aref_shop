@@ -452,9 +452,9 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
-        $weeklyPrograms->whereDoesntHave('sluts', function ($q) {
-            $q->where('status', '!=', 'defined');
-        });
+        // $weeklyPrograms->whereDoesntHave('sluts', function ($q) {
+        //     $q->where('status', '!=', 'defined');
+        // });
         $all = $weeklyPrograms->get();
         $total = 0;
         $all->map(function ($weeklyProgram) use (&$total) {
