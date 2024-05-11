@@ -30,7 +30,16 @@ class CheckAllWeeklyPrograms extends Command
     public function handle()
     {
         DB::table('reading_station_users')->update(['total' => 0]);
-        DB::table('reading_station_weekly_programs')->update(['being_point' => 0, 'point' => 0, 'package_point' => 0]);
+        DB::table('reading_station_weekly_programs')->update([
+            'being_point' => 0,
+            'point' => 0,
+            'package_point' => 0,
+            'absent_day' => 0,
+            'approved_absent_day' => 0,
+            'semi_approved_absent_day' => 0,
+            'late_day' => 0,
+            'present_day' => 0,
+        ]);
         $lastEnd = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7);
         $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', '<=', $lastEnd->toDateString())->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
@@ -38,11 +47,33 @@ class CheckAllWeeklyPrograms extends Command
             if (count($weeklyProgram->sluts) === 0) continue;
             if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            // if ($readingStationUser->id !== 11) {
-            //     continue;
-            // }
+            if ($readingStationUser->id !== 32 && $readingStationUser->id !== 24) {
+                continue;
+            }
 
             echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
+            $absent_day = $weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->count();
+            $approved_absent_day = $weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->where('absense_approved_status', 'approved')
+                ->count();
+            $semi_approved_absent_day = $weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'absent')
+                ->where('absense_approved_status', 'semi_approved')
+                ->count();
+            $late_day = $weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'like', 'late_%')
+                ->count();
+            $present_day = $weeklyProgram->sluts->where('deleted_at', null)
+                ->where('status', 'present')
+                ->count();
+            $weeklyProgram->absent_day = $absent_day;
+            $weeklyProgram->approved_absent_day = $approved_absent_day;
+            $weeklyProgram->semi_approved_absent_day = $semi_approved_absent_day;
+            $weeklyProgram->late_day = $late_day;
+            $weeklyProgram->present_day = $present_day;
             $absentScore = -1 * ($weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'absent')
                 ->where('absense_approved_status', 'not_approved')
@@ -88,7 +119,7 @@ class CheckAllWeeklyPrograms extends Command
 
             // package grade score
             echo "beforeGrade score:" . $score . "\n";
-            echo "Checking grade point:" . $package->grade . " !> ". $user->grade . "\n";
+            echo "Checking grade point:" . $package->grade . " !> " . $user->grade . "\n";
             if ($package->grade && $user->grade && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                 if ($package->grade > $user->grade) {
                     $score += ($package->grade - $user->grade) * 3;
