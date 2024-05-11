@@ -94,7 +94,7 @@ class CheckAllWeeklyPrograms extends Command
             $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->filter(function ($slt) {
                 return strpos($slt->status, 'late_') === 0;
             })->count();
-            $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
+            $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
             echo "late60PlusScore = $late60PlusScore\n";
