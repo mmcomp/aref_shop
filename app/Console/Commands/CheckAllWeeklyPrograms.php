@@ -47,7 +47,7 @@ class CheckAllWeeklyPrograms extends Command
             if (count($weeklyProgram->sluts) === 0) continue;
             if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            if ($readingStationUser->id !== 32) {
+            if ($readingStationUser->id !== 32 && $weeklyProgram->id != 472) {
                 continue;
             }
 
@@ -63,6 +63,7 @@ class CheckAllWeeklyPrograms extends Command
                 ->where('status', 'absent')
                 ->where('absense_approved_status', 'semi_approved')
                 ->count();
+            dd($weeklyProgram->sluts);
             $late_day = $weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'like', 'late_%')
                 ->count();
@@ -87,7 +88,7 @@ class CheckAllWeeklyPrograms extends Command
                 ->where('status', 'absent')
                 ->where('absense_approved_status', 'semi_approved')
                 ->count());
-            $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'like', 'late_%')->count();
+            $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->where('status', 'like', 'late_%')->count();
             $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
