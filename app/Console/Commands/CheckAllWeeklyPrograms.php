@@ -51,7 +51,7 @@ class CheckAllWeeklyPrograms extends Command
                 continue;
             }
 
-            echo "Week : $weeklyProgram->start - $weeklyProgram->end\n";
+            echo "Week[$readingStationUser->id ] : $weeklyProgram->start - $weeklyProgram->end\n";
             $absent_day = $weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'absent')
                 ->count();
