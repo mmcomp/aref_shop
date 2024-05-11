@@ -65,6 +65,7 @@ class CheckAllWeeklyPrograms extends Command
                 ->count();
             $late_day = $weeklyProgram->sluts->where('deleted_at', null)
                 // ->where('status', 'like', 'late_%')
+                ->where('is_required', true)
                 ->filter(function ($slt) {
                     return strpos($slt->status, 'late_') === 0;
                 })
