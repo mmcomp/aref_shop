@@ -417,7 +417,7 @@ class ReadingStationSlutUsersController extends Controller
             }
         }
 
-        $slutUsers = ReadingStationSlutUser::where('status', 'like', 'late%');
+        $slutUsers = ReadingStationSlutUser::where('status', 'like', 'late%')->where('is_required', 1);
         $slutUsers->whereHas('weeklyProgram', function ($q1) use ($user) {
             $q1->whereHas('readingStationUser', function ($q2) use ($user) {
                 $q2->where('user_id', $user->id);
