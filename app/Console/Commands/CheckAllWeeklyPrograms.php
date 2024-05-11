@@ -31,7 +31,8 @@ class CheckAllWeeklyPrograms extends Command
     {
         DB::table('reading_station_users')->update(['total' => 0]);
         DB::table('reading_station_weekly_programs')->update(['being_point' => 0, 'point' => 0, 'package_point' => 0]);
-        $weeklyPrograms = ReadingStationWeeklyProgram::all();
+        $lastEnd = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7);
+        $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', '<=', $lastEnd->toDateString())->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
