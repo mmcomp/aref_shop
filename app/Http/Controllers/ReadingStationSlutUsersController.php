@@ -452,6 +452,11 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
+        // $okWeeklyPrograms = clone $weeklyPrograms;
+        $weeklyPrograms->whereHas('sluts', function ($q) {
+            $q->where('status', '!=', 'defined');
+        });
+
         // $weeklyPrograms->whereDoesntHave('sluts', function ($q) {
         //     $q->where('status', '!=', 'defined');
         // });
@@ -473,7 +478,7 @@ class ReadingStationSlutUsersController extends Controller
                 $step = ($weeklyProgram->readingStationUser->package->step ?? 10) * 60;
                 $extra = $done - $toDo;
                 if ($extra > 0) {
-                    $point = intval($extra/ $step) * 2;
+                    $point = intval($extra / $step) * 2;
                 }
             }
             $total += $point;
@@ -519,7 +524,7 @@ class ReadingStationSlutUsersController extends Controller
         $unCompletedWeeklyPrograms = $comp->whereDoesntHave('sluts', function ($q) {
             $q->where('status', '!=', 'defined');
         })->pluck('id')->toArray();
-    
+
         $total = $all->whereNotIn('id', $unCompletedWeeklyPrograms)->sum('being_point');
 
         $sort = "end";
