@@ -51,7 +51,7 @@ class CheckAllWeeklyPrograms extends Command
                 continue;
             }
 
-            echo "Week[$readingStationUser->id ] : $weeklyProgram->start - $weeklyProgram->end\n";
+            echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
             $absent_day = $weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'absent')
                 ->count();
@@ -90,7 +90,9 @@ class CheckAllWeeklyPrograms extends Command
                 ->where('status', 'absent')
                 ->where('absense_approved_status', 'semi_approved')
                 ->count());
-            $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->where('status', 'like', 'late_%')->count();
+            $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->filter(function ($slt) {
+                return strpos($slt->status, 'late_') === 0;
+            })->count();
             $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
