@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationUserStrike;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
@@ -23,6 +24,34 @@ class CheckAllWeeklyPrograms extends Command
      * @var string
      */
     protected $description = 'Calculate Student All Weekly Points';
+
+    private function getTime(ReadingStationSlutUser $slutUser, $isRequired = true): int
+    {
+        if ($slutUser->is_required !== $isRequired) return 0;
+    
+        $time = $slutUser->slut->duration;
+        switch ($slutUser->status) {
+            case 'late_15':
+                $time -= 15;
+                break;
+            case 'late_30':
+                $time -= 30;
+                break;
+            case 'late_45':
+                $time -= 45;
+                break;
+            case 'late_60':
+                $time -= 60;
+                break;
+            case 'present':
+                $time -= 0;
+                break;
+            default:
+                $time = 0;
+        }
+
+        return $time;
+    }
 
     /**
      * Execute the console command.
@@ -47,11 +76,26 @@ class CheckAllWeeklyPrograms extends Command
             if (count($weeklyProgram->sluts) === 0) continue;
             if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            // if ($readingStationUser->id !== 89) {
-            //     continue;
-            // }
-
+            if ($readingStationUser->id !== 16) {
+                continue;
+            }
             echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
+            $required_time_done = 0;
+            foreach($weeklyProgram->sluts as $slutUser) {
+                $required_time_done += $this->getTime($slutUser);
+            }
+            $optional_time_done = 0;
+            foreach($weeklyProgram->sluts as $slutUser) {
+                $optional_time_done += $this->getTime($slutUser, false);
+            }
+
+            $weeklyProgram->required_time_done = $required_time_done;
+            $weeklyProgram->optional_time_done = $optional_time_done;
+            echo "required_time_done = $required_time_done\n";
+            echo "optional_time_done = $optional_time_done\n";
+            continue;
+
+
             $absent_day = $weeklyProgram->sluts->where('deleted_at', null)
                 ->where('status', 'absent')
                 ->count();
