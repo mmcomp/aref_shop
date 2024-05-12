@@ -27,8 +27,9 @@ class CheckAllWeeklyPrograms extends Command
 
     private function getTime(ReadingStationSlutUser $slutUser, $isRequired = true): int
     {
+        echo "getTime " . $slutUser->id . ", is_required = " . $slutUser->is_required . ", status = " . $slutUser->status . ", time = " . $slutUser->slut->duration . "\n";
         if ($slutUser->is_required !== $isRequired) return 0;
-    
+
         $time = $slutUser->slut->duration;
         switch ($slutUser->status) {
             case 'late_15':
@@ -49,6 +50,7 @@ class CheckAllWeeklyPrograms extends Command
             default:
                 $time = 0;
         }
+        echo "time = $time\n";
 
         return $time;
     }
@@ -81,11 +83,11 @@ class CheckAllWeeklyPrograms extends Command
             }
             echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
             $required_time_done = 0;
-            foreach($weeklyProgram->sluts as $slutUser) {
+            foreach ($weeklyProgram->sluts as $slutUser) {
                 $required_time_done += $this->getTime($slutUser);
             }
             $optional_time_done = 0;
-            foreach($weeklyProgram->sluts as $slutUser) {
+            foreach ($weeklyProgram->sluts as $slutUser) {
                 $optional_time_done += $this->getTime($slutUser, false);
             }
 
