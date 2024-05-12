@@ -77,7 +77,7 @@ class CheckAllWeeklyPrograms extends Command
             if (count($weeklyProgram->sluts) === 0) continue;
             if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            if ($readingStationUser->id !== 16) {
+            if ($readingStationUser->id !== 32) {
                 continue;
             }
             echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
