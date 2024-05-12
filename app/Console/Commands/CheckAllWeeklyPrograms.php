@@ -94,8 +94,6 @@ class CheckAllWeeklyPrograms extends Command
             $weeklyProgram->optional_time_done = $optional_time_done;
             echo "required_time_done = $required_time_done\n";
             echo "optional_time_done = $optional_time_done\n";
-            echo "==============================================================\n";
-            continue;
 
 
             $absent_day = $weeklyProgram->sluts->where('deleted_at', null)
