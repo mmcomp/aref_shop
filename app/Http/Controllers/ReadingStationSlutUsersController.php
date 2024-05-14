@@ -311,6 +311,12 @@ class ReadingStationSlutUsersController extends Controller
             }
         }
 
+        if (!$weeklyProgram->readingStationUser) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
+            ])->response()->setStatusCode(400);
+        }
+
         if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
             return (new ReadingStationSlutUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
@@ -331,6 +337,12 @@ class ReadingStationSlutUsersController extends Controller
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
+        }
+
+        if (!$weeklyProgram->readingStationUser) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
+            ])->response()->setStatusCode(400);
         }
 
         if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
@@ -365,6 +377,12 @@ class ReadingStationSlutUsersController extends Controller
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
+        }
+    
+        if (!$weeklyProgram->readingStationUser) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
+            ])->response()->setStatusCode(400);
         }
 
         if ($weeklyProgram->readingStationUser->user->id !== $user->id) {
