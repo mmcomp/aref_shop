@@ -285,7 +285,7 @@ class ReadingStationSlutUsersController extends Controller
 
     public function weeklyProgramList(User $user)
     {
-        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->withTrashed()->first();
+        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->first();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if ($readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
