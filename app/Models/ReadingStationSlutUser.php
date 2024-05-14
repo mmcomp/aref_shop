@@ -26,7 +26,7 @@ class ReadingStationSlutUser extends Model
 
     function weeklyProgram()
     {
-        return $this->hasOne(ReadingStationWeeklyProgram::class, 'id', 'reading_station_weekly_program_id');
+        return $this->hasOne(ReadingStationWeeklyProgram::class, 'id', 'reading_station_weekly_program_id')->where('deleted_at', null);
     }
 
     function slut()
