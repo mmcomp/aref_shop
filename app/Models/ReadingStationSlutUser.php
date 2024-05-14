@@ -42,27 +42,11 @@ class ReadingStationSlutUser extends Model
 
     function absentPresent()
     {
-        // if ($this->weeklyProgram->readingStationUser) {
-        $readingStationUser = $this->weeklyProgram->readingStationUser;
-        // $user_id = $this->weeklyProgram->readingStationUser->user_id;
-        // $reading_station_id = $this->weeklyProgram->readingStationUser->reading_station_id;
+        $user_id = $this->weeklyProgram->readingStationUser->user_id;
+        $reading_station_id = $this->weeklyProgram->readingStationUser->reading_station_id;
         return $this->hasOne(ReadingStationAbsentPresent::class, 'day', 'day')
-            ->where(function ($query) use ($readingStationUser) {
-                if ($readingStationUser) {
-                    $query->where('user_id', $readingStationUser->user_id);
-                } else {
-                    $query->where('user_id', -19999);
-                }
-            })
-            // ->where('user_id', $user_id)
-            // ->where('reading_station_id', $reading_station_id)
-            ->where(function ($query) use ($readingStationUser) {
-                if ($readingStationUser) {
-                    $query->where('reading_station_id', $readingStationUser->reading_station_id);
-                } else {
-                    $query->where('reading_station_id', -19999);
-                }
-            })
+            ->where('user_id', $user_id)
+            ->where('reading_station_id', $reading_station_id)
             ->where('is_processed', 0);
     }
 
