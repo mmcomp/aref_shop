@@ -37,6 +37,6 @@ class ReadingStationWeeklyProgram extends Model
 
     function readingStationUser()
     {
-        return $this->belongsTo(ReadingStationUser::class)->where('deleted_at', null);
+        return $this->belongsTo(ReadingStationUser::class);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ReadingStationSlutUser extends Model
@@ -41,17 +42,33 @@ class ReadingStationSlutUser extends Model
 
     function absentPresent()
     {
-        $user_id = $this->weeklyProgram->readingStationUser->user_id;
-        $reading_station_id = $this->weeklyProgram->readingStationUser->reading_station_id;
+        // if ($this->weeklyProgram->readingStationUser) {
+        $readingStationUser = $this->weeklyProgram->readingStationUser;
+        // $user_id = $this->weeklyProgram->readingStationUser->user_id;
+        // $reading_station_id = $this->weeklyProgram->readingStationUser->reading_station_id;
         return $this->hasOne(ReadingStationAbsentPresent::class, 'day', 'day')
-                    ->where('user_id', $user_id)
-                    ->where('reading_station_id', $reading_station_id)
-                    ->where('is_processed', 0);
+            ->where(function ($query) use ($readingStationUser) {
+                if ($readingStationUser) {
+                    $query->where('user_id', $readingStationUser->user_id);
+                } else {
+                    $query->where('user_id', -19999);
+                }
+            })
+            // ->where('user_id', $user_id)
+            // ->where('reading_station_id', $reading_station_id)
+            ->where(function ($query) use ($readingStationUser) {
+                if ($readingStationUser) {
+                    $query->where('reading_station_id', $readingStationUser->reading_station_id);
+                } else {
+                    $query->where('reading_station_id', -19999);
+                }
+            })
+            ->where('is_processed', 0);
     }
 
     function user()
     {
-        return $this->belongsTo(User::class);    
+        return $this->belongsTo(User::class);
     }
 
     function calls()
@@ -66,11 +83,11 @@ class ReadingStationSlutUser extends Model
 
     function warnings()
     {
-        return $this->hasMany(ReadingStationSlutChangeWarning::class);    
+        return $this->hasMany(ReadingStationSlutChangeWarning::class);
     }
 
     function unReadWarnings()
     {
-        return $this->hasMany(ReadingStationSlutChangeWarning::class)->where('is_read', false);    
+        return $this->hasMany(ReadingStationSlutChangeWarning::class)->where('is_read', false);
     }
 }
