@@ -136,7 +136,7 @@ class User extends Authenticatable implements JWTSubject
     
     function readingStationUser()
     {
-        return $this->hasOne(ReadingStationUser::class);
+        return $this->hasOne(ReadingStationUser::class)->where('status', 'active');
     }
         
     function readingStation()
