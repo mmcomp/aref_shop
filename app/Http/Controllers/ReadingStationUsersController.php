@@ -519,8 +519,8 @@ class ReadingStationUsersController extends Controller
             $found->table_number = $request->table_number;
             $found->default_package_id = $request->default_package_id;
             // $found->start_date = $request->start_date;
-            $found->required_time = $requiredTime;
-            $found->optional_time = $optionalTime;
+            // $found->required_time = $requiredTime;
+            // $found->optional_time = $optionalTime;
             $found->consultant = $request->consultant;
             $found->representative = $request->representative;
             $found->contract_start = $request->contract_start;
@@ -534,8 +534,8 @@ class ReadingStationUsersController extends Controller
                 "table_number" => $request->table_number,
                 "default_package_id" => $request->default_package_id,
                 // "start_date" => $request->start_date,
-                "required_time" => $requiredTime,
-                "optional_time" => $optionalTime,
+                // "required_time" => $requiredTime,
+                // "optional_time" => $optionalTime,
                 "consultant" => $request->consultant,
                 "representative" => $request->representative,
                 "contract_start" => $request->contract_start,
