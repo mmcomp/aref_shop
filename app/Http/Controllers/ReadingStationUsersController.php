@@ -543,7 +543,7 @@ class ReadingStationUsersController extends Controller
                 "status" => 'active',
             ])->id;
         }
-        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated']);
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated', 'table_number' => null]);
         ReadingStationWeeklyProgram::create([
             "reading_station_user_id" => $id,
             "name" => $package->name,
@@ -624,7 +624,7 @@ class ReadingStationUsersController extends Controller
         $found->contract_end = $request->contract_end;
         $found->status = 'active';
         $found->save();
-        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated']);
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated', 'table_number' => null]);
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
