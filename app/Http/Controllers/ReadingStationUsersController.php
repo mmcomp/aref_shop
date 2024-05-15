@@ -631,6 +631,7 @@ class ReadingStationUsersController extends Controller
         }
         // $found->delete();
         $found->status = 'canceled';
+        $found->table_number = null;
         $found->save();
         $user->is_reading_station_user = false;
         $user->save();
