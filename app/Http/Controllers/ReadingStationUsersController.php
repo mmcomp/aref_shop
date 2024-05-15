@@ -512,7 +512,7 @@ class ReadingStationUsersController extends Controller
         $end = $date->endOfWeek(Carbon::FRIDAY)->toDateString();
 
 
-        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->withTrash()->first();
+        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->withTrashed()->first();
         if ($found) {
             $found->deleted_at = null;
             $found->status = 'active';
@@ -534,7 +534,7 @@ class ReadingStationUsersController extends Controller
                 "status" => 'active',
             ])->id;
         }
-        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrash()->update(['status' => 'relocated']);
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated']);
         ReadingStationWeeklyProgram::create([
             "reading_station_user_id" => $id,
             "name" => $package->name,
