@@ -20,8 +20,9 @@ class ReadingStationWeeklyPrograms3Resource extends JsonResource
 
             return [
                 'id' => $this->id,
-                'start'=> $this->start,
-                'end'=> $this->end,
+                'start' => $this->start,
+                'end' => $this->end,
+                'readingStationUser' => new ReadingStationUsers5Resource($this->readingStationUser),
             ];
         }
     }
