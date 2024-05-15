@@ -516,6 +516,15 @@ class ReadingStationUsersController extends Controller
         if ($found) {
             $found->deleted_at = null;
             $found->status = 'active';
+            $found->table_number = $request->table_number;
+            $found->default_package_id = $request->default_package_id;
+            $found->start_date = $request->start_date;
+            $found->required_time = $requiredTime;
+            $found->optional_time = $optionalTime;
+            $found->consultant = $request->consultant;
+            $found->representative = $request->representative;
+            $found->contract_start = $request->contract_start;
+            $found->contract_end = $request->contract_end;
             $found->save();
             $id = $found->id;
         } else {
