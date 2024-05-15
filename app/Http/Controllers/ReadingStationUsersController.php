@@ -576,7 +576,15 @@ class ReadingStationUsersController extends Controller
         $found = ReadingStationUser::find($request->id);
         $readingStation = ReadingStation::find($request->reading_station_id);
         if ($found->reading_station_id !== $request->reading_station_id) {
-            return $this->store($request, $user);
+            $insertRequest = new ReadingStationCreateUserRequest();
+            $insertRequest->table_number = $request->table_number;
+            $insertRequest->default_package_id = $request->default_package_id;
+            $insertRequest->reading_station_id = $request->reading_station_id;
+            $insertRequest->consultant = $request->consultant;
+            $insertRequest->representative = $request->representative;
+            $insertRequest->contract_start = $request->contract_start;
+            $insertRequest->contract_end = $request->contract_end;
+            return $this->store($insertRequest, $user);
         }
 
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
