@@ -544,18 +544,22 @@ class ReadingStationUsersController extends Controller
             ])->id;
         }
         ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated', 'table_number' => null]);
-        ReadingStationWeeklyProgram::create([
-            "reading_station_user_id" => $id,
-            "name" => $package->name,
-            "start" => $start,
-            "end" => $end,
-            "required_time" => $requiredTime,
-            "optional_time" => $optionalTime,
-            "consultant" => $request->consultant,
-            "representative" => $request->representative,
-            "contract_start" => $request->contract_start,
-            "contract_end" => $request->contract_end,
-        ]);
+        $weeklyProgram = ReadingStationWeeklyProgram::where('reading_station_user_id', $id)
+            ->where('end', $end)->first();
+        if (!$weeklyProgram) {
+            ReadingStationWeeklyProgram::create([
+                "reading_station_user_id" => $id,
+                "name" => $package->name,
+                "start" => $start,
+                "end" => $end,
+                "required_time" => $requiredTime,
+                "optional_time" => $optionalTime,
+                "consultant" => $request->consultant,
+                "representative" => $request->representative,
+                "contract_start" => $request->contract_start,
+                "contract_end" => $request->contract_end,
+            ]);
+        }
         $user->is_reading_station_user = true;
         $user->save();
 
