@@ -159,6 +159,9 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        $forbiddenReadingStationUserIds = ReadingStationSlutUser::where('reading_station_id', $readingStation->id)->where('status', '!=', 'active')->pluck();
+        $forbiddenWeeklyPrograms = ReadingStationWeeklyProgram::whereIn('reading_station_user_id', $forbiddenReadingStationUserIds)->pluck('id');
+
         $beforeSluts = ReadingStationSlut::where('reading_station_id', $readingStation->id)
             ->where('id', '!=', $slut->id)
             ->where('start', '<', $slut->start)
@@ -167,6 +170,7 @@ class ReadingStationUsersController extends Controller
         if (
             count($beforeSluts) > 0 &&
             ReadingStationSlutUser::whereIn('reading_station_slut_id', $beforeSluts)
+            ->whereNotIn('reading_station_weekly_program_id', $forbiddenWeeklyPrograms)
             ->where('is_required', 1)
             ->where('status', 'defined')
             ->where('day', Carbon::now()->toDateString())
@@ -181,6 +185,7 @@ class ReadingStationUsersController extends Controller
         $start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
         $now = Carbon::now()->toDateString();
         $slutUsers = ReadingStationUser::where('reading_station_id', $readingStation->id)
+            ->where('status', 'active')
             // ->whereHas('weeklyPrograms', function ($query) use ($end) {
             //     $query->whereDate('end', $end);
             // })
