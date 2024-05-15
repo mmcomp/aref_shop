@@ -121,6 +121,9 @@ class ReadingStationUsersController extends Controller
                     $q->where('groups_id', $userGroup->id);
                 });
         }
+        if ($request->exists('status')) {
+            $paginatedReadingStationOffdays->where('status', $request->get('status'));
+        }
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
             $sortDir = $request->get('sort_dir');
@@ -476,6 +479,7 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station user exists!']],
             ])->response()->setStatusCode(400);
         }
+
         if ($request->table_number !== null) {
             $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("table_number", $request->table_number)->first();
             if ($found) {
@@ -503,19 +507,29 @@ class ReadingStationUsersController extends Controller
         $end = $date->endOfWeek(Carbon::FRIDAY)->toDateString();
 
 
-        $id = ReadingStationUser::create([
-            "reading_station_id" => $request->reading_station_id,
-            "user_id" => $user->id,
-            "table_number" => $request->table_number,
-            "default_package_id" => $request->default_package_id,
-            "start_date" => $request->start_date,
-            "required_time" => $requiredTime,
-            "optional_time" => $optionalTime,
-            "consultant" => $request->consultant,
-            "representative" => $request->representative,
-            "contract_start" => $request->contract_start,
-            "contract_end" => $request->contract_end,
-        ])->id;
+        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->withTrash()->first();
+        if ($found) {
+            $found->deleted_at = null;
+            $found->status = 'active';
+            $found->save();
+            $id = $found->id;
+        } else {
+            $id = ReadingStationUser::create([
+                "reading_station_id" => $request->reading_station_id,
+                "user_id" => $user->id,
+                "table_number" => $request->table_number,
+                "default_package_id" => $request->default_package_id,
+                "start_date" => $request->start_date,
+                "required_time" => $requiredTime,
+                "optional_time" => $optionalTime,
+                "consultant" => $request->consultant,
+                "representative" => $request->representative,
+                "contract_start" => $request->contract_start,
+                "contract_end" => $request->contract_end,
+                "status" => 'active',
+            ])->id;
+        }
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrash()->update(['status' => 'relocated']);
         ReadingStationWeeklyProgram::create([
             "reading_station_user_id" => $id,
             "name" => $package->name,
@@ -597,7 +611,7 @@ class ReadingStationUsersController extends Controller
      */
     public function destroy(User $user, $id)
     {
-        $found = ReadingStationUser::find($id);
+        $found = ReadingStationUser::where('id', $id)->where('status', 'active')->first();
         if (!$found) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user not found!']],
@@ -615,7 +629,9 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station user table is not for this user!']],
             ])->response()->setStatusCode(400);
         }
-        $found->delete();
+        // $found->delete();
+        $found->status = 'canceled';
+        $found->save();
         $user->is_reading_station_user = false;
         $user->save();
         return (new ReadingStationUsersResource(null))->additional([

@@ -24,6 +24,7 @@ class ReadingStationUsers2Resource extends JsonResource
                 'user'=> new UserSmallResource($this->user),
                 'package' => new ReadingStationPackagesResource($this->package),
                 'total' => $this->total,
+                'status' => $this->status,
                 'weeklyPrograms' => new ReadingStationWeeklyPrograms5Collection($this->weeklyPrograms),
                 // 'weeklyPrograms' => new ReadingStationWeeklyPrograms2Collection($this->weeklyPrograms),
                 // 'weeklyPrograms' => $this->weeklyPrograms,

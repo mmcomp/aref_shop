@@ -31,6 +31,7 @@ class ReadingStationUsersIndexRequest extends FormRequest
             'per_page' => 'string|max:255',
             'name' => 'nullable|string',
             'phone' => 'nullable|string',
+            'status' => 'nullable|in|active,canceled,relocated',
         ];
     }
      /**
