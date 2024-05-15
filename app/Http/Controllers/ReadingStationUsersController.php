@@ -159,7 +159,7 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $forbiddenReadingStationUserIds = ReadingStationSlutUser::where('reading_station_id', $readingStation->id)->where('status', '!=', 'active')->pluck('id');
+        $forbiddenReadingStationUserIds = ReadingStationUser::where('reading_station_id', $readingStation->id)->where('status', '!=', 'active')->pluck('id');
         $forbiddenWeeklyPrograms = ReadingStationWeeklyProgram::whereIn('reading_station_user_id', $forbiddenReadingStationUserIds)->pluck('id');
 
         $beforeSluts = ReadingStationSlut::where('reading_station_id', $readingStation->id)
