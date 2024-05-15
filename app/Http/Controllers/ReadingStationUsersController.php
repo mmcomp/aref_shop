@@ -575,6 +575,9 @@ class ReadingStationUsersController extends Controller
     {
         $found = ReadingStationUser::find($request->id);
         $readingStation = ReadingStation::find($request->reading_station_id);
+        if ($found->reading_station_id !== $request->reading_station_id) {
+            return $this->store($request, $user);
+        }
 
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
             return (new ReadingStationUsersResource(null))->additional([
