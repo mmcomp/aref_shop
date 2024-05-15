@@ -478,7 +478,7 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station table does not exist!']],
             ])->response()->setStatusCode(400);
         }
-        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->first();
+        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where('status', 'active')->where("user_id", $user->id)->first();
         if ($found) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user exists!']],
