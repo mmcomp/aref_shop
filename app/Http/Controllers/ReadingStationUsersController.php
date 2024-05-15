@@ -611,6 +611,7 @@ class ReadingStationUsersController extends Controller
         $found->representative = $request->representative;
         $found->contract_start = $request->contract_start;
         $found->contract_end = $request->contract_end;
+        $found->status = 'active';
         $found->save();
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
