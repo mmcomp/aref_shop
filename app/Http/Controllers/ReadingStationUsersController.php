@@ -518,7 +518,7 @@ class ReadingStationUsersController extends Controller
             $found->status = 'active';
             $found->table_number = $request->table_number;
             $found->default_package_id = $request->default_package_id;
-            $found->start_date = $request->start_date;
+            // $found->start_date = $request->start_date;
             $found->required_time = $requiredTime;
             $found->optional_time = $optionalTime;
             $found->consultant = $request->consultant;
@@ -533,7 +533,7 @@ class ReadingStationUsersController extends Controller
                 "user_id" => $user->id,
                 "table_number" => $request->table_number,
                 "default_package_id" => $request->default_package_id,
-                "start_date" => $request->start_date,
+                // "start_date" => $request->start_date,
                 "required_time" => $requiredTime,
                 "optional_time" => $optionalTime,
                 "consultant" => $request->consultant,
