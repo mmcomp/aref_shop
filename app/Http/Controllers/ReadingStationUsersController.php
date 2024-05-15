@@ -613,6 +613,7 @@ class ReadingStationUsersController extends Controller
         $found->contract_end = $request->contract_end;
         $found->status = 'active';
         $found->save();
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated']);
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
