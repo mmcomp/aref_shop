@@ -427,7 +427,6 @@ class ReadingStationUsersController extends Controller
         }
         */
 
-        Log::info("wp" . json_encode($weeklyProgram));
         $weeklyProgram->save();
         $readingStationUser->save();
         if ($weeklyProgram->sluts->where('day', $today)->where('status', '!=', 'defined')->count() === 0) {
