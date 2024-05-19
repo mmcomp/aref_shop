@@ -100,7 +100,7 @@ class ReadingStationReportController extends Controller
             $q1->whereHas('readingStationUser', function ($q2) use ($readingStation) {
                 $q2->where('reading_station_id', $readingStation->id);
             });
-        });
+        })->where('status', '!=', 'defined');
         if ($request->exists('reading_station_slut_id')) {
             $slutUsers->whereHas('slut', function ($q) use ($request) {
                 $q->where('id', $request->reading_station_slut_id);
