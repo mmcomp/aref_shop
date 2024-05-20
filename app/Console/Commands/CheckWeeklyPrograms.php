@@ -43,6 +43,7 @@ class CheckWeeklyPrograms extends Command
                 'reading_station_user_id' => $readingStationUser->id,
                 'start' => $startOfThisWeek,
                 'end' => $endOfThisWeek,
+                'name' => $package->name,
                 'required_time' => $package->required_time,
                 'optional_time' => $package->optional_time,
                 'created_at' => Carbon::now(),
