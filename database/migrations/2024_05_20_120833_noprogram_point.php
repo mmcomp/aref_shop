@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reading_station_weekly_programs', function (Blueprint $table) {
-            $table->integer('noprogram_point')->default(0)->afetr('package_point');
+            $table->integer('noprogram_point')->default(0)->after('package_point');
         });
     }
 
