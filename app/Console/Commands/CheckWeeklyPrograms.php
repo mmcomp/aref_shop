@@ -71,7 +71,6 @@ class CheckWeeklyPrograms extends Command
     public function handle()
     {
         $this->addUncreatedWeeklyPrograms();
-        return;
 
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7)->toDateString();
         $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('readingStationUser')->get();
