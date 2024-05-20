@@ -25,7 +25,8 @@ class CheckWeeklyPrograms extends Command
      */
     protected $description = 'Calculate Student Weekly Points';
 
-    private function addUncreatedWeeklyPrograms() {
+    private function addUncreatedWeeklyPrograms()
+    {
         $defaultPoint = 2;
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
@@ -45,7 +46,7 @@ class CheckWeeklyPrograms extends Command
         $packageIds = $readingStationUsers->pluck('default_package_id');
         $packages = ReadingStationPackage::whereIn('id', $packageIds)->get();
         $query = [];
-        foreach($readingStationUsers as $readingStationUser) {
+        foreach ($readingStationUsers as $readingStationUser) {
             $package = $packages->where('id', $readingStationUser->default_package_id)->first();
             $query[] = [
                 'reading_station_user_id' => $readingStationUser->id,
@@ -126,7 +127,9 @@ class CheckWeeklyPrograms extends Command
             $lateScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->filter(function ($slt) {
                 return strpos($slt->status, 'late_') === 0;
             })->count();
-            $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('status', 'late_60_plus')->count();
+            $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)
+                ->where('is_required', true)
+                ->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
             echo "lateScore = $lateScore\n";
             echo "late60PlusScore = $late60PlusScore\n";
