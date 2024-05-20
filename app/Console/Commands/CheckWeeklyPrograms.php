@@ -29,7 +29,7 @@ class CheckWeeklyPrograms extends Command
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
         $okReadingStationUserIds = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->pluck('reading_station_user_id');
-        $readingStationUsers = ReadingStationUser::where('table_number', '!=', null)->whereNoIn('id', $okReadingStationUserIds)->get();
+        $readingStationUsers = ReadingStationUser::where('table_number', '!=', null)->whereNotIn('id', $okReadingStationUserIds)->get();
         echo "creating weekly programs for \n";
         var_dump($readingStationUsers);
         $packageIds = $readingStationUsers->pluck('default_package_id');
