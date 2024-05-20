@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ReadingStationPackage;
+use App\Models\ReadingStationUser;
 use App\Models\ReadingStationUserStrike;
 use App\Models\ReadingStationWeeklyProgram;
 use Carbon\Carbon;
@@ -23,11 +25,36 @@ class CheckWeeklyPrograms extends Command
      */
     protected $description = 'Calculate Student Weekly Points';
 
+    private function addUncreatedWeeklyPrograms() {
+        $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+        $okReadingStationUserIds = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->pluck('reading_station_user_id');
+        $readingStationUsers = ReadingStationUser::where('table_number', '!=', null)->whereNoIn('id', $okReadingStationUserIds)->get();
+        $packageIds = $readingStationUsers->pluck('default_package_id');
+        $packages = ReadingStationPackage::whereIn('id', $packageIds)->get();
+        $query = [];
+        foreach($readingStationUsers as $readingStationUser) {
+            $package = $packages->where('id', $readingStationUser->default_package_id)->first();
+            $query[] = [
+                'reading_station_user_id' => $readingStationUser->id,
+                'start' => $startOfThisWeek,
+                'end' => $endOfThisWeek,
+                'required_time' => $package->required_time,
+                'optional_time' => $package->optional_time,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        }
+        ReadingStationWeeklyProgram::insert($query);
+    }
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $this->addUncreatedWeeklyPrograms();
+        return;
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('readingStationUser')->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
