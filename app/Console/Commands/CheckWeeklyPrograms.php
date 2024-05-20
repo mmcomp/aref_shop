@@ -31,7 +31,7 @@ class CheckWeeklyPrograms extends Command
         $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
         $thisWeekPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('sluts')->with('readingStationUser')->get();
         foreach ($thisWeekPrograms as $thisWeekProgram) {
-            if (count($thisWeekProgram->sluts) === 0) {
+            if (count($thisWeekProgram->sluts) === 0 && $thisWeekProgram->noprogram_point === 0) {
                 $thisWeekProgram->point -= $defaultPoint;
                 $thisWeekProgram->noprogram_point = $defaultPoint;
                 $thisWeekProgram->save();
