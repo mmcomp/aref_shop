@@ -233,11 +233,12 @@ class CheckAllWeeklyPrograms extends Command
                         echo "Grade score:" . $score . "\n";
                     }
                 }
-
-                // addUncreatedWeeklyPrograms
-                echo "addUncreatedWeeklyPrograms: $weeklyProgram->noprogram_point\n";
-                $score -= $weeklyProgram->noprogram_point;
             }
+
+
+            // addUncreatedWeeklyPrograms
+            echo "addUncreatedWeeklyPrograms: $weeklyProgram->noprogram_point\n";
+            $score -= $weeklyProgram->noprogram_point;
 
             echo "Final score:" . $score . "\n";
             $weeklyProgram->point += $score;
