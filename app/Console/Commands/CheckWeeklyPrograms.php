@@ -26,9 +26,21 @@ class CheckWeeklyPrograms extends Command
     protected $description = 'Calculate Student Weekly Points';
 
     private function addUncreatedWeeklyPrograms() {
+        $defaultPoint = 2;
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
-        $okReadingStationUserIds = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->pluck('reading_station_user_id');
+        $thisWeekPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('sluts')->with('readingStationUser')->get();
+        foreach ($thisWeekPrograms as $thisWeekProgram) {
+            if (count($thisWeekProgram->sluts) === 0) {
+                $thisWeekProgram->point -= $defaultPoint;
+                $thisWeekProgram->noprogram_point = $defaultPoint;
+                $thisWeekProgram->save();
+                $readingStationUser = $thisWeekProgram->readingStationUser;
+                $readingStationUser->total -= $defaultPoint;
+                $readingStationUser->save();
+            }
+        }
+        $okReadingStationUserIds = $thisWeekPrograms->pluck('reading_station_user_id');
         $readingStationUsers = ReadingStationUser::where('table_number', '!=', null)->whereNotIn('id', $okReadingStationUserIds)->get();
         $packageIds = $readingStationUsers->pluck('default_package_id');
         $packages = ReadingStationPackage::whereIn('id', $packageIds)->get();
@@ -42,10 +54,13 @@ class CheckWeeklyPrograms extends Command
                 'name' => $package->name,
                 'required_time' => $package->required_time,
                 'optional_time' => $package->optional_time,
-                'noprogram_point' => 2,
+                'noprogram_point' => $defaultPoint,
+                'point' => -2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];
+            $readingStationUser->total -= $defaultPoint;
+            $readingStationUser->save();
         }
         ReadingStationWeeklyProgram::insert($query);
     }
@@ -57,7 +72,8 @@ class CheckWeeklyPrograms extends Command
     {
         $this->addUncreatedWeeklyPrograms();
         return;
-        $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+
+        $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7)->toDateString();
         $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('readingStationUser')->get();
         foreach ($weeklyPrograms as $weeklyProgram) {
             if (!$weeklyProgram->readingStationUser) continue;

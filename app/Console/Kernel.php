@@ -37,8 +37,8 @@ class Kernel extends ConsoleKernel
         })->everyFifteenMinutes();
 
         $schedule->command('app:check-weekly-programs')
-            ->fridays()
-            ->at('23:00');
+            ->saturdays()
+            ->at('00:30');
     }
 
     public function putBlockedUserToRedis($blocketUsers)
