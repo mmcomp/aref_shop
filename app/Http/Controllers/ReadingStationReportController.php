@@ -98,7 +98,8 @@ class ReadingStationReportController extends Controller
         }
         $slutUsers = ReadingStationSlutUser::whereHas('weeklyProgram', function ($q1) use ($readingStation) {
             $q1->whereHas('readingStationUser', function ($q2) use ($readingStation) {
-                $q2->where('reading_station_id', $readingStation->id);
+                $q2->where('reading_station_id', $readingStation->id)
+                    ->where('table_number', '!=', null);
             });
         })->where('status', '!=', 'defined');
         if ($request->exists('reading_station_slut_id')) {
