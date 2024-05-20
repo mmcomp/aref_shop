@@ -30,12 +30,8 @@ class CheckWeeklyPrograms extends Command
         $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
         $okReadingStationUserIds = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->pluck('reading_station_user_id');
         $readingStationUsers = ReadingStationUser::where('table_number', '!=', null)->whereNotIn('id', $okReadingStationUserIds)->get();
-        echo "creating weekly programs for \n";
-        var_dump($readingStationUsers);
         $packageIds = $readingStationUsers->pluck('default_package_id');
         $packages = ReadingStationPackage::whereIn('id', $packageIds)->get();
-        echo "packages:\n";
-        var_dump($packages);
         $query = [];
         foreach($readingStationUsers as $readingStationUser) {
             $package = $packages->where('id', $readingStationUser->default_package_id)->first();
@@ -46,14 +42,12 @@ class CheckWeeklyPrograms extends Command
                 'name' => $package->name,
                 'required_time' => $package->required_time,
                 'optional_time' => $package->optional_time,
+                'noprogram_point' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];
         }
-        echo "query:\n";
-        var_dump($query);
-        $res = ReadingStationWeeklyProgram::insert($query);
-        var_dump($res);
+        ReadingStationWeeklyProgram::insert($query);
     }
 
     /**
