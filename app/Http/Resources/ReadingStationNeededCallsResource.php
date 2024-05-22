@@ -46,6 +46,10 @@ class ReadingStationNeededCallsResource extends JsonResource
             // });
 
             $hasCallData = [];
+            $typeIsHasCalls = $type === 'has_calls';
+            if ($typeIsHasCalls) {
+                $type = 'all';
+            }
             foreach ($this->resource as $userSlut) {
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
@@ -212,6 +216,9 @@ class ReadingStationNeededCallsResource extends JsonResource
                     ];
                 }
             }
+            if ($typeIsHasCalls) {
+                $data = $hasCallData;
+            }
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
@@ -220,7 +227,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 "exits" => $exits,
                 "hasCallCount" => count($hasCallData),
                 "data" => $data,
-                "hasCallData" => $hasCallData,
+                // "hasCallData" => $hasCallData,
             ];
         }
     }

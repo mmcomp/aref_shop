@@ -26,7 +26,7 @@ class ReadingStationCallIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'type' => 'required|in:all,absent,delay,exit,optional_enter',
+            'type' => 'required|in:all,absent,delay,exit,optional_enter,has_calls',
         ];
     }
      /**
