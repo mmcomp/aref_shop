@@ -74,4 +74,13 @@ class ReadingStationSlutUser extends Model
     {
         return $this->hasMany(ReadingStationSlutChangeWarning::class)->where('is_read', false);
     }
+
+    function allAbsentPresent()
+    {
+        $user_id = $this->weeklyProgram->readingStationUser->user_id;
+        $reading_station_id = $this->weeklyProgram->readingStationUser->reading_station_id;
+        return $this->hasMany(ReadingStationAbsentPresent::class, 'day', 'day')
+            ->where('user_id', $user_id)
+            ->where('reading_station_id', $reading_station_id);
+    }
 }

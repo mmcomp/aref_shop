@@ -27,7 +27,7 @@ class ReadingStationAbsentPresentReportResource extends JsonResource
                 'slut' => new ReadingStationSluts2Resource($this->slut),
                 'status' => $this->status,
                 'reason' => new ReadingStationAbsentReasonsResource($this->absenseReason),
-                'absentPresent' => new ReadingStationAbsentPresentResource($this->absentPresent),
+                'allAbsentPresent' => new ReadingStationAbsentPresentCollection($this->allAbsentPresent),
             ];
         }
     }
