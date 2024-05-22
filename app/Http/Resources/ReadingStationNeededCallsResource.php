@@ -45,6 +45,7 @@ class ReadingStationNeededCallsResource extends JsonResource
             //     return 0;
             // });
 
+            $hasCallData = [];
             foreach ($this->resource as $userSlut) {
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
@@ -130,7 +131,30 @@ class ReadingStationNeededCallsResource extends JsonResource
                 if ($last_call_status === true) {
                     $noneExitCallSituation = true;
                 }
-
+                if (count($allCalls) > 0) {
+                    $hasCallData[] = [
+                        "slut" => [
+                            "id" => $userSlut->slut->id,
+                            "name" => $userSlut->slut->name,
+                        ],
+                        "user" => [
+                            "id" => $user->id,
+                            "first_name" => $user->first_name,
+                            "last_name" => $user->last_name,
+                            "email" => $user->email,
+                            "home_tell" => $user->home_tell,
+                            "mother_cell" => $user->mother_cell,
+                            "father_cell" => $user->father_cell,
+                        ],
+                        "table_number" => $userStation->table_number,
+                        "absent" => $absent,
+                        "optional_enter" => $optional_enter,
+                        "delay" => $delay,
+                        "exit" => $exit,
+                        "call_numbers" => count($allCalls),
+                        "last_call_status" => $last_call_status,
+                    ];
+                }
                 if ($exitCallSituation && $noneExitCallSituation && $filter) continue;
                 $all++;
                 if ($type !== "all") {
@@ -163,6 +187,30 @@ class ReadingStationNeededCallsResource extends JsonResource
                     "call_numbers" => count($allCalls),
                     "last_call_status" => $last_call_status,
                 ];
+                if ($last_call_status) {
+                    $hasCallData[] = [
+                        "slut" => [
+                            "id" => $userSlut->slut->id,
+                            "name" => $userSlut->slut->name,
+                        ],
+                        "user" => [
+                            "id" => $user->id,
+                            "first_name" => $user->first_name,
+                            "last_name" => $user->last_name,
+                            "email" => $user->email,
+                            "home_tell" => $user->home_tell,
+                            "mother_cell" => $user->mother_cell,
+                            "father_cell" => $user->father_cell,
+                        ],
+                        "table_number" => $userStation->table_number,
+                        "absent" => $absent,
+                        "optional_enter" => $optional_enter,
+                        "delay" => $delay,
+                        "exit" => $exit,
+                        "call_numbers" => count($allCalls),
+                        "last_call_status" => $last_call_status,
+                    ];
+                }
             }
             return [
                 "all" => $all,
@@ -170,7 +218,9 @@ class ReadingStationNeededCallsResource extends JsonResource
                 "delays" => $delays,
                 "absents" => $absents,
                 "exits" => $exits,
+                "hasCallCount" => count($hasCallData),
                 "data" => $data,
+                "hasCallData" => $hasCallData,
             ];
         }
     }
