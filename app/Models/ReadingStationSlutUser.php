@@ -37,7 +37,7 @@ class ReadingStationSlutUser extends Model
 
     function absenseReason()
     {
-        return $this->belongsTo(ReadingStationAbsentReason::class);
+        return $this->belongsTo(ReadingStationAbsentReason::class, 'reading_station_absent_reason_id');
     }
 
     function absentPresent()

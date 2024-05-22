@@ -19,6 +19,7 @@ class ReadingStationAbsentPresentReportResource extends JsonResource
         if ($this->resource != null) {
 
             return [
+                'id' => $this->id,
                 'table_number' => $this->weeklyProgram->readingStationUser->table_number,
                 'first_name' => $this->weeklyProgram->readingStationUser->user->first_name,
                 'last_name' => $this->weeklyProgram->readingStationUser->user->last_name,

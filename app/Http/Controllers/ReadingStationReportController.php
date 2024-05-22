@@ -149,7 +149,7 @@ class ReadingStationReportController extends Controller
         $sortDir = $request->sort_dir ?? 'asc';
         $slutUsers->orderBy($sort, $sortDir);
         $count = $slutUsers->count();
-        $data = $slutUsers->paginate($perPage);
+        $data = $slutUsers->with('absenseReason')->paginate($perPage);
 
         return (new ReadingStationAbsentPresentReportCollection($data, $count))->additional([
             'errors' => null,
