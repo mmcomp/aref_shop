@@ -90,11 +90,11 @@ class ReadingStationSlutUsersController extends Controller
         $sluts = $user->readingStationUser->readingStation->sluts;
         $weeklyProgram = $this->getWeeklyProgram($user, $request->week);
         if (ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->first()) {
-            if (!in_array(Auth::user()->group->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch', 'user_reading_station_branch'])) {
-                return (new ReadingStationSlutUsersResource(null))->additional([
-                    'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
-                ])->response()->setStatusCode(400);
-            }
+            // if (!in_array(Auth::user()->group->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch', 'user_reading_station_branch'])) {
+            //     return (new ReadingStationSlutUsersResource(null))->additional([
+            //         'errors' => ['reading_station_slut_user' => ['User has a program for the requested week!']],
+            //     ])->response()->setStatusCode(400);
+            // }
             if (ReadingStationSlutUser::where("reading_station_weekly_program_id", $weeklyProgram->id)->where('status', '!=', 'defined')->first()) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_slut_user' => ['User has a recorded slut for the requested week!']],
