@@ -38,19 +38,19 @@ class ReadingStationNeededCallsResource extends JsonResource
             $exits = 0;
             $data = [];
             $exitUsers = [];
-            // $resource = $this->resource->sort(function ($a, $b) {
-            //     if ($a->absentPresent && $b->absentPresent && $a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) {
-            //         return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
-            //     }
-            //     return 0;
-            // });
+            $resource = $this->resource->sort(function ($a, $b) {
+                if ($a->absentPresent && $b->absentPresent && $a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) {
+                    return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
+                }
+                return 0;
+            });
 
             $hasCallData = [];
             $typeIsHasCalls = $type === 'has_calls';
             if ($typeIsHasCalls) {
                 $type = 'all';
             }
-            foreach ($this->resource as $userSlut) {
+            foreach ($resource as $userSlut) {
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
