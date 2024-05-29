@@ -582,11 +582,11 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
-        $weeklyPrograms->where('noprogram_point', '>', 0);
+        $weeklyPrograms->where('noprogram_point', '!=', 0);
         $all = clone $weeklyPrograms;
 
 
-        $total = $all->sum('being_point');
+        $total = -1 * $all->sum('noprogram_point');
 
         $sort = "end";
         $sortDir = "desc";
