@@ -45,10 +45,10 @@ class ReadingStationNeededCallsResource extends JsonResource
                 if ($a->absentPresent && $b->absentPresent && $a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) {
                     return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
                 }
-                if (!$a->absentPresent && $b->absentPresent) return 1;
-                if ($a->absentPresent && !$b->absentPresent) return -1;
-                if (!$a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) return 1;
-                if ($a->absentPresent->slutUserExit && !$b->absentPresent->slutUserExit) return -1;
+                // if (!$a->absentPresent && $b->absentPresent) return 1;
+                // if ($a->absentPresent && !$b->absentPresent) return -1;
+                // if (!$a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) return 1;
+                // if ($a->absentPresent->slutUserExit && !$b->absentPresent->slutUserExit) return -1;
 
                 return 0;
             });
