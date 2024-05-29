@@ -11,6 +11,7 @@ use App\Http\Resources\ReadingStationSlutUserAbsentsCollection;
 use App\Http\Resources\ReadingStationSlutUserAvailableWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationSlutUserBeingWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationSlutUserLatesCollection;
+use App\Http\Resources\ReadingStationSlutUserNoProgramWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationSlutUserPackageWeeklyProgramCollection;
 use App\Http\Resources\ReadingStationSlutUsersResource;
 use App\Http\Resources\ReadingStationSlutUserWeeklyProgramCollection;
@@ -562,6 +563,46 @@ class ReadingStationSlutUsersController extends Controller
         }
 
         return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output, $total, $unCompletedWeeklyPrograms))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function noPrograms(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            if ($user->readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
+                return (new ReadingStationSlutUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+                ])->response()->setStatusCode(400);
+            }
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+        $weeklyPrograms->where('noprogram_point', '>', 0);
+        $all = clone $weeklyPrograms;
+
+
+        $total = $all->sum('being_point');
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserNoProgramWeeklyProgramCollection($output, $total))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
