@@ -38,12 +38,16 @@ class ReadingStationNeededCallsResource extends JsonResource
             $exits = 0;
             $data = [];
             $exitUsers = [];
+            if (is_array($this->resource)) {
+                $this->resource = collect($this->resource);
+            }
             $resource = $this->resource->sort(function ($a, $b) {
                 if ($a->absentPresent && $b->absentPresent && $a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) {
                     return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
                 }
                 return 0;
             });
+
 
             $hasCallData = [];
             $typeIsHasCalls = $type === 'has_calls';
