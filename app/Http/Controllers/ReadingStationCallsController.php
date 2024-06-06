@@ -81,6 +81,8 @@ class ReadingStationCallsController extends Controller
             ->where('day', $today)
             ->whereIn('reading_station_slut_id', $availableSluts)
             ->where('status', '!=', 'defined')
+            ->withAggregate('slut', 'start')
+            ->orderBy('slut_start')
             ->get();
         // foreach($todaySluts as $indx => $todaySlut) {
         //     $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
