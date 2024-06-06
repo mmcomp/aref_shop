@@ -236,6 +236,7 @@ class ReadingStationNeededCallsResource extends JsonResource
             if ($typeIsHasCalls) {
                 $data = $hasCallData;
             }
+            dd($inStationUsers);
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
