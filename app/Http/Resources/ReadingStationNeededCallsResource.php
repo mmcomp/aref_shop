@@ -65,18 +65,22 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
-                dump("user:", $user);
+                if ($user->id === 22007)
+                    dump("user:", $user);
                 $lastAbsentPresent = $user->absentPresents->where('is_processed', 1)->sortByDesc('updated_at')->first();
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
-                dump("UserReadingStationId:", $userStation);
+                if ($user->id === 22007)
+                    dump("UserReadingStationId:", $userStation);
                 $inStaion = false;
                 if (!in_array($userStation->id, $inStationUsers)) {
                     $inStationUsers[] = $userStation->id;
                 } else {
                     $inStaion = true;
                 }
-                dump("inStaion:", $inStaion);
-                dump("userSlut:", $userSlut);
+                if ($user->id === 22007)
+                    dump("inStaion:", $inStaion);
+                if ($user->id === 22007)
+                    dump("userSlut:", $userSlut);
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
