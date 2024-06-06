@@ -65,22 +65,22 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $exitCallSituation = true;
                 $noneExitCallSituation = true;
                 $user = $userSlut->weeklyProgram->readingStationUser->user;
-                if ($user->id === 22007)
-                    dump("user:", $user);
+                // if ($user->id === 22007)
+                    // dump("user:", $user);
                 $lastAbsentPresent = $user->absentPresents->where('is_processed', 1)->sortByDesc('updated_at')->first();
                 $userStation = $userSlut->weeklyProgram->readingStationUser;
-                if ($user->id === 22007)
-                    dump("UserReadingStationId:", $userStation);
+                // if ($user->id === 22007)
+                    // dump("UserReadingStationId:", $userStation);
                 $inStaion = false;
                 if (!in_array($userStation->id, $inStationUsers)) {
                     $inStationUsers[] = $userStation->id;
                 } else {
                     $inStaion = true;
                 }
-                if ($user->id === 22007)
-                    dump("inStaion:", $inStaion);
-                if ($user->id === 22007)
-                    dump("userSlut:", $userSlut);
+                // if ($user->id === 22007)
+                //     dump("inStaion:", $inStaion);
+                // if ($user->id === 22007)
+                //     dump("userSlut:", $userSlut);
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
                 $last_call_status = null;
@@ -101,7 +101,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     $last_call_status = $noneExitCalls->sortByDesc('id')->first()->reason !== 'no_answered';
                 }
                 $optional_enter = $userSlut->is_required ? false : true;
-                if ($optional_enter && !$last_call_status/* && !$inStaion*/) {
+                if ($optional_enter && !$last_call_status && !$inStaion) {
                     $optional_enters++;
                     $noneExitCallSituation = false;
                 }
@@ -245,7 +245,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 $data = $hasCallData;
             }
             // dd($inStationUsers);
-            dd();
+            // dd();
             return [
                 "all" => $all,
                 "optional_enters" => $optional_enters,
