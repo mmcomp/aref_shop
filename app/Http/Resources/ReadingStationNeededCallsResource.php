@@ -71,7 +71,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                     $inStationUsers[] = $userStation->id;
                 } else {
                     $inStaion = true;
-                    continue;
+                    // continue;
                 }
                 $absentPresent = $userSlut->absentPresent;
                 $absent = null;
