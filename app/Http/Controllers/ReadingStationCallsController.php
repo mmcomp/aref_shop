@@ -84,7 +84,6 @@ class ReadingStationCallsController extends Controller
             ->withAggregate('slut', 'start')
             ->orderBy('slut_start')
             ->get();
-        dd($todaySluts);
         // foreach($todaySluts as $indx => $todaySlut) {
         //     $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
         //     $todaySluts[$indx]->absentPresent = $absentPresent;
