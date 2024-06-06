@@ -41,17 +41,18 @@ class ReadingStationNeededCallsResource extends JsonResource
             if (is_array($this->resource)) {
                 $this->resource = collect($this->resource);
             }
-            $resource = $this->resource->sort(function ($a, $b) {
-                if ($a->absentPresent && $b->absentPresent && $a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) {
-                    return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
-                }
-                // if (!$a->absentPresent && $b->absentPresent) return 1;
-                // if ($a->absentPresent && !$b->absentPresent) return -1;
-                // if (!$a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) return 1;
-                // if ($a->absentPresent->slutUserExit && !$b->absentPresent->slutUserExit) return -1;
+            $resource = $this->resource;
+            // $resource = $this->resource->sort(function ($a, $b) {
+            //     if ($a->absentPresent && $b->absentPresent && $a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) {
+            //         return $a->absentPresent->slutUserExit->start > $b->absentPresent->slutUserExit->start ? 1 : -1;
+            //     }
+            //     // if (!$a->absentPresent && $b->absentPresent) return 1;
+            //     // if ($a->absentPresent && !$b->absentPresent) return -1;
+            //     // if (!$a->absentPresent->slutUserExit && $b->absentPresent->slutUserExit) return 1;
+            //     // if ($a->absentPresent->slutUserExit && !$b->absentPresent->slutUserExit) return -1;
 
-                return 0;
-            });
+            //     return 0;
+            // });
 
 
             $hasCallData = [];
