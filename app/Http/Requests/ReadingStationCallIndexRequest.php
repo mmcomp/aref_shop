@@ -27,6 +27,7 @@ class ReadingStationCallIndexRequest extends FormRequest
     {
         return [
             'type' => 'required|in:all,absent,delay,exit,optional_enter,has_calls',
+            'date' => 'nullable|date_format:Y-m-d H:i:s',
         ];
     }
      /**

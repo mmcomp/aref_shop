@@ -32,6 +32,11 @@ class ReadingStationCallsController extends Controller
         }
         $today = Carbon::now()->toDateString();
         $now = Carbon::now()->format("H:i:s");
+        if ($request->exists('date')) {
+            $date = Carbon::parse($request->date);
+            $today = $date->toDateString();
+            $now = $date->format("H:i:s");
+        }
         $weeklyPrograms = [];
         $availableSluts = ReadingStationSlut::select('id')->where('reading_station_id', $readingStation->id)
             ->where('start', '<=', $now)
