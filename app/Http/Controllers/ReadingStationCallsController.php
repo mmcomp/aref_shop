@@ -39,7 +39,7 @@ class ReadingStationCallsController extends Controller
         }
         $weeklyPrograms = [];
         $availableSluts = ReadingStationSlut::select('id')->where('reading_station_id', $readingStation->id)
-            // ->where('start', '<=', $now)
+            ->where('start', '<=', $now)
             ->get()
             ->map(function ($slut) {
                 return $slut->id;
