@@ -73,8 +73,7 @@ class ReadingStationNeededCallsResource extends JsonResource
                 //     dump("UserReadingStationId:", $userStation);
                 $inStaion = false;
                 if (!in_array($userStation->id, $inStationUsers)) {
-                    if ($userSlut->status !== 'absent')
-                        $inStationUsers[] = $userStation->id;
+                    $inStationUsers[] = $userStation->id;
                 } else {
                     $inStaion = true;
                 }
