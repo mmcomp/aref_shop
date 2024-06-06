@@ -39,13 +39,13 @@ class ReadingStationCallsController extends Controller
         }
         $weeklyPrograms = [];
         $availableSluts = ReadingStationSlut::select('id')->where('reading_station_id', $readingStation->id)
-            ->where('start', '<=', $now)
+            // ->where('start', '<=', $now)
             ->get()
             ->map(function ($slut) {
                 return $slut->id;
             })
             ->toArray();
-        dump("availableSluts", $availableSluts);
+        // dump("availableSluts", $availableSluts);
         // dd($availableSluts);
         $weeklyPrograms = ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($query) use ($readingStation) {
             $query->where('reading_station_id', $readingStation->id);
@@ -54,7 +54,7 @@ class ReadingStationCallsController extends Controller
                 return $slut->id;
             })
             ->toArray();
-        dump("weeklyPrograms", $weeklyPrograms);
+        // dump("weeklyPrograms", $weeklyPrograms);
 
         // $availableSluts = $readingStation->sluts
         //     ->where('start', '<=', $now)
@@ -86,7 +86,7 @@ class ReadingStationCallsController extends Controller
             ->orderBy('slut_start')
             ->get();
         // dd($todaySluts);
-        dd();
+        // dd();
         // foreach($todaySluts as $indx => $todaySlut) {
         //     $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
         //     $todaySluts[$indx]->absentPresent = $absentPresent;
