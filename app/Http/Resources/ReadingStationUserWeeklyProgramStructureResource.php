@@ -32,8 +32,8 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
             $package = $this->readingStationUser->package;
             $sluts = $this->readingStationUser->readingStation->sluts->sortBy('start');
             $weeklyPrograms = ($this->weeklyPrograms ?? $this->readingStationUser->noneZeroSlutWeeklyPrograms)->sortBy('start');
-            if (isset($weeklyPrograms[0]) && Carbon::parse($weeklyPrograms[0]->start)->gt(Carbon::now())) {
-                $weeklyPrograms = [null, $weeklyPrograms[0]];
+            if (count($weeklyPrograms) === 1 && Carbon::parse($weeklyPrograms->first()->start)->gt(Carbon::now())) {
+                $weeklyPrograms = [null, $weeklyPrograms->first()];
             }
             return [
                 'tableNumber' => $tableNumber,
