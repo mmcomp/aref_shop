@@ -18,7 +18,7 @@ class ReadingStationUsers2Collection extends ResourceCollection
         $collection =  $this->collection;
 
         foreach ($collection as $indx => $row) {
-            $weeklyPrograms = $row->weeklyPrograms;
+            $weeklyPrograms = $row->weeklyPrograms->sortBy('start');
             if (isset($weeklyPrograms[0]) && Carbon::parse($weeklyPrograms[0]->start)->gt(Carbon::now())) {
                 $collection[$indx]->weeklyPrograms = [null, $weeklyPrograms[0]];
             }
