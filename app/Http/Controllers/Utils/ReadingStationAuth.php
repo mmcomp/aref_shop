@@ -11,6 +11,7 @@ class ReadingStationAuth {
     {
         switch (Auth::user()->group->type) {
             case 'admin_reading_station_branch':
+            case 'user_reading_station_branch':
                 $readingStationId = Auth::user()->reading_station_id;
                 if ($readingStationId !== $readingStation->id) {
                     return false;

@@ -141,7 +141,7 @@ class UserController extends Controller
                 }
                 break;
             case 'user':
-                if (!in_array($authGroup->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch'])) {
+                if (!in_array($authGroup->type, ['admin', 'admin_reading_station', 'admin_reading_station_branch', 'user_reading_station_branch'])) {
                     return (new UserResource(null))->additional([
                         'errors' => ['user' => ['This groups id is forbidden!']],
                     ])->response()->setStatusCode(403);
