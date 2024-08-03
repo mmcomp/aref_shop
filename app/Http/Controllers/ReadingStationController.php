@@ -9,7 +9,9 @@ use App\Http\Resources\ReadingStation2Collection;
 use App\Http\Resources\ReadingStationResource;
 use App\Models\ReadingStation;
 use App\Models\ReadingStationUser;
+use App\Models\ReadingStationWeeklyProgram;
 use App\Utils\ReadingStationSms;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ReadingStationController extends Controller
@@ -121,7 +123,8 @@ class ReadingStationController extends Controller
             if (Auth::user()->reading_station_id !== $readingStation->id) {
                 return (new ReadingStationResource(null))->additional([
                     'errors' => ['reading_station' => ['Reading station does not belong to you!']],
-                ])->response()->setStatusCode(400);            }
+                ])->response()->setStatusCode(400);
+            }
         }
         $availableTables = $this->availableTables($readingStation);
         $readingStation->availableTables = $availableTables;
@@ -132,17 +135,111 @@ class ReadingStationController extends Controller
 
     public function testSms()
     {
-        return $this->smsProvider->send('09028888145', ['سلام', 'عرض ادب', 'چه خبرها!؟']);
+        return $this->sendSms('09153068145', 'حامد', 'شاکری', '۱۴۰۳/۰۶/۰۱', '۱۴۰۳/۰۶/۰۷', 47, 12, 5, 0);
     }
 
-    private function availableTables(ReadingStation $readingStation) : array 
+    public function sendSms($mobile, $firstName, $lastName, $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates, $test = true)
+    {
+        $data = "کل-مطالعه-دانش-آموز:{$studnetReadingAvarage}" . "\n" .
+            "میانگین-مطالعه-مرکز:{$stationReadingAvarage}" . "\n" .
+            "تعداد-غیبت:{$absents}" . "\n" .
+            "تعداد-تأخیر:{$lates}";
+        if (!$test) {
+            $this->smsProvider->send($mobile, [
+                "$firstName-$lastName",
+                "$from-الی-$to",
+                $data,
+            ]);
+        }
+
+        return [
+            "token" => "$firstName-$lastName",
+            "token2" => "$from-الی-$to",
+            "token3" => $data
+        ];
+    }
+
+    function validateMobile($mobile)
+    {
+        return preg_match('/^09[0-9]{9}+$/', $mobile);
+    }
+
+    public function cleanCellPhone(string $input)
+    {
+        if (!$this->validateMobile($input)) return null;
+
+        return $input;
+    }
+
+    public function getStudentInfoForSms(ReadingStation $readingStation)
+    {
+        $result = [];
+        $readingStationUsers = ReadingStationUser::where('reading_station_id', $readingStation->id)
+            ->with(['user'])->get();
+
+        foreach ($readingStationUsers  as  $readingStationUser) {
+            $res = [];
+            $lastWeekEnd = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7)->toDateString();
+            $lastWeeklyProgram = ReadingStationWeeklyProgram::where('reading_station_user_id', $readingStationUser->id)
+                ->whereDate('end', $lastWeekEnd)->first();
+            if (!$lastWeeklyProgram) {
+                // return [
+                //     'errors' => ['Reading station user last weekly program not found'],
+                // ];
+                continue;
+            }
+            $phones = [];
+            if ($this->cleanCellPhone($readingStationUser->user->email)) {
+                $phones[] = $readingStationUser->user->email;
+            }
+            if ($this->cleanCellPhone($readingStationUser->user->father_cell) && !in_array($readingStationUser->user->father_cell, $phones)) {
+                $phones[] = $readingStationUser->user->father_cell;
+            }
+            if ($this->cleanCellPhone($readingStationUser->user->mother_cell) && !in_array($readingStationUser->user->mother_cell, $phones)) {
+                $phones[] = $readingStationUser->user->mother_cell;
+            }
+            $firstName = $readingStationUser->user->first_name;
+            $lastName = $readingStationUser->user->last_name;
+            $from = jdate(strtotime($lastWeeklyProgram->start))->format("Y/m/d");
+            $to = jdate(strtotime($lastWeeklyProgram->end))->format("Y/m/d");
+            $studnetReadingAvarage = $lastWeeklyProgram->required_time_done + $lastWeeklyProgram->optional_time_done;
+            $absents = $lastWeeklyProgram->absent_day;
+            $lates = $lastWeeklyProgram->late_day;
+            $stationReadingAvarage = ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($q1) use ($readingStation) {
+                $q1->where('reading_station_id', $readingStation->id);
+            })
+                ->whereDate('end', $lastWeekEnd)
+                ->avg('required_time_done') +
+                ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($q1) use ($readingStation) {
+                    $q1->where('reading_station_id', $readingStation->id);
+                })
+                ->whereDate('end', $lastWeekEnd)
+                ->avg('optional_time_done');
+            // dd($readingStationUser->user->id, $phones, $firstName, $lastName, $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates);
+            foreach ($phones as $mobile) {
+                $res[] =$this->sendSms($mobile, str_replace(' ', '-', $firstName), str_replace(' ', '-', $lastName), $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates);
+            }
+
+            $result[] = $res;
+        }
+
+        return $result;
+    }
+
+    function encodeURIComponent($str)
+    {
+        $revert = array('%21' => '!', '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')');
+        return strtr(rawurlencode($str), $revert);
+    }
+
+    private function availableTables(ReadingStation $readingStation): array
     {
         $occupideTables = $readingStation->users->map(function (ReadingStationUser $user) {
             return $user->table_number;
         })->toArray();
 
         $result = [];
-        for ($i = $readingStation->table_start_number; $i<=$readingStation->table_end_number; $i++) {
+        for ($i = $readingStation->table_start_number; $i <= $readingStation->table_end_number; $i++) {
             if (!in_array($i, $occupideTables)) {
                 $result[] = $i;
             }

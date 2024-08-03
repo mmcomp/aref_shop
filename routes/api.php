@@ -150,6 +150,7 @@ Route::group([
     Route::put('/', [ReadingStationController::class, 'update']);
     Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
     Route::get('/test-sms', [ReadingStationController::class, 'testSms']);
+    Route::get('/{readingStation}/sms', [ReadingStationController::class, 'getStudentInfoForSms']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
 });

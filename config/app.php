@@ -179,6 +179,7 @@ return [
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Kavenegar\Laravel\ServiceProvider::class,
     ],
 
     /*
@@ -236,6 +237,7 @@ return [
         // 'Image' => Intervention\Image\Facades\Image::class,
 
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Kavenegar' => Kavenegar\Laravel\Facade::class,
     ],
 
 ];

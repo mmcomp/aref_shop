@@ -6552,19 +6552,20 @@
 							"response": []
 						},
 						{
-							"name": "Test SMS",
+							"name": "Send SMS",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/reading-stations/test-sms",
+									"raw": "{{base_url}}/api/reading-stations/1/sms",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"api",
 										"reading-stations",
-										"test-sms"
+										"1",
+										"sms"
 									]
 								}
 							},
