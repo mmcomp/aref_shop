@@ -24,7 +24,7 @@ class ReadingStationUserStrikesResource extends JsonResource
                 'last_name' => $this->readingStationSlutUser->weeklyProgram->readingStationUser->user->last_name,
                 'table_number' => $this->readingStationSlutUser->weeklyProgram->readingStationUser->table_number,
                 'strike' => new ReadingStationStrikesResource($this->readingStationStrike),
-                'point' => ($this->readingStationStrike->is_point ? 1 : -1) * $this->reading_station_strike_score,
+                'point' => (isset($this->readingStationStrike) && $this->readingStationStrike->is_point ? 1 : -1) * $this->reading_station_strike_score,
                 'description' => $this->description,
                 'slut' => [
                     "id" => $this->readingStationSlutUser->slut->id,
