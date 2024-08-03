@@ -257,9 +257,7 @@ class ReadingStationStrikeController extends Controller
         $total = 0;
         $all = $strikes->get();
         $all->map(function ($strike) use (&$total) {
-            if ($strike->readingStationStrike) {
-                $total += ($strike->readingStationStrike->is_point ? 1 : -1) * $strike->reading_station_strike_score;
-            }
+            $total += ($strike->readingStationStrike->is_point ? 1 : -1) * $strike->reading_station_strike_score;
         });
 
         $sort = "day";
