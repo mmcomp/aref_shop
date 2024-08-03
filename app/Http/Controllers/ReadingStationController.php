@@ -138,8 +138,9 @@ class ReadingStationController extends Controller
         return $this->sendSms('09153068145', 'حامد', 'شاکری', '۱۴۰۳/۰۶/۰۱', '۱۴۰۳/۰۶/۰۷', 47, 12, 5, 0);
     }
 
-    public function sendSms($mobile, $firstName, $lastName, $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates, $test = true)
+    public function sendSms($mobile, $firstName, $lastName, $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates)
     {
+        $test = env('KAVENEGAR_ENABLE') === 'true';
         $data = "کل-مطالعه-دانش-آموز:{$studnetReadingAvarage}" . "\n" .
             "میانگین-مطالعه-مرکز:{$stationReadingAvarage}" . "\n" .
             "تعداد-غیبت:{$absents}" . "\n" .
