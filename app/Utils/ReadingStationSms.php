@@ -32,7 +32,6 @@ class ReadingStationSms {
 
     public function send(string $number, array $messages)
     {
-        dd("SEND");
         try{
             $receptor = $number;
             $token = $messages[0];
