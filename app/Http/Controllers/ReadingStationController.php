@@ -173,6 +173,11 @@ class ReadingStationController extends Controller
         return $input;
     }
 
+    public function minuteToHours($minutes)
+    {
+        return intdiv($minutes, 60) . ':' . ($minutes % 60);
+    }
+
     public function getStudentInfoForSms(ReadingStation $readingStation)
     {
         $result = [];
@@ -204,10 +209,10 @@ class ReadingStationController extends Controller
             $lastName = $readingStationUser->user->last_name;
             $from = jdate(strtotime($lastWeeklyProgram->start))->format("Y/m/d");
             $to = jdate(strtotime($lastWeeklyProgram->end))->format("Y/m/d");
-            $studnetReadingAvarage = $lastWeeklyProgram->required_time_done + $lastWeeklyProgram->optional_time_done;
+            $studnetReadingAvarage = $this->minuteToHours($lastWeeklyProgram->required_time_done + $lastWeeklyProgram->optional_time_done);
             $absents = $lastWeeklyProgram->absent_day;
             $lates = $lastWeeklyProgram->late_day;
-            $stationReadingAvarage = ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($q1) use ($readingStation) {
+            $stationReadingAvarage = $this->minuteToHours(ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($q1) use ($readingStation) {
                 $q1->where('reading_station_id', $readingStation->id);
             })
                 ->whereDate('end', $lastWeekEnd)
@@ -216,10 +221,10 @@ class ReadingStationController extends Controller
                     $q1->where('reading_station_id', $readingStation->id);
                 })
                 ->whereDate('end', $lastWeekEnd)
-                ->avg('optional_time_done');
+                ->avg('optional_time_done'));
             // dd($readingStationUser->user->id, $phones, $firstName, $lastName, $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates);
             foreach ($phones as $mobile) {
-                $res[] =$this->sendSms($mobile, str_replace(' ', '-', $firstName), str_replace(' ', '-', $lastName), $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates);
+                $res[] = $this->sendSms($mobile, str_replace(' ', '-', $firstName), str_replace(' ', '-', $lastName), $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates);
             }
 
             $result[] = $res;
