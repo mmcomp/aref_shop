@@ -154,12 +154,14 @@ class ReadingStationController extends Controller
             ]);
         }
 
-        return collect([
+        $outings = collect([
             "mobile" => $mobile,
             "token" => "$firstName-$lastName",
             "token2" => "$from-الی-$to",
             "token3" => $data
         ]);
+
+        return response()->json($outings, 200);
     }
 
     function validateMobile($mobile)
