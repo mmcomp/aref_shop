@@ -154,14 +154,14 @@ class ReadingStationController extends Controller
             ]);
         }
 
-        $outings = collect([
+        $outings = [
             "mobile" => $mobile,
             "token" => "$firstName-$lastName",
             "token2" => "$from-الی-$to",
             "token3" => $data
-        ]);
+        ];
 
-        return response()->json($outings, 200);
+        return $outings;
     }
 
     function validateMobile($mobile)
@@ -234,7 +234,7 @@ class ReadingStationController extends Controller
             $result[] = $res;
         }
 
-        return $result;
+        return response()->json($result);
     }
 
     function encodeURIComponent($str)
