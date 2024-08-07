@@ -234,7 +234,7 @@ class ReadingStationController extends Controller
             $result[] = $res;
         }
 
-        return response()->json($result);
+        return response()->json(collect($result));
     }
 
     function encodeURIComponent($str)
