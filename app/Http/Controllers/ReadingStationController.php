@@ -166,7 +166,7 @@ class ReadingStationController extends Controller
         return preg_match('/^09[0-9]{9}+$/', $mobile);
     }
 
-    public function cleanCellPhone(string $input)
+    public function cleanCellPhone($input)
     {
         if (!$this->validateMobile($input)) return null;
 
