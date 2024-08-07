@@ -175,7 +175,8 @@ class ReadingStationController extends Controller
 
     public function minuteToHours($minutes)
     {
-        return intdiv($minutes, 60) . ':' . ($minutes % 60);
+        $minute = ($minutes % 60) < 10 ? '0' . ($minutes % 60): ($minutes % 60);
+        return intdiv($minutes, 60) . ':' . $minute;
     }
 
     public function getStudentInfoForSms(ReadingStation $readingStation)
