@@ -141,7 +141,6 @@ class ReadingStationController extends Controller
     public function sendSms($mobile, $firstName, $lastName, $from, $to, $studnetReadingAvarage, $stationReadingAvarage, $absents, $lates)
     {
         $disabled = env('KAVENEGAR_ENABLE') == '0';
-        dd($disabled);
 
         $data = "کل-مطالعه-دانش-آموز:{$studnetReadingAvarage}" . "\n" .
             "میانگین-مطالعه-مرکز:{$stationReadingAvarage}" . "\n" .
