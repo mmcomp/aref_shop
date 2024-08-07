@@ -32,7 +32,7 @@ class ReadingStationSms {
 
     public function send(string $number, array $messages)
     {
-
+        dd("SEND");
         try{
             $receptor = $number;
             $token = $messages[0];
@@ -54,7 +54,6 @@ class ReadingStationSms {
             //         echo "cost = $r->cost";
             //     }
             // }
-            dd($result);
             return $result;
         }
         catch(\Kavenegar\Exceptions\ApiException $e){
