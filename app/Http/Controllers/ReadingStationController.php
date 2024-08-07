@@ -154,11 +154,12 @@ class ReadingStationController extends Controller
             ]);
         }
 
-        return [
+        return collect([
+            "mobile" => $mobile,
             "token" => "$firstName-$lastName",
             "token2" => "$from-الی-$to",
             "token3" => $data
-        ];
+        ]);
     }
 
     function validateMobile($mobile)
