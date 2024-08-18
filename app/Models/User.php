@@ -144,10 +144,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(ReadingStation::class);
     }
 
-    function absentPresents()
+    function absentPresents($day = null)
     {
+        $day = $day === null ? Carbon::now() : $day;
         return $this->hasMany(ReadingStationAbsentPresent::class)
-                    ->where('day', Carbon::now()->toDateString());    
+                    ->where('day', $day->toDateString());    
     }
 
     function gradePackage()

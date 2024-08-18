@@ -88,6 +88,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                         $latestOperator = $absentPresentOperator;
                     }
                 }
+                $absentPresents =  $readingStationUser->user->absentPresents($this->now)->get();
                 $userInformations[] = [
                     "user" => new UserSmallResource($readingStationUser->user),
                     "table_number" => $readingStationUser->table_number,
@@ -100,7 +101,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     ] : null,
                     "slutNames" => $slutNames,
                     "hasProgram" => $hasProgram,
-                    "absentPresents" => new ReadingStationAbsentPresentCollection($readingStationUser->user->absentPresents),
+                    "absentPresents" => new ReadingStationAbsentPresentCollection($absentPresents),
                     "latestOperator" => $latestOperator,
                 ];
             }
