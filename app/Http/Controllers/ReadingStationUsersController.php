@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationChangeExitsRequest;
+use App\Http\Requests\ReadingStationGetSlutsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentTablesRequest;
@@ -142,7 +143,7 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(201);
     }
 
-    public function oneSlutIndex(ReadingStation $readingStation, ReadingStationSlut $slut)
+    public function oneSlutIndex(ReadingStationGetSlutsRequest $request, ReadingStation $readingStation, ReadingStationSlut $slut)
     {
         $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
@@ -159,6 +160,7 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
+        $day = $request->exists('date') ? Carbon::parse($request->date) : Carbon::now();
         $forbiddenReadingStationUserIds = ReadingStationUser::where('reading_station_id', $readingStation->id)->where('status', '!=', 'active')->pluck('id');
         $forbiddenWeeklyPrograms = ReadingStationWeeklyProgram::whereIn('reading_station_user_id', $forbiddenReadingStationUserIds)->pluck('id');
 
@@ -173,7 +175,7 @@ class ReadingStationUsersController extends Controller
             ->whereNotIn('reading_station_weekly_program_id', $forbiddenWeeklyPrograms)
             ->where('is_required', 1)
             ->where('status', 'defined')
-            ->where('day', Carbon::now()->toDateString())
+            ->where('day', $day->toDateString())
             ->count() > 0
         ) {
             return (new ReadingStationUsersResource(null))->additional([
