@@ -197,12 +197,13 @@ class ReadingStationUsersController extends Controller
             //             ->whereDate('day', '<=', $end);
             //     });
             // })s
-            ->with(['weeklyPrograms' => function ($q) use ($slut, $now) {
-                $q->with(['sluts' => function ($q1) use ($slut, $now) {
-                    $q1/*->where('reading_station_slut_id', $slut->id)*/
-                        ->whereDate('day', $now);
-                }]);
-            }])
+            // ->with(['weeklyPrograms' => function ($q) use ($slut, $now) {
+            //     $q->with(['sluts' => function ($q1) use ($slut, $now) {
+            //         $q1/*->where('reading_station_slut_id', $slut->id)*/
+            //             ->whereDate('day', $now);
+            //     }]);
+            // }])
+            ->with('allWeeklyPrograms')
             ->with('user.absentPresents')
             ->orderBy('table_number')
             ->get();

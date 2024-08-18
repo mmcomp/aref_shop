@@ -35,12 +35,17 @@ class ReadingStationUserSlutsResource extends JsonResource
             $userInformations = [];
             $readingStationUsers = $this->users;
             foreach ($readingStationUsers as $readingStationUser) {
-                $weeklyPrograms = $readingStationUser->weeklyPrograms;
+                // $log = $readingStationUser->user->id === 17463;
+                $weeklyPrograms = $readingStationUser->allWeeklyPrograms;
+                // if ($log) {
+                //     dump($weeklyPrograms);
+                // }
                 $selectedSlut = null;
                 // $absentPresent = null;
                 $slutNames = [];
                 $hasProgram = false;
                 if (!$weeklyPrograms) continue;
+
                 foreach ($weeklyPrograms as $weeklyProgram) {
                     if ($this->now->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
                         if (count($weeklyProgram->sluts) > 0) {
@@ -88,6 +93,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "user" => new UserSmallResource($readingStationUser->user),
                     "table_number" => $readingStationUser->table_number,
                     "slut" => new ReadingStationUserSlutResource($selectedSlut),
+                    "day" => $selectedSlut !== null ? $selectedSlut->day : null,
                     "operator" => $selectedSlut && $selectedSlut->user ? [
                         "first_name" =>  $selectedSlut->user->first_name,
                         "last_name" => $selectedSlut->user->last_name,
@@ -99,6 +105,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "latestOperator" => $latestOperator,
                 ];
             }
+            // dd();
             return ["data" => $userInformations, "warning" => $this->warnings];
         }
     }
