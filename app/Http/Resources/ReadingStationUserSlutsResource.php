@@ -12,11 +12,13 @@ class ReadingStationUserSlutsResource extends JsonResource
     private $slut;
     private $users = [];
     private $warnings = [];
-    function __construct($resource, $slut, $warnings = [])
+    private $now;
+    function __construct($resource, $slut, $warnings = [], $now = null)
     {
         $this->slut = $slut;
         $this->users = $resource;
         $this->warnings = $warnings;
+        $this->now = $now === null ? Carbon::now() : $now;
         parent::__construct($resource[0]);
     }
 
@@ -40,7 +42,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                 $hasProgram = false;
                 if (!$weeklyPrograms) continue;
                 foreach ($weeklyPrograms as $weeklyProgram) {
-                    if (Carbon::now()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
+                    if ($this->now->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
                         if (count($weeklyProgram->sluts) > 0) {
                             $hasProgram = true;
                         }
@@ -49,12 +51,12 @@ class ReadingStationUserSlutsResource extends JsonResource
                             if (Carbon::parse($a->slut->start)->greaterThan(Carbon::parse($b->slut->start))) return 1;
                             return -1;
                         })->filter(function ($_slut) {
-                            return Carbon::now()->toDateString() == $_slut->day && $_slut->is_required;
+                            return $this->now->toDateString() == $_slut->day && $_slut->is_required;
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
                         })->toArray();
                         $selectedSlut = $weeklyProgram->sluts
-                            ->where('day', Carbon::now()->toDateString())
+                            ->where('day', $this->now->toDateString())
                             ->where('reading_station_slut_id', $slut->id)->first();
                         $slutNames = array_unique($slutNames);
                         break;

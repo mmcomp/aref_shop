@@ -185,7 +185,7 @@ class ReadingStationUsersController extends Controller
 
         $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
-        $now = Carbon::now()->toDateString();
+        $now = $day->toDateString();
         $slutUsers = ReadingStationUser::where('reading_station_id', $readingStation->id)
             ->where('status', 'active')
             // ->whereHas('weeklyPrograms', function ($query) use ($end) {
@@ -208,7 +208,7 @@ class ReadingStationUsersController extends Controller
             ->get();
         // $slutUsers = $readingStation->users->sortBy('table_number');
         // return  $slutUsers;
-        return (new ReadingStationUserSlutsResource($slutUsers, $slut))->additional([
+        return (new ReadingStationUserSlutsResource($slutUsers, $slut, [], $day))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
