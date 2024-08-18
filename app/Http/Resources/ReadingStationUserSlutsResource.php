@@ -45,9 +45,8 @@ class ReadingStationUserSlutsResource extends JsonResource
                 $slutNames = [];
                 $hasProgram = false;
                 if (!$weeklyPrograms) continue;
-
                 foreach ($weeklyPrograms as $weeklyProgram) {
-                    if ($this->now->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
+                    if ($this->now->copy()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
                         if (count($weeklyProgram->sluts) > 0) {
                             $hasProgram = true;
                         }
@@ -56,12 +55,12 @@ class ReadingStationUserSlutsResource extends JsonResource
                             if (Carbon::parse($a->slut->start)->greaterThan(Carbon::parse($b->slut->start))) return 1;
                             return -1;
                         })->filter(function ($_slut) {
-                            return $this->now->toDateString() == $_slut->day && $_slut->is_required;
+                            return $this->now->copy()->toDateString() == $_slut->day && $_slut->is_required;
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
                         })->toArray();
                         $selectedSlut = $weeklyProgram->sluts
-                            ->where('day', $this->now->toDateString())
+                            ->where('day', $this->now->copy()->toDateString())
                             ->where('reading_station_slut_id', $slut->id)->first();
                         $slutNames = array_unique($slutNames);
                         break;
@@ -105,7 +104,6 @@ class ReadingStationUserSlutsResource extends JsonResource
                     "latestOperator" => $latestOperator,
                 ];
             }
-            // dd();
             return ["data" => $userInformations, "warning" => $this->warnings];
         }
     }
