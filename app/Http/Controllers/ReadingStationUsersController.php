@@ -254,8 +254,9 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $userWeeklyPrograms = $user->readingStationUser->weeklyPrograms;
-        $thisWeeklyProgram = $userWeeklyPrograms->where('end', Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
+        $now = $request->exists('date') ? Carbon::parse($request->date) : Carbon::now();
+        $userWeeklyPrograms = $user->readingStationUser->allWeeklyPrograms;
+        $thisWeeklyProgram = $userWeeklyPrograms->where('end', $now->copy()->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
         if (!$thisWeeklyProgram || ($thisWeeklyProgram && count($thisWeeklyProgram->sluts) === 0)) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
@@ -270,7 +271,7 @@ class ReadingStationUsersController extends Controller
         $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
         $warnings = $slutUserValidation->start();
 
-        $today = Carbon::now()->toDateString();
+        $today = $request->exists('date') ? Carbon::parse($request->date)->toDateString() : Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
         if ($request->status === 'defined' && $userSlut) {
             if ($userSlut->is_required) {
@@ -460,7 +461,7 @@ class ReadingStationUsersController extends Controller
             ReadingStationSlutChangeWarning::insert($query);
         }
 
-        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut, $warnings))->additional([
+        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut, $warnings, $now))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
