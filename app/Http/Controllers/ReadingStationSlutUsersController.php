@@ -83,9 +83,9 @@ class ReadingStationSlutUsersController extends Controller
 
     public function store(ReadingStationSlutUsersCreateRequest $request, User $user)
     {
-        if (!$user->is_reading_station_user) {
+        if (!$user->readingStationUser) {
             return (new ReadingStationSlutUsersResource(null))->additional([
-                'errors' => ['reading_station_slut_user' => ['User does not have blong to any Reading Station!']],
+                'errors' => ['reading_station_slut_user' => ['User does not belong to any Reading Station!']],
             ])->response()->setStatusCode(400);
         }
         $sluts = $user->readingStationUser->readingStation->sluts;
@@ -381,7 +381,7 @@ class ReadingStationSlutUsersController extends Controller
                 ])->response()->setStatusCode(400);
             }
         }
-    
+
         if (!$weeklyProgram->readingStationUser) {
             return (new ReadingStationSlutUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['This weekly program does not belong to the User!']],
