@@ -74,9 +74,11 @@ class ReadingStationEducationalReportCollection extends ResourceCollection
             });
             $cell->reading_total_minutes = $readingTotalMinutes;
             $cell->point = $point;
+            $cell->table_number = $cell->weeklyProgram->readingStationUser->table_number;
             $total += $point;
             $out[] = $cell;
         }
+
         if ($this->sort) {
             if ($this->sortDir && strtolower($this->sortDir) === 'desc') {
                 $out = $out->sortByDesc($this->sort);
