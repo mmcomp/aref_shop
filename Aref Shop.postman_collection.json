@@ -5959,6 +5959,18 @@
 													"key": "table_number",
 													"value": "1",
 													"disabled": true
+												},
+												{
+													"key": "sort",
+													"value": null,
+													"description": "reading_total_minutes,table_number,point",
+													"disabled": true
+												},
+												{
+													"key": "sort_dir",
+													"value": null,
+													"description": "asc,desc",
+													"disabled": true
 												}
 											]
 										}

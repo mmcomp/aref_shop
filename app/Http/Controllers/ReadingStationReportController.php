@@ -72,11 +72,11 @@ class ReadingStationReportController extends Controller
         $slutUsers->whereDate('day', '>=', $request->from_date);
         $slutUsers->whereDate('day', '<=', $request->to_date);
         $slutUsers->withAggregate('weeklyProgram', 'reading_station_user_id');
+
         $perPage = $request->per_page ?? env('PAGE_COUNT');
         $page = $request->page ?? 1;
         $data = $slutUsers->get();
-
-        return (new ReadingStationEducationalReportCollection($data, $perPage, $page))->additional([
+        return (new ReadingStationEducationalReportCollection($data, $perPage, $page, $request->sort, $request->sort_dir))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

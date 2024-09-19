@@ -26,7 +26,7 @@ class ReadingStationEducationalReportRequest extends FormRequest
     public function rules()
     {
         return [
-            'sort' => 'required_with:type|in:id,name,table_start_number,table_end_number',
+            'sort' => 'required_with:type|in:reading_total_minutes,table_number,point',
             'sort_dir' => 'required_with:sort|in:asc,desc',
             'per_page' => 'string|max:255',
             'table_number' => 'nullable|int|min:1|max:300',
