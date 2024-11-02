@@ -121,7 +121,13 @@ class CheckAllWeeklyPrograms extends Command
                 'late_day' => 0,
                 'present_day' => 0,
             ]);
-            $weeklyPrograms = ReadingStationWeeklyProgram::all();
+            $weeklyPrograms = ReadingStationWeeklyProgram::orderBy('reading_station_user_id')
+                ->orderBy('end', 'desc')
+                ->get();
+            $this->clearDuplicates($weeklyPrograms);
+            $weeklyPrograms = ReadingStationWeeklyProgram::orderBy('reading_station_user_id')
+                ->orderBy('end', 'desc')
+                ->get();
         } else {
             $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7)->toDateString();
             $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('readingStationUser')->get();
@@ -130,6 +136,17 @@ class CheckAllWeeklyPrograms extends Command
 
 
         $this->_handle($weeklyPrograms);
+    }
+
+    private function clearDuplicates($weeklyPrograms)
+    {
+        foreach ($weeklyPrograms as $weeklyProgram) {
+            ReadingStationWeeklyProgram::where('reading_station_user_id', $weeklyProgram->reading_station_user_id)
+                ->whereDate('end', $weeklyProgram->end)
+                ->where('id', '!=', $weeklyProgram->id)
+                ->whereDoesntHave('sluts')
+                ->delete();
+        }
     }
 
     public function _handle($weeklyPrograms)
@@ -280,6 +297,7 @@ class CheckAllWeeklyPrograms extends Command
             $readingStationUser->total += $score;
             $readingStationUser->save();
             echo "==============================================================\n";
+            $lastWeekProgram = $weeklyProgram;
         }
 
         echo "absents = $absents\n";
