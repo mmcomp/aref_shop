@@ -18,14 +18,14 @@ class CheckAllWeeklyPrograms extends Command
      *
      * @var string
      */
-    protected $signature = 'app:check-all-weekly-programs';
+    protected $signature = 'app:check-weekly-programs {--all=*}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Calculate Student All Weekly Points';
+    protected $description = 'Calculate Student All Weekly Points if you pass `--all=true` as option';
 
     private function getTime(ReadingStationSlutUser $slutUser, $isRequired = true): int
     {
@@ -61,18 +61,20 @@ class CheckAllWeeklyPrograms extends Command
         $defaultPoint = 2;
         $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $startOfThisWeek = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
-        $thisWeekPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('sluts')->with('readingStationUser')->get();
+        $thisWeekPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)
+            ->with(['sluts', 'readingStationUser'])
+            ->get();
         foreach ($thisWeekPrograms as $thisWeekProgram) {
             if (count($thisWeekProgram->sluts) === 0 && $thisWeekProgram->noprogram_point === 0) {
-                $thisWeekProgram->point -= $defaultPoint;
+                // $thisWeekProgram->point -= $defaultPoint;
                 $thisWeekProgram->noprogram_point = $defaultPoint;
                 $thisWeekProgram->save();
-                $readingStationUser = $thisWeekProgram->readingStationUser;
-                $readingStationUser->total -= $defaultPoint;
-                $readingStationUser->save();
+                // $readingStationUser = $thisWeekProgram->readingStationUser;
+                // $readingStationUser->total -= $defaultPoint;
+                // $readingStationUser->save();
             }
         }
-        $okReadingStationUserIds = $thisWeekPrograms->pluck('reading_station_user_id');
+        $okReadingStationUserIds = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->pluck('reading_station_user_id');
         $readingStationUsers = ReadingStationUser::where('table_number', '!=', null)->whereNotIn('id', $okReadingStationUserIds)->get();
         $packageIds = $readingStationUsers->pluck('default_package_id');
         $packages = ReadingStationPackage::whereIn('id', $packageIds)->get();
@@ -87,7 +89,7 @@ class CheckAllWeeklyPrograms extends Command
                 'required_time' => $package->required_time,
                 'optional_time' => $package->optional_time,
                 'noprogram_point' => $defaultPoint,
-                'point' => -2,
+                'point' => 0,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];
@@ -102,30 +104,54 @@ class CheckAllWeeklyPrograms extends Command
      */
     public function handle()
     {
-        DB::table('reading_station_users')->update(['total' => 0]);
-        DB::table('reading_station_weekly_programs')->update([
-            'being_point' => 0,
-            'point' => 0,
-            'package_point' => 0,
-            'absent_day' => 0,
-            'approved_absent_day' => 0,
-            'semi_approved_absent_day' => 0,
-            'late_day' => 0,
-            'present_day' => 0,
-        ]);
+        $arg = $this->option('all');
+        $isAll = false;
+        if (isset($arg[0]) && $arg[0] === 'true') {
+            $isAll = true;
+        }
+        if ($isAll) {
+            DB::table('reading_station_users')->update(['total' => 0]);
+            DB::table('reading_station_weekly_programs')->update([
+                'being_point' => 0,
+                'point' => 0,
+                'package_point' => 0,
+                'absent_day' => 0,
+                'approved_absent_day' => 0,
+                'semi_approved_absent_day' => 0,
+                'late_day' => 0,
+                'present_day' => 0,
+            ]);
+            $weeklyPrograms = ReadingStationWeeklyProgram::all();
+        } else {
+            $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7)->toDateString();
+            $weeklyPrograms = ReadingStationWeeklyProgram::whereDate('end', $endOfThisWeek)->with('readingStationUser')->get();
+        }
         $this->addUncreatedWeeklyPrograms();
 
-        // $lastEnd = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7);
-        $weeklyPrograms = ReadingStationWeeklyProgram::all(); // ::whereDate('end', '<=', $lastEnd->toDateString())->get();
+
+        $this->_handle($weeklyPrograms);
+    }
+
+    public function _handle($weeklyPrograms)
+    {
+        $absents = 0;
+        $availables = 0;
+        $beeings = 0;
+        $packages = 0;
+        $noprograms = 0;
+        $strikess = 0;
+        $latess = 0;
         foreach ($weeklyPrograms as $weeklyProgram) {
+            $score = 0;
             if (!$weeklyProgram->readingStationUser) continue;
             if (count($weeklyProgram->sluts) === 0) continue;
             if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            // if ($readingStationUser->id !== 32) {
-            //     continue;
-            // }
             echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
+
+            $noprograms += $weeklyProgram->noprogram_point;
+
+
             $required_time_done = 0;
             foreach ($weeklyProgram->sluts as $slutUser) {
                 $required_time_done += $this->getTime($slutUser);
@@ -185,9 +211,11 @@ class CheckAllWeeklyPrograms extends Command
             })->count();
             $late60PlusScore = -1 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->where('status', 'late_60_plus')->count();
             echo "absentScore = $absentScore\n";
+            $absents += $absentScore;
             echo "lateScore = $lateScore\n";
+            $latess += $lateScore;
             echo "late60PlusScore = $late60PlusScore\n";
-            $score = $absentScore + $lateScore + $late60PlusScore;
+            $score += $absentScore + $lateScore + $late60PlusScore;
 
             $slutUsers = $weeklyProgram->sluts->pluck('id');
             $strikes = 0;
@@ -196,6 +224,7 @@ class CheckAllWeeklyPrograms extends Command
                 $isPoint = $strikesRecord->readingStationStrike->is_point != 0 ? 1 : -1;
                 $strikes += $isPoint * $strikesRecord->reading_station_strike_score;
             }
+            $strikess += $strikes;
             $score += $strikes;
             echo "strikes = $strikes\n";
 
@@ -210,10 +239,11 @@ class CheckAllWeeklyPrograms extends Command
                     $scoreChange = -2;
                 } elseif ($diff > 0 && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                     $step = ($package->step ?? 10) * 60;
-                    $scoreChange = (($diff - ($diff % $step)) * 2 / $step) - 2;
+                    $scoreChange = (($diff - ($diff % $step)) * 2 / $step);
                 }
                 $score += $scoreChange;
                 echo "Available : diff = $diff scoreChange = $scoreChange score = $score\n";
+                $availables += $scoreChange;
 
                 $weeklyProgram->being_point = 0;
                 // no absent score
@@ -221,6 +251,7 @@ class CheckAllWeeklyPrograms extends Command
                     $score += 3;
                     echo "no absent +3 score = $score\n";
                     $weeklyProgram->being_point += 3;
+                    $beeings += 3;
                 }
 
                 // package grade score
@@ -230,6 +261,7 @@ class CheckAllWeeklyPrograms extends Command
                     if ($package->grade > $user->grade) {
                         $score += ($package->grade - $user->grade) * 3;
                         $weeklyProgram->package_point += ($package->grade - $user->grade) * 3;
+                        $packages += ($package->grade - $user->grade) * 3;
                         echo "Grade score:" . $score . "\n";
                     }
                 }
@@ -249,5 +281,14 @@ class CheckAllWeeklyPrograms extends Command
             $readingStationUser->save();
             echo "==============================================================\n";
         }
+
+        echo "absents = $absents\n";
+        echo "latess = $latess\n";
+        echo "availables = $availables\n";
+        echo "beeings = $beeings\n";
+        echo "packages = $packages\n";
+        echo "noprograms = $noprograms\n";
+        echo "strikess = $strikess\n";
+        echo "latess = $latess\n";
     }
 }

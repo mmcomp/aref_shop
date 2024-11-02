@@ -495,7 +495,7 @@ class ReadingStationSlutUsersController extends Controller
             // }
             if ($done < $toDo) {
                 $point = -2;
-            } else {
+            } else if ($weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
                 $step = ($weeklyProgram->readingStationUser->package->step ?? 10) * 60;
                 $extra = $done - $toDo;
                 if ($extra > 0) {
@@ -578,9 +578,12 @@ class ReadingStationSlutUsersController extends Controller
         }
 
         $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
-        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms = ReadingStationWeeklyProgram::query();//where('end', '!=', $end);
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
+        });
+        $weeklyPrograms->withWhereHas('sluts', function ($q) {
+            $q->where('status', '!=', 'defined');
         });
         $weeklyPrograms->where('noprogram_point', '!=', 0);
         $all = clone $weeklyPrograms;
