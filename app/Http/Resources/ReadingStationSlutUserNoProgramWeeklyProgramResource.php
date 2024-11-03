@@ -22,6 +22,7 @@ class ReadingStationSlutUserNoProgramWeeklyProgramResource extends JsonResource
                 'start' => $this->start,
                 'end' => $this->end,
                 'point' => -1 * $this->noprogram_point,
+                'station' => $this->readingStationUser->readingStation->name,
             ];
         }
     }

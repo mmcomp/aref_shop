@@ -485,7 +485,7 @@ class ReadingStationSlutUsersController extends Controller
         $total = 0;
         $all->map(function ($weeklyProgram) use (&$total) {
             $point = 0;
-            $toDo = $weeklyProgram->readingStationUser->package->required_time + $weeklyProgram->readingStationUser->package->optional_time;
+            $toDo = $weeklyProgram->required_time + $weeklyProgram->optional_time;
             $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
             // if ($done < $toDo) {
             //     $point = -2;

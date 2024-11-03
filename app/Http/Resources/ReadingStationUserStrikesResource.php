@@ -31,6 +31,7 @@ class ReadingStationUserStrikesResource extends JsonResource
                     "name" => $this->readingStationSlutUser->slut->name,
                 ],
                 "day" => $this->day,
+                "station" => $this->readingStationSlutUser->weeklyProgram->readingStationUser->readingStation->name,
             ];
         }
     }

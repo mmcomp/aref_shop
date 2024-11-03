@@ -22,7 +22,7 @@ class ReadingStationSlutUserAvailableWeeklyProgramResource extends JsonResource
             $done =  $this->required_time_done + $this->optional_time_done;
             if ($done < $toDo) {
                 $point = -2;
-            } else {
+            } else if ($this->required_time_done >= $this->required_time) {
                 $step = ($this->readingStationUser->package->step ?? 10) * 60;
                 $extra = $done - $toDo;
                 if ($extra > 0) {
@@ -37,6 +37,7 @@ class ReadingStationSlutUserAvailableWeeklyProgramResource extends JsonResource
                 'minimum_reading_minutes' => $toDo,
                 'reading_done_minutes' => $done,
                 'point' => $point,
+                'station' => $this->readingStationUser->readingStation->name,
             ];
         }
     }

@@ -22,6 +22,7 @@ class ReadingStationSlutUserAbsents2Resource extends JsonResource
                 'count' => $this->count,
                 'point' => $this->point,
                 'details' => $this->details,
+                'station' => $this->weeklyProgram->readingStationUser->readingStation->name,
             ];
         }
     }
