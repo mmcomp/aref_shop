@@ -28,7 +28,7 @@ class CheckAllWeeklyPrograms extends Command
     protected $description = 'Calculate Student All Weekly Points if you pass `--all=true` as option';
 
 
-    protected $testId = 756;
+    protected $testId = null;
 
     private function getTime(ReadingStationSlutUser $slutUser, $isRequired = true): int
     {
