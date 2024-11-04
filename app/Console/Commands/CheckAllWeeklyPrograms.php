@@ -29,6 +29,7 @@ class CheckAllWeeklyPrograms extends Command
 
 
     protected $testId = null;
+    protected $chunkSize = 100;
 
     private function getTime(ReadingStationSlutUser $slutUser, $isRequired = true): int
     {
@@ -105,8 +106,9 @@ class CheckAllWeeklyPrograms extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle($start = 0)
     {
+        echo "Start = $start, ChunkSize = $this->chunkSize\n";
         $arg = $this->option('all');
         $isAll = false;
         if (isset($arg[0]) && $arg[0] === 'true') {
@@ -137,8 +139,18 @@ class CheckAllWeeklyPrograms extends Command
             if (isset($this->testId)) {
                 $weeklyPrograms->where('reading_station_user_id', $this->testId);
             }
+            $count = $weeklyPrograms->count();
+            if ($start >= $count) {
+                return;
+            }
+            $weeklyPrograms = ReadingStationWeeklyProgram::query();
+            if (isset($this->testId)) {
+                $weeklyPrograms->where('reading_station_user_id', $this->testId);
+            }
             $weeklyPrograms = $weeklyPrograms->orderBy('reading_station_user_id')
                 ->orderBy('end', 'desc')
+                ->skip($start)
+                ->take($this->chunkSize)
                 ->get();
             $this->clearDuplicates($weeklyPrograms);
             $weeklyPrograms = ReadingStationWeeklyProgram::query();
@@ -147,6 +159,8 @@ class CheckAllWeeklyPrograms extends Command
             }
             $weeklyPrograms = $weeklyPrograms->orderBy('reading_station_user_id')
                 ->orderBy('end', 'desc')
+                ->skip($start)
+                ->take($this->chunkSize)
                 ->get();
         } else {
             $endOfThisWeek = Carbon::now()->endOfWeek(Carbon::FRIDAY)->subtract('days', 7)->toDateString();
@@ -160,6 +174,8 @@ class CheckAllWeeklyPrograms extends Command
 
 
         $this->_handle($weeklyPrograms);
+
+        $this->handle($start + $this->chunkSize);
     }
 
     private function clearDuplicates($weeklyPrograms)
