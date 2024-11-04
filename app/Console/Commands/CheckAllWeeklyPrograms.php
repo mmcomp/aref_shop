@@ -115,26 +115,28 @@ class CheckAllWeeklyPrograms extends Command
             $isAll = true;
         }
         if ($isAll) {
-            $users = DB::table('reading_station_users');
-            if (isset($this->testId)) {
-                $users->where('id', $this->testId);
+            if ($start == 0) {
+                $users = DB::table('reading_station_users');
+                if (isset($this->testId)) {
+                    $users->where('id', $this->testId);
+                }
+                $users->update(['total' => 0]);
+                $weeklyProgramUpdates = DB::table('reading_station_weekly_programs');
+                if (isset($this->testId)) {
+                    $weeklyProgramUpdates->where('reading_station_user_id', $this->testId);
+                }
+                $weeklyProgramUpdates
+                    ->update([
+                        'being_point' => 0,
+                        'point' => 0,
+                        'package_point' => 0,
+                        'absent_day' => 0,
+                        'approved_absent_day' => 0,
+                        'semi_approved_absent_day' => 0,
+                        'late_day' => 0,
+                        'present_day' => 0,
+                    ]);
             }
-            $users->update(['total' => 0]);
-            $weeklyProgramUpdates = DB::table('reading_station_weekly_programs');
-            if (isset($this->testId)) {
-                $weeklyProgramUpdates->where('reading_station_user_id', $this->testId);
-            }
-            $weeklyProgramUpdates
-                ->update([
-                    'being_point' => 0,
-                    'point' => 0,
-                    'package_point' => 0,
-                    'absent_day' => 0,
-                    'approved_absent_day' => 0,
-                    'semi_approved_absent_day' => 0,
-                    'late_day' => 0,
-                    'present_day' => 0,
-                ]);
             $weeklyPrograms = ReadingStationWeeklyProgram::query();
             if (isset($this->testId)) {
                 $weeklyPrograms->where('reading_station_user_id', $this->testId);
