@@ -305,7 +305,7 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
-        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->withTrashed()->first();
+        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->where('status', 'active')->withTrashed()->first();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if ($readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
@@ -333,8 +333,10 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadSummaryWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
-        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->withTrashed()->first();
+        // dd(ReadingStationUser::where('user_id', $user->id)->get())
+        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->where('status', 'active')->withTrashed()->first();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
+            // dd($readingStationUser->readingStation, Auth::user()->reading_station_id);
             if ($readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
@@ -373,7 +375,7 @@ class ReadingStationSlutUsersController extends Controller
 
     public function loadHoursWeeklyProgram(User $user, ReadingStationWeeklyProgram $weeklyProgram)
     {
-        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->withTrashed()->first();
+        $readingStationUser = ReadingStationUser::where('user_id', $user->id)->where('status', 'active')->withTrashed()->first();
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
             if ($readingStationUser->readingStation->id !== Auth::user()->reading_station_id) {
                 return (new ReadingStationSlutUsersResource(null))->additional([
