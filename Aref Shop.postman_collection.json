@@ -9671,6 +9671,317 @@
 					"name": "Reading Station",
 					"item": [
 						{
+							"name": "Points",
+							"item": [
+								{
+									"name": "Absents",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/absent-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"absent-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Lates",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var template = `",
+													"<canvas id=\"myChart\" height=\"75\"></canvas>",
+													"",
+													"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js\"></script> ",
+													"",
+													"<script>",
+													"    var ctx = document.getElementById(\"myChart\");",
+													"",
+													"    var myChart = new Chart(ctx, {",
+													"        type: \"bar\",",
+													"        data: {",
+													"            labels: [\"Day\"],",
+													"            datasets: [{",
+													"                label: \"Count\",",
+													"                data: [0],",
+													"                ",
+													"                // Change these colours to customize the chart",
+													"                backgroundColor: [\"#003f5c\", \"#58508d\", \"#bc5090\", \"#ff6361\", \"#ffa600\"],",
+													"            }]",
+													"        },",
+													"        options: {",
+													"            legend: { display: true },",
+													"            title: {",
+													"                display: true,",
+													"                text: 'Count of Late Users'",
+													"            },",
+													"            scales: {",
+													"                xAxes: [{",
+													"                    display: true,",
+													"                    scaleLabel: {",
+													"                        display: true,",
+													"                        labelString: 'Days'",
+													"                    }",
+													"                }],",
+													"                yAxes: [{",
+													"                    display: true,",
+													"                    scaleLabel: {",
+													"                        display: true,",
+													"                        labelString: 'Count'",
+													"                    }",
+													"                }]",
+													"            }",
+													"        }",
+													"",
+													"    });",
+													"",
+													"    // Access the data passed to pm.visualizer.set() from the JavaScript",
+													"    // code of the Visualizer template",
+													"    pm.getData(function (err, value) {",
+													"        myChart.data.datasets[0].data = value.response.data.map(item => item.count);",
+													"        myChart.data.labels = value.response.data.map(item => item.day);",
+													"        myChart.update();",
+													"    });",
+													"",
+													"</script>`;",
+													"",
+													"function constructVisualizerPayload() {",
+													"    var res = pm.response.json();",
+													"    ",
+													"    var visualizerData = {",
+													"        ",
+													"        // Labels take an array of strings",
+													"        labels: res.data.map(item => item.day),",
+													"        ",
+													"        // Data takes an array of numbers",
+													"        data: res.data",
+													"    };",
+													"",
+													"    return {response: visualizerData};",
+													"}",
+													"",
+													"pm.visualizer.set(template, constructVisualizerPayload());"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/late-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"late-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Available",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var template = `",
+													"<canvas id=\"myChart\" height=\"75\"></canvas>",
+													"",
+													"<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js\"></script> ",
+													"",
+													"<script>",
+													"    var ctx = document.getElementById(\"myChart\");",
+													"",
+													"    var myChart = new Chart(ctx, {",
+													"        type: \"bar\",",
+													"        data: {",
+													"            labels: [\"Day\"],",
+													"            datasets: [{",
+													"                label: \"Count\",",
+													"                data: [0],",
+													"                ",
+													"                // Change these colours to customize the chart",
+													"                backgroundColor: [\"#003f5c\", \"#58508d\", \"#bc5090\", \"#ff6361\", \"#ffa600\"],",
+													"            }]",
+													"        },",
+													"        options: {",
+													"            legend: { display: true },",
+													"            title: {",
+													"                display: true,",
+													"                text: 'Count of Late Users'",
+													"            },",
+													"            scales: {",
+													"                xAxes: [{",
+													"                    display: true,",
+													"                    scaleLabel: {",
+													"                        display: true,",
+													"                        labelString: 'Days'",
+													"                    }",
+													"                }],",
+													"                yAxes: [{",
+													"                    display: true,",
+													"                    scaleLabel: {",
+													"                        display: true,",
+													"                        labelString: 'Count'",
+													"                    }",
+													"                }]",
+													"            }",
+													"        }",
+													"",
+													"    });",
+													"",
+													"    // Access the data passed to pm.visualizer.set() from the JavaScript",
+													"    // code of the Visualizer template",
+													"    pm.getData(function (err, value) {",
+													"        myChart.data.datasets[0].data = value.response.data.map(item => item.count);",
+													"        myChart.data.labels = value.response.data.map(item => item.day);",
+													"        myChart.update();",
+													"    });",
+													"",
+													"</script>`;",
+													"",
+													"function constructVisualizerPayload() {",
+													"    var res = pm.response.json();",
+													"    ",
+													"    var visualizerData = {",
+													"        ",
+													"        // Labels take an array of strings",
+													"        labels: res.data.map(item => item.day),",
+													"        ",
+													"        // Data takes an array of numbers",
+													"        data: res.data",
+													"    };",
+													"",
+													"    return {response: visualizerData};",
+													"}",
+													"",
+													"pm.visualizer.set(template, constructVisualizerPayload());"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/available-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"available-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Strikes",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/strike-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"strike-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Being",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/being-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"being-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Package",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/package-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"package-users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "No Program",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/noprogram-users",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"noprogram-users"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Load User Weekly Program Structure",
 							"request": {
 								"method": "GET",

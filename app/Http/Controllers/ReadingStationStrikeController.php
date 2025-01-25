@@ -278,4 +278,46 @@ class ReadingStationStrikeController extends Controller
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
+
+    public function strikesUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationStrikesResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $strikes = ReadingStationUserStrike::whereHas('readingStationSlutUser', function ($q1) use ($user) {
+            $q1->whereHas('weeklyProgram', function ($q2) use ($user) {
+                $q2->whereHas('readingStationUser', function ($q3) use ($user) {
+                    $q3->whereHas('user', function ($q4) use ($user) {
+                        $q4->where('id', $user->id);
+                    });
+                });
+            });
+        });
+        $total = 0;
+        $all = $strikes->get();
+        $all->map(function ($strike) use (&$total) {
+            $total += ($strike->readingStationStrike->is_point ? 1 : -1) * $strike->reading_station_strike_score;
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $strikes->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $strikes->get();
+        } else {
+            $output = $strikes->paginate($perPage);
+        }
+
+        return (new ReadingStationUserStrikesCollection($output, $total))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
 }

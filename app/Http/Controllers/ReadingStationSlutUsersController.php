@@ -430,6 +430,33 @@ class ReadingStationSlutUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
+    public function absentsUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $slutUsers = ReadingStationSlutUser::where('status', 'absent');
+        $slutUsers->whereHas('weeklyProgram', function ($q1) use ($user) {
+            $q1->whereHas('readingStationUser', function ($q2) use ($user) {
+                $q2->where('user_id', $user->id);
+            });
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $slutUsers->orderBy($sort, $sortDir);
+        $perPage = $request->per_page ?? env('PAGE_COUNT');
+        $output = $slutUsers->get();
+
+        return (new ReadingStationSlutUserAbsents2Collection($output, $perPage, $request->page ?? 1))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
     public function lates(ReadingStationUserAbsentsIndexRequest $request, User $user)
     {
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
@@ -438,6 +465,34 @@ class ReadingStationSlutUsersController extends Controller
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
+        }
+
+        $slutUsers = ReadingStationSlutUser::where('status', 'like', 'late%')->where('is_required', 1);
+        $slutUsers->whereHas('weeklyProgram', function ($q1) use ($user) {
+            $q1->whereHas('readingStationUser', function ($q2) use ($user) {
+                $q2->where('user_id', $user->id);
+            });
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $slutUsers->orderBy($sort, $sortDir);
+        $perPage = $request->per_page ?? env('PAGE_COUNT');
+        $output = $slutUsers->get();
+
+
+        return (new ReadingStationSlutUserLatesCollection($output, $perPage, $request->page ?? 1))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function latesUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
         }
 
         $slutUsers = ReadingStationSlutUser::where('status', 'like', 'late%')->where('is_required', 1);
@@ -475,26 +530,72 @@ class ReadingStationSlutUsersController extends Controller
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
-        // $okWeeklyPrograms = clone $weeklyPrograms;
         $weeklyPrograms->whereHas('sluts', function ($q) {
             $q->where('status', '!=', 'defined');
         });
 
-        // $weeklyPrograms->whereDoesntHave('sluts', function ($q) {
-        //     $q->where('status', '!=', 'defined');
-        // });
+
         $all = $weeklyPrograms->get();
         $total = 0;
         $all->map(function ($weeklyProgram) use (&$total) {
             $point = 0;
             $toDo = $weeklyProgram->required_time + $weeklyProgram->optional_time;
             $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
-            // if ($done < $toDo) {
-            //     $point = -2;
-            // } else {
-            //     $step = $weeklyProgram->readingStationUser->package->step ?? 10;
-            //     $point = ($done - ($done % $step)) * 2 / $step;
-            // }
+            if ($done < $toDo) {
+                $point = -2;
+            } else if ($weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+                $step = ($weeklyProgram->readingStationUser->package->step ?? 10) * 60;
+                $extra = $done - $toDo;
+                if ($extra > 0) {
+                    $point = intval($extra / $step) * 2;
+                }
+            }
+            $total += $point;
+        });
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserAvailableWeeklyProgramCollection($output, $total))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function availablesUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+        $weeklyPrograms->whereHas('sluts', function ($q) {
+            $q->where('status', '!=', 'defined');
+        });
+
+
+        $all = $weeklyPrograms->get();
+        $total = 0;
+        $all->map(function ($weeklyProgram) use (&$total) {
+            $point = 0;
+            $toDo = $weeklyProgram->required_time + $weeklyProgram->optional_time;
+            $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
             if ($done < $toDo) {
                 $point = -2;
             } else if ($weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
@@ -569,6 +670,47 @@ class ReadingStationSlutUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
+    public function beingUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+        $weeklyPrograms->where('being_point', '>', 0);
+        $all = clone $weeklyPrograms;
+        $comp = clone $weeklyPrograms;
+        $unCompletedWeeklyPrograms = $comp->whereDoesntHave('sluts', function ($q) {
+            $q->where('status', '!=', 'defined');
+        })->pluck('id')->toArray();
+
+        $total = $all->whereNotIn('id', $unCompletedWeeklyPrograms)->sum('being_point');
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserBeingWeeklyProgramCollection($output, $total, $unCompletedWeeklyPrograms))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
     public function noPrograms(ReadingStationUserAbsentsIndexRequest $request, User $user)
     {
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {
@@ -580,7 +722,48 @@ class ReadingStationSlutUsersController extends Controller
         }
 
         $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
-        $weeklyPrograms = ReadingStationWeeklyProgram::query();//where('end', '!=', $end);
+        $weeklyPrograms = ReadingStationWeeklyProgram::query(); //where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+        $weeklyPrograms->withWhereHas('sluts', function ($q) {
+            $q->where('status', '!=', 'defined');
+        });
+        $weeklyPrograms->where('noprogram_point', '!=', 0);
+        $all = clone $weeklyPrograms;
+
+
+        $total = -1 * $all->sum('noprogram_point');
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserNoProgramWeeklyProgramCollection($output, $total))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function noProgramsUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::query(); //where('end', '!=', $end);
         $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         });
@@ -620,6 +803,41 @@ class ReadingStationSlutUsersController extends Controller
                     'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
                 ])->response()->setStatusCode(400);
             }
+        }
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $weeklyPrograms = ReadingStationWeeklyProgram::where('end', '!=', $end);
+        $weeklyPrograms->whereHas('readingStationUser', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+        $weeklyPrograms->where('package_point', '>', 0);
+        $total = $weeklyPrograms->sum('package_point');
+
+        $sort = "end";
+        $sortDir = "desc";
+
+        $weeklyPrograms->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $weeklyPrograms->get();
+        } else {
+            $output = $weeklyPrograms->paginate($perPage);
+        }
+
+        return (new ReadingStationSlutUserPackageWeeklyProgramCollection($output, $total))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function packageUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
         }
 
         $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();

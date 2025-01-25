@@ -105,6 +105,13 @@ Route::group([
     Route::get('/{user}/reading-station-users/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgramUser']);
     Route::get('/{user}/reading-station-users/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgramUser']);
     Route::get('/{user}/reading-station-users/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgramUser']);
+    Route::get('/{user}/absent-users', [ReadingStationSlutUsersController::class, 'absentsUser']);
+    Route::get('/{user}/late-users', [ReadingStationSlutUsersController::class, 'latesUser']);
+    Route::get('/{user}/available-users', [ReadingStationSlutUsersController::class, 'availablesUser']);
+    Route::get('/{user}/being-users', [ReadingStationSlutUsersController::class, 'beingUser']);
+    Route::get('/{user}/package-users', [ReadingStationSlutUsersController::class, 'packageUser']);
+    Route::get('/{user}/strike-users', [ReadingStationStrikeController::class, 'strikesUser']);
+    Route::get('/{user}/noprogram-users', [ReadingStationSlutUsersController::class, 'noProgramsUser']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
@@ -506,7 +513,7 @@ Route::group([
 
 
 Route::group([
-    'middleware' => ['auth:api','can:product'],
+    'middleware' => ['auth:api', 'can:product'],
     'prefix' => 'sessions',
 ], function ($router) {
     Route::get('/free', [UserVideoSessionsController::class, 'allFreeSessions']);
