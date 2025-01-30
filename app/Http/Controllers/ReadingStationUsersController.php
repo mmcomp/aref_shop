@@ -169,7 +169,7 @@ class ReadingStationUsersController extends Controller
             ->where('start', '<', $slut->start)
             ->pluck('id');
 
-        /*
+
         if (
             count($beforeSluts) > 0 &&
             ReadingStationSlutUser::whereIn('reading_station_slut_id', $beforeSluts)
@@ -183,7 +183,7 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['There are defined statuses before this Slut!']],
             ])->response()->setStatusCode(400);
         }
-        */
+
 
         $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
         $start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
