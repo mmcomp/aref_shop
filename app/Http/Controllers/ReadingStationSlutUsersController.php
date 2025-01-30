@@ -543,7 +543,7 @@ class ReadingStationSlutUsersController extends Controller
             $done =  $weeklyProgram->required_time_done + $weeklyProgram->optional_time_done;
             if ($done < $toDo) {
                 $point = -2;
-            } else if ($weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+            } else {
                 $step = ($weeklyProgram->readingStationUser->package->step ?? 10) * 60;
                 $extra = $done - $toDo;
                 if ($extra > 0) {
