@@ -363,7 +363,8 @@ class ReadingStationSlutUsersController extends Controller
             ->where('start', $start)
             ->where('end', $end)
             ->get();
-        $avarage_reading_hours = intval(($weeklyPrograms->sum('required_time_done') + $weeklyPrograms->sum('optional_time_done')) / $weeklyPrograms->count());
+        $count = $weeklyPrograms->count();
+        $avarage_reading_hours = $count > 0 ? intval(($weeklyPrograms->sum('required_time_done') + $weeklyPrograms->sum('optional_time_done')) / $count) : 0;
         $readingStationData = [
             'avarage_reading_minutes' => $avarage_reading_hours,
             'daily_avarage_reading_minutes' => intval($avarage_reading_hours / 7),
