@@ -795,6 +795,26 @@ class ReadingStationSlutUsersController extends Controller
         ])->response()->setStatusCode(200);
     }
 
+    public function totalUser(User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['You do not have access here!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $userInReadingStation = ReadingStationUser::where('user_id', $user->id)->where('status', 'active')->first();
+        if (!$userInReadingStation) {
+            return (new ReadingStationSlutUsersResource(null))->additional([
+                'errors' => ['reading_station_user' => ['User is not in a reading station!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        return [
+            'total' => $userInReadingStation->total,
+        ];
+    }
+
     public function package(ReadingStationUserAbsentsIndexRequest $request, User $user)
     {
         if (in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch'])) {

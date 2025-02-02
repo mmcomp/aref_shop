@@ -112,6 +112,7 @@ Route::group([
     Route::get('/{user}/package-users', [ReadingStationSlutUsersController::class, 'packageUser']);
     Route::get('/{user}/strike-users', [ReadingStationStrikeController::class, 'strikesUser']);
     Route::get('/{user}/noprogram-users', [ReadingStationSlutUsersController::class, 'noProgramsUser']);
+    Route::get('/{user}/total', [ReadingStationSlutUsersController::class, 'totalUser']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],

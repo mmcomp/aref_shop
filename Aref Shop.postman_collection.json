@@ -9978,6 +9978,26 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Total",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/api/users/25516/total",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"25516",
+												"total"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
