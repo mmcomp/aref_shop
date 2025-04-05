@@ -108,7 +108,7 @@ class CheckAllWeeklyPrograms extends Command
      */
     public function handle($start = 0)
     {
-        echo "Start = $start, ChunkSize = $this->chunkSize\n";
+        // echo "Start = $start, ChunkSize = $this->chunkSize\n";
         $arg = $this->option('all');
         $isAll = false;
         if (isset($arg[0]) && $arg[0] === 'true') {
@@ -142,6 +142,7 @@ class CheckAllWeeklyPrograms extends Command
                 $weeklyPrograms->where('reading_station_user_id', $this->testId);
             }
             $count = $weeklyPrograms->count();
+            // echo "Count = $count\n";
             if ($start >= $count) {
                 return;
             }
@@ -193,6 +194,7 @@ class CheckAllWeeklyPrograms extends Command
 
     public function _handle($weeklyPrograms)
     {
+        // echo "RUN... \n";
         $absents = 0;
         $availables = 0;
         $beeings = 0;
@@ -206,7 +208,7 @@ class CheckAllWeeklyPrograms extends Command
             if (count($weeklyProgram->sluts) === 0) continue;
             if (!$weeklyProgram->sluts->where('status', '!=', 'defined')->where('deleted_at', null)->first()) continue;
             $readingStationUser = $weeklyProgram->readingStationUser;
-            echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
+            // echo "Week[$readingStationUser->id $weeklyProgram->id] : $weeklyProgram->start - $weeklyProgram->end\n";
 
             $noprograms += $weeklyProgram->noprogram_point;
 
@@ -250,7 +252,7 @@ class CheckAllWeeklyPrograms extends Command
             // echo "absent_day = $absent_day\n";
             // echo "approved_absent_day = $approved_absent_day\n";
             // echo "semi_approved_absent_day = $semi_approved_absent_day\n";
-            echo "late_day = $late_day\n";
+            // echo "late_day = $late_day\n";
             // echo "present_day = $present_day\n";
             $weeklyProgram->absent_day = $absent_day;
             $weeklyProgram->approved_absent_day = $approved_absent_day;
@@ -271,10 +273,10 @@ class CheckAllWeeklyPrograms extends Command
             $late60PlusScore = -2 * $weeklyProgram->sluts->where('deleted_at', null)->where('is_required', true)->where('status', 'late_60_plus')->count();
             // echo "absentScore = $absentScore\n";
             $absents += $absentScore;
-            echo "lateScore = $lateScore\n";
+            // echo "lateScore = $lateScore\n";
             $latess += $lateScore;
             $latess += $late60PlusScore;
-            echo "late60PlusScore = $late60PlusScore\n";
+            // echo "late60PlusScore = $late60PlusScore\n";
             $score += $absentScore + $lateScore + $late60PlusScore;
 
             $slutUsers = $weeklyProgram->sluts->pluck('id');
@@ -317,7 +319,7 @@ class CheckAllWeeklyPrograms extends Command
                 // package grade score
                 // echo "beforeGrade score:" . $score . "\n";
                 // echo "Checking grade point:" . $package->grade . " !> " . $user->grade . "\n";
-                if ($package->grade && $user->grade && $weeklyProgram->required_time_done >= $weeklyProgram->required_time) {
+                if ($package->grade && $user->grade /*&& $weeklyProgram->required_time_done >= $weeklyProgram->required_time*/) {
                     if ($package->grade > $user->grade) {
                         $score += ($package->grade - $user->grade) * 3;
                         $weeklyProgram->package_point += ($package->grade - $user->grade) * 3;
@@ -332,24 +334,24 @@ class CheckAllWeeklyPrograms extends Command
             // echo "addUncreatedWeeklyPrograms: -$weeklyProgram->noprogram_point\n";
             $score -= $weeklyProgram->noprogram_point;
 
-            echo "Final score:" . $score . "\n";
+            // echo "Final score:" . $score . "\n";
             $weeklyProgram->point += $score;
             $weeklyProgram->save();
 
             $readingStationUser->last_weekly_program = $weeklyProgram->id;
             $readingStationUser->total += $score;
             $readingStationUser->save();
-            echo "==============================================================\n";
+            // echo "==============================================================\n";
             $lastWeekProgram = $weeklyProgram;
         }
 
-        echo "absents = $absents\n";
-        echo "latess = $latess\n";
-        echo "availables = $availables\n";
-        echo "beeings = $beeings\n";
-        echo "packages = $packages\n";
-        echo "noprograms = -$noprograms\n";
-        echo "strikess = $strikess\n";
-        echo "latess = $latess\n";
+        // echo "absents = $absents\n";
+        // echo "latess = $latess\n";
+        // echo "availables = $availables\n";
+        // echo "beeings = $beeings\n";
+        // echo "packages = $packages\n";
+        // echo "noprograms = -$noprograms\n";
+        // echo "strikess = $strikess\n";
+        // echo "latess = $latess\n";
     }
 }
