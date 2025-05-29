@@ -293,6 +293,7 @@ Route::group([
     Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct']);
     Route::get('/get-packages-in-group/{id}', [ProductController::class, 'listOfPackagesOfProductGroup']);
     Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct']);
+    Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailChair'],
@@ -579,4 +580,22 @@ Route::group([
     Route::post('/team-mobile', [ShowAllTeamUserController::class, 'addTeamMember']);
     Route::delete('/team-mobile/{teamUserMemberId}', [ShowAllTeamUserController::class, 'deleteTeamMember']);
     Route::delete('/{teamUserId}', [ShowAllTeamUserController::class, 'deleteTeam']);
+});
+
+
+Route::get('test', function (Request $request) {
+    // $res = App\Utils\Quiz24Service::getSchools();
+    // return ['userId' => $res];
+
+    // $res = App\Utils\Quiz24Service::registerStudent([
+    //     'userId' => 3514006,
+    //     'userName' => '09153068145',
+    //     'name' => 'حامد',
+    //     'family' => 'شاکری',
+    //     'password' => '09153068145',
+    // ]);
+
+    // return $res;
+
+    return App\Utils\Quiz24Service::getExams();
 });

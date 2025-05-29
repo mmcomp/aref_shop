@@ -56,7 +56,7 @@ class ProductEditRequest extends FormRequest
                 }),
             ],
             'published' => 'integer',
-            'type' => 'string|in:normal,download,chairs,video,package',
+            'type' => 'string|in:normal,download,chairs,video,package,quiz24',
             'special' => 'in:0,1',
             "order_date" =>
             [

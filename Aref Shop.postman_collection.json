@@ -1311,6 +1311,38 @@
 					"name": "Product",
 					"item": [
 						{
+							"name": "Quiz24",
+							"item": [
+								{
+									"name": "Get Exams",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{base_url}}/api/products/quiz24/exams",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"products",
+												"quiz24",
+												"exams"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Index",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true

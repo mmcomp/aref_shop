@@ -30,6 +30,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
 use App\Models\ProductDetailChair;
+use App\Utils\Quiz24Service;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -169,10 +170,10 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
-    {  
-       $user_product= UserProduct::where("products_id",$id)->first();     
+    {
+       $user_product= UserProduct::where("products_id",$id)->first();
        if($user_product)
-       {       
+       {
             return (new ProductResource(null))->additional([
                 'errors' => ['fail' => ['you can not delete this product the user buy it before' ]],
             ])->response()->setStatusCode(400);
@@ -483,23 +484,23 @@ class ProductController extends Controller
         //     $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
         //     $allgroup=[];
         //     $groups= ProductDetailPackage::groupBy("group")->pluck("group");
-         
+
         //    foreach($groups as $group)
-        //    {           
+        //    {
         //       $id=0;
         //       foreach($product_detail_package_items as $product_detail_package_item)
-        //       {               
+        //       {
         //          if($product_detail_package_item->group===$group)
-        //          {  
-        //             $tmpGroup= !isset($group) ? "others":$group;                  
+        //          {
+        //             $tmpGroup= !isset($group) ? "others":$group;
         //             $allgroup[$tmpGroup][]=$product_detail_package_item;
         //             $id++;
         //          }
         //       }
-        //    }    
+        //    }
             //   return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
             //       'errors' => null,
-            //   ])->response()->setStatusCode(200);  
+            //   ])->response()->setStatusCode(200);
         }
 
 
@@ -531,23 +532,23 @@ class ProductController extends Controller
             $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
             $allgroup=[];
             $groups= ProductDetailPackage::groupBy("group")->pluck("group");
-         
+
            foreach($groups as $group)
-           {           
+           {
               $id=0;
               foreach($product_detail_package_items as $product_detail_package_item)
-              {               
+              {
                  if($product_detail_package_item->group===$group)
-                 {  
-                    $tmpGroup= !isset($group) ? "others":$group;                  
+                 {
+                    $tmpGroup= !isset($group) ? "others":$group;
                     $allgroup[$tmpGroup][]=$product_detail_package_item;
                     $id++;
                  }
               }
-           }    
+           }
               return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
                   'errors' => null,
-              ])->response()->setStatusCode(200);  
+              ])->response()->setStatusCode(200);
         }
 
 
@@ -561,5 +562,10 @@ class ProductController extends Controller
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->find($id);
         return [];
+    }
+
+    public function getQuiz24Exams()
+    {
+        return Quiz24Service::getExams();
     }
 }
