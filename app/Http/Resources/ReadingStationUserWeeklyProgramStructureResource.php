@@ -31,7 +31,10 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
             $tableNumber = $this->readingStationUser->table_number;
             $package = $this->readingStationUser->package;
             $sluts = $this->readingStationUser->readingStation->sluts->sortBy('start');
-            $weeklyPrograms = $this->weeklyPrograms ?? $this->readingStationUser->noneZeroSlutWeeklyPrograms;
+            $weeklyPrograms = collect($this->weeklyPrograms ?? $this->readingStationUser->noneZeroSlutWeeklyPrograms)->sortBy('start');
+            if (count($weeklyPrograms) === 1 && Carbon::parse($weeklyPrograms->first()->start)->gt(Carbon::now())) {
+                $weeklyPrograms = [null, $weeklyPrograms->first()];
+            }
             return [
                 'tableNumber' => $tableNumber,
                 'name' => $package->name,
@@ -43,6 +46,8 @@ class ReadingStationUserWeeklyProgramStructureResource extends JsonResource
                 'endOfThisWeek' => $endOfThisWeek,
                 'startOfNextWeek' => $startOfNextWeek,
                 'endOfNextWeek' => $endOfNextWeek,
+                'first_name' => $this->readingStationUser->user->first_name,
+                'last_name' => $this->readingStationUser->user->last_name,
             ];
         }
     }

@@ -57,7 +57,7 @@ class ProductCreateRequest extends FormRequest
                 }),
             ],
             'published' => 'required|integer',
-            'type' => 'required|string|in:normal,download,chairs,video,package',
+            'type' => 'required|string|in:normal,download,chairs,video,package,quiz24',
             'special' => 'required|in:0,1',
             "order_date" =>
             [

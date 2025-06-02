@@ -18,7 +18,7 @@ class ReadingStationWeeklyProgramHoursResource extends JsonResource
     {
 
         if ($this->resource != null) {
-            $sluts = $this->sluts->whereNotIn('status', ['defined', 'absent']);
+            $sluts = $this->sluts->whereNotIn('status', ['defined', 'absent', 'sleep']);
             $result = [
                 "Saturday" => 0,
                 "Sunday" => 0,

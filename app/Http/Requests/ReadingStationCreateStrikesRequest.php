@@ -30,7 +30,7 @@ class ReadingStationCreateStrikesRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'reading_station_slut_id' => 'required|exists:reading_station_sluts,id',
             'reading_station_strike_id' => 'required|exists:reading_station_strikes,id',
-            'reading_station_strike_score' => 'nullable|int',
+            'reading_station_strike_score' => 'nullable|int|gt:0',
             'description' => 'nullable|string|min:3',
         ];
     }

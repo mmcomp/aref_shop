@@ -13,8 +13,10 @@ use App\Http\Resources\ReadingStationStrikesCollection;
 use App\Http\Resources\ReadingStationStrikesResource;
 use App\Http\Resources\ReadingStationUserStrikesCollection;
 use App\Models\ReadingStation;
+use App\Models\ReadingStationSlutUser;
 use App\Models\ReadingStationStrike;
 use App\Models\ReadingStationUserStrike;
+use App\Models\ReadingStationWeeklyProgram;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +36,7 @@ class ReadingStationStrikeController extends Controller
             $isPoint = $request->is_point;
         }
         ReadingStationStrike::create([
-            "name" => $request->name, 
+            "name" => $request->name,
             "score" => $request->score,
             "is_point" => $isPoint,
         ]);
@@ -166,7 +168,7 @@ class ReadingStationStrikeController extends Controller
     public function addReadingStationUserStrike(ReadingStationCreateStrikesRequest $request, ReadingStation $readingStation)
     {
         $readingStationId = Auth::user()->reading_station_id;
-        $isReadingStationBranchAdmin =in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
+        $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             if ($readingStationId !== $readingStation->id) {
                 return (new ReadingStationStrikesResource(null))->additional([
@@ -180,16 +182,30 @@ class ReadingStationStrikeController extends Controller
                 'errors' => ['reading_station_strike' => ['Reading station does not belong to the User!']],
             ])->response()->setStatusCode(400);
         }
-        $slutUser = null;
-        $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
-        $weeklyPrograms->map(function ($weeklyProgram) use (&$slutUser, $request) {
-            $slutUser = $weeklyProgram->sluts
-                ->where('reading_station_slut_id', $request->reading_station_slut_id)
-                ->where('day', $request->day)
-                ->where('status', '!=', 'defined')
-                ->where('status', '!=', 'absent')
-                ->first();
-        });
+        $weeklyProgram = ReadingStationWeeklyProgram::where('reading_station_user_id', $user->readingStationUser->id)
+            ->whereDate('start', '<=', $request->day)
+            ->whereDate('end', '>=', $request->day)
+            ->first();
+        if (!$weeklyProgram) {
+            return (new ReadingStationStrikesResource(null))->additional([
+                'errors' => ['reading_station_strike' => ['User does not have a program for that week!']],
+            ])->response()->setStatusCode(400);
+        }
+        $slutUser = ReadingStationSlutUser::where('reading_station_weekly_program_id', $weeklyProgram->id)
+            ->where('reading_station_slut_id', $request->reading_station_slut_id)
+            ->where('day', $request->day)
+            ->where('status', '!=', 'defined')
+            ->where('status', '!=', 'absent')
+            ->first();
+        // $weeklyPrograms = $user->readingStationUser->weeklyPrograms;
+        // $weeklyPrograms->map(function ($weeklyProgram) use (&$slutUser, $request) {
+        //     $slutUser = $weeklyProgram->sluts
+        //         ->where('reading_station_slut_id', $request->reading_station_slut_id)
+        //         ->where('day', $request->day)
+        //         ->where('status', '!=', 'defined')
+        //         ->where('status', '!=', 'absent')
+        //         ->first();
+        // });
         if (!$slutUser) {
             return (new ReadingStationStrikesResource(null))->additional([
                 'errors' => ['reading_station_strike' => ['User does not have any records for this slut!']],
@@ -233,7 +249,49 @@ class ReadingStationStrikeController extends Controller
             $q1->whereHas('weeklyProgram', function ($q2) use ($user) {
                 $q2->whereHas('readingStationUser', function ($q3) use ($user) {
                     $q3->whereHas('user', function ($q4) use ($user) {
-                        $q4->where('id', $user->id);                        
+                        $q4->where('id', $user->id);
+                    });
+                });
+            });
+        });
+        $total = 0;
+        $all = $strikes->get();
+        $all->map(function ($strike) use (&$total) {
+            $total += ($strike->readingStationStrike->is_point ? 1 : -1) * $strike->reading_station_strike_score;
+        });
+
+        $sort = "day";
+        $sortDir = "desc";
+
+        $strikes->orderBy($sort, $sortDir);
+        $perPage = $request->per_page;
+        if (!$perPage) {
+            $perPage = env('PAGE_COUNT');
+        }
+        if ($request->per_page === 'all') {
+            $output = $strikes->get();
+        } else {
+            $output = $strikes->paginate($perPage);
+        }
+
+        return (new ReadingStationUserStrikesCollection($output, $total))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+    public function strikesUser(ReadingStationUserAbsentsIndexRequest $request, User $user)
+    {
+        if (Auth::user()->id !== $user->id) {
+            return (new ReadingStationStrikesResource(null))->additional([
+                'errors' => ['reading_station_user' => ['Reading station does not belong to you!']],
+            ])->response()->setStatusCode(400);
+        }
+
+        $strikes = ReadingStationUserStrike::whereHas('readingStationSlutUser', function ($q1) use ($user) {
+            $q1->whereHas('weeklyProgram', function ($q2) use ($user) {
+                $q2->whereHas('readingStationUser', function ($q3) use ($user) {
+                    $q3->whereHas('user', function ($q4) use ($user) {
+                        $q4->where('id', $user->id);
                     });
                 });
             });

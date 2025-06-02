@@ -10,9 +10,9 @@ class Sms {
         $this->smsUrl="https://api.kavenegar.com/v1/$api_key/sms/send.json";
     }
 
-    public function sendCode($receptor, $token, $template='aref') {
+    public function sendCode($receptor, $token, $token2 = '', $token3 = '', $template='aref') {
         $ch = curl_init();
-        $url = $this->url."?receptor=$receptor&token=$token&template=$template";
+        $url = $this->url."?receptor=$receptor&token=$token&token2=$token2&token3=$token3&template=$template";
         Log::info($url);
         curl_setopt($ch, CURLOPT_URL,$url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);

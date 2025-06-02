@@ -7,6 +7,7 @@ use App\Models\ReadingStation;
 use App\Models\User;
 use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationCallCreateRequest;
+use App\Http\Requests\ReadingStationCallIndexRequest;
 use App\Http\Requests\ReadingStationExitSlutUpdateRequest;
 use App\Http\Resources\ReadingStationAllCallsResource;
 use App\Http\Resources\ReadingStationNeededCallsResource;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Auth;
 class ReadingStationCallsController extends Controller
 {
 
-    function index(ReadingStation $readingStation)
+    function index(ReadingStationCallIndexRequest $request, ReadingStation $readingStation)
     {
         if (!$this->checkUserWithReadingStationAuth($readingStation)) {
             return (new ReadingStationResource(null))->additional([
@@ -31,25 +32,67 @@ class ReadingStationCallsController extends Controller
         }
         $today = Carbon::now()->toDateString();
         $now = Carbon::now()->format("H:i:s");
+        if ($request->exists('date')) {
+            $date = Carbon::parse($request->date);
+            $today = $date->toDateString();
+            $now = $date->format("H:i:s");
+        }
         $weeklyPrograms = [];
-        $availableSluts = $readingStation->sluts
+        $availableSluts = ReadingStationSlut::select('id')->where('reading_station_id', $readingStation->id)
             ->where('start', '<=', $now)
+            ->get()
             ->map(function ($slut) {
                 return $slut->id;
             })
             ->toArray();
-        $readingStation->users->map(function ($user) use (&$weeklyPrograms) {
-            return $user->weeklyPrograms->map(function ($weeklyProgram) use (&$weeklyPrograms) {
-                $weeklyPrograms[] = $weeklyProgram->id;
-            });
-        })->toArray();
+        // dump("availableSluts", $availableSluts);
+        // dd($availableSluts);
+        $weeklyPrograms = ReadingStationWeeklyProgram::whereHas('readingStationUser', function ($query) use ($readingStation) {
+            $query->where('reading_station_id', $readingStation->id);
+        })->get()
+            ->map(function ($slut) {
+                return $slut->id;
+            })
+            ->toArray();
+        // dump("weeklyPrograms", $weeklyPrograms);
+
+        // $availableSluts = $readingStation->sluts
+        //     ->where('start', '<=', $now)
+        //     ->map(function ($slut) {
+        //         return $slut->id;
+        //     })
+        //     ->toArray();
+        // $readingStation->users->map(function ($user) use (&$weeklyPrograms) {
+        //     return $user->weeklyPrograms->map(function ($weeklyProgram) use (&$weeklyPrograms) {
+        //         $weeklyPrograms[] = $weeklyProgram->id;
+        //     });
+        // })->toArray();
+        // $absentPresents = ReadingStationAbsentPresent::whereHas('user', function ($q1) use ($weeklyPrograms) {
+        //     $q1->whereHas('readingStationUser', function ($q2) use ($weeklyPrograms) {
+        //         $q2->whereHas('allWeeklyPrograms', function ($q3) use ($weeklyPrograms) {
+        //             $q3->whereIn('id', $weeklyPrograms);
+        //         });
+        //     });
+        // })->with(['user', 'calls'])->get();
+        // return $absentPresents;
         $todaySluts = ReadingStationSlutUser::whereIn('reading_station_weekly_program_id', $weeklyPrograms)
+            ->with('weeklyProgram.readingStationUser.user')
+            // ->with('absentPresent.calls')
+            ->with('slut')
             ->where('day', $today)
             ->whereIn('reading_station_slut_id', $availableSluts)
             ->where('status', '!=', 'defined')
+            ->withAggregate('slut', 'start')
+            ->orderBy('slut_start')
             ->get();
-
-        return (new ReadingStationNeededCallsResource($todaySluts))->additional([
+        // dd($todaySluts);
+        // dd();
+        // foreach($todaySluts as $indx => $todaySlut) {
+        //     $absentPresent = $absentPresents->where('user_id', $todaySlut->weeklyProgram->readingStationUser->user->id)->first();
+        //     $todaySluts[$indx]->absentPresent = $absentPresent;
+        // }
+        // return $todaySluts;
+        return (new ReadingStationNeededCallsResource($todaySluts, $request->type))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }

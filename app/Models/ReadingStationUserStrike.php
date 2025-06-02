@@ -15,7 +15,7 @@ class ReadingStationUserStrike extends Model
 
     function readingStationStrike()
     {
-        return $this->belongsTo(ReadingStationStrike::class);    
+        return $this->belongsTo(ReadingStationStrike::class)->withTrashed();    
     }
 
 

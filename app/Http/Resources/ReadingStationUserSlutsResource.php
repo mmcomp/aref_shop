@@ -12,11 +12,13 @@ class ReadingStationUserSlutsResource extends JsonResource
     private $slut;
     private $users = [];
     private $warnings = [];
-    function __construct($resource, $slut, $warnings = [])
+    private $now;
+    function __construct($resource, $slut, $warnings = [], $now = null)
     {
         $this->slut = $slut;
         $this->users = $resource;
         $this->warnings = $warnings;
+        $this->now = $now === null ? Carbon::now() : $now;
         parent::__construct($resource[0]);
     }
 
@@ -33,14 +35,13 @@ class ReadingStationUserSlutsResource extends JsonResource
             $userInformations = [];
             $readingStationUsers = $this->users;
             foreach ($readingStationUsers as $readingStationUser) {
-                $weeklyPrograms = $readingStationUser->weeklyPrograms;
+                $weeklyPrograms = $readingStationUser->allWeeklyPrograms;
                 $selectedSlut = null;
-                // $absentPresent = null;
                 $slutNames = [];
                 $hasProgram = false;
                 if (!$weeklyPrograms) continue;
                 foreach ($weeklyPrograms as $weeklyProgram) {
-                    if (Carbon::now()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
+                    if ($this->now->copy()->endOfWeek(Carbon::FRIDAY)->diffInDays(Carbon::parse($weeklyProgram->end)) === 0) {
                         if (count($weeklyProgram->sluts) > 0) {
                             $hasProgram = true;
                         }
@@ -49,16 +50,18 @@ class ReadingStationUserSlutsResource extends JsonResource
                             if (Carbon::parse($a->slut->start)->greaterThan(Carbon::parse($b->slut->start))) return 1;
                             return -1;
                         })->filter(function ($_slut) {
-                            return Carbon::now()->toDateString() == $_slut->day && $_slut->is_required;
+                            return $this->now->copy()->toDateString() == $_slut->day && $_slut->is_required;
                         })->map(function ($_slut) {
                             return $_slut->slut->name;
                         })->toArray();
                         $selectedSlut = $weeklyProgram->sluts
-                            ->where('day', Carbon::now()->toDateString())
+                            ->where('day', $this->now->copy()->toDateString())
                             ->where('reading_station_slut_id', $slut->id)->first();
+                        $slutNames = array_unique($slutNames);
                         break;
                     }
                 }
+
                 $latestOperator =  $selectedSlut && $selectedSlut->user ? [
                     "first_name" =>  $selectedSlut->user->first_name,
                     "last_name" => $selectedSlut->user->last_name,
@@ -80,9 +83,12 @@ class ReadingStationUserSlutsResource extends JsonResource
                         $latestOperator = $absentPresentOperator;
                     }
                 }
+                $absentPresents =  $readingStationUser->user->absentPresents($this->now)->get();
                 $userInformations[] = [
-                    "user" => new UserResource($readingStationUser->user),
+                    "user" => new UserSmallResource($readingStationUser->user),
+                    "table_number" => $readingStationUser->table_number,
                     "slut" => new ReadingStationUserSlutResource($selectedSlut),
+                    "day" => $selectedSlut !== null ? $selectedSlut->day : null,
                     "operator" => $selectedSlut && $selectedSlut->user ? [
                         "first_name" =>  $selectedSlut->user->first_name,
                         "last_name" => $selectedSlut->user->last_name,
@@ -90,7 +96,7 @@ class ReadingStationUserSlutsResource extends JsonResource
                     ] : null,
                     "slutNames" => $slutNames,
                     "hasProgram" => $hasProgram,
-                    "absentPresents" => new ReadingStationAbsentPresentCollection($readingStationUser->user->absentPresents),
+                    "absentPresents" => new ReadingStationAbsentPresentCollection($absentPresents),
                     "latestOperator" => $latestOperator,
                 ];
             }

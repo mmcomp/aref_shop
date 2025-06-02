@@ -34,6 +34,9 @@ class ReadingStationReadingStaticsReportCollection extends ResourceCollection
                     case 'late_60':
                         $time = $userSlut->slut->duration - 60;
                         break;
+                    case 'present':
+                        $time = $userSlut->slut->duration;
+                        break;
                 }
                 $readingTotalMinutes += $time;
             });

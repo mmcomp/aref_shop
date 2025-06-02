@@ -24,6 +24,8 @@ class ReadingStationUsers5Resource extends JsonResource
                 'table_number' => $this->table_number,
                 'first_name' => $this->user->first_name,
                 'last_name' => $this->user->last_name,
+                'status' => $this->status,
+                'reading_station_name' => $this->readingStation->name,
             ];
         }
     }

@@ -40,6 +40,7 @@ class ProductDetailVideosForFreeSessionsResource extends JsonResource
                 'id' => $this->id,
                 'product' => new ProductForSingleSessionsResource($this->product),
                 'videoSession' => (new VideoSessionForSingleSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check),
+                'free_hidden' => $this->free_hidden,
                 'numName' => $num
             ];
         }

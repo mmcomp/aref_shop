@@ -27,6 +27,7 @@ class ReadingStationSetUserSlutStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|in:defined,absent,present,late_15,late_30,late_45,late_60,late_60_plus,sleep',
+            'date' => 'sometimes|date_format:Y-m-d',
         ];
     }
      /**

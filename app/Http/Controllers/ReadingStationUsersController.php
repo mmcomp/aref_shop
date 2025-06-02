@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Utils\ReadingStationAuth;
 use App\Http\Requests\ReadingStationChangeExitsRequest;
+use App\Http\Requests\ReadingStationGetSlutsRequest;
 use App\Http\Requests\ReadingStationIndexExitsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentsRequest;
 use App\Http\Requests\ReadingStationIndexUserAbsentTablesRequest;
@@ -43,6 +44,7 @@ use App\Models\ReadingStationCall;
 use App\Models\ReadingStationSlutChangeWarning;
 use App\Utils\SlutUserValidation;
 use Illuminate\Support\Facades\Storage;
+use Log;
 
 class ReadingStationUsersController extends Controller
 {
@@ -96,7 +98,12 @@ class ReadingStationUsersController extends Controller
         }
         $sort = "id";
         $sortDir = "desc";
-        $paginatedReadingStationOffdays = ReadingStationUser::where("reading_station_id", $readingStation->id);
+        $paginatedReadingStationOffdays = ReadingStationUser::/*select(['id', 'table_number', 'total', 'user_id', 'default_package_id'])->with(['user' => function ($query) {
+            $query->select('id', 'first_name', 'last_name');
+        }])*/with('user')
+            ->with('package')
+            ->with('weeklyPrograms.sluts')
+            ->where("reading_station_id", $readingStation->id);
         $userGroup = Group::where('type', 'user')->first();
         if ($request->get('name') || $request->get('phone')) {
             $paginatedReadingStationOffdays
@@ -114,6 +121,9 @@ class ReadingStationUsersController extends Controller
                     }
                     $q->where('groups_id', $userGroup->id);
                 });
+        }
+        if ($request->exists('status')) {
+            $paginatedReadingStationOffdays->where('status', $request->get('status'));
         }
         if ($request->get('sort_dir') != null && $request->get('sort') != null) {
             $sort = $request->get('sort');
@@ -133,7 +143,7 @@ class ReadingStationUsersController extends Controller
         ])->response()->setStatusCode(201);
     }
 
-    public function oneSlutIndex(ReadingStation $readingStation, ReadingStationSlut $slut)
+    public function oneSlutIndex(ReadingStationGetSlutsRequest $request, ReadingStation $readingStation, ReadingStationSlut $slut)
     {
         $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
@@ -150,13 +160,23 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $beforeSluts = $readingStation->sluts->where('id', '!=', $slut->id)->where('start', '<', $slut->start)->pluck('id');
+        $day = $request->exists('date') ? Carbon::parse($request->date) : Carbon::now();
+        $forbiddenReadingStationUserIds = ReadingStationUser::where('reading_station_id', $readingStation->id)->where('status', '!=', 'active')->pluck('id');
+        $forbiddenWeeklyPrograms = ReadingStationWeeklyProgram::whereIn('reading_station_user_id', $forbiddenReadingStationUserIds)->pluck('id');
+
+        $beforeSluts = ReadingStationSlut::where('reading_station_id', $readingStation->id)
+            ->where('id', '!=', $slut->id)
+            ->where('start', '<', $slut->start)
+            ->pluck('id');
+
+
         if (
             count($beforeSluts) > 0 &&
             ReadingStationSlutUser::whereIn('reading_station_slut_id', $beforeSluts)
+            ->whereNotIn('reading_station_weekly_program_id', $forbiddenWeeklyPrograms)
             ->where('is_required', 1)
             ->where('status', 'defined')
-            ->where('day', Carbon::now()->toDateString())
+            ->where('day', $day->toDateString())
             ->count() > 0
         ) {
             return (new ReadingStationUsersResource(null))->additional([
@@ -164,10 +184,68 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $slutUsers = $readingStation->users->sortBy('table_number');
-        return (new ReadingStationUserSlutsResource($slutUsers, $slut))->additional([
+
+        $end = Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString();
+        $start = Carbon::now()->startOfWeek(Carbon::SATURDAY)->toDateString();
+        $now = $day->toDateString();
+        $slutUsers = ReadingStationUser::where('reading_station_id', $readingStation->id)
+            ->where('status', 'active')
+            // ->whereHas('weeklyPrograms', function ($query) use ($end) {
+            //     $query->whereDate('end', $end);
+            // })
+            // ->whereHas('user', function ($query) use ($start, $end) {
+            //     $query->whereHas('absentPresents', function ($q) use ($start, $end) {
+            //         $q->whereDate('day', '>=', $start)
+            //             ->whereDate('day', '<=', $end);
+            //     });
+            // })s
+            // ->with(['weeklyPrograms' => function ($q) use ($slut, $now) {
+            //     $q->with(['sluts' => function ($q1) use ($slut, $now) {
+            //         $q1/*->where('reading_station_slut_id', $slut->id)*/
+            //             ->whereDate('day', $now);
+            //     }]);
+            // }])
+            // ->with('allWeeklyPrograms')
+            ->with(['allWeeklyPrograms' => function ($q) use ($slut, $now) {
+                $q->with(['sluts' => function ($q1) use ($slut, $now) {
+                    $q1/*->where('reading_station_slut_id', $slut->id)*/
+                        ->whereDate('day', $now);
+                }]);
+            }])
+            ->with('user.absentPresents')
+            ->orderBy('table_number')
+            ->get();
+        // $slutUsers = $readingStation->users->sortBy('table_number');
+        // return  $slutUsers;
+        return (new ReadingStationUserSlutsResource($slutUsers, $slut, [], $day))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function getStatusTime(string $status, ReadingStationSlut $slut): int
+    {
+        $time = $slut->duration;
+        switch ($status) {
+            case 'late_15':
+                $time -= 15;
+                break;
+            case 'late_30':
+                $time -= 30;
+                break;
+            case 'late_45':
+                $time -= 45;
+                break;
+            case 'late_60':
+                $time -= 60;
+                break;
+            case 'present':
+                break;
+            default:
+                $time = 0;
+                break;
+        }
+
+        return $time;
     }
 
     public function setUserSlutStatus(ReadingStationSetUserSlutStatusRequest $request, ReadingStation $readingStation, User $user, ReadingStationSlut $slut)
@@ -178,8 +256,9 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        $userWeeklyPrograms = $user->readingStationUser->weeklyPrograms;
-        $thisWeeklyProgram = $userWeeklyPrograms->where('end', Carbon::now()->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
+        $now = $request->exists('date') ? Carbon::parse($request->date) : Carbon::now();
+        $userWeeklyPrograms = $user->readingStationUser->allWeeklyPrograms;
+        $thisWeeklyProgram = $userWeeklyPrograms->where('end', $now->copy()->endOfWeek(Carbon::FRIDAY)->toDateString())->first();
         if (!$thisWeeklyProgram || ($thisWeeklyProgram && count($thisWeeklyProgram->sluts) === 0)) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user does not have a plan for this week!']],
@@ -194,17 +273,22 @@ class ReadingStationUsersController extends Controller
         $slutUserValidation = new SlutUserValidation($thisWeeklyProgram, $slut, $user, $request->status);
         $warnings = $slutUserValidation->start();
 
-        $today = Carbon::now()->toDateString();
+        $today = $request->exists('date') ? Carbon::parse($request->date)->toDateString() : Carbon::now()->toDateString();
         $userSlut = $thisWeeklyProgram->sluts->where('reading_station_slut_id', $slut->id)->where('day', $today)->first();
         if ($request->status === 'defined' && $userSlut) {
-            $nextUserSluts = ReadingStationSlutUser::withAggregate('slut', 'start')
-                ->where('reading_station_weekly_program_id', $thisWeeklyProgram->id)
-                ->where('day', $today)
-                ->get()
-                ->where('slut_start', '>', $slut->start)
-                ->sortByDesc('slut_start')
-                ->pluck('id');
-            ReadingStationSlutUser::whereIn('id', $nextUserSluts)->update(['status' => 'defined', 'user_id' => Auth::user()->id]);
+            if ($userSlut->is_required) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['You can not change to defined for required sluts!']],
+                ])->response()->setStatusCode(400);
+            }
+            // $nextUserSluts = ReadingStationSlutUser::withAggregate('slut', 'start')
+            //     ->where('reading_station_weekly_program_id', $thisWeeklyProgram->id)
+            //     ->where('day', $today)
+            //     ->get()
+            //     ->where('slut_start', '>', $slut->start)
+            //     ->sortByDesc('slut_start')
+            //     ->pluck('id');
+            // ReadingStationSlutUser::whereIn('id', $nextUserSluts)->update(['status' => 'defined', 'user_id' => Auth::user()->id]);
         }
 
 
@@ -224,6 +308,11 @@ class ReadingStationUsersController extends Controller
             $userSlut->is_required = false;
         } else {
             $oldStatus = $userSlut->status;
+            if ($oldStatus === $request->status) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Duplicated request']],
+                ])->response()->setStatusCode(400);
+            }
             if ($request->status === 'defined' && !$userSlut->is_required) {
                 $deleted = true;
             }
@@ -244,6 +333,53 @@ class ReadingStationUsersController extends Controller
         $weeklyProgram = $thisWeeklyProgram;
         $readingStationUser = $weeklyProgram->readingStationUser;
         $time = $userSlut->slut->duration;
+        if ($oldStatus) {
+            $oldTime = $this->getStatusTime($oldStatus, $slut);
+            if ($userSlut->is_required) {
+                $weeklyProgram->required_time_done -= $oldTime;
+                if ($oldStatus === 'absent') {
+                    $weeklyProgram->absent_day -= 1;
+                    $weeklyProgram->absence_done -= $time;
+                    $weeklyProgram->strikes_done -= 2;
+                    $readingStationUser->total += 2;
+                } else if ($oldStatus === 'present') {
+                    $weeklyProgram->present_day -= 1;
+                } else if (strpos($oldStatus, 'late_') === 0) {
+                    $weeklyProgram->late_day -= 1;
+                    $readingStationUser->total += 1;
+                    $weeklyProgram->strikes_done -= 1;
+                    if ($oldStatus === 'late_60_plus') {
+                        $weeklyProgram->strikes_done -= 1;
+                        $readingStationUser->total += 1;
+                    }
+                }
+            } else {
+                $weeklyProgram->optional_time_done -= $oldTime;
+            }
+        }
+        $newTime = $this->getStatusTime($userSlut->status, $slut);
+        if ($userSlut->is_required) {
+            $weeklyProgram->required_time_done += $newTime;
+            if ($userSlut->status === 'absent') {
+                $weeklyProgram->absent_day += 1;
+                $weeklyProgram->absence_done += $time;
+                $weeklyProgram->strikes_done += 2;
+                $readingStationUser->total -= 2;
+            } else if ($userSlut->status === 'present') {
+                $weeklyProgram->present_day += 1;
+            } else if (strpos($userSlut->status, 'late_') === 0) {
+                $weeklyProgram->late_day += 1;
+                $readingStationUser->total -= 1;
+                $weeklyProgram->strikes_done += 1;
+                if ($userSlut->status === 'late_60_plus') {
+                    $weeklyProgram->strikes_done += 1;
+                    $readingStationUser->total -= 1;
+                }
+            }
+        } else {
+            $weeklyProgram->optional_time_done += $newTime;
+        }
+        /*
         if ($userSlut->status !== 'absent' && $userSlut->status !== 'defined') {
             switch ($userSlut->status) {
                 case 'late_15':
@@ -263,13 +399,14 @@ class ReadingStationUsersController extends Controller
                     break;
                 case 'present':
                     $weeklyProgram->present_day += 1;
-                    if ($oldStatus && $oldStatus === 'absent') {
-                        $weeklyProgram->absent_day -= 1;
-                    }
                     break;
             }
+
             if ($userSlut->is_required) {
                 $weeklyProgram->required_time_done += $time;
+                if ($oldStatus && $oldStatus === 'absent') {
+                    $weeklyProgram->absent_day -= 1;
+                }
             } else {
                 $weeklyProgram->optional_time_done += $time;
             }
@@ -282,25 +419,15 @@ class ReadingStationUsersController extends Controller
                 }
                 $weeklyProgram->late_day++;
             }
-        } else if ($userSlut->is_required && $userSlut->status === 'defined' && $oldStatus && $oldStatus !== 'absent' && $oldStatus !== 'defined') {
-            switch ($oldStatus) {
-                case 'late_15':
-                    $time -= 15;
-                    break;
-                case 'late_30':
-                    $time -= 30;
-                    break;
-                case 'late_45':
-                    $time -= 45;
-                    break;
-                case 'late_60':
-                    $time -= 60;
-                    break;
-                case 'late_60_plus':
-                    $time -= 75;
-                    break;
+            $oldTime = 0;
+            if ($oldStatus) {
+                $oldTime = $this->getStatusTime($oldStatus, $userSlut->slut);
             }
-            $weeklyProgram->required_time_done -= $time;
+            if ($userSlut->is_required) {
+                $weeklyProgram->required_time_done -= $oldTime;
+            } else {
+                $weeklyProgram->optional_time_done -= $time;
+            }
         } else if ($userSlut->is_required && $userSlut->status === 'absent') {
             $weeklyProgram->absence_done += $time;
             $weeklyProgram->strikes_done += 2;
@@ -310,6 +437,8 @@ class ReadingStationUsersController extends Controller
                 $weeklyProgram->present_day -= 1;
             }
         }
+        */
+
         $weeklyProgram->save();
         $readingStationUser->save();
         if ($weeklyProgram->sluts->where('day', $today)->where('status', '!=', 'defined')->count() === 0) {
@@ -319,7 +448,7 @@ class ReadingStationUsersController extends Controller
         }
         if ($deleted) {
             $userSlut->delete();
-        } else if(count($warnings) > 0) {
+        } else if (count($warnings) > 0) {
             $query = [];
             foreach ($warnings as $warning) {
                 $query[] = [
@@ -334,7 +463,7 @@ class ReadingStationUsersController extends Controller
             ReadingStationSlutChangeWarning::insert($query);
         }
 
-        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut, $warnings))->additional([
+        return (new ReadingStationUserSlutsResource([$userSlut->weeklyProgram->readingStationUser], $slut, $warnings, $now))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -360,12 +489,13 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station table does not exist!']],
             ])->response()->setStatusCode(400);
         }
-        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->first();
+        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where('status', 'active')->where("user_id", $user->id)->first();
         if ($found) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user exists!']],
             ])->response()->setStatusCode(400);
         }
+
         if ($request->table_number !== null) {
             $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("table_number", $request->table_number)->first();
             if ($found) {
@@ -393,31 +523,54 @@ class ReadingStationUsersController extends Controller
         $end = $date->endOfWeek(Carbon::FRIDAY)->toDateString();
 
 
-        $id = ReadingStationUser::create([
-            "reading_station_id" => $request->reading_station_id,
-            "user_id" => $user->id,
-            "table_number" => $request->table_number,
-            "default_package_id" => $request->default_package_id,
-            "start_date" => $request->start_date,
-            "required_time" => $requiredTime,
-            "optional_time" => $optionalTime,
-            "consultant" => $request->consultant,
-            "representative" => $request->representative,
-            "contract_start" => $request->contract_start,
-            "contract_end" => $request->contract_end,
-        ])->id;
-        ReadingStationWeeklyProgram::create([
-            "reading_station_user_id" => $id,
-            "name" => $package->name,
-            "start" => $start,
-            "end" => $end,
-            "required_time" => $requiredTime,
-            "optional_time" => $optionalTime,
-            "consultant" => $request->consultant,
-            "representative" => $request->representative,
-            "contract_start" => $request->contract_start,
-            "contract_end" => $request->contract_end,
-        ]);
+        $found = ReadingStationUser::where("reading_station_id", $request->reading_station_id)->where("user_id", $user->id)->withTrashed()->first();
+        if ($found) {
+            $found->deleted_at = null;
+            $found->status = 'active';
+            $found->table_number = $request->table_number;
+            $found->default_package_id = $request->default_package_id;
+            // $found->start_date = $request->start_date;
+            // $found->required_time = $requiredTime;
+            // $found->optional_time = $optionalTime;
+            $found->consultant = $request->consultant;
+            $found->representative = $request->representative;
+            $found->contract_start = $request->contract_start;
+            $found->contract_end = $request->contract_end;
+            $found->save();
+            $id = $found->id;
+        } else {
+            $id = ReadingStationUser::create([
+                "reading_station_id" => $request->reading_station_id,
+                "user_id" => $user->id,
+                "table_number" => $request->table_number,
+                "default_package_id" => $request->default_package_id,
+                // "start_date" => $request->start_date,
+                // "required_time" => $requiredTime,
+                // "optional_time" => $optionalTime,
+                "consultant" => $request->consultant,
+                "representative" => $request->representative,
+                "contract_start" => $request->contract_start,
+                "contract_end" => $request->contract_end,
+                "status" => 'active',
+            ])->id;
+        }
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated', 'table_number' => null]);
+        $weeklyProgram = ReadingStationWeeklyProgram::where('reading_station_user_id', $id)
+            ->where('end', $end)->first();
+        if (!$weeklyProgram) {
+            ReadingStationWeeklyProgram::create([
+                "reading_station_user_id" => $id,
+                "name" => $package->name,
+                "start" => $start,
+                "end" => $end,
+                "required_time" => $requiredTime,
+                "optional_time" => $optionalTime,
+                "consultant" => $request->consultant,
+                "representative" => $request->representative,
+                "contract_start" => $request->contract_start,
+                "contract_end" => $request->contract_end,
+            ]);
+        }
         $user->is_reading_station_user = true;
         $user->save();
 
@@ -437,6 +590,17 @@ class ReadingStationUsersController extends Controller
     {
         $found = ReadingStationUser::find($request->id);
         $readingStation = ReadingStation::find($request->reading_station_id);
+        if ($found->reading_station_id !== $request->reading_station_id) {
+            $insertRequest = new ReadingStationCreateUserRequest();
+            $insertRequest->table_number = $request->table_number;
+            $insertRequest->default_package_id = $request->default_package_id;
+            $insertRequest->reading_station_id = $request->reading_station_id;
+            $insertRequest->consultant = $request->consultant;
+            $insertRequest->representative = $request->representative;
+            $insertRequest->contract_start = $request->contract_start;
+            $insertRequest->contract_end = $request->contract_end;
+            return $this->store($insertRequest, $user);
+        }
 
         if (!$this->checkUserWithReadingStationAuth($readingStation, $user)) {
             return (new ReadingStationUsersResource(null))->additional([
@@ -473,7 +637,9 @@ class ReadingStationUsersController extends Controller
         $found->representative = $request->representative;
         $found->contract_start = $request->contract_start;
         $found->contract_end = $request->contract_end;
+        $found->status = 'active';
         $found->save();
+        ReadingStationUser::where('reading_station_id', '!=', $request->reading_station_id)->where("user_id", $user->id)->where('status', 'active')->withTrashed()->update(['status' => 'relocated', 'table_number' => null]);
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -487,7 +653,7 @@ class ReadingStationUsersController extends Controller
      */
     public function destroy(User $user, $id)
     {
-        $found = ReadingStationUser::find($id);
+        $found = ReadingStationUser::where('id', $id)->where('status', 'active')->first();
         if (!$found) {
             return (new ReadingStationUsersResource(null))->additional([
                 'errors' => ['reading_station_user' => ['Reading station user not found!']],
@@ -505,7 +671,10 @@ class ReadingStationUsersController extends Controller
                 'errors' => ['reading_station_user' => ['Reading station user table is not for this user!']],
             ])->response()->setStatusCode(400);
         }
-        $found->delete();
+        // $found->delete();
+        $found->status = 'canceled';
+        $found->table_number = null;
+        $found->save();
         $user->is_reading_station_user = false;
         $user->save();
         return (new ReadingStationUsersResource(null))->additional([
@@ -638,6 +807,13 @@ class ReadingStationUsersController extends Controller
             }
         }
 
+        if ($request->reading_station_slut_user_exit_id && $absentPresent->reading_station_slut_user_exit_id && $absentPresent->reading_station_slut_user_exit_id !== $request->reading_station_slut_user_exit_id && $absentPresent->id) {
+            // exit call should be canceled
+            ReadingStationCall::where("reading_station_absent_present_id", $absentPresent->id)
+                ->where("reason", "exit")
+                ->delete();
+        }
+
         $absentPresent->reading_station_slut_user_exit_id = $request->exists("reading_station_slut_user_exit_id") ? $request->reading_station_slut_user_exit_id : $absentPresent->reading_station_slut_user_exit_id;
         $absentPresent->possible_end = $request->exists("possible_end") ? $request->possible_end : $absentPresent->possible_end;
         $absentPresent->end = $request->exists("end") ? $request->end : $absentPresent->end;
@@ -668,8 +844,8 @@ class ReadingStationUsersController extends Controller
 
         $absentPresents = ReadingStationAbsentPresent::where('reading_station_id', $readingStation->id)
             ->where('day', Carbon::now()->toDateString())
-            ->where('reading_station_slut_user_exit_id', '!=', null)
-            ->where('is_processed', 0);
+            ->where('reading_station_slut_user_exit_id', '!=', null);
+        // ->where('is_processed', 0);
         if ($request->reading_station_slut_user_exit_id) {
             $absentPresents->where('reading_station_slut_user_exit_id', $request->reading_station_slut_user_exit_id);
         }
@@ -706,18 +882,18 @@ class ReadingStationUsersController extends Controller
             ])->response()->setStatusCode(400);
         }
 
-        if ($request->exists('exit_way') || $request->exists('exited')) {
-            $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
-            $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
-            ReadingStationCall::insert([[
-                "reading_station_absent_present_id" => $readingStationAbsentPresent->id,
-                "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
-                "reason" => "exit",
-                "caller_user_id" => Auth::user()->id,
-                "created_at" => $now,
-                "updated_at" => $now,
-            ]]);
-        }
+        // if ($request->exists('exit_way') || $request->exists('exited')) {
+        //     $now = str_replace('T', ' ', Carbon::now()->toDateTimeLocalString());
+        //     $weeklyProgram = $this->thisWeekProgram($readingStationAbsentPresent->user);
+        //     ReadingStationCall::insert([[
+        //         "reading_station_absent_present_id" => $readingStationAbsentPresent->id,
+        //         "reading_station_slut_user_id" => $weeklyProgram->sluts->first()->id,
+        //         "reason" => "exit",
+        //         "caller_user_id" => Auth::user()->id,
+        //         "created_at" => $now,
+        //         "updated_at" => $now,
+        //     ]]);
+        // }
         if ($request->exists('exited') && !$readingStationAbsentPresent->exit_way) {
             $readingStationAbsentPresent->exit_way = $readingStationAbsentPresent->possible_exit_way;
         }
@@ -744,7 +920,7 @@ class ReadingStationUsersController extends Controller
             }
         }
 
-        $users = ReadingStationUser::where("reading_station_id", $readingStation->id)->get();
+        $users = ReadingStationUser::where("reading_station_id", $readingStation->id)->where('table_number', '!=', null)->orderBy('table_number')->get();
 
         return (new ReadingStationUsers5Collection($users))->additional([
             'errors' => null,
@@ -767,8 +943,8 @@ class ReadingStationUsersController extends Controller
             $q->where('reading_station_id', $readingStation->id);
         })
             ->where('status', 'absent')
-            ->where('is_required', 1)
-            ->where('absense_approved_status', 'not_approved');
+            ->where('is_required', 1);
+        // ->where('absense_approved_status', 'not_approved');
         if ($request->exists('table_number')) {
             if ($readingStation->table_start_number > $request->table_number || $readingStation->table_end_number < $request->table_number) {
                 return (new ReadingStationUsersResource(null))->additional([
@@ -819,8 +995,8 @@ class ReadingStationUsersController extends Controller
         })
             ->where('day', $request->day)
             ->where('status', 'absent')
-            ->where('is_required', 1)
-            ->where('absense_approved_status', 'not_approved');
+            ->where('is_required', 1);
+        // ->where('absense_approved_status', 'not_approved');
 
 
         return (new ReadingStationUserAbsentTablesCollection($slutUsers->get()))->additional([
@@ -830,6 +1006,19 @@ class ReadingStationUsersController extends Controller
 
     public function verfyAbsent(ReadingStationIndexUserAbsentVerifyRequest $request, ReadingStation $readingStation)
     {
+        $readingStationSlutUserIds = explode(',', $request->reading_station_slut_user_ids);
+        foreach ($readingStationSlutUserIds as $readingStationSlutUserId) {
+            if (!is_numeric($readingStationSlutUserId)) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station slut user is not valid!', $readingStationSlutUserId]],
+                ])->response()->setStatusCode(400);
+            }
+            if (!ReadingStationSlutUser::find($readingStationSlutUserId)) {
+                return (new ReadingStationUsersResource(null))->additional([
+                    'errors' => ['reading_station_user' => ['Reading station slut user is not found!', $readingStationSlutUserId]],
+                ])->response()->setStatusCode(400);
+            }
+        }
         $isReadingStationBranchAdmin = in_array(Auth::user()->group->type, ['admin_reading_station_branch', 'user_reading_station_branch']);
         if ($isReadingStationBranchAdmin) {
             $readingStationId = Auth::user()->reading_station_id;
@@ -840,51 +1029,45 @@ class ReadingStationUsersController extends Controller
             }
         }
 
-        $slutUser = ReadingStationSlutUser::where('id', $request->reading_station_slut_user_id)
-            ->whereHas('slut', function ($q) use ($readingStation) {
-                $q->where('reading_station_id', $readingStation->id);
-            })->first();
-        if (!$slutUser) {
-            return (new ReadingStationUsersResource(null))->additional([
-                'errors' => ['reading_station_user' => ['Reading station slut user not found!']],
-            ])->response()->setStatusCode(404);
-        }
-        $absense_file = null;
-        $file = $request->file('absense_file');
-        if ($file) {
-            $fileName = $file->hashName();
-            $absense_file = env('FTP_PATH') . '/' . $fileName . '/' . $fileName;
-            if (!$file->store(env('FTP_PATH') . '/' . $fileName, 'ftp')) {
-                return (new ReadingStationUsersResource(null))->additional([
-                    'errors' => ['reading_station_user' => ['Attachment Store Error!']],
-                ])->response()->setStatusCode(500);
+        foreach ($readingStationSlutUserIds as $readingStationSlutUserId) {
+            $slutUser = ReadingStationSlutUser::find($readingStationSlutUserId);
+            $absense_file = null;
+            $file = $request->file('absense_file');
+            if ($file) {
+                $fileName = $file->hashName();
+                $absense_file = env('FTP_PATH') . '/' . $fileName . '/' . $fileName;
+                if (!$file->store(env('FTP_PATH') . '/' . $fileName, 'ftp')) {
+                    return (new ReadingStationUsersResource(null))->additional([
+                        'errors' => ['reading_station_user' => ['Attachment Store Error!']],
+                    ])->response()->setStatusCode(500);
+                }
             }
-        }
-        $slutUser->absense_approved_status = $request->absense_approved_status;
-        $slutUser->absense_file = $absense_file;
-        $slutUser->user_id = Auth::user()->id;
-        $slutUser->save();
+            $slutUser->absense_approved_status = $request->absense_approved_status;
+            $slutUser->absense_file = $absense_file;
+            $slutUser->user_id = Auth::user()->id;
+            $slutUser->save();
 
-        $strikeFixed = 0;
-        $weeklyProgram = $slutUser->weeklyProgram;
-        $readingStationUser = $weeklyProgram->readingStationUser;
-        switch ($request->absense_approved_status) {
-            case 'semi_approved':
-                $strikeFixed = 1;
-                $weeklyProgram->semi_approved_absent_day++;
-                break;
+            $strikeFixed = 0;
+            $weeklyProgram = $slutUser->weeklyProgram;
+            $readingStationUser = $weeklyProgram->readingStationUser;
+            switch ($request->absense_approved_status) {
+                case 'semi_approved':
+                    $strikeFixed = 1;
+                    $weeklyProgram->semi_approved_absent_day++;
+                    break;
 
-            case 'approved':
-                $strikeFixed = 2;
-                $weeklyProgram->approved_absent_day++;
-                break;
-        }
-        if ($strikeFixed > 0) {
-            $weeklyProgram->strikes_done -= $strikeFixed;
-            $weeklyProgram->save();
+                case 'approved':
+                    $strikeFixed = 2;
+                    $weeklyProgram->approved_absent_day++;
+                    break;
+            }
+            if ($strikeFixed > 0) {
+                $weeklyProgram->strikes_done -= $strikeFixed;
+                $weeklyProgram->save();
 
-            $readingStationUser->total += $strikeFixed;
-            $readingStationUser->save();
+                $readingStationUser->total += $strikeFixed;
+                $readingStationUser->save();
+            }
         }
         return (new ReadingStationUsersResource(null))->additional([
             'errors' => null,

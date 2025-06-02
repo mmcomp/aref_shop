@@ -23,6 +23,7 @@ class ReadingStationSlutUserLatesResource extends JsonResource
                 'point' => $this->point,
                 'minutes' => $this->minutes,
                 'details' => $this->details,
+                'station' => $this->weeklyProgram->readingStationUser->readingStation->name,
             ];
         }
     }

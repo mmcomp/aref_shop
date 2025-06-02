@@ -22,6 +22,8 @@ class ReadingStationSlutUserBeingWeeklyProgramResource extends JsonResource
                 'start' => $this->start,
                 'end' => $this->end,
                 'point' => $this->being_point,
+                'uncompleted' => $this->uncompleted,
+                'station' => $this->readingStationUser->readingStation->name,
             ];
         }
     }

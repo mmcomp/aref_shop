@@ -9,10 +9,14 @@ class ReadingStationEducationalReportCollection extends ResourceCollection
 {
     private $perPage;
     private $pageNumber;
-    function __construct($resource, $perPage = null, $pageNumber = null)
+    private $sort;
+    private $sortDir;
+    function __construct($resource, $perPage = null, $pageNumber = null, $sort = null, $sortDir = null)
     {
         $this->perPage = $perPage;
         $this->pageNumber = $pageNumber;
+        $this->sort = $sort;
+        $this->sortDir = $sortDir;
         parent::__construct($resource);
     }
 
@@ -65,13 +69,26 @@ class ReadingStationEducationalReportCollection extends ResourceCollection
                     case 'late_60':
                         $time = $userSlut->slut->duration - 60;
                         break;
+                    case 'present':
+                        $time = $userSlut->slut->duration;
+                        break;
+
                 }
                 $readingTotalMinutes += $time;
             });
             $cell->reading_total_minutes = $readingTotalMinutes;
             $cell->point = $point;
+            $cell->table_number = $cell->weeklyProgram->readingStationUser->table_number;
             $total += $point;
             $out[] = $cell;
+        }
+
+        if ($this->sort) {
+            if ($this->sortDir && strtolower($this->sortDir) === 'desc') {
+                $out = $out->sortByDesc($this->sort);
+            } else {
+                $out = $out->sortBy($this->sort);
+            }
         }
         return new CollectionPaginator($out->forPage($this->pageNumber,$this->perPage), count($out),$this->perPage, $total, $this->pageNumber);
     }

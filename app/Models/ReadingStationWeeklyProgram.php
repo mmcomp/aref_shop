@@ -28,6 +28,7 @@ class ReadingStationWeeklyProgram extends Model
         'being_point',
         'package_point',
         'point',
+        'noprogram_point',
     ];
 
     function sluts()

@@ -72,11 +72,11 @@ class ReadingStationReportController extends Controller
         $slutUsers->whereDate('day', '>=', $request->from_date);
         $slutUsers->whereDate('day', '<=', $request->to_date);
         $slutUsers->withAggregate('weeklyProgram', 'reading_station_user_id');
+
         $perPage = $request->per_page ?? env('PAGE_COUNT');
         $page = $request->page ?? 1;
         $data = $slutUsers->get();
-
-        return (new ReadingStationEducationalReportCollection($data, $perPage, $page))->additional([
+        return (new ReadingStationEducationalReportCollection($data, $perPage, $page, $request->sort, $request->sort_dir))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -98,9 +98,10 @@ class ReadingStationReportController extends Controller
         }
         $slutUsers = ReadingStationSlutUser::whereHas('weeklyProgram', function ($q1) use ($readingStation) {
             $q1->whereHas('readingStationUser', function ($q2) use ($readingStation) {
-                $q2->where('reading_station_id', $readingStation->id);
+                $q2->where('reading_station_id', $readingStation->id)
+                    ->where('table_number', '!=', null);
             });
-        });
+        })->where('status', '!=', 'defined');
         if ($request->exists('reading_station_slut_id')) {
             $slutUsers->whereHas('slut', function ($q) use ($request) {
                 $q->where('id', $request->reading_station_slut_id);
@@ -148,7 +149,7 @@ class ReadingStationReportController extends Controller
         $sortDir = $request->sort_dir ?? 'asc';
         $slutUsers->orderBy($sort, $sortDir);
         $count = $slutUsers->count();
-        $data = $slutUsers->paginate($perPage);
+        $data = $slutUsers->with('absenseReason')->paginate($perPage);
 
         return (new ReadingStationAbsentPresentReportCollection($data, $count))->additional([
             'errors' => null,

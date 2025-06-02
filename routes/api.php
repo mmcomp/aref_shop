@@ -40,6 +40,7 @@ use App\Http\Controllers\ReadingStationSlutsController;
 use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
+use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,6 +105,14 @@ Route::group([
     Route::get('/{user}/reading-station-users/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgramUser']);
     Route::get('/{user}/reading-station-users/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgramUser']);
     Route::get('/{user}/reading-station-users/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgramUser']);
+    Route::get('/{user}/absent-users', [ReadingStationSlutUsersController::class, 'absentsUser']);
+    Route::get('/{user}/late-users', [ReadingStationSlutUsersController::class, 'latesUser']);
+    Route::get('/{user}/available-users', [ReadingStationSlutUsersController::class, 'availablesUser']);
+    Route::get('/{user}/being-users', [ReadingStationSlutUsersController::class, 'beingUser']);
+    Route::get('/{user}/package-users', [ReadingStationSlutUsersController::class, 'packageUser']);
+    Route::get('/{user}/strike-users', [ReadingStationStrikeController::class, 'strikesUser']);
+    Route::get('/{user}/noprogram-users', [ReadingStationSlutUsersController::class, 'noProgramsUser']);
+    Route::get('/{user}/total', [ReadingStationSlutUsersController::class, 'totalUser']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:reading_station'],
@@ -133,6 +142,7 @@ Route::group([
     Route::get('/{user}/beings', [ReadingStationSlutUsersController::class, 'being']);
     Route::get('/{user}/packages', [ReadingStationSlutUsersController::class, 'package']);
     Route::get('/{user}/strikes', [ReadingStationStrikeController::class, 'strikes']);
+    Route::get('/{user}/noprograms', [ReadingStationSlutUsersController::class, 'noPrograms']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:user'],
@@ -148,6 +158,7 @@ Route::group([
     Route::put('/', [ReadingStationController::class, 'update']);
     Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
     Route::get('/test-sms', [ReadingStationController::class, 'testSms']);
+    Route::get('/{readingStation}/sms', [ReadingStationController::class, 'getStudentInfoForSms']);
     Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
     Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
 });
@@ -282,6 +293,7 @@ Route::group([
     Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct']);
     Route::get('/get-packages-in-group/{id}', [ProductController::class, 'listOfPackagesOfProductGroup']);
     Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct']);
+    Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailChair'],
@@ -341,6 +353,8 @@ Route::group([
     Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
     Route::post('/assign-video-to-a-product', [ProductDetailVideosController::class, 'assignVideoToProduct']);
     Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
+    Route::patch('/{productDetailVideo}/hide-in-free', [ProductDetailVideosController::class, 'hideFree']);
+    Route::patch('/{productDetailVideo}/show-in-free', [ProductDetailVideosController::class, 'showFree']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:province'],
@@ -498,6 +512,15 @@ Route::group([
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
 });
+
+
+Route::group([
+    'middleware' => ['auth:api', 'can:product'],
+    'prefix' => 'sessions',
+], function ($router) {
+    Route::get('/free', [UserVideoSessionsController::class, 'allFreeSessions']);
+});
+
 Route::get('/publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
@@ -557,4 +580,22 @@ Route::group([
     Route::post('/team-mobile', [ShowAllTeamUserController::class, 'addTeamMember']);
     Route::delete('/team-mobile/{teamUserMemberId}', [ShowAllTeamUserController::class, 'deleteTeamMember']);
     Route::delete('/{teamUserId}', [ShowAllTeamUserController::class, 'deleteTeam']);
+});
+
+
+Route::get('test', function (Request $request) {
+    // $res = App\Utils\Quiz24Service::getSchools();
+    // return ['userId' => $res];
+
+    // $res = App\Utils\Quiz24Service::registerStudent([
+    //     'userId' => 3514006,
+    //     'userName' => '09153068145',
+    //     'name' => 'حامد',
+    //     'family' => 'شاکری',
+    //     'password' => '09153068145',
+    // ]);
+
+    // return $res;
+
+    return App\Utils\Quiz24Service::getExams();
 });
