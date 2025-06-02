@@ -19,7 +19,8 @@ class ProductDetailVideo extends Model
         'is_hidden',
         'free_conference_start_mode',
         'free_conference_description',
-        'free_conference_before_start_text'
+        'free_conference_before_start_text',
+        'free_hidden'
     ];
 
     public function product()

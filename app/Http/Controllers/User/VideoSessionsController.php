@@ -16,13 +16,17 @@ use Log;
 
 class VideoSessionsController extends Controller
 {
+    function allFreeSessions()
+    {
+        return $this->freeSessions(true);    
+    }
 
     /**
      * All free sessions
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function freeSessions()
+    public function freeSessions($showAll = false)
     {
 
         $user_phone = Auth::user()->email;
@@ -47,7 +51,10 @@ class VideoSessionsController extends Controller
                 });
             })->whereHas('product', function ($q) {
                 $q->where('is_deleted', false);
-            })->get();
+            });
+        if (!$showAll)
+            $free_sessions->where('free_hidden', 0);
+        $free_sessions = $free_sessions->get();
         for ($i = 0; $i < count($free_sessions); $i++) {
             $output = $getNameOfSessions->getProductDetailVideos($free_sessions[$i]->product, Auth::user()->id);
             for ($j = 0; $j < count($output); $j++) {

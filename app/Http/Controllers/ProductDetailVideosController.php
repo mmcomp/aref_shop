@@ -261,4 +261,16 @@ class ProductDetailVideosController extends Controller
         ])->response()->setStatusCode(200);
 
     }
+
+    function hideFree(ProductDetailVideo $productDetailVideo)
+    {
+        $productDetailVideo->free_hidden = true;
+        $productDetailVideo->save();
+    }
+
+    function showFree(ProductDetailVideo $productDetailVideo)
+    {
+        $productDetailVideo->free_hidden = false;
+        $productDetailVideo->save();
+    }
 }

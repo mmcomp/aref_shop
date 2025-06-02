@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+       Commands\CheckAllWeeklyPrograms::class,
     ];
 
     /**
@@ -26,34 +26,28 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->call(function(){
-            $now=now()->format('Y-m-d H:i:s');  
-            $users=User::where("blocked",">", $now)->pluck("id");            
-            $blockedUsers["blocked_users"]=$users->toArray();               
-            if($this->putBlockedUserToRedis($blockedUsers["blocked_users"]))
-            {
+        $schedule->call(function () {
+            $now = now()->format('Y-m-d H:i:s');
+            $users = User::where("blocked", ">", $now)->pluck("id");
+            $blockedUsers["blocked_users"] = $users->toArray();
+            if ($this->putBlockedUserToRedis($blockedUsers["blocked_users"])) {
                 return $blockedUsers;
-            } 
+            }
             return "";
-        })->everyFifteenMinutes();     
+        })->everyFifteenMinutes();
+
+        $schedule->command('app:check-weekly-programs --all=true')
+            ->saturdays()
+            ->at('01:30');
     }
+
     public function putBlockedUserToRedis($blocketUsers)
     {
-       
         Redis::del('blocked_users');
         $redis = Redis::connection();
-       // $redis->hSet('blockedUser',json_encode($blocketUsers),"blocked");
-        $redis->set('blocked_users',json_encode($blocketUsers));
-        //return $blocketUsers;
-        // foreach($blocketUsers as $blocketUser)
-        // {
-        //    
-        //     Redis::hSet('blockedUser',$blocketUser, "blocked");
-        // }
+        $redis->set('blocked_users', json_encode($blocketUsers));
         return true;
-        
-    }    
+    }
 
     /**
      * Register the commands for the application.
@@ -62,7 +56,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

@@ -29,6 +29,18 @@ use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\UserVideoSessionPresentController;
 use App\Http\Controllers\ShowAllTeamUserController;
 use App\Http\Controllers\ConferenceUsersController;
+use App\Http\Controllers\ReadingStationAbsentReasonsController;
+use App\Http\Controllers\ReadingStationCallsController;
+use App\Http\Controllers\ReadingStationController;
+use App\Http\Controllers\ReadingStationOffdaysController;
+use App\Http\Controllers\ReadingStationPackageController;
+use App\Http\Controllers\ReadingStationReportController;
+use App\Http\Controllers\ReadingStationSlutChangeWarningController;
+use App\Http\Controllers\ReadingStationSlutsController;
+use App\Http\Controllers\ReadingStationSlutUsersController;
+use App\Http\Controllers\ReadingStationStrikeController;
+use App\Http\Controllers\ReadingStationUsersController;
+use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,8 +53,12 @@ use App\Http\Controllers\ConferenceUsersController;
 |
  */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+    'middleware' => ['auth:api', 'can:ping'],
+    'prefix' => 'auth',
+
+], function ($router) {
+    Route::get('/ping', [AuthController::class, 'ping']);
 });
 
 Route::group([
@@ -71,16 +87,192 @@ Route::group([
     Route::get('/', [UserController::class, 'index']);
     Route::get('/block/{id}', [UserController::class, 'userBlock']);
     Route::get('/unblock/{id}', [UserController::class, 'userUnblock']);
-    Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);    
+    Route::get('/show-all-block', [UserController::class, 'showAllUserBlock']);
     Route::post('/add', [UserController::class, 'store']);
-    Route::get('/get/{id}', [UserController::class, 'show']);
-    Route::put('/edit', [UserController::class, 'update']);
     Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::post('/set-avatar/{id}', [UserController::class, 'setAvatar']);
     Route::delete('/avatar/{id}', [UserController::class, 'deleteAvatar']);
     Route::patch('/bulk-delete', [UserController::class, 'bulkDelete']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station_student'],
+    'prefix' => 'users',
+
+], function ($router) {
+    Route::post('/{user}/reading-station-users/weekly-program', [ReadingStationSlutUsersController::class, 'storeUser']);
+    Route::get('/{user}/reading-station-users/weekly-program', [ReadingStationSlutUsersController::class, 'loadUser']);
+    Route::get('/{user}/reading-station-users/weekly-program-list', [ReadingStationSlutUsersController::class, 'weeklyProgramListUser']);
+    Route::get('/{user}/reading-station-users/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgramUser']);
+    Route::get('/{user}/reading-station-users/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgramUser']);
+    Route::get('/{user}/reading-station-users/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgramUser']);
+    Route::get('/{user}/absent-users', [ReadingStationSlutUsersController::class, 'absentsUser']);
+    Route::get('/{user}/late-users', [ReadingStationSlutUsersController::class, 'latesUser']);
+    Route::get('/{user}/available-users', [ReadingStationSlutUsersController::class, 'availablesUser']);
+    Route::get('/{user}/being-users', [ReadingStationSlutUsersController::class, 'beingUser']);
+    Route::get('/{user}/package-users', [ReadingStationSlutUsersController::class, 'packageUser']);
+    Route::get('/{user}/strike-users', [ReadingStationStrikeController::class, 'strikesUser']);
+    Route::get('/{user}/noprogram-users', [ReadingStationSlutUsersController::class, 'noProgramsUser']);
+    Route::get('/{user}/total', [ReadingStationSlutUsersController::class, 'totalUser']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'users',
+
+], function ($router) {
     Route::get('/search', [UserController::class, 'search']);
-   // Route::post('/block', [UserController::class, 'block']);
+    Route::get('/get/{id}', [UserController::class, 'show']);
+    Route::post('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'store']);
+    Route::get('/{user}/reading-station-user/weekly-program', [ReadingStationSlutUsersController::class, 'load']);
+    Route::put('/{user}/reading-station-user/weekly-program/next-week-package', [ReadingStationSlutUsersController::class, 'changeNextWeekPackage']);
+    Route::post('/{user}/reading-station-user', [ReadingStationUsersController::class, 'store']);
+    Route::put('/{user}/reading-station-user', [ReadingStationUsersController::class, 'update']);
+    Route::delete('/{user}/reading-station-user/{id}', [ReadingStationUsersController::class, 'destroy']);
+    Route::post('/', [UserController::class, 'fullStore']);
+    Route::put('/edit', [UserController::class, 'update']);
+    Route::get('/reading-station-group', [UserController::class, 'groupIndex']);
+    Route::patch('/{user}/disable', [UserController::class, 'disableUser']);
+    Route::patch('/{user}/enable', [UserController::class, 'enableUser']);
+    Route::get('/{user}/reading-station-user/weekly-program-list', [ReadingStationSlutUsersController::class, 'weeklyProgramList']);
+    Route::get('/{user}/reading-station-user/load-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadWeeklyProgram']);
+    Route::get('/{user}/reading-station-user/load-summary-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadSummaryWeeklyProgram']);
+    Route::get('/{user}/reading-station-user/load-hours-weekly-program/{weeklyProgram}', [ReadingStationSlutUsersController::class, 'loadHoursWeeklyProgram']);
+    Route::get('/{user}/absents', [ReadingStationSlutUsersController::class, 'absents']);
+    Route::get('/{user}/lates', [ReadingStationSlutUsersController::class, 'lates']);
+    Route::get('/{user}/availables', [ReadingStationSlutUsersController::class, 'availables']);
+    Route::get('/{user}/beings', [ReadingStationSlutUsersController::class, 'being']);
+    Route::get('/{user}/packages', [ReadingStationSlutUsersController::class, 'package']);
+    Route::get('/{user}/strikes', [ReadingStationStrikeController::class, 'strikes']);
+    Route::get('/{user}/noprograms', [ReadingStationSlutUsersController::class, 'noPrograms']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-stations',
+], function ($router) {
+    Route::get('/sluts', [ReadingStationSlutsController::class, 'index']);
+    Route::post('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'store']);
+    Route::delete('/sluts/{id}', [ReadingStationSlutsController::class, 'destroy']);
+
+    Route::get('/users', [ReadingStationUsersController::class, 'index']);
+
+    Route::post('/', [ReadingStationController::class, 'store']);
+    Route::put('/', [ReadingStationController::class, 'update']);
+    Route::delete('/{readingStation}', [ReadingStationController::class, 'destroy']);
+    Route::get('/test-sms', [ReadingStationController::class, 'testSms']);
+    Route::get('/{readingStation}/sms', [ReadingStationController::class, 'getStudentInfoForSms']);
+    Route::get('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'oneIndex']);
+    Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-stations',
+
+], function ($router) {
+    Route::post('/{readingStation}/offdays', [ReadingStationOffdaysController::class, 'store']);
+    Route::delete('/offdays/{id}', [ReadingStationOffdaysController::class, 'destroy']);
+    Route::get('/offdays', [ReadingStationOffdaysController::class, 'index']);
+
+    Route::get('/{readingStation}', [ReadingStationController::class, 'findOne']);
+    Route::get('/{readingStation}/users', [ReadingStationUsersController::class, 'oneIndex']);
+    Route::put('/{readingStation}/users', [ReadingStationUsersController::class, 'bulkUpdate']);
+    Route::get('/', [ReadingStationController::class, 'index']);
+    Route::get('/{readingStation}/users/slut/{slut}', [ReadingStationUsersController::class, 'oneSlutIndex']);
+    Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationUsersController::class, 'setUserSlutStatus']);
+    Route::post('/{readingStation}/users/{user}', [ReadingStationUsersController::class, 'addAbsentPresent']);
+    Route::get('/{readingStation}/exits', [ReadingStationUsersController::class, 'allExit']);
+    Route::patch('/{readingStation}/exits/{readingStationAbsentPresent}', [ReadingStationUsersController::class, 'updateExitRecord']);
+    Route::get('/{readingStation}/users/small', [ReadingStationUsersController::class, 'oneSmallIndex']);
+    Route::get('/{readingStation}/users/absents', [ReadingStationUsersController::class, 'absents']);
+    Route::get('/{readingStation}/users/absent-tables', [ReadingStationUsersController::class, 'absentTableNumbers']);
+    Route::get('/{readingStation}/sluts', [ReadingStationSlutsController::class, 'oneIndex']);
+    Route::post('/{readingStation}/absent-verify', [ReadingStationUsersController::class, 'verfyAbsent']);
+    Route::get('/{readingStation}/absent-verify-document/{slutUser}', [ReadingStationUsersController::class, 'getVerfyAbsent']);
+    Route::get('/{readingStation}/absent-list', [ReadingStationSlutUsersController::class, 'listAbsentUsers']);
+    Route::get('/{readingStation}/none-users', [ReadingStationUsersController::class, 'oneNoneUserIndex']);
+    Route::get('/{readingStation}/slut-change-warnings', [ReadingStationSlutChangeWarningController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station_report'],
+    'prefix' => 'reading-stations',
+
+], function ($router) {
+    Route::get('/{readingStation}/reports/educational', [ReadingStationReportController::class, 'educational']);
+    Route::get('/{readingStation}/reports/reading-statistics', [ReadingStationReportController::class, 'readingStatics']);
+    Route::get('/{readingStation}/reports/absent-present', [ReadingStationReportController::class, 'absentPresent']);
+    Route::get('/{readingStation}/reports/strike', [ReadingStationReportController::class, 'strike']);
+    Route::get('/{readingStation}/reports/exit', [ReadingStationReportController::class, 'exit']);
+    Route::get('/{readingStation}/reports/late', [ReadingStationReportController::class, 'late']);
+    Route::get('/{readingStation}/reports/absent', [ReadingStationReportController::class, 'absent']);
+    Route::get('/{readingStation}/reports/student/export', [ReadingStationReportController::class, 'export']);
+    Route::get('/{readingStation}/reports/student', [ReadingStationReportController::class, 'student']);
+    Route::get('/{readingStation}/reports/manager', [ReadingStationReportController::class, 'manager']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-packages',
+], function ($router) {
+    Route::post('/', [ReadingStationPackageController::class, 'store']);
+    Route::put('/', [ReadingStationPackageController::class, 'update']);
+    Route::delete('/{readingStationPackage}', [ReadingStationPackageController::class, 'destroy']);
+    Route::get('/{readingStationPackage}', [ReadingStationPackageController::class, 'findOne']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-packages',
+], function ($router) {
+    Route::get('/', [ReadingStationPackageController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-strikes',
+
+], function ($router) {
+    Route::post('/', [ReadingStationStrikeController::class, 'store']);
+    Route::put('/', [ReadingStationStrikeController::class, 'update']);
+    Route::delete('/{readingStationStrike}', [ReadingStationStrikeController::class, 'destroy']);
+    Route::get('/', [ReadingStationStrikeController::class, 'index']);
+    Route::get('/{readingStationStrike}', [ReadingStationStrikeController::class, 'findOne']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-strikes',
+
+], function ($router) {
+    Route::get('/', [ReadingStationStrikeController::class, 'index']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-strike',
+
+], function ($router) {
+    Route::get('/{readingStation}', [ReadingStationStrikeController::class, 'readingStationIndex']);
+    Route::post('/{readingStation}', [ReadingStationStrikeController::class, 'addReadingStationUserStrike']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:user'],
+    'prefix' => 'reading-station-absent-reasons',
+
+], function ($router) {
+    Route::post('/', [ReadingStationAbsentReasonsController::class, 'store']);
+    Route::put('/', [ReadingStationAbsentReasonsController::class, 'update']);
+    Route::delete('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'destroy']);
+    Route::get('/{readingStationAbsentReason}', [ReadingStationAbsentReasonsController::class, 'show']);
+});
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-absent-reasons',
+
+], function ($router) {
+    Route::get('/', [ReadingStationAbsentReasonsController::class, 'index']);
+});
+
+Route::group([
+    'middleware' => ['auth:api', 'can:reading_station'],
+    'prefix' => 'reading-station-calls',
+
+], function ($router) {
+    Route::get('/{readingStation}', [ReadingStationCallsController::class, 'index']);
+    Route::post('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'sendCall']);
+    Route::patch('/{readingStation}/users/{user}/slut/{slut}', [ReadingStationCallsController::class, 'updateExitSlutId']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:product'],
@@ -101,6 +293,7 @@ Route::group([
     Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct']);
     Route::get('/get-packages-in-group/{id}', [ProductController::class, 'listOfPackagesOfProductGroup']);
     Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct']);
+    Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailChair'],
@@ -113,7 +306,6 @@ Route::group([
     Route::get('/get-product-detail-chairs/{id}', [ProductDetailChairsController::class, 'show']);
     Route::put('/edit/{id}', [ProductDetailChairsController::class, 'update']);
     Route::delete('/{id}', [ProductDetailChairsController::class, 'destroy']);
-    
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailDownload'],
@@ -161,6 +353,8 @@ Route::group([
     Route::delete('/{id}', [ProductDetailVideosController::class, 'destroy']);
     Route::post('/assign-video-to-a-product', [ProductDetailVideosController::class, 'assignVideoToProduct']);
     Route::post('/disable', [VideoSessionsController::class, 'disable_chats']);
+    Route::patch('/{productDetailVideo}/hide-in-free', [ProductDetailVideosController::class, 'hideFree']);
+    Route::patch('/{productDetailVideo}/show-in-free', [ProductDetailVideosController::class, 'showFree']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:province'],
@@ -301,11 +495,11 @@ Route::group([
     'prefix' => 'orders',
 ], function ($router) {
     Route::get('/get-info-of-an-order/{id}', [OrderController::class, 'getInfoOfAnOrder']);
-    Route::post('/add', [OrderController::class, 'store'])->name("addOrder");    
+    Route::post('/add', [OrderController::class, 'store'])->name("addOrder");
     Route::post('/add-orderdetail-product/{orders_id}', [OrderController::class, 'storeProduct'])->name("addStoreProduct");
     Route::post('/add-orderdetail-product-bymobilelist', [OrderController::class, 'storeProductByMobileList']);
     Route::post('/add-package-product', [OrderController::class, 'storeProductPackage']);
-    
+
     Route::post('/add-micro-product/{orders_id}', [OrderController::class, 'StoreMicroProduct']);
     Route::get('/get-cart/{orders_id}', [OrderController::class, 'getWholeCart']);
     Route::delete('/cart/{orders_id}', [OrderController::class, 'destroyWholeCart']);
@@ -318,10 +512,19 @@ Route::group([
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
 });
+
+
+Route::group([
+    'middleware' => ['auth:api', 'can:product'],
+    'prefix' => 'sessions',
+], function ($router) {
+    Route::get('/free', [UserVideoSessionsController::class, 'allFreeSessions']);
+});
+
 Route::get('/publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
-   
+
     Redis::publish('test-channel', json_encode([
         "Type" => "MESSAGE",
         "Token" => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYyNzIxMDQwMywiZXhwIjoxNjI3MjE0MDAzLCJuYmYiOjE2MjcyMTA0MDMsImp0aSI6InVBU2VtTEVWcG1QRTZUcGYiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.vUYPZR5FlT0UIbdL-RJlFssSWC6cPnXODwBUULwzs9E",
@@ -334,7 +537,7 @@ Route::get('/publish', function () {
 Route::get('/new-publish', function () {
     // ...
     //$values = Redis::hGetAll('user');
-   
+
     Redis::publish('absence-presence-channel', json_encode([
         "type" => "online",
         "product_detail_videos_id" => 21,
@@ -365,17 +568,34 @@ Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'conference-users',
 ], function ($router) {
-    
-   Route::get('/report/{product_detail_videos_id}',[ConferenceUsersController::class, 'showReport']);
-   Route::get('/getall',[ConferenceUsersController::class, 'index']);   
+
+    Route::get('/report/{product_detail_videos_id}', [ConferenceUsersController::class, 'showReport']);
+    Route::get('/getall', [ConferenceUsersController::class, 'index']);
 });
 Route::group([
     'middleware' => ['auth:api'],
     'prefix' => 'team-users',
-], function ($router) {  
-   Route::get('/report/all-team',[ShowAllTeamUserController::class, 'index']);     
-   Route::post('/team-mobile',[ShowAllTeamUserController::class, 'addTeamMember']);  
-   Route::delete('/team-mobile/{teamUserMemberId}',[ShowAllTeamUserController::class, 'deleteTeamMember']);  
-   Route::delete('/{teamUserId}',[ShowAllTeamUserController::class, 'deleteTeam']);  
+], function ($router) {
+    Route::get('/report/all-team', [ShowAllTeamUserController::class, 'index']);
+    Route::post('/team-mobile', [ShowAllTeamUserController::class, 'addTeamMember']);
+    Route::delete('/team-mobile/{teamUserMemberId}', [ShowAllTeamUserController::class, 'deleteTeamMember']);
+    Route::delete('/{teamUserId}', [ShowAllTeamUserController::class, 'deleteTeam']);
 });
 
+
+Route::get('test', function (Request $request) {
+    // $res = App\Utils\Quiz24Service::getSchools();
+    // return ['userId' => $res];
+
+    // $res = App\Utils\Quiz24Service::registerStudent([
+    //     'userId' => 3514006,
+    //     'userName' => '09153068145',
+    //     'name' => 'حامد',
+    //     'family' => 'شاکری',
+    //     'password' => '09153068145',
+    // ]);
+
+    // return $res;
+
+    return App\Utils\Quiz24Service::getExams();
+});

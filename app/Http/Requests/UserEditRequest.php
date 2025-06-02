@@ -33,6 +33,7 @@ class UserEditRequest extends FormRequest
             'last_name' => 'string|between:2,100',
             'email' => 'string|max:12',
             'password' => 'nullable|string|min:6|confirmed',
+            'gender' => 'nullable|in:male,female',
             'referrer_users_id' => [
                 'nullable',
                 'different:id',
@@ -56,6 +57,10 @@ class UserEditRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 }),
             ],
+            'reading_station_id' => 'nullable|exists:reading_stations,id',
+            'disabled' => 'nullable|boolean',
+            'school' => 'nullable|string|between:3,100',
+            'major' => 'nullable|string|between:3,100',
         ];
     }
      /**

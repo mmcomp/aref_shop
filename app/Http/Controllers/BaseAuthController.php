@@ -93,11 +93,17 @@ class BaseAuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))
+            ->where('disabled', false)
+            ->first();
 
-        if ($user) {
-            $this->check($request->input('password'), $user->password);
+        if (!$user) {
+            return (new UserResource(null))->additional([
+                'errors' => ['authentication' => ['Unauthorized']],
+            ])->response()->setStatusCode(401);
         }
+
+        $this->check($request->input('password'), $user->password);
 
         $validated = $request->validated();
         if (!$token = auth('api')->attempt($validated)) {
@@ -438,5 +444,12 @@ class BaseAuthController extends Controller
         return (new UserResource(null))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function ping()
+    {
+        return (new UserResource(null))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(201);
     }
 }
