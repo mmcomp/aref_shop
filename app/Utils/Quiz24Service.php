@@ -44,7 +44,7 @@ class Quiz24Service
     static function getExams()
     {
         $req = [
-            "userId" => env('QUIZ24_SCHOOL_ID', 3516802),
+            "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
             "pageIndex" => 1,
             "pageSize" => 50
         ];
