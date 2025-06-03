@@ -35,7 +35,8 @@ class Product extends Model
        'start_date',
        'days',
        'hour',
-       'user_teacher_id'
+       'user_teacher_id',
+       'quiz24_data',
     ];
 
     public function categoryOnes()
@@ -54,7 +55,7 @@ class Product extends Model
     {
         return $this->hasMany('App\Models\ProductDetailVideo', 'products_id', 'id')->join('video_sessions', 'video_sessions.id', '=', 'product_detail_videos.video_sessions_id')->select("product_detail_videos.*")->where('product_detail_videos.is_deleted', false)->where('video_sessions.is_deleted', false)->orderBy('video_sessions.start_date', 'asc')->orderBy('video_sessions.start_time', 'asc');
     }
-   
+
     public function productDetailPackages()
     {
         return $this->hasMany('App\Models\ProductDetailPackage', 'products_id', 'id')->where('is_deleted', false);
