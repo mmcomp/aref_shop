@@ -48,6 +48,9 @@ class Quiz24Service
             "pageIndex" => 1,
             "pageSize" => 50
         ];
+        Log::info('Quiz24Service getExams request', ['request' => $req]);
+        Log::info('Quiz24Service getExams URL', ['url' => env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "exams"]);
+        Log::info('Quiz24Service getExams headers', ['headers' => ["X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")]]);
         $response = Http::withHeaders([
             "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
         ])
