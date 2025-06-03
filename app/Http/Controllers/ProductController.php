@@ -76,7 +76,6 @@ class ProductController extends Controller
      */
     public function store(ProductCreateRequest $request)
     {
-
         $product = Product::create($request->all());
         try {
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;

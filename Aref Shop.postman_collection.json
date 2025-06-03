@@ -1436,7 +1436,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"nini\",\n    \"price\": 700,\n    \"sale_price\": 700,\n    \"video_props\": \"video props\",\n    \"category_ones_id\": 1,\n    \"published\": 1,\n    \"type\": \"download\",\n    \"special\":1,\n    \"education_system\":\"pizza\",\n    \"days\":\"sandwich\",\n    \"hour\":\"hamberger\",\n    \"start_date\":\"2019-10-02\"\n}",
+									"raw": "{\n    \"name\": \"nini\",\n    \"price\": 700,\n    \"sale_price\": 700,\n    \"video_props\": \"video props\",\n    \"category_ones_id\": 1,\n    \"published\": 1,\n    \"type\": \"download\",\n    \"special\":1,\n    \"education_system\":\"pizza\",\n    \"days\":\"sandwich\",\n    \"hour\":\"hamberger\",\n    \"start_date\":\"2019-10-02\",\n    \"quiz24_data\": [1,5,6] // if it is a quiz24 product\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1464,7 +1464,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"hello\",\n    \"price\": 1000,\n    \"sale_price\": 1000,\n    \"video_props\": \"sos\",\n    \"category_ones_id\": 1,\n    \"published\": 1,\n    \"type\": \"chairs\",\n    \"special\":1,\n    \"education_system\":\"jdkfj\",\n    \"days\":\"days\",\n    \"hour\":\"hour\",\n    \"start_date\":\"2002-09-02\"\n}",
+									"raw": "{\n    \"name\": \"hello\",\n    \"price\": 1000,\n    \"sale_price\": 1000,\n    \"video_props\": \"sos\",\n    \"category_ones_id\": 1,\n    \"published\": 1,\n    \"type\": \"chairs\",\n    \"special\":1,\n    \"education_system\":\"jdkfj\",\n    \"days\":\"days\",\n    \"hour\":\"hour\",\n    \"start_date\":\"2002-09-02\",\n    \"quiz24_data\": [1,5,6] // if it is a quiz24 product\n}",
 									"options": {
 										"raw": {
 											"language": "json"

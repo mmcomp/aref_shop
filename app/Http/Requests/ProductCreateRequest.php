@@ -74,7 +74,9 @@ class ProductCreateRequest extends FormRequest
                     return $query->where('is_deleted', false)
                     ->where('groups_id',3);
                 }),
-            ]
+            ],
+            'quiz24_data' => 'nullable|array',
+            'quiz24_data.*' => 'integer|min:0|max:1000000000',
         ];
     }
     /**

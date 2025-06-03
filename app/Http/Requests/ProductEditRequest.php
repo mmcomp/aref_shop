@@ -66,10 +66,12 @@ class ProductEditRequest extends FormRequest
             'education_system' => 'nullable|string|min:3|max:255',
             'hour' => 'nullable|string|min:3|max:255',
             'days' => 'nullable|string|min:3|max:255',
-            'start_date' => 'nullable|string|min:3|max:255'
+            'start_date' => 'nullable|string|min:3|max:255',
+            'quiz24_data' => 'nullable|array',
+            'quiz24_data.*' => 'integer|min:0|max:1000000000',
         ];
     }
-     /**
+    /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator  $validator
