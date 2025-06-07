@@ -78,6 +78,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/getallChairs',[ProductController::class, 'GetListOfChairs']);
         Route::get('/get-quiz-products',[ProductController::class,'getQuizProducts']);
+        Route::get('/get-free-quiz',[ProductController::class,'getFreeQuiz']);
         Route::get('/get-quiz-url/{examCode}',[ProductController::class,'getExamUrlForUser']);
     });
     Route::group([
