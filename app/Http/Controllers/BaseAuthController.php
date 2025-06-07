@@ -14,6 +14,7 @@ use App\Models\SmsValidation;
 use App\Models\User;
 use App\Utils\Sms;
 use App\Jobs\SynchronizeUsersWithCrmJob;
+use App\Utils\Quiz24Service;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -113,7 +114,19 @@ class BaseAuthController extends Controller
             ])->response()->setStatusCode(401);
         }
         $this->userToRedis($user, $token);
+        $this->sendUserToQuiz24($user);
         return $this->createNewToken($token);
+    }
+
+    public function sendUserToQuiz24(User $user)
+    {
+
+        Quiz24Service::registerStudent([
+            "userName" => $user->email,
+            "name" => $user->first_name,
+            "family" => $user->last_name,
+            "password" => $user->email,
+        ]);
     }
 
     public function loginWithOTP(RegisterLoginRequest $request)
@@ -146,8 +159,7 @@ class BaseAuthController extends Controller
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
 
-
-
+        $this->sendUserToQuiz24($user);
 
         return $this->createNewToken($token);
     }
@@ -198,6 +210,7 @@ class BaseAuthController extends Controller
 
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
+        $this->sendUserToQuiz24($user);
 
         return $this->createNewToken($token);
     }
@@ -293,6 +306,7 @@ class BaseAuthController extends Controller
 
         $token = auth('api')->login($user);
         $this->userToRedis($user, $token);
+        $this->sendUserToQuiz24($user);
         return $this->createNewToken($token);
     }
 

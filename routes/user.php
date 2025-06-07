@@ -77,6 +77,8 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/get-packages-in-group/{id}',[ProductController::class, 'ListOfGroupPackagesOfAProduct'])->middleware('can:product-packages-of-user');
         Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/getallChairs',[ProductController::class, 'GetListOfChairs']);
+        Route::get('/get-quiz-products',[ProductController::class,'getQuizProducts']);
+        Route::get('/get-quiz-url/{examCode}',[ProductController::class,'getExamUrlForUser']);
     });
     Route::group([
         'middleware' =>['auth:api'],
@@ -211,7 +213,7 @@ Route::group(['middleware' => 'user'], function(){
 
 
     Route::group([
-        'middleware' => ['auth:api'],       
+        'middleware' => ['auth:api'],
     ], function ($router) {
         Route::get('/team-user', [TeamUserController::class, 'index']);
         Route::post('/team-user', [TeamUserController::class, 'store']);
@@ -219,7 +221,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::delete('/team-user{id}', [TeamUserController::class, 'delete']);
     });
     Route::group([
-        'middleware' => ['auth:api']        
+        'middleware' => ['auth:api']
     ], function ($router) {
         Route::get('/team-user-member', [TeamUserMemberController::class, 'index']);
         Route::post('/team-user-member', [TeamUserMemberController::class, 'store']);
@@ -227,7 +229,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::delete('/team-user-member{id}', [TeamUserMemberController::class, 'delete']);
     });
     Route::group([
-        'middleware' => ['auth:api']        
+        'middleware' => ['auth:api']
     ], function ($router) {
         Route::get('/team-user-product', [TeamUserProductController::class, 'showAll']);
         Route::post('/team-user-product', [TeamUserProductController::class, 'add']);

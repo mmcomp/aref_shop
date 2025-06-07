@@ -597,5 +597,5 @@ Route::get('test', function (Request $request) {
 
     // return $res;
 
-    return App\Utils\Quiz24Service::getExams();
+    return App\Utils\Quiz24Service::getSchools();
 });
