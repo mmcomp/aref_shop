@@ -7453,6 +7453,32 @@
 							"response": []
 						},
 						{
+							"name": "Get Free Quiz",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/user/products/get-free-quiz",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"products",
+										"get-free-quiz"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "GetPackages",
 							"request": {
 								"method": "GET",

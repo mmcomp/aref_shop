@@ -272,13 +272,24 @@ class ProductController extends Controller
     }
 
 
-    public function getExamUrlForUser($examCode): string
+    public function getExamUrlForUser($examCode)
     {
         $user = Auth::user();
-        return Quiz24Service::getExamForAUser($user->email, $examCode);
+        $url = Quiz24Service::getExamForAUser($user->email, $examCode);
+        if ($url) {
+            return response()->json([
+                'data' => $url,
+                'errors' => null,
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => null,
+                'errors' => ['exam' => ['Exam not found or user not registered for this exam.']],
+            ], 404);
+        }
     }
 
-    public function getQuizProducts( )
+    public function getQuizProducts()
     {
         $per_page = request()->get('per_page');
         $userProducts = UserProduct::where('users_id', Auth::user()->id)->whereHas('product', function ($q) {
@@ -297,5 +308,27 @@ class ProductController extends Controller
         return (new ProductOfUserCollection($products))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function getFreeQuiz()
+    {
+        $freeQuizProducts = Product::where('is_deleted', false)
+            ->where('published', true)
+            ->where('type', 'quiz24')
+            ->where('sale_price', 0)
+            ->get();
+
+        $quiz = [];
+        foreach ($freeQuizProducts as $product) {
+            $productQuiz = json_decode($product->quiz24_data);
+            foreach ($productQuiz as $quizItem) {
+                $quiz[] = $quizItem;
+            }
+        }
+
+        return response()->json([
+            'data' => $quiz,
+            'errors' => null,
+        ], 200);
     }
 }
