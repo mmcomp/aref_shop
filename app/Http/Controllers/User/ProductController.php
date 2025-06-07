@@ -23,11 +23,14 @@ use App\Models\ProductDetailPackage;
 
 use App\Http\Resources\UserProductChairsResource;
 use App\Http\Resources\GetListOfChairsResource;
+use App\Models\UserProduct;
+use App\Utils\Quiz24Service;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use DB;
+use Illuminate\Support\Facades\Request;
 use Log;
 
 class ProductController extends Controller
@@ -45,8 +48,7 @@ class ProductController extends Controller
         $category_twos_id = $request->input('category_twos_id');
         $category_threes_id = $request->input('category_threes_id');
         $products = Product::where('is_deleted', false)->where('published', true)->with('userProducts.user')
-            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id)
-            {
+            ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id) {
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
                 if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
@@ -157,39 +159,35 @@ class ProductController extends Controller
     }
 
     public function ListOfGroupPackagesOfAProduct(GetPerPageRequest $request, $id)
-    {       
+    {
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->where('published', true)->find($id);
         $product_detail_packages = [];
-        if ($product != null) 
-        {
+        if ($product != null) {
             $raiseError->ValidationError($product->type != 'package', ['type' => ['You should get a product with type package']]);
             if ($product->productDetailPackages) {
                 for ($indx = 0; $indx < count($product->productDetailPackages); $indx++) {
                     $product_detail_packages[] = $product->productDetailPackages[$indx];
                 }
             }
-          $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
-          $allgroup=[];
-          $groups= ProductDetailPackage::groupBy("group")->pluck("group");
-       
-         foreach($groups as $group)
-         {           
-            $id=0;
-            foreach($product_detail_package_items as $product_detail_package_item)
-            {               
-               if($product_detail_package_item->group===$group)
-               {  
-                  $tmpGroup= !isset($group) ? "others":$group;                  
-                  $allgroup[$tmpGroup][]=$product_detail_package_item;
-                  $id++;
-               }
+            $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            $allgroup = [];
+            $groups = ProductDetailPackage::groupBy("group")->pluck("group");
+
+            foreach ($groups as $group) {
+                $id = 0;
+                foreach ($product_detail_package_items as $product_detail_package_item) {
+                    if ($product_detail_package_item->group === $group) {
+                        $tmpGroup = !isset($group) ? "others" : $group;
+                        $allgroup[$tmpGroup][] = $product_detail_package_item;
+                        $id++;
+                    }
+                }
             }
-         }    
             return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
                 'errors' => null,
-            ])->response()->setStatusCode(200);               
+            ])->response()->setStatusCode(200);
         }
     }
 
@@ -204,7 +202,7 @@ class ProductController extends Controller
         } else {
             $product_detail_chairs = $product_detail_chairs->paginate(env('PAGE_COUNT'));
         }
-        $reserved_chairs =self::_GetListOfReservedChairs($id);
+        $reserved_chairs = self::_GetListOfReservedChairs($id);
         $newCollection = [
             'chairs' => $product_detail_chairs,
             'reserved_chairs' => $reserved_chairs
@@ -212,7 +210,6 @@ class ProductController extends Controller
         return (new UserProductChairsResource($newCollection))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-
     }
 
     public static function cleanProccessingOrders()
@@ -235,10 +232,10 @@ class ProductController extends Controller
         //     ->whereNotIn('orders_id',$order_ids_exist)
         //     ->pluck('id');
         // }
-       
+
 
         // $result=OrderDetail::where('products_id',$product_id)
-        // ->with('orderChairDetails')                
+        // ->with('orderChairDetails')
         // ->get()
         // ->map(function ($item, $key) {
         //     return $item->orderChairDetails
@@ -248,19 +245,19 @@ class ProductController extends Controller
         // })
         // ->flatten()
         // ->sort();
-        //->toArray();            
-        
-       
-        
+        //->toArray();
+
+
+
         $result = DB::table('products')
-            ->leftjoin('order_details','products.id','=','order_details.products_id')
-            ->leftjoin('orders','orders.id','=','order_details.orders_id')
-            ->leftjoin('order_chair_details','order_chair_details.order_details_id','=','order_details.id')
-            //->select('chair_number') 
-            ->where('products.id',$product_id)
-            ->whereIn('orders.status',['ok', 'processing'])
+            ->leftjoin('order_details', 'products.id', '=', 'order_details.products_id')
+            ->leftjoin('orders', 'orders.id', '=', 'order_details.orders_id')
+            ->leftjoin('order_chair_details', 'order_chair_details.order_details_id', '=', 'order_details.id')
+            //->select('chair_number')
+            ->where('products.id', $product_id)
+            ->whereIn('orders.status', ['ok', 'processing'])
             ->orderby('chair_number')
-            ->get()       
+            ->get()
             ->filter(function ($item, $key) {
                 return $item->chair_number;
             })
@@ -268,9 +265,37 @@ class ProductController extends Controller
                 return $item->chair_number;
             });
 
-            
-        Log::info(json_encode($result)); 
+
+        Log::info(json_encode($result));
 
         return $result;
+    }
+
+
+    public function getExamUrlForUser($examCode): string
+    {
+        $user = Auth::user();
+        return Quiz24Service::getExamForAUser($user->email, $examCode);
+    }
+
+    public function getQuizProducts( )
+    {
+        $per_page = request()->get('per_page');
+        $userProducts = UserProduct::where('users_id', Auth::user()->id)->whereHas('product', function ($q) {
+            $q->where('is_deleted', false)->where('published', true)->where('type', 'quiz24');
+        })->orderBy('updated_at', 'desc');
+        if ($per_page == "all") {
+            $userProducts = $userProducts->get();
+        } else {
+            $userProducts = $userProducts->paginate(env('PAGE_COUNT'));
+        }
+
+        $products = $userProducts->map(function ($userProduct) {
+            return $userProduct->product;
+        });
+
+        return (new ProductOfUserCollection($products))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 }

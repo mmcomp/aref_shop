@@ -61,6 +61,7 @@ class ProductOfUserResource extends JsonResource
                 'files' => $files,
                 'published' => $this->published,
                 'type' => $this->type,
+                'quiz24_data' => json_decode($this->quiz24_data),
                 'special' => $this->special,
                 "order_date" => $this->order_date,
                 'education_system' => $this->education_system,

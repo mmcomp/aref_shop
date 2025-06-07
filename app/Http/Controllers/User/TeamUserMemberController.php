@@ -63,7 +63,7 @@ class TeamUserMemberController extends Controller
                 if ($this->avoidDuplicate($user->teamUser->id, $teamUserMember["mobile"])) {
                     $data = TeamUserMember::create($teamUserMember->toArray());
                     $this->notifyToNotApprovedMembers($user->teamUser->id, $user);
-                
+
                 } else {
                     $this->deleteTeam($user->teamUser->id);
                     $this->errorHandle("User", "شماره " . $teamUserMember['mobile'] . " تکراری است");
@@ -79,15 +79,15 @@ class TeamUserMemberController extends Controller
         $teamUserMemberobj = TeamUserMember::where("mobile", Auth::user()->email)->where("team_user_id", $teamUserId)->first();
 
         if ($teamUserMemberobj) {
-            //$team_user_id=$teamUserMemberobj["team_user_id"];           
+            //$team_user_id=$teamUserMemberobj["team_user_id"];
             $this->updateTeamUserMember($teamUserMemberobj);
             if ($this->isCountToEnd($teamUserId)) {
                 $this->updateTeamUser($teamUserId);
             }
             // else{
-            //    
+            //
             //     $this->updateTeamUser($teamUserId);
-            // }   
+            // }
             return response()->json($teamUserMemberobj, 200);
         } else {
 
@@ -198,7 +198,7 @@ class TeamUserMemberController extends Controller
                     //$this->userProductAdd($userProduct);
                 }
                 $buying->completeInsertAfterBuying(Order::find($order->id));
-                $this->smsObj->sendCode($Member->member->email, "عارف", "confirm-team-members");
+                $this->smsObj->sendCode($Member->member->email, "عارف", env('KAVENEGAR_CONFIRM'));
             }
         }
 
@@ -224,7 +224,7 @@ class TeamUserMemberController extends Controller
             $this->orderDetailAdd($OrderDetail);
         }
         $buying->completeInsertAfterBuying(Order::find($leaderAddOrder->id));
-        $this->smsObj->sendCode(User::find($userId)->email, "عارف", "confirm-team-members");
+        $this->smsObj->sendCode(User::find($userId)->email, "عارف", env('KAVENEGAR_CONFIRM'));
 
         if ($leaderAddOrder) {
 
@@ -281,7 +281,7 @@ class TeamUserMemberController extends Controller
             else
                 $userFullName = "شخصی";
             foreach ($allNotApprovedMembers as $allNotApprovedMember) {
-                $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullName, 'verify-team-member');
+                $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullName, env('KAVENEGAR_VERIFY'));
             }
             return true;
         } else {

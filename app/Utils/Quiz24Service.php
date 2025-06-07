@@ -30,6 +30,7 @@ class Quiz24Service
 
     static function registerStudent(array $userDate)
     {
+        $userDate["userId"] = env('QUIZ24_SCHOOL_ID', 3525433);
         $response = Http::withHeaders([
             "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
         ])
@@ -40,7 +41,6 @@ class Quiz24Service
         return $res;
     }
 
-
     static function getExams()
     {
         $req = [
@@ -48,9 +48,7 @@ class Quiz24Service
             "pageIndex" => 1,
             "pageSize" => 50
         ];
-        Log::info('Quiz24Service getExams request', ['request' => $req]);
-        Log::info('Quiz24Service getExams URL', ['url' => env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "exams"]);
-        Log::info('Quiz24Service getExams headers', ['headers' => ["X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")]]);
+
         $response = Http::withHeaders([
             "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
         ])
@@ -62,6 +60,28 @@ class Quiz24Service
             $exams = $res['result'];
         }
         return compact('exams');
+    }
+
+    static function getExamForAUser($userName, $examCode)
+    {
+        $req = [
+            "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
+            "userName" => $userName,
+            "examCode" => $examCode,
+            "callback" => env('APP_URL'),
+        ];
+        Log::info('Quiz24Service getExamForAUser request', ['request' => $req]);
+
+        $response = Http::withHeaders([
+            "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
+        ])
+            ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "examParticipation", $req);
+        $res = $response->json();
+        Log::info('Quiz24Service getExamForAUser response', ['response' => $res]);
+        if (isset($res['result'])) {
+            return $res['result'];
+        }
+        return null;
     }
 }
 

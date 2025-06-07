@@ -21,94 +21,94 @@ use Carbon\Carbon;
 
 class ShowAllTeamUserController extends Controller
 {
-    private $mobile;   
+    private $mobile;
 
     public function __construct(OrderController $orderController)
     {
         $this->mobile=new Sms;
     }
     public function addTeamMember(ReplaceTeamMemberRequest $teamMember)
-    { 
+    {
        $team= TeamUser::where("id",$teamMember->team_user_id)->with("leader")->with("leader.teamUser.TeamMember")->first();
 
-       // $user = User::where('id', $teamMember->team_user_id)->with("teamUser")->first();    
-        $adminUser=$this->isAdmin(); 
-        
-        if(!$adminUser)    
+       // $user = User::where('id', $teamMember->team_user_id)->with("teamUser")->first();
+        $adminUser=$this->isAdmin();
+
+        if(!$adminUser)
         {
             $this->errorHandle("Admin", "برای ویرایش شماره موبایل حتما باید دسترسی سطح مدیریتی داشته باشید.");
-        }        
-        if(!$this->validTeam($teamMember->team_user_id)) 
+        }
+        if(!$this->validTeam($teamMember->team_user_id))
         {
             $this->errorHandle("teamValid", "تیم وارد شده معتبر نمی باشد.");
-        } 
-        // if(!$this->validMember($teamMember->team_user_id,$teamMember->mobile))  
+        }
+        // if(!$this->validMember($teamMember->team_user_id,$teamMember->mobile))
         // {
         //     $this->errorHandle("teamMember", "شماره موبایل  ".$teamMember->mobile."   عضو این تیم نیست.");
         // }
-      
-        $isLeader=$this->isLeader($teamMember->mobile);                   
+
+        $isLeader=$this->isLeader($teamMember->mobile);
         if($isLeader)
-        { 
+        {
             $this->errorHandle("TeamUser", " شماره ".$teamMember->mobile." قبلا به عنوان عضو درج شده است.");
-        } 
+        }
         if($team->leader->teamuser!==null)
         {
-            $exist=TeamUserMember::where("mobile",$teamMember->mobile)->where("is_verified",1)->first();       
+            $exist=TeamUserMember::where("mobile",$teamMember->mobile)->where("is_verified",1)->first();
             if($exist)
-            {                    
+            {
                 $this->errorHandle("TeamUser", " شماره ".$teamMember->mobile."  قبلا به عنوان عضو درج شده است.");
             }
-            $data = ""; 
+            $data = "";
             //$userFullNmae=str_replace(' ',"-",$team->first_name ."-". $team->last_name);
-            $teamUserMember["is_verified"] = false; 
-        
+            $teamUserMember["is_verified"] = false;
+
             if ($team && $team->leader->teamuser!==null) {
                 $teamUserMember["team_user_id"] = $team->leader->teamUser->id;
                 $teamUserMember["mobile"] = $teamMember->mobile;
 
-                if ($this->avoidDuplicate($team->leader->teamUser->id, $teamMember->mobile)) {                
+                if ($this->avoidDuplicate($team->leader->teamUser->id, $teamMember->mobile)) {
                     $data = TeamUserMember::create($teamUserMember);
                     $this->notifyToNotApprovedMembers($team->leader);
-                    //$mobile=$teamMember->mobile;               
+                    //$mobile=$teamMember->mobile;
                     // $this->mobile->sendCode("$mobile",   $userFullNmae, 'verify-team-member');
                 } else {
                     // $this->deleteTeam($user->teamUser->id);
                     $this->errorHandle("User", "شماره ".$teamUserMember['mobile']." تکراری است");
                 }
             }
-        } 
+        }
         else
         {
             $this->errorHandle("TeamUser", "لطفا ابتدا تیم را ایجاد کنید.");
         }
-        return new TeamUserMemberResource($data);  
+        return new TeamUserMemberResource($data);
     }
     protected function deleteTeam(int $teamUserId)
     {
       if($this->canDeleteTeam($teamUserId))
-      {         
+      {
            $this->deleteTeamMembers($teamUserId);
            $this->deleteNotVerifiedTeam($teamUserId);
            return response()->json(["successfull"=>true],201);
       }
 
-    } 
-    
+    }
+
     protected function deleteTeamMember(int $teamUserMemberId)
     {
         TeamUserMember::where("id", $teamUserMemberId)->delete();
         return [];
-    }  
+    }
     public function index(FilterTeamUserRequest $request)
-    {         
+    {
        $allTeams= $this->getAllTeams($request->mobile);
        return (new  ShowAllTeamCollection($allTeams))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
-    }    
+    }
     protected function getAllTeams(string $mobile=null)
-    {       
+    {
         $team=
         [
             "id" =>"",
@@ -117,7 +117,7 @@ class ShowAllTeamUserController extends Controller
             "creator" => "",
             "created_at" => "",
             "members"=>[]
-        ];     
+        ];
         $teams=null;
         // $query=DB::table("team_users")
         // //->distinct()
@@ -143,11 +143,11 @@ class ShowAllTeamUserController extends Controller
        ->toArray();
         $res=array_merge($query2,$query);
 
-      
+
         $res=collect($res)->map(function ($item, $key) {
             return $item["team_user_id"];
         });
-      
+
 
         // SELECT team_users.id FROM `team_users`
         // left join users on (users.id=user_id_creator)
@@ -156,8 +156,8 @@ class ShowAllTeamUserController extends Controller
        // SELECT team_user_id  FROM `team_user_members` WHERE `mobile` LIKE '%09155193106%' ;
         //  $query=DB::table('team_users')
         //  ->select("users.email","users.first_name","users.last_name","team_users.id","team_users.created_at","team_users.user_id_creator","team_users.name","team_user_members.mobile","team_user_members.is_verified","team_user_members.team_user_id")
-        //  ->leftjoin("users","users.id","=","team_users.user_id_creator")        
-        //  ->leftjoin("team_user_members","team_user_members.team_user_id","=","team_users.id")         
+        //  ->leftjoin("users","users.id","=","team_users.user_id_creator")
+        //  ->leftjoin("team_user_members","team_user_members.team_user_id","=","team_users.id")
         //  ->Where("users.email","$mobile")
         //  //->orWhere("mobile","$mobile")
         //  //->get();
@@ -169,53 +169,53 @@ class ShowAllTeamUserController extends Controller
         ->with("leader")
         ->orderBy('created_at',"desc")
         ->paginate(env('PAGE_COUNT', 15));
-        return($allteams);       
-        // $allTeams=TeamUser::with("TeamMember.member")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));          
+        return($allteams);
+        // $allTeams=TeamUser::with("TeamMember.member")->orderBy('created_at',"desc")->paginate(env('PAGE_COUNT', 15));
         // if(count($allTeams)>0)
         // {
         //     $id=0;
         //     foreach($allTeams as $allTeam)
-        //     { 
-        //         $team["id"]=$allTeam["id"];             
+        //     {
+        //         $team["id"]=$allTeam["id"];
         //         $team["name"]=$allTeam["name"];
         //         $team["is_full"]=$allTeam["is_full"];
-        //         $team["creator"]=$allTeam["user_id_creator"];  
-        //         $team["created_at"]=date('Y-m-d H:i:s', strtotime($allTeam["created_at"]));  
-                  
+        //         $team["creator"]=$allTeam["user_id_creator"];
+        //         $team["created_at"]=date('Y-m-d H:i:s', strtotime($allTeam["created_at"]));
+
         //         if($allTeam["TeamMember"] !==null)
         //         {
-        //             $team["members"]=$this->getMembers($allTeam["user_id_creator"],$allTeam["TeamMember"]);                         
-        //         }                        
-        //         $teams["teams"][]=$team;                
-        //     }                    
-        // } 
-        // return $teams ;   
+        //             $team["members"]=$this->getMembers($allTeam["user_id_creator"],$allTeam["TeamMember"]);
+        //         }
+        //         $teams["teams"][]=$team;
+        //     }
+        // }
+        // return $teams ;
     }
     protected function getMembers(int $userId,$teamMembers)
-    {       
-        $members=null;      
-        $count=0;       
+    {
+        $members=null;
+        $count=0;
         foreach($teamMembers as $teamMember)
-        {                   
+        {
             if($teamMember["member"] !==null)
             {
                 $members["mobile"]=$teamMember["member"]["email"];
                 $members["name"]=$teamMember["member"]["first_name"]." ".$teamMember["member"]["last_name"];
                 $members["isVerified"]=$teamMember->is_verified;
-                $members["isCreator"]=0;               
+                $members["isCreator"]=0;
             }
             else
             {
                 $members["mobile"]=$teamMember["mobile"];
                 $members["name"]=null;
                 $members["isVerified"]=null;
-                $members["isCreator"]=0;               
-            }         
-            $team[$count]=$members;         
+                $members["isCreator"]=0;
+            }
+            $team[$count]=$members;
             $count++;
-        }        
+        }
         $team[$count]=$this->getLeader($userId);//$members;
-        return  $team;  
+        return  $team;
     }
     protected function getLeader(int  $userId)
     {
@@ -234,7 +234,7 @@ class ShowAllTeamUserController extends Controller
                 $members["mobile"]=null;
                 $members["name"]=null;
                 $members["isVerified"]=1;
-                $members["isCreator"]=1; 
+                $members["isCreator"]=1;
             }
             return $members;
     }
@@ -248,12 +248,12 @@ class ShowAllTeamUserController extends Controller
         );
     }
     public function isLeader(string $mobile)
-    { 
+    {
        $user=User::where("email",$mobile)->first();
-       
-       if($user!==null)      
-       {           
-            $response=TeamUser::where("user_id_creator",$user->id)->with("leader")->first();            
+
+       if($user!==null)
+       {
+            $response=TeamUser::where("user_id_creator",$user->id)->with("leader")->first();
             if($response)
             {
                     return true;
@@ -261,7 +261,7 @@ class ShowAllTeamUserController extends Controller
             return false;
        }
        else
-       {            
+       {
             return false;
        }
 
@@ -278,7 +278,7 @@ class ShowAllTeamUserController extends Controller
     }
     public function isAdmin()
     {
-       $isAdmin= User::where('id', Auth::user()->id)->where("groups_id",1)->with("teamUser")->first(); 
+       $isAdmin= User::where('id', Auth::user()->id)->where("groups_id",1)->with("teamUser")->first();
        return $isAdmin;
     }
     protected function avoidDuplicate(int $teamUserId, string $mobile)
@@ -288,20 +288,20 @@ class ShowAllTeamUserController extends Controller
         return true;
     }
     protected function notifyToNotApprovedMembers($leader)
-    {     
+    {
       $teamUserId= $leader->teamUser->id;
       $allNotApprovedMembers=TeamUserMember::where("team_user_id",$teamUserId)
-      ->with("member")      
+      ->with("member")
       ->where("is_verified",0)
       ->get();
 
       if(count($allNotApprovedMembers)>=2)
-      {        
+      {
             $userFullName=str_replace(' ',"-",$leader->first_name ."-". $leader->last_name);
-        
+
             foreach($allNotApprovedMembers as $allNotApprovedMember)
-            {                
-                 $this->mobile->sendCode($allNotApprovedMember->mobile,$userFullName, 'verify-team-member');
+            {
+                 $this->mobile->sendCode($allNotApprovedMember->mobile,$userFullName, env('KAVENEGAR_VERIFY'));
             }
             return true;
       }
@@ -309,10 +309,10 @@ class ShowAllTeamUserController extends Controller
         //$this->errorHandle("TeamUserMember", "fail to update");
         return false;
       }
-      
+
     }
     protected function canDeleteTeam(int $teamUserId)
-    {     
+    {
       if(!$this->checkTeamMemberIsNotVerified($teamUserId))
       {
          // return false;
@@ -320,11 +320,11 @@ class ShowAllTeamUserController extends Controller
 
       }
       return true;
-      
+
     }
     protected function checkTeamMemberIsNotVerified(int $teamUserId)
-    {     
-       $cadDeleteTeam=true; 
+    {
+       $cadDeleteTeam=true;
       // $teamMembers=TeamUserMember::where("team_user_id",$teamUserId)->where("is_verified",1)->get();
        $teamMembers=TeamUser::where("id",$teamUserId)->where("is_full",1)->first();
        if($teamMembers)
@@ -335,14 +335,14 @@ class ShowAllTeamUserController extends Controller
        return $cadDeleteTeam;
     }
     protected function deleteTeamMembers(int $teamUserId)
-    { 
+    {
        $teamMembers=TeamUserMember::where("team_user_id",$teamUserId)->delete();
        return $teamMembers;
     }
     protected function deleteNotVerifiedTeam(int $teamUserId)
-    { 
+    {
        $team=TeamUser::where("id",$teamUserId)->delete();
        return $team;
-    }   
+    }
 
 }
