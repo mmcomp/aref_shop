@@ -318,18 +318,9 @@ class ProductController extends Controller
             ->where('sale_price', 0)
             ->get();
 
-        $quiz = [];
-        foreach ($freeQuizProducts as $product) {
-            $productQuiz = json_decode($product->quiz24_data);
-            foreach ($productQuiz as $quizItem) {
-                $quiz[] = $quizItem;
-            }
-        }
-
-        return response()->json([
-            'data' => $quiz,
+        return (new ProductOfUserCollection($freeQuizProducts))->additional([
             'errors' => null,
-        ], 200);
+        ])->response()->setStatusCode(200);
     }
 
 
