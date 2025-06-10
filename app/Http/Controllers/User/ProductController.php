@@ -275,7 +275,9 @@ class ProductController extends Controller
     public function getExamUrlForUser($examCode)
     {
         $user = Auth::user();
-        $url = Quiz24Service::getExamForAUser($user->email, $examCode);
+        $res = Quiz24Service::getExamForAUser($user->email, $examCode);
+        $url = $res['url'];
+        $message = $res['message'];
         if ($url) {
             return response()->json([
                 'data' => $url,
@@ -284,7 +286,7 @@ class ProductController extends Controller
         } else {
             return response()->json([
                 'data' => null,
-                'errors' => ['exam' => ['Exam not found or user not registered for this exam.']],
+                'errors' => ['exam' => [$message]],
             ], 404);
         }
     }
