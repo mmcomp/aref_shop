@@ -35,7 +35,8 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
-Route::group(['middleware' => 'user'], function(){
+
+Route::group(['middleware' => 'user'], function () {
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
     });
@@ -71,18 +72,19 @@ Route::group(['middleware' => 'user'], function(){
 
     ], function ($router) {
         Route::get('/', [ProductController::class, 'index'])->middleware('can:product-of-user');
-        Route::get('/getProduct/{id}',[ProductController::class,'show']);
-        Route::get('/get-videos/{id}',[ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
-        Route::get('/get-packages/{id}',[ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
-        Route::get('/get-packages-in-group/{id}',[ProductController::class, 'ListOfGroupPackagesOfAProduct'])->middleware('can:product-packages-of-user');
-        Route::get('/get-chairs/{id}',[ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
-        Route::get('/getallChairs',[ProductController::class, 'GetListOfChairs']);
-        Route::get('/get-quiz-products',[ProductController::class,'getQuizProducts']);
-        Route::get('/get-free-quiz',[ProductController::class,'getFreeQuiz']);
-        Route::get('/get-quiz-url/{examCode}',[ProductController::class,'getExamUrlForUser']);
+        Route::get('/getProduct/{id}', [ProductController::class, 'show']);
+        Route::get('/get-videos/{id}', [ProductController::class, 'ListOfVideosOfAProduct'])->middleware('can:videosessions-of-user');
+        Route::get('/get-packages/{id}', [ProductController::class, 'ListOfPackagesOfAProduct'])->middleware('can:product-packages-of-user');
+        Route::get('/get-packages-in-group/{id}', [ProductController::class, 'ListOfGroupPackagesOfAProduct'])->middleware('can:product-packages-of-user');
+        Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
+        Route::get('/getallChairs', [ProductController::class, 'GetListOfChairs']);
+        Route::get('/get-quiz-products', [ProductController::class, 'getQuizProducts']);
+        Route::get('/get-free-quiz', [ProductController::class, 'getFreeQuiz']);
+        Route::get('/get-quiz-url/{examCode}', [ProductController::class, 'getExamUrlForUser']);
+        Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
     });
     Route::group([
-        'middleware' =>['auth:api'],
+        'middleware' => ['auth:api'],
         'prefix' => 'category-ones',
     ], function ($router) {
         Route::get('/', [CategoryOnesController::class, 'index']);
@@ -122,18 +124,18 @@ Route::group(['middleware' => 'user'], function(){
         Route::delete('/micro-product/{id}', [CartController::class, 'destroyMicroProduct']);
         Route::delete('/chair/{id}', [CartController::class, 'destroyChairMicroProduct']);
         Route::delete('/chair-product/{productId}/{chairNumber}', [CartController::class, 'destroyChairMicroProductWithChairNumber']);
-        Route::get('/complete-buying',[CartController::class, 'completeBuying']);
+        Route::get('/complete-buying', [CartController::class, 'completeBuying']);
     });
     Route::group([
         'middleware' => ['auth:api', 'can:order'],
         'prefix' => 'order'
     ], function ($router) {
-        Route::get('/get-info-of-an-order/{id}',[OrderController::class, 'getInfoOfAnOrder']);
-        Route::get('/show-factors-of-user',[OrderController::class, 'showOrdersOfAuthUser']);
-        Route::get('/single-sessions-of-user',[OrderController::class, 'singleSessionsOfAuthUser']);
-        Route::get('/complete-courses-of-user',[OrderController::class, 'completeCoursesOfAuthUser']);
-        Route::get('/show-student-sessions',[OrderController::class, 'showStudentSessions']);
-        Route::get('/show-specific-factor-of-user/{id}',[OrderController::class, 'showSpecificOrderOfAuthUser']);
+        Route::get('/get-info-of-an-order/{id}', [OrderController::class, 'getInfoOfAnOrder']);
+        Route::get('/show-factors-of-user', [OrderController::class, 'showOrdersOfAuthUser']);
+        Route::get('/single-sessions-of-user', [OrderController::class, 'singleSessionsOfAuthUser']);
+        Route::get('/complete-courses-of-user', [OrderController::class, 'completeCoursesOfAuthUser']);
+        Route::get('/show-student-sessions', [OrderController::class, 'showStudentSessions']);
+        Route::get('/show-specific-factor-of-user/{id}', [OrderController::class, 'showSpecificOrderOfAuthUser']);
     });
     Route::post('/cart/mellat', [CartController::class, 'mellatBank']);
     Route::group([
@@ -165,7 +167,7 @@ Route::group(['middleware' => 'user'], function(){
         Route::get('/bp-pay-request', [PaymentController::class, 'pay']);
     });
     Route::group([
-        'middleware' => ['auth:api','can:product-detail-video-of-user'],
+        'middleware' => ['auth:api', 'can:product-detail-video-of-user'],
         'prefix' => 'product-detail-videos',
     ], function ($router) {
         Route::get('/show/{id}', [ProductDetailVideosController::class, 'show']);
@@ -194,9 +196,9 @@ Route::group(['middleware' => 'user'], function(){
         Route::put('/edit/{id}', [UserDescriptionsController::class, 'update']);
         Route::delete('/{id}', [UserDescriptionsController::class, 'destroy']);
     });
-     Route::group([
+    Route::group([
 
-        'middleware' => ['auth:api','can:product-comment'],
+        'middleware' => ['auth:api', 'can:product-comment'],
         'prefix' => 'product-comments',
     ], function ($router) {
         Route::get('/', [ProductCommentController::class, 'index']);
@@ -205,7 +207,7 @@ Route::group(['middleware' => 'user'], function(){
     });
 
     Route::group([
-        'middleware' => ['auth:api','can:sessions'],
+        'middleware' => ['auth:api', 'can:sessions'],
         'prefix' => 'sessions',
     ], function ($router) {
         Route::get('/free', [VideoSessionsController::class, 'freeSessions']);
@@ -237,5 +239,4 @@ Route::group(['middleware' => 'user'], function(){
         Route::put('/team_user-product{id}', [TeamUserProductController::class, 'update']);
         Route::delete('/team-user-product{id}', [TeamUserProductController::class, 'delete']);
     });
-
 });
