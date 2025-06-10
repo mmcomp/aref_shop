@@ -331,4 +331,10 @@ class ProductController extends Controller
             'errors' => null,
         ], 200);
     }
+
+
+    public function getQuiz24Exams()
+    {
+        return Quiz24Service::getExams();
+    }
 }
