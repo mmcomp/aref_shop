@@ -316,7 +316,7 @@ class ProductController extends Controller
             ->where('published', true)
             ->where('type', 'quiz24')
             ->where('sale_price', 0)
-            ->ddSql();
+            ->get();
 
         $quiz = [];
         foreach ($freeQuizProducts as $product) {
