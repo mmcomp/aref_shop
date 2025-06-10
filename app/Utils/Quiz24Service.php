@@ -77,11 +77,15 @@ class Quiz24Service
         ])
             ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "examParticipation", $req);
         $res = $response->json();
+        $url = null;
+        $message = null;
         Log::info('Quiz24Service getExamForAUser response', ['response' => $res]);
         if (isset($res['result']) && is_string($res['result'])) {
-            return $res['result'];
+            $url = $res['result'];
+        } else {
+            $message = $res['message'];
         }
-        return null;
+        return compact('url', 'message');
     }
 }
 
