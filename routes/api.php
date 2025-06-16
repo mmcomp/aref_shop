@@ -597,5 +597,8 @@ Route::get('test', function (Request $request) {
 
     // return $res;
 
-    return App\Utils\Quiz24Service::getSchools();
+    return App\Utils\Quiz24Service::getExamReportForAUser(
+        '09153254678',
+        '2249682'
+    );
 });

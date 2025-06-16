@@ -271,7 +271,6 @@ class ProductController extends Controller
         return $result;
     }
 
-
     public function getExamUrlForUser($examCode)
     {
         $user = Auth::user();
@@ -329,5 +328,15 @@ class ProductController extends Controller
     public function getQuiz24Exams()
     {
         return Quiz24Service::getExams();
+    }
+
+
+    public function getExamResultForUser($examCode)
+    {
+        $user = Auth::user();
+        $res = Quiz24Service::getExamReportForAUser($user->email, $examCode);
+        return response()->json([
+            'data' => $res,
+        ], 200);
     }
 }

@@ -87,6 +87,32 @@ class Quiz24Service
         }
         return compact('url', 'message');
     }
+
+    static function getExamReportForAUser($userName, $examCode)
+    {
+        $req = [
+            "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
+            "userName" => $userName,
+            "examCode" => $examCode,
+        ];
+        Log::info('Quiz24Service getExamReportForAUser request', ['request' => $req]);
+
+        $response = Http::withHeaders([
+            "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
+        ])
+            ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "examResult", $req);
+        $res = $response->json();
+        $url = null;
+        $message = null;
+        return $res;
+        Log::info('Quiz24Service getExamReportForAUser response', ['response' => $res]);
+        if (isset($res['result']) && is_string($res['result'])) {
+            $url = $res['result'];
+        } else {
+            $message = $res['message'];
+        }
+        return compact('url', 'message');
+    }
 }
 
 // 3515012 hamed

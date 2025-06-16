@@ -7427,6 +7427,33 @@
 							"response": []
 						},
 						{
+							"name": "Get Quiz Result",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/user/products/get-quiz-result/4354534",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"products",
+										"get-quiz-result",
+										"4354534"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get Quiz Products",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
@@ -10567,6 +10594,39 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/test",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"test"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {
