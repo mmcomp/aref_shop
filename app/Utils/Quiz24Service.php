@@ -41,7 +41,7 @@ class Quiz24Service
         return $res;
     }
 
-    static function getExams()
+    static function getExams(int $page)
     {
         $req = [
             "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
@@ -56,10 +56,12 @@ class Quiz24Service
         $exams = [];
         $res = $response->json();
         Log::info('Quiz24Service getExams response', ['response' => $res]);
+        $totalCount = 0;
         if (isset($res['totalCount']) && $res['totalCount'] > 0) {
+            $totalCount = $res['totalCount'];
             $exams = $res['result'];
         }
-        return compact('exams');
+        return compact('exams', 'totalCount');
     }
 
     static function getExamForAUser($userName, $examCode)
