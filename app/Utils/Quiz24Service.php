@@ -45,7 +45,7 @@ class Quiz24Service
     {
         $req = [
             "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
-            "pageIndex" => 1,
+            "pageIndex" => $page,
             "pageSize" => 50
         ];
 
@@ -70,10 +70,10 @@ class Quiz24Service
         $page = 1;
         while (true) {
             $res = self::getExams($page);
-            if ($res['totalCount'] == 0) {
+            $result = array_merge($result, $res['exams']);
+            if ($res['totalCount'] <= $page * 50) {
                 break;
             }
-            $result = array_merge($result, $res['exams']);
             $page++;
         }
         return ["exams" => $result, "totalCount" => count($result)];
