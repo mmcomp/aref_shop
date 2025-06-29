@@ -82,6 +82,7 @@ Route::group(['middleware' => 'user'], function () {
         Route::get('/get-free-quiz', [ProductController::class, 'getFreeQuiz']);
         Route::get('/get-quiz-url/{examCode}', [ProductController::class, 'getExamUrlForUser']);
         Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
+        Route::get('/get-quiz-result/{examCode}', [ProductController::class, 'getExamResultForUser']);
     });
     Route::group([
         'middleware' => ['auth:api'],
