@@ -327,16 +327,18 @@ class ProductController extends Controller
 
     public function getQuiz24Exams()
     {
-        $page = 1;
-        if (request()->has('page')) {
-            $page = request()->get('page');
-        }
-        $res = Quiz24Service::getExams(intval($page));
-        return response()->json([
-            'data' => $res['exams'],
-            'totalCount' => $res['totalCount'],
-            'page' => $page,
-        ], 200);
+        // $page = 1;
+        // if (request()->has('page')) {
+        //     $page = request()->get('page');
+        // }
+        // $res = Quiz24Service::getExams(intval($page));
+        // return response()->json([
+        //     'data' => $res['exams'],
+        //     'totalCount' => $res['totalCount'],
+        //     'page' => $page,
+        // ], 200);
+
+        return Quiz24Service::getAllExams();
     }
 
 

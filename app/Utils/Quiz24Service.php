@@ -64,6 +64,21 @@ class Quiz24Service
         return compact('exams', 'totalCount');
     }
 
+    static function getAllExams()
+    {
+        $result = [];
+        $page = 1;
+        while (true) {
+            $res = self::getExams($page);
+            if ($res['totalCount'] == 0) {
+                break;
+            }
+            $result = array_merge($result, $res['exams']);
+            $page++;
+        }
+        return ["exams" => $result, "totalCount" => count($result)];
+    }
+
     static function getExamForAUser($userName, $examCode)
     {
         $req = [
