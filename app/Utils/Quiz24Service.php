@@ -41,7 +41,7 @@ class Quiz24Service
         return $res;
     }
 
-    static function getExams()
+    static function getExams(int $page)
     {
         $req = [
             "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
@@ -56,10 +56,12 @@ class Quiz24Service
         $exams = [];
         $res = $response->json();
         Log::info('Quiz24Service getExams response', ['response' => $res]);
+        $totalCount = 0;
         if (isset($res['totalCount']) && $res['totalCount'] > 0) {
+            $totalCount = $res['totalCount'];
             $exams = $res['result'];
         }
-        return compact('exams');
+        return compact('exams', 'totalCount');
     }
 
     static function getExamForAUser($userName, $examCode)
@@ -80,6 +82,32 @@ class Quiz24Service
         $url = null;
         $message = null;
         Log::info('Quiz24Service getExamForAUser response', ['response' => $res]);
+        if (isset($res['result']) && is_string($res['result'])) {
+            $url = $res['result'];
+        } else {
+            $message = $res['message'];
+        }
+        return compact('url', 'message');
+    }
+
+    static function getExamReportForAUser($userName, $examCode)
+    {
+        $req = [
+            "userId" => env('QUIZ24_SCHOOL_ID', 3525433),
+            "userName" => $userName,
+            "examCode" => $examCode,
+        ];
+        Log::info('Quiz24Service getExamReportForAUser request', ['request' => $req]);
+
+        $response = Http::withHeaders([
+            "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
+        ])
+            ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "examResult", $req);
+        $res = $response->json();
+        $url = null;
+        $message = null;
+        return $res;
+        Log::info('Quiz24Service getExamReportForAUser response', ['response' => $res]);
         if (isset($res['result']) && is_string($res['result'])) {
             $url = $res['result'];
         } else {
