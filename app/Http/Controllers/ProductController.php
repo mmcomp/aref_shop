@@ -30,6 +30,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
 use App\Models\ProductDetailChair;
+use App\Models\User;
 use App\Utils\Quiz24Service;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -577,5 +578,13 @@ class ProductController extends Controller
         // ], 200);
 
         return Quiz24Service::getAllExams();
+    }
+
+    public function getExamResultForUser($examCode, User $user)
+    {
+        $res = Quiz24Service::getExamReportForAUser($user->email, $examCode);
+        return response()->json([
+            'data' => $res,
+        ], 200);
     }
 }
