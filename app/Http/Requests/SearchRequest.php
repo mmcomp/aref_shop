@@ -33,6 +33,7 @@ class SearchRequest extends FormRequest
             'email' => 'nullable|numeric',
             'group' => 'nullable|string|min:3|max:255',
             'group_type' => 'nullable|string|min:3|max:255',
+            'school_id' => 'nullable|exists:schools,id',
         ];
     }
      /**

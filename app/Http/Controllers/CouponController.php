@@ -7,7 +7,7 @@ use App\Http\Requests\CouponEditRequest;
 use App\Http\Requests\CouponIndexRequest;
 use App\Models\Coupon;
 use App\Http\Resources\CouponCollection;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\CouponResource;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -34,22 +34,26 @@ class CouponController extends Controller
             $sort = $request->get('sort');
             $sort_dir = $request->get('sort_dir');
         }
+        $coupons = Coupon::where('is_deleted', false);
+        if (Auth::user()->group->type == 'school-admin') {
+            $coupons = $coupons->where('school_id', Auth::user()->school_id);
+        }
         if ($request->get('per_page') == "all") {
-            $coupons = Coupon::where('is_deleted', false)
-            ->with('orderDetail.user')
-            ->orderBy($sort, $sort_dir)
-            ->get();
+            $coupons = $coupons
+                ->with('orderDetail.user')
+                ->orderBy($sort, $sort_dir)
+                ->get();
         } else {
             if ($name != null) {
-                $coupons = Coupon::where('is_deleted', false)->where('name', 'like', '%' . $name . '%')
-                ->with('orderDetail.user')
-                ->orderBy($sort, $sort_dir)
-                ->paginate(env('PAGE_COUNT'));
+                $coupons = $coupons->where('name', 'like', '%' . $name . '%')
+                    ->with('orderDetail.user')
+                    ->orderBy($sort, $sort_dir)
+                    ->paginate(env('PAGE_COUNT'));
             } else {
-                $coupons = Coupon::where('is_deleted', false)
-                ->with('orderDetail.user')
-                ->orderBy($sort, $sort_dir)
-                ->paginate(env('PAGE_COUNT'));
+                $coupons = $coupons
+                    ->with('orderDetail.user')
+                    ->orderBy($sort, $sort_dir)
+                    ->paginate(env('PAGE_COUNT'));
             }
         }
 
@@ -62,7 +66,10 @@ class CouponController extends Controller
         if (isset($request->count) && $request->count > 1) {
             return $this->customized_store($request);
         }
-
+        $schoolId = $request->school_id;
+        if (Auth::user()->group->type == 'school-admin') {
+            $schoolId = Auth::user()->school_id;
+        }
         $name = $request->name;
         $creation = array(
             "name" => $name,
@@ -70,7 +77,7 @@ class CouponController extends Controller
             "type" => $request->type,
             "products_id" => $request->products_id,
             "description" => $request->description,
-            "school_id" => $request->school_id,
+            "school_id" => $schoolId,
         );
         $creation;
 
@@ -99,7 +106,10 @@ class CouponController extends Controller
     {
         $count = isset($request->count) ? $request->count : 1;
         $creationCollection = array();
-
+        $schoolId = $request->school_id;
+        if (Auth::user()->group->type == 'school-admin') {
+            $schoolId = Auth::user()->school_id;
+        }
         for ($i = 1; $i <= $count; $i++) {
             $name = $this->createRandomCoupon($request->name);
             if (!$name) {
@@ -111,6 +121,7 @@ class CouponController extends Controller
                 "amount" => $request->amount,
                 "type" => $request->type,
                 "products_id" => $request->products_id,
+                "school_id" => $schoolId,
             );
             $creationCollection[] = $creation;
         }
@@ -149,8 +160,12 @@ class CouponController extends Controller
      */
     public function show($id)
     {
-
         $coupon = Coupon::where('is_deleted', false)->find($id);
+        if (Auth::user()->group->type == 'school-admin' && $coupon->school_id != Auth::user()->school_id) {
+            return (new CouponResource(null))->additional([
+                'errors' => ['coupon' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($coupon != null) {
             return (new CouponResource($coupon))->additional([
                 'errors' => null,
@@ -172,6 +187,11 @@ class CouponController extends Controller
     {
 
         $coupon = Coupon::where('is_deleted', false)->find($id);
+        if (Auth::user()->group->type == 'school-admin' && $coupon->school_id != Auth::user()->school_id) {
+            return (new CouponResource(null))->additional([
+                'errors' => ['coupon' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($coupon != null) {
             $coupon->update($request->all());
             return (new CouponResource(null))->additional([
@@ -193,6 +213,11 @@ class CouponController extends Controller
     {
 
         $coupon = Coupon::where('is_deleted', false)->find($id);
+        if (Auth::user()->group->type == 'school-admin' && $coupon->school_id != Auth::user()->school_id) {
+            return (new CouponResource(null))->additional([
+                'errors' => ['coupon' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($coupon != null) {
             $coupon->is_deleted = 1;
             try {
