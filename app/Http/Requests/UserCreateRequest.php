@@ -31,6 +31,13 @@ class UserCreateRequest extends FormRequest
             'last_name' => 'required|string|between:2,100',
             'email' => 'required|string|max:12|unique:users',
             'password' => 'required|string|confirmed|min:6',
+            'school_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('schools','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
             'referrer_users_id' => [
                 'nullable',
                 'integer',

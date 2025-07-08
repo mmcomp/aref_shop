@@ -40,6 +40,7 @@ use App\Http\Controllers\ReadingStationSlutsController;
 use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
+use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
@@ -583,6 +584,16 @@ Route::group([
     Route::delete('/{teamUserId}', [ShowAllTeamUserController::class, 'deleteTeam']);
 });
 
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'schools',
+], function ($router) {
+    Route::get('/{school}', [SchoolController::class, 'show']);
+    Route::get('/', [SchoolController::class, 'index']);
+    Route::post('/', [SchoolController::class, 'store']);
+    Route::put('/{school}', [SchoolController::class, 'update']);
+    Route::delete('/{school}', [SchoolController::class, 'destroy']);
+});
 
 Route::get('test', function (Request $request) {
     // $res = App\Utils\Quiz24Service::getSchools();

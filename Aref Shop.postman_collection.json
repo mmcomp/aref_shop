@@ -826,7 +826,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/users?page=1&per_page=all&sort=email&sort_dir=asc",
+									"raw": "{{base_url}}/api/users?page=1&per_page=10&sort=id&sort_dir=desc",
 									"host": [
 										"{{base_url}}"
 									],
@@ -841,15 +841,15 @@
 										},
 										{
 											"key": "per_page",
-											"value": "all"
+											"value": "10"
 										},
 										{
 											"key": "sort",
-											"value": "email"
+											"value": "id"
 										},
 										{
 											"key": "sort_dir",
-											"value": "asc"
+											"value": "desc"
 										}
 									]
 								}
@@ -863,7 +863,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"first_name\":\"maryam\",\n    \"last_name\":\"خداپرست\",\n    \"email\":\"09123111214\",\n    \"password\":\"maryamkh\",\n    \"password_confirmation\":\"maryamkh\"\n}",
+									"raw": "{\n    \"first_name\":\"maryam\",\n    \"last_name\":\"خداپرست\",\n    \"email\":\"09123111214\",\n    \"password\":\"maryamkh\",\n    \"password_confirmation\":\"maryamkh\"\n    // \"school_id\": 1,\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -891,7 +891,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09155193107\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    \"password\": \"123456\",\n    \"password_confirmation\": \"123456\",\n    \"referrer_users_id\": 1,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7,\n    \"reading_station_id\": 1, // Nullable\n    \"school\": \"School\",\n    \"major\": \"Major\"\n}",
+									"raw": "{\n    \"address\": \"خ امام رضا ۵۵\",\n    \"cities_id\": null,\n    \"email\": \"09155193107\",\n    \"first_name\": \"saied\",\n    \"groups_id\": 1,\n    \"last_name\": \"بانویی\",\n    \"postall\": \"\",\n    \"password\": \"123456\",\n    \"password_confirmation\": \"123456\",\n    \"referrer_users_id\": 1,\n    \"national_code\": \"0938926374\",\n    \"gender\": \"male\",\n    \"home_tell\": \"05137632480\",\n    \"father_cell\": \"09155193104\",\n    \"mother_cell\": \"09155193105\",\n    \"description\": \"09155193106\",\n    \"grade\": 7,\n    \"reading_station_id\": 1, // Nullable\n    // \"school_id\": 1,\n    \"major\": \"Major\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -938,7 +938,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"id\": 8,\n    // \"address\": \"خ امام رضا ۵5\",\n    // \"cities_id\": null,\n    // \"email\": \"09153254679\",\n    // \"first_name\": \"saied\",\n    // \"groups_id\": 1,\n    // \"last_name\": \"بانویی\",\n    // \"postall\": \"\",\n    // // \"referrer_users_id\": 19,\n    // \"national_code\": \"0938926374\",\n    // \"gender\": \"male\",\n    // \"home_tell\": \"05137632480\",\n    // \"father_cell\": \"09155193104\",\n    // \"mother_cell\": \"09155193105\",\n    // \"description\": \"09155193106\",\n    // \"grade\": 7,\n    // \"reading_station_id\": 1, // Nullable\n    \"disabled\": false\n}",
+									"raw": "{\n    \"id\": 8,\n    // \"address\": \"خ امام رضا ۵5\",\n    // \"cities_id\": null,\n    // \"email\": \"09153254679\",\n    // \"first_name\": \"saied\",\n    // \"groups_id\": 1,\n    // \"last_name\": \"بانویی\",\n    // \"postall\": \"\",\n    // // \"referrer_users_id\": 19,\n    // \"national_code\": \"0938926374\",\n    // \"gender\": \"male\",\n    // \"home_tell\": \"05137632480\",\n    // \"father_cell\": \"09155193104\",\n    // \"mother_cell\": \"09155193105\",\n    // \"description\": \"09155193106\",\n    // \"grade\": 7,\n    // \"reading_station_id\": 1, // Nullable\n    \"disabled\": false\n    // \"school_id\": 1,\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -3559,7 +3559,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/coupons?sort=id&sort_dir=asc&per_page=all",
+									"raw": "{{base_url}}/api/coupons?sort=id&sort_dir=asc&per_page=10",
 									"host": [
 										"{{base_url}}"
 									],
@@ -3578,7 +3578,7 @@
 										},
 										{
 											"key": "per_page",
-											"value": "all"
+											"value": "10"
 										}
 									]
 								}
@@ -7041,6 +7041,135 @@
 										"free"
 									]
 								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "School",
+					"item": [
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"شعبه نیشابور\",\n    \"city_id\": 1,\n    \"address\": \"آدرس\",\n    \"phone\": \"05137689565\",\n    \"email\": \"a@a.com\",\n    \"website\": \"www.google.com\"\n    // \"logo\": \"\",\n    // \"description\": \"\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/schools",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"schools"
+									]
+								},
+								"description": "### Errors\n\n- The name must be between 2 and 100 characters.\n- The table start number must be between 1 and 1000.\n- The table end number must be between 1 and 1000.\n- Reading station start table number should be less or equal end table number!\n    \n- Reading station with the same name exists!"
+							},
+							"response": []
+						},
+						{
+							"name": "All",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/schools",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"schools"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "One",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/schools/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"schools",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"address\": \"1آدرس\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/schools/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"schools",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/schools/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"schools",
+										"1"
+									]
+								},
+								"description": "### Errors\n\n- Reading station has users!"
 							},
 							"response": []
 						}
@@ -10676,6 +10805,26 @@
 		{
 			"key": "password",
 			"value": "09153254679",
+			"type": "string"
+		},
+		{
+			"key": "school admin email",
+			"value": "09991608145",
+			"type": "string"
+		},
+		{
+			"key": "school admin password",
+			"value": "159951",
+			"type": "string"
+		},
+		{
+			"key": "admin email",
+			"value": "09153068145",
+			"type": "string"
+		},
+		{
+			"key": "admin password",
+			"value": "159951",
 			"type": "string"
 		}
 	]

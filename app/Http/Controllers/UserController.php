@@ -84,6 +84,9 @@ class UserController extends Controller
         $user_registered = 2; // student and AREF clients
         $user_type = isset($request->groups_id) ? $request->groups_id : $user_registered;
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => $user_type, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
+        if ($request->school_id) {
+            $userData['school_id'] = $request->school_id;
+        }
 
         $user = User::create($userData);
         SynchronizeUsersWithCrmJob::dispatch($user)->delay(Carbon::now()->addSecond(env('CRM_ADD_STUDENT_TIMEOUT')));
@@ -190,6 +193,7 @@ class UserController extends Controller
         $user->school = $request->school;
         $user->major = $request->major;
         $user->saver_users_id = Auth::user()->id;
+        $user->school_id = $request->school_id;
         $user->save();
         return (new UserResource($user))->additional([
             'errors' => null,
@@ -230,6 +234,7 @@ class UserController extends Controller
             $user->school = $request->school;
             $user->major = $request->major;
             $user->saver_users_id = Auth::user()->id;
+            $user->school_id = $request->school_id ?? $user->school_id;
             $user->save();
             return (new UserResource(null))->additional([
                 'errors' => null,
@@ -488,7 +493,7 @@ class UserController extends Controller
         //return $blocketUsers;
         // foreach($blocketUsers as $blocketUser)
         // {
-        //     
+        //
         //     Redis::hSet('blockedUser',$blocketUser, "blocked");
         // }
         return true;

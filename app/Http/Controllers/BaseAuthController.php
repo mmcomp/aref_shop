@@ -114,7 +114,11 @@ class BaseAuthController extends Controller
             ])->response()->setStatusCode(401);
         }
         $this->userToRedis($user, $token);
-        $this->sendUserToQuiz24($user);
+        try {
+            $this->sendUserToQuiz24($user);
+        } catch (\Exception $e) {
+            Log::error('Error sending user to Quiz24: ' . $e->getMessage());
+        }
         return $this->createNewToken($token);
     }
 
