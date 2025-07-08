@@ -41,10 +41,14 @@ class UserController extends Controller
             $sort = $request->get('sort');
             $sort_dir = $request->get('sort_dir');
         }
+        $users = User::where('is_deleted', false)->orderBy($sort, $sort_dir);
+        if (Auth::user()->group->type == 'school-admin') {
+            $users->where('school_id', Auth::user()->school_id);
+        }
         if ($request->get('per_page') == "all") {
-            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->get();
+            $paginated_users = $users->get();
         } else {
-            $paginated_users = User::where('is_deleted', false)->orderBy($sort, $sort_dir)->paginate(env('PAGE_COUNT'));
+            $paginated_users = $users->paginate(env('PAGE_COUNT'));
         }
         return (new UserCollection($paginated_users))->additional([
             'errors' => null,
@@ -61,6 +65,9 @@ class UserController extends Controller
 
         $user = User::where('is_deleted', false)->find($id);
         if ($user != null) {
+            if (Auth::user()->group->type == 'school-admin') {
+                $user->school_id = Auth::user()->school_id;
+            }
             return (new UserResource($user))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
@@ -86,6 +93,9 @@ class UserController extends Controller
         $userData = array_merge($request->validated(), ['pass_txt' => $request->password, 'password' => bcrypt($request->password), 'groups_id' => $user_type, 'avatar_path' => "", 'saver_users_id' => $saver_users_id]);
         if ($request->school_id) {
             $userData['school_id'] = $request->school_id;
+        }
+        if (Auth::user()->group->type == 'school-admin') {
+            $userData['school_id'] = Auth::user()->school_id;
         }
 
         $user = User::create($userData);
@@ -193,7 +203,11 @@ class UserController extends Controller
         $user->school = $request->school;
         $user->major = $request->major;
         $user->saver_users_id = Auth::user()->id;
-        $user->school_id = $request->school_id;
+        if (Auth::user()->group->type == 'school-admin') {
+            $user->school_id = Auth::user()->school_id;
+        } else {
+            $user->school_id = $request->school_id;
+        }
         $user->save();
         return (new UserResource($user))->additional([
             'errors' => null,
@@ -209,6 +223,11 @@ class UserController extends Controller
     public function update(UserEditRequest $request)
     {
         $user = User::where('id', $request->id)->first();
+        if (Auth::user()->group->type == 'school-admin' && $user->school_id != Auth::user()->school_id) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($user != null) {
             $user->first_name = $request->first_name ?? $user->first_name;
             $user->last_name = $request->last_name ?? $user->last_name;
@@ -235,6 +254,9 @@ class UserController extends Controller
             $user->major = $request->major;
             $user->saver_users_id = Auth::user()->id;
             $user->school_id = $request->school_id ?? $user->school_id;
+            if (Auth::user()->group->type == 'school-admin') {
+                $user->school_id = Auth::user()->school_id;
+            }
             $user->save();
             return (new UserResource(null))->additional([
                 'errors' => null,
@@ -254,6 +276,11 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::where('is_deleted', false)->find($id);
+        if (Auth::user()->group->type == 'school-admin' && $user->school_id != Auth::user()->school_id) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($user != null) {
             $user->is_deleted = 1;
             if (substr($user->email, 0, 1) != '_') {
@@ -292,6 +319,11 @@ class UserController extends Controller
     {
 
         $user = User::where('is_deleted', false)->find($id);
+        if (Auth::user()->group->type == 'school-admin' && $user->school_id != Auth::user()->school_id) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($user != null) {
             $upload_image = new UploadImage;
             $upload_image->imageNullablility($user->avatar_path);
@@ -327,6 +359,11 @@ class UserController extends Controller
     {
 
         $user = User::where('is_deleted', false)->find($id);
+        if (Auth::user()->group->type == 'school-admin' && $user->school_id != Auth::user()->school_id) {
+            return (new UserResource(null))->additional([
+                'errors' => ['user' => ['Access forbidden!']],
+            ])->response()->setStatusCode(403);
+        }
         if ($user != null) {
             $avatar = str_replace("storage", "public", $user->avatar_path);
             $user->avatar_path = null;
@@ -386,6 +423,10 @@ class UserController extends Controller
         $fullName = trim(request()->name);
         $groupName = trim(request()->group);
         $groupType = trim(request()->group_type);
+        $schoolId = trim(request()->school_id);
+        if (Auth::user()->group->type == 'school-admin') {
+            $schoolId = Auth::user()->school_id;
+        }
         $users_builder = User::where('is_deleted', false)
             ->where(function ($query) use ($phone) {
                 if ($phone != null) {
@@ -403,6 +444,9 @@ class UserController extends Controller
                     $query->where('type', 'like', '%' . $groupType . '%');
                 }
             });
+        if ($schoolId != null) {
+            $users_builder->where('school_id', $schoolId);
+        }
         if ($request->per_page == "all") {
             $users = $users_builder->orderBy($sort, $sort_dir)->get();
         } else {
