@@ -37,7 +37,7 @@ class CouponController extends Controller
         if ($request->get('per_page') == "all") {
             $coupons = Coupon::where('is_deleted', false)
             ->with('orderDetail.user')
-            ->orderBy($sort, $sort_dir)           
+            ->orderBy($sort, $sort_dir)
             ->get();
         } else {
             if ($name != null) {
@@ -52,24 +52,25 @@ class CouponController extends Controller
                 ->paginate(env('PAGE_COUNT'));
             }
         }
-        
+
         return (new CouponCollection($coupons))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
     public function store(CouponCreateRequest $request)
-    {     
+    {
         if (isset($request->count) && $request->count > 1) {
             return $this->customized_store($request);
         }
 
-        $name = $request->name;        
+        $name = $request->name;
         $creation = array(
             "name" => $name,
             "amount" => $request->amount,
             "type" => $request->type,
             "products_id" => $request->products_id,
-            "description" => $request->description
+            "description" => $request->description,
+            "school_id" => $request->school_id,
         );
         $creation;
 

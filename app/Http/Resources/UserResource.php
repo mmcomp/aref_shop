@@ -15,7 +15,6 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-
         if ($this->resource != null) {
 
             return [
@@ -42,7 +41,7 @@ class UserResource extends JsonResource
                 'readingStationUser' => new ReadingStationUsers3Resource($this->readingStationUser),
                 'readingStation' => new ReadingStationResource($this->readingStation),
                 'disabled' => $this->disabled,
-                'school' => $this->school,
+                'school' => new SchoolResource($this->school),
                 'major' => $this->major,
             ];
         }

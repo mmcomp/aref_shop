@@ -30,4 +30,9 @@ class Coupon extends Model
     // {
     //     return $this->belongsTo('App\Models\UserCoupon', 'coupons_id', 'id');
     // }
+
+    public function school()
+    {
+        return $this->belongsTo('App\Models\School', 'school_id', 'id');
+    }
 }

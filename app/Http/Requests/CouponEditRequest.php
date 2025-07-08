@@ -38,6 +38,13 @@ class CouponEditRequest extends FormRequest
                     return $query->where('is_deleted', false);
                 })
             ],
+            'school_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('schools','id')->where(function ($query) {
+                    return $query->where('is_deleted', false);
+                }),
+            ],
         ];
     }
      /**

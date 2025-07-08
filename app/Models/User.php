@@ -42,7 +42,7 @@ class User extends Authenticatable implements JWTSubject
         'reading_station_id',
         'is_reading_station_user',
         'disabled',
-        'school',
+        'school_id',
         'major',
     ];
     protected $hidden=[
@@ -133,12 +133,12 @@ class User extends Authenticatable implements JWTSubject
         }
         return $menus;
     }
-    
+
     function readingStationUser()
     {
         return $this->hasOne(ReadingStationUser::class)->where('status', 'active');
     }
-        
+
     function readingStation()
     {
         return $this->belongsTo(ReadingStation::class);
@@ -148,11 +148,16 @@ class User extends Authenticatable implements JWTSubject
     {
         $day = $day === null ? Carbon::now() : $day;
         return $this->hasMany(ReadingStationAbsentPresent::class)
-                    ->where('day', $day->toDateString());    
+                    ->where('day', $day->toDateString());
     }
 
     function gradePackage()
     {
-        return $this->belongsTo(ReadingStationPackage::class, 'grade', 'grade');    
+        return $this->belongsTo(ReadingStationPackage::class, 'grade', 'grade');
+    }
+
+    function school()
+    {
+        return $this->belongsTo(School::class);
     }
 }
