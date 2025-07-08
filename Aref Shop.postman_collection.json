@@ -7056,7 +7056,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"شعبه نیشابور\",\n    \"city_id\": 1,\n    \"address\": \"آدرس\",\n    \"phone\": \"05137689565\",\n    \"email\": \"a@a.com\",\n    \"website\": \"www.google.com\"\n    // \"logo\": \"\",\n    // \"description\": \"\"\n}",
+									"raw": "{\n    \"name\": \"شعبه نیشابور\",\n    \"city_id\": 1,\n    \"address\": \"آدرس\",\n    \"phone\": \"05137689565\",\n    \"email\": \"a@a.com\",\n    \"website\": \"www.google.com\"\n    // \"logo\": \"\",\n    // \"description\": \"\",\n    // \"headmaster_name\": \"\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7083,13 +7083,36 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/api/schools",
+									"raw": "{{base_url}}/api/schools?page=1&per_page=10&sort=id&sort_dir=desc",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"api",
 										"schools"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "10"
+										},
+										{
+											"key": "sort",
+											"value": "id"
+										},
+										{
+											"key": "sort_dir",
+											"value": "desc"
+										},
+										{
+											"key": "name",
+											"value": "a",
+											"disabled": true
+										}
 									]
 								}
 							},
@@ -7132,7 +7155,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"address\": \"1آدرس\"\n}",
+									"raw": "{\n    \"address\": \"1آدرس\"\n    // \"headmaster_name\": \"\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"

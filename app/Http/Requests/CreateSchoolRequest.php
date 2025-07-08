@@ -17,6 +17,7 @@ class CreateSchoolRequest extends FormRequest
             'website' => 'nullable|string|max:255',
             'logo' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
+            'headmaster_name' => 'nullable|string|max:255',
         ];
     }
 }
