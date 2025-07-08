@@ -7,13 +7,28 @@ use App\Http\Requests\UpdateSchoolRequest;
 use App\Http\Resources\SchoolCollection;
 use App\Http\Resources\SchoolResource;
 use App\Models\School;
-
+use Illuminate\Http\Request;
 class SchoolController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $schools = School::with('city')->get();
-        return new SchoolCollection($schools);
+        $sort = "id";
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $sort_dir = $request->get('sort_dir');
+        }
+        $schools = School::with('city')->orderBy($sort, $sort_dir);
+        if ($request->get('name') != null) {
+            $schools->where('name', 'like', '%' . $request->get('name') . '%');
+        }
+
+        if ($request->get('per_page') == "all") {
+            $paginated_schools = $schools->get();
+        } else {
+            $paginated_schools = $schools->paginate(env('PAGE_COUNT'));
+        }
+        return new SchoolCollection($paginated_schools);
     }
 
     public function show(School $school)
