@@ -250,7 +250,6 @@ class UserController extends Controller
             $user->description = $request->description ?? $user->description;
             $user->reading_station_id = $request->reading_station_id ?? $user->reading_station_id;
             $user->disabled = $request->exists('disabled') ? $request->disabled : $user->disabled;
-            $user->school = $request->school;
             $user->major = $request->major;
             $user->saver_users_id = Auth::user()->id;
             $user->school_id = $request->school_id ?? $user->school_id;
