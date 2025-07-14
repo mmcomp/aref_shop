@@ -62,9 +62,7 @@ class UserEditRequest extends FormRequest
             'school_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('schools','id')->where(function ($query) {
-                    return $query->where('is_deleted', false);
-                }),
+                Rule::exists('schools','id'),
             ],
             'major' => 'nullable|string|between:3,100',
         ];
