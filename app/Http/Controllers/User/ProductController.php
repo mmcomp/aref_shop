@@ -24,6 +24,7 @@ use App\Models\ProductDetailPackage;
 use App\Http\Resources\UserProductChairsResource;
 use App\Http\Resources\GetListOfChairsResource;
 use App\Models\UserProduct;
+use App\Models\UserQuiz;
 use App\Utils\Quiz24Service;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -271,6 +272,20 @@ class ProductController extends Controller
         return $result;
     }
 
+    public function addUserQuiz($quizId, $userId)
+    {
+        $userQuiz = UserQuiz::where('user_id', $userId)->where('quiz_id', $quizId)->first();
+        if ($userQuiz) {
+            return $userQuiz;
+        }
+        $userQuiz = UserQuiz::create([
+            'user_id' => $userId,
+            'quiz_id' => $quizId,
+            'status' => 'started',
+        ]);
+        return $userQuiz;
+    }
+
     public function getExamUrlForUser($examCode)
     {
         $user = Auth::user();
@@ -278,6 +293,7 @@ class ProductController extends Controller
         $url = $res['url'];
         $message = $res['message'];
         if ($url) {
+            $this->addUserQuiz($examCode, $user->id);
             return response()->json([
                 'data' => $url,
                 'errors' => null,
@@ -349,5 +365,17 @@ class ProductController extends Controller
         return response()->json([
             'data' => $res,
         ], 200);
+    }
+
+    public function setUserQuizReport($quizId, $userId, $report)
+    {
+        $userQuiz = UserQuiz::where('user_id', $userId)->where('quiz_id', $quizId)->first();
+        if (!$userQuiz) {
+            $userQuiz = $this->addUserQuiz($quizId, $userId);
+        }
+        $userQuiz->report = $report;
+        $userQuiz->status = 'completed';
+        $userQuiz->save();
+        return $userQuiz;
     }
 }
