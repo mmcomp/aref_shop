@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GetPerPageRequest;
 use App\Http\Requests\ProductIndexRequest;
+use App\Http\Requests\User\SetQuizReportRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\User\ProductOfUserCollection;
 use App\Http\Resources\User\ListOfVideosOfAProductResource;
@@ -23,6 +24,7 @@ use App\Models\ProductDetailPackage;
 
 use App\Http\Resources\UserProductChairsResource;
 use App\Http\Resources\GetListOfChairsResource;
+use App\Models\User;
 use App\Models\UserProduct;
 use App\Models\UserQuiz;
 use App\Utils\Quiz24Service;
@@ -367,15 +369,15 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function setUserQuizReport($quizId, $userId, $report)
+    public function setUserQuizReport(SetQuizReportRequest $request)
     {
-        $userQuiz = UserQuiz::where('user_id', $userId)->where('quiz_id', $quizId)->first();
-        if (!$userQuiz) {
-            $userQuiz = $this->addUserQuiz($quizId, $userId);
-        }
-        $userQuiz->report = $report;
+        $user = User::where('email', $request->user_mobile)->first();
+        $userQuiz = $this->addUserQuiz($request->examCode, $user->id);
+        $userQuiz->report = $request->report;
         $userQuiz->status = 'completed';
         $userQuiz->save();
-        return $userQuiz;
+        return response()->json([
+            'data' => $userQuiz,
+        ], 200);
     }
 }
