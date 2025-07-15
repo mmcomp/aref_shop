@@ -364,6 +364,12 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $res = Quiz24Service::getExamReportForAUser($user->email, $examCode);
+        $userQuiz = UserQuiz::where('user_id', $user->id)->where('quiz_id', $examCode)->first();
+        if ($userQuiz) {
+            $userQuiz->status = 'completed';
+            $userQuiz->save();
+        }
+        $res['report'] = $userQuiz->report;
         return response()->json([
             'data' => $res,
         ], 200);
