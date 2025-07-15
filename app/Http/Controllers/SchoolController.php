@@ -33,6 +33,7 @@ class SchoolController extends Controller
 
     public function show(School $school)
     {
+        $school->load('city.province');
         return new SchoolResource($school);
     }
 
