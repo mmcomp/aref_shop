@@ -7682,6 +7682,49 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Set quiz report",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"examCode\": \"123123213\",\n    \"report\": \"dasdsadasdsad\",\n    \"user_mobile\": \"09375334110\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/user/products/quiz24/report",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"products",
+										"quiz24",
+										"report"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},

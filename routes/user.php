@@ -66,6 +66,8 @@ Route::group(['middleware' => 'user'], function () {
         Route::patch('/change-password', [AuthController::class, 'ChangePassword']);
     });
 
+    Route::post('/products/quiz24/report', [ProductController::class, 'setUserQuizReport']);
+
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'products',
@@ -84,6 +86,8 @@ Route::group(['middleware' => 'user'], function () {
         Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
         Route::get('/get-quiz-result/{examCode}', [ProductController::class, 'getExamResultForUser']);
     });
+
+
     Route::group([
         'middleware' => ['auth:api'],
         'prefix' => 'category-ones',
