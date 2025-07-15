@@ -19,12 +19,18 @@ class GroupController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+        $userGroup = $user->group;
 
         $per_page = request()->get('per_page');
+        $groups = Group::where('is_deleted', false);
+        if ($userGroup->type == 'school-admin') {
+            $groups->where('type', 'user');
+        }
         if ($per_page == "all") {
-            $groups = Group::where('is_deleted', false)->orderBy('id', 'desc')->get();
+            $groups = $groups->orderBy('id', 'desc')->get();
         } else {
-            $groups = Group::where('is_deleted', false)->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
+            $groups = $groups->orderBy('id', 'desc')->paginate(env('PAGE_COUNT'));
         }
         return (new GroupCollection($groups))->additional([
             'errors' => null,
