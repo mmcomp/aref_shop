@@ -207,15 +207,15 @@ class CartController extends Controller
      */
     public function getWholeCart()
     {
-        $now = Carbon::now(); 
-        $user_id = Auth::user()->id;       
+        $now = Carbon::now();
+        $user_id = Auth::user()->id;
         $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->first();
         if( $order)
         {
             $startDate = Carbon::parse($now->format("Y-m-d"));
             $endDate = Carbon::parse($order->updated_at->format("Y-m-d"));
-            $diffInDays = $startDate->diffInDays($endDate);       
-            if($diffInDays>2){            
+            $diffInDays = $startDate->diffInDays($endDate);
+            if($diffInDays>2){
                 $orderDetailIds=OrderDetail::where('orders_id', $order->id)->pluck('id');
                 OrderChairDetail::whereIn('order_details_id', $orderDetailIds)->delete();
                 OrderVideoDetail::whereIn('order_details_id', $orderDetailIds)->delete();
@@ -223,14 +223,14 @@ class CartController extends Controller
                 OrderDetail::whereIn('id',$orderDetailIds)->delete();
                 Order::where('id',$order->id)->delete();
             }
-            else 
+            else
             {
                 $order = Order::where('users_id', $user_id)->where('status', '=', 'waiting')->with('orderDetails.orderChairDetails')->first();
-            
-            }        
+
+            }
         }
-        
-       
+
+
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
@@ -244,7 +244,7 @@ class CartController extends Controller
 
     public function addCouponToTheCart(AddCouponToTheCartRequest $request)
     {
-
+        $user = Auth::user();
         $raiseError = new RaiseError;
         $user_id = Auth::user()->id;
         $coupon = Coupon::where('is_deleted', false)->where('name', $request->input('coupons_name'))->first();
@@ -294,6 +294,12 @@ class CartController extends Controller
                     'users_id' => $user_id,
                     'coupons_id' => $coupon->id
                 ]);
+
+                if ($coupon->school_id && !$user->school_id) {
+                    $user->school_id = $coupon->school_id;
+                    $user->save();
+                }
+
                 return (new OrderResource($order))->additional([
                     'errors' => null,
                 ])->response()->setStatusCode(200);
@@ -469,7 +475,7 @@ class CartController extends Controller
         if ($orderChairDetail !== null) {
             $orderDetailId = $orderChairDetail->order_details_id;
 
-            //$chair_price=$orderChairDetail->price;       
+            //$chair_price=$orderChairDetail->price;
             if ($orderDetailId !== null) {
                 OrderChairDetail::whereId($id)->delete();
                 $del_price_chair = self::updateVideoDetailChairPrice($orderDetailId);
@@ -742,7 +748,7 @@ class CartController extends Controller
     // {
     //     $order_detail= OrderDetail::where('id',$order_detail_id)
     //             ->first();
-    //         
+    //
     //             if($order_detail!==null)
     //             {
     //                 $order_detail["price"]=$order_detail["price"] - $chair_price;
