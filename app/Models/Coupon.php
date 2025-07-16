@@ -15,7 +15,8 @@ class Coupon extends Model
         "amount",
         "type",
         "expired_at",
-        "products_id"
+        "products_id",
+        "school_id"
     ];
 
     public function product()
