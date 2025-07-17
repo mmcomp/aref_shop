@@ -167,7 +167,7 @@ class OrderController extends Controller
     }
     public function store(InsertOrderForUserRequest $request, bool $addteamOrder = false)
     {
-
+        $school_id = null;
         $users_id = $request->input('users_id');
         if(Auth::user()->group->type == 'school-admin'){
             $school_id = Auth::user()->school_id;
@@ -178,7 +178,7 @@ class OrderController extends Controller
                 ])->response()->setStatusCode(406);
             }
         }
-        $response = $this->_store($users_id, $addteamOrder);
+        $response = $this->_store($users_id, $school_id, $addteamOrder);
 
 
         if ($response === null) {
@@ -196,7 +196,7 @@ class OrderController extends Controller
      * @param  \App\Http\Requests\InsertOrderForUserRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function _store($users_id, $addteamOrder)
+    public function _store($users_id, $school_id, $addteamOrder)
     {
         //$users_id = $request->input('users_id');
         $user = User::where('is_deleted', false)->find($users_id);
@@ -211,7 +211,8 @@ class OrderController extends Controller
                     'status' => ($addteamOrder == true ? "ok" : "manual_waiting"),
                     'comment' => $comment,
                     'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'school_id' => $school_id
                 ]);
             }
 
