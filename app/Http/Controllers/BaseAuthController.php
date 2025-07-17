@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\RegisterLoginRequest;
 use App\Http\Requests\RegisterWithOPTRequest;
+use App\Http\Requests\User\UpdateUserProfileRequest;
 use App\Http\Requests\VerifyForgetPasswordRequest;
 use App\Http\Requests\VerifyRegisterRequest;
 use App\Http\Resources\UserResource;
@@ -349,6 +350,15 @@ class BaseAuthController extends Controller
         return (new UserResource(auth('api')->user()))->additional([
             'errors' => null,
         ]);
+    }
+
+    public function updateUserProfile(UpdateUserProfileRequest $request)
+    {
+        $user = auth('api')->user();
+        $user->update($request->validated());
+        return (new UserResource($user))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
     }
 
     /**
