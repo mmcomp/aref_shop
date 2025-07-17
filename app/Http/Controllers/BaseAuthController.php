@@ -356,6 +356,13 @@ class BaseAuthController extends Controller
     {
         $user = auth('api')->user();
         $user->update($request->validated());
+        if ($request->has('first_name') || $request->has('last_name')) {
+            Quiz24Service::updateStudent([
+                "userName" => $user->email,
+                "name" => $user->first_name,
+                "family" => $user->last_name,
+            ]);
+        }
         return (new UserResource($user))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
