@@ -18,7 +18,8 @@ class Order extends Model
         'amount',
         'comment',
         'status',
-        'saver_users_id'
+        'saver_users_id',
+        'school_id',
     ];
     public function user()
     {
