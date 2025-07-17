@@ -7232,7 +7232,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"first_name\": \"حامد\",\n    \"last_name\": \"شاکری خط سوم\",\n    // \"password\": \"\",\n    // \"confirm_password\": \"\",\n    // \"avatar_path\": \"\",\n    // \"address\": \"\",\n    // \"postall\": \"\",\n    \"cities_id\": 1\n}",
+									"raw": "{\n    \"first_name\": \"حامد\",\n    \"last_name\": \"شاکری خط سوم\",\n    // \"password\": \"\",\n    // \"confirm_password\": \"\",\n    // \"avatar_path\": \"\",\n    // \"address\": \"\",\n    // \"postall\": \"\",\n    // \"grade\" : 10,\n    // \"major\": \"ریاضی\",\n    // \"school_name\": \"تیزهوشان\",\n    // \"average_grade\": 13.5,\n    // \"konkur_year\": \"1378\",\n    // \"consultant_name\": \"عباش\",\n    \"cities_id\": 1\n}",
 									"options": {
 										"raw": {
 											"language": "json"
