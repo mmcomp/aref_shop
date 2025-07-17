@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeUsersWithCrmJob;
 use App\Models\Group;
+use App\Utils\Quiz24Service;
 use Carbon\Carbon;
 use Log;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -257,6 +258,13 @@ class UserController extends Controller
                 $user->school_id = Auth::user()->school_id;
             }
             $user->save();
+            if ($request->has('first_name') || $request->has('last_name')) {
+                Quiz24Service::updateStudent([
+                    "userName" => $user->email,
+                    "name" => $user->first_name,
+                    "family" => $user->last_name,
+                ]);
+            }
             return (new UserResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
