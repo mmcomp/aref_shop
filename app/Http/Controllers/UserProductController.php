@@ -59,9 +59,10 @@ class UserProductController extends Controller
                 }
             }
             if ($school_id) {
-                $orders = $orders->whereHas('user', function ($query) use ($school_id) {
-                    $query->where('school_id', $school_id);
-                });
+                // $orders = $orders->whereHas('user', function ($query) use ($school_id) {
+                //     $query->where('school_id', $school_id);
+                // });
+                $orders->where('school_id', $school_id);
             }
             $orders = $orders->where(function ($query) {
                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
