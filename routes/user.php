@@ -36,10 +36,12 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+
 Route::group(['middleware' => 'user'], function () {
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
     });
+
     Route::group([
         'middleware' => ['auth:api', 'can:attach-homework'],
         'prefix' => 'homework',
@@ -61,6 +63,7 @@ Route::group(['middleware' => 'user'], function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/refresh', [AuthController::class, 'refresh']);
         Route::get('/user-profile', [AuthController::class, 'userProfile']);
+        Route::put('/user-profile', [AuthController::class, 'updateUserProfile']);
         Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
         Route::post('/verify-forget-password', [AuthController::class, 'verifyForgetPassword']);
         Route::patch('/change-password', [AuthController::class, 'ChangePassword']);

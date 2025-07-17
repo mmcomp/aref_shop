@@ -102,7 +102,7 @@ class OrderController extends Controller
                     continue;
                     // return (new AdminOrderResource(null))->additional([
                     //     'errors' => ['orderDetails' => ['The order can not registered!']],
-                    // ])->response()->setStatusCode(406); 
+                    // ])->response()->setStatusCode(406);
 
                 }
                 $found_user_product_partial = $this->checkUserProduct($user_id, $product_id, 1);
@@ -115,7 +115,7 @@ class OrderController extends Controller
                     continue;
                     // return (new AdminOrderResource(null))->additional([
                     //     'errors' => ['complete buying' => ['The complete buying can not registered!']],
-                    // ])->response()->setStatusCode(406); 
+                    // ])->response()->setStatusCode(406);
                 }
                 $buyed[] = $user_id;
             }
@@ -166,11 +166,21 @@ class OrderController extends Controller
         return $total;
     }
     public function store(InsertOrderForUserRequest $request, bool $addteamOrder = false)
-    {  
+    {
 
         $users_id = $request->input('users_id');
+        if(Auth::user()->group->type == 'school-admin'){
+            $school_id = Auth::user()->school_id;
+            $user = User::where('id', $users_id)->where('is_deleted', false)->first();
+            if($user->school_id != $school_id){
+                return (new AdminOrderResource(null))->additional([
+                    'errors' => ['type' => ['The user is not in the school!']],
+                ])->response()->setStatusCode(406);
+            }
+        }
         $response = $this->_store($users_id, $addteamOrder);
-        
+
+
         if ($response === null) {
             return (new AdminOrderResource(null))->additional([
                 'errors' => ['type' => ['The user type is invalid!']],
@@ -242,12 +252,12 @@ class OrderController extends Controller
             ->where('products_id',$products_id)
             ->where('partial',0)
             ->first();
-       // }    
+       // }
         if($existAlready ){
             return (new OrderResource($order))->additional([
                 'errors' => ["product already exist" => ["The product code has already exists."]],
             ])->response()->setStatusCode(409);
-            
+
         }
 
         if ($orderDetail && $product->type == 'normal') {
@@ -288,7 +298,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function StoreMicroProduct(AddMicroProductToCartRequest $request, $orders_id)
-    {        
+    {
         $raiseError = new RaiseError;
         $products_id = $request->input('products_id');
         $product_details_id = $request->input('product_details_id');
@@ -313,18 +323,18 @@ class OrderController extends Controller
 
         if ($product->type == 'video') {
 
-            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();           
+            $product_detail_video = ProductDetailVideo::where('is_deleted', false)->where('id', $product_details_id)->where('products_id', $products_id)->first();
             //$existalready=UserProduct::where('users_id',$order->users_id)->where('products_id',$product_detail_video->products_id)->first();
             $existalready=UserVideoSession::where('users_id',$order->users_id)
-            ->where('video_sessions_id',$product_detail_video->video_sessions_id)            
+            ->where('video_sessions_id',$product_detail_video->video_sessions_id)
             ->first();
             //dd($existalready);
             if($existalready){
-            
+
                 return (new OrderResource($order))->additional([
                     'errors' => ["session already exist" => ["The session code has already been applied."]],
                 ])->response()->setStatusCode(409);
-                
+
             }
 
             $raiseError->ValidationError($product_detail_video == null, ['product_detail_videos_id' => ['The product_details_id is not valid!']]);
@@ -771,10 +781,10 @@ class OrderController extends Controller
             //             $child_products_id[] = $pr;
             //         }
             //     }
-            //     //dd($child_products_id);       
-            
+            //     //dd($child_products_id);
+
             $child_products_id=$tmp_child_products_id;
-            //dd($products_id); 
+            //dd($products_id);
 
                 if(count($child_products_id)>0 ) // the products that exist in package and not exist in another product that student bought already
                 {
@@ -784,7 +794,7 @@ class OrderController extends Controller
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->whereIn('products_id', $child_products_id)->pluck('video_sessions_id');
                     UserVideoSession::where('users_id', $users_id)->whereIn('video_sessions_id', $videoSessionIds)->delete();
                 }
-                
+
             } else {
                 $parentProductIds = ProductDetailPackage::where('is_deleted', false)->where('child_products_id', $products_id)->pluck('products_id');
                 $otherparentProductOrderIds = Order::where('users_id', $users_id)
@@ -807,8 +817,8 @@ class OrderController extends Controller
                 $otherOrderCount = count($otherOrderIds) - $refunds;
                  //dump($otherOrderIds);
                 // dump($refunds);
-                //dd($otherparentProductOrderCount . "----". $otherOrderCount);  
-                  
+                //dd($otherparentProductOrderCount . "----". $otherOrderCount);
+
 
                 if ($otherparentProductOrderCount === 0 )//&& $otherOrderCount === 0)
                 {
@@ -816,7 +826,7 @@ class OrderController extends Controller
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $products_id)->pluck('video_sessions_id');
                     UserVideoSession::where('users_id', $users_id)->whereIn('video_sessions_id', $videoSessionIds)->delete();
                 }
-                
+
             }
             $found_refund = Refund::where('users_id', $users_id)->where('products_id', $products_id)->where('orders_id', $order->id)->first();
             if (!$found_refund) {
@@ -871,11 +881,11 @@ class OrderController extends Controller
         //$order=Order::where('order_id', $order_id)->first();
         /*
         if($this->checkSessionInPackAndWholeProduct($product_detail_videos_id)){
-           
+
             $order_detail = OrderDetail::where('products_id', $products_id)->where('orders_id', $order->id)->first();
-            
+
             $found_refund = Refund::where('users_id', $users_id)->where('products_id', $products_id)->where('orders_id', $order->id)->first();
-           
+
             $orderVideoDetail = OrderVideoDetail::where('order_details_id', $order_detail->id)->where('product_details_videos_id', $product_detail_videos_id)->first();
             $data=[
                 'users_id' => $users_id,
@@ -972,9 +982,9 @@ class OrderController extends Controller
     // {
     //    $audit=new AdminLog;
     //    $user=User::whereId($user_id)->first();
-    //    
+    //
     //    $user_fullName=$user->first_name . " " . $user->last_name;
-    //   
+    //
     //    $log_result=AdminLog::deleteRecord($user->id,$user_fullName,$before,$after);
     //     return $log_result;
 
