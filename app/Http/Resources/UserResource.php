@@ -43,6 +43,10 @@ class UserResource extends JsonResource
                 'disabled' => $this->disabled,
                 'school' => new SchoolResource($this->school),
                 'major' => $this->major,
+                'average_grade' => $this->average_grade,
+                'konkur_year' => $this->konkur_year,
+                'consultant_name' => $this->consultant_name,
+                'school_name' => $this->school_name,
             ];
         }
     }
