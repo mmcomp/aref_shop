@@ -17,6 +17,7 @@ use App\Models\OrderDetail;
 use App\Utils\RaiseError;
 use Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserProductController extends Controller
 {
@@ -29,7 +30,10 @@ class UserProductController extends Controller
      */
     public function reportSale(ReportSaleRequest $request)
     {
-        $raiseError = new RaiseError;
+        $school_id = null;
+        if (Auth::user()->group->type == 'school-admin') {
+            $school_id = Auth::user()->school_id;
+        }
         $mode = $request->input('mode');
         $users_id = $request->input('users_id');
         $products_id = $request->input('products_id');
@@ -54,32 +58,40 @@ class UserProductController extends Controller
                     $orders = Order::where('users_id', $users_id);
                 }
             }
+            if ($school_id) {
+                $orders = $orders->whereHas('user', function ($query) use ($school_id) {
+                    $query->where('school_id', $school_id);
+                });
+            }
             $orders = $orders->where(function ($query) {
                 $query->where('status', 'ok')->orWhere('status', 'manual_ok');
             })
-            ->orderBy("updated_at", "desc")
-            ->get();
+                ->orderBy("updated_at", "desc")
+                ->get();
             return (new ReportSaleOrderCollection($orders))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         } else {
             $product_details_id = $request->input('product_detail_videos_id');
-            $orderDetails = OrderDetail::where("products_id", $products_id)->whereDoesntHave("refund")->whereHas("order", function($query) {
+            $orderDetails = OrderDetail::where("products_id", $products_id)->whereDoesntHave("refund")->whereHas("order", function ($query) {
                 $query->where("status", "ok")->orWhere('status', 'manual_ok');
             });
-            if ($product_details_id != null)
-            {
+            if ($product_details_id != null) {
                 $orderDetails = $orderDetails->where("all_videos_buy", false);
-                $orderDetails = $orderDetails->whereHas("orderVideoDetails", function($query) use ($product_details_id) {
+                $orderDetails = $orderDetails->whereHas("orderVideoDetails", function ($query) use ($product_details_id) {
                     $query->where("product_details_videos_id", $product_details_id);
                 });
             }
+            if ($school_id) {
+                $orderDetails = $orderDetails->whereHas("user", function ($query) use ($school_id) {
+                    $query->where('school_id', $school_id);
+                });
+            }
             $orderDetails = $orderDetails->orderBy("updated_at", "desc")/*->with("order.orderDetails")*/
-                            ->with("user")->get();
+                ->with("user")->get();
             return (new OrderDetailCollection($orderDetails))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
-            
         }
     }
 }
