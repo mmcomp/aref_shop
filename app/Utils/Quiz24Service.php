@@ -2,8 +2,10 @@
 
 namespace App\Utils;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Morilog\Jalali\Jalalian;
 
 class Quiz24Service
 {
@@ -76,7 +78,19 @@ class Quiz24Service
             }
             $page++;
         }
-        return ["exams" => $result, "totalCount" => count($result)];
+
+        $finalResult = [];
+
+        foreach ($result as $i => $exam) {
+            $result[$i]['startDateGregorian'] = Jalalian::fromFormat('Y/m/d H:i', $exam['startDate'])->toCarbon();
+            $result[$i]['endDateGregorian'] = Jalalian::fromFormat('Y/m/d H:i', $exam['endDate'])->toCarbon();
+            if ($result[$i]['startDateGregorian']->isPast() || $result[$i]['endDateGregorian']->isAfter(Carbon::now()->addMonth(1))) {
+                continue;
+            }
+            $finalResult[] = $result[$i];
+        }
+
+        return ["exams" => $finalResult, "totalCount" => count($finalResult)];
     }
 
     static function getExamForAUser($userName, $examCode)
