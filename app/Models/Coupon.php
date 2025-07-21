@@ -36,4 +36,9 @@ class Coupon extends Model
     {
         return $this->belongsTo('App\Models\School', 'school_id', 'id');
     }
+
+    public function userCoupons()
+    {
+        return $this->hasMany('App\Models\UserCoupon', 'coupons_id', 'id');
+    }
 }

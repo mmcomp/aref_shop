@@ -28,7 +28,10 @@ class CouponIndexRequest extends FormRequest
         return [
             'sort' => 'required_with:type|in:id,name,description,amount,type,expired_at,products_id',
             'sort_dir' => 'required_with:sort|in:asc,desc',
-            'per_page' => 'string|max:255'
+            'per_page' => 'string|max:255',
+            'users_id' => 'nullable|integer|exists:users,id',
+            'school_id' => 'nullable|integer|exists:schools,id',
+            'is_used' => 'nullable|in:true,false',
         ];
     }
      /**

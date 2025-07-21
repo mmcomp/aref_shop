@@ -28,6 +28,7 @@ class CouponResource extends JsonResource
                 'product' => new ProductResource($this->product),
                 'user' => new  UserResource(isset($this->orderDetail) ? $this->orderDetail->user:null ),
                 'school' => new SchoolResource($this->school),
+                'user_coupons' => $this->userCoupons,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
