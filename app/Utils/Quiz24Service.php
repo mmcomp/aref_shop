@@ -84,8 +84,9 @@ class Quiz24Service
         foreach ($result as $i => $exam) {
             $result[$i]['startDateGregorian'] = Jalalian::fromFormat('Y/m/d H:i', $exam['startDate'])->toCarbon();
             $result[$i]['endDateGregorian'] = Jalalian::fromFormat('Y/m/d H:i', $exam['endDate'])->toCarbon();
+            $result[$i]['inNextMonth'] = true;
             if ($result[$i]['startDateGregorian']->isPast() || $result[$i]['endDateGregorian']->isAfter(Carbon::now()->addMonth(1))) {
-                continue;
+                $result[$i]['inNextMonth'] = false;
             }
             $finalResult[] = $result[$i];
         }
