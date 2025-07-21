@@ -368,8 +368,8 @@ class ProductController extends Controller
         if ($userQuiz) {
             $userQuiz->status = 'completed';
             $userQuiz->save();
+            $res['report'] = $userQuiz->report;
         }
-        $res['report'] = $userQuiz->report;
         return response()->json([
             'data' => $res,
         ], 200);
