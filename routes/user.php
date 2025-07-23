@@ -21,6 +21,7 @@ use App\Http\Controllers\User\UserDescriptionsController;
 use App\Http\Controllers\User\ProductCommentController;
 use App\Http\Controllers\User\VideoSessionsController;
 use App\Http\Controllers\User\ConferenceUserController;
+use App\Http\Controllers\User\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -246,5 +247,11 @@ Route::group(['middleware' => 'user'], function () {
         Route::post('/team-user-product', [TeamUserProductController::class, 'add']);
         Route::put('/team_user-product{id}', [TeamUserProductController::class, 'update']);
         Route::delete('/team-user-product{id}', [TeamUserProductController::class, 'delete']);
+    });
+    Route::group([
+        'middleware' => ['auth:api'],
+        'prefix' => 'dashboard'
+    ], function ($router) {
+        Route::get('/', [DashboardController::class, 'index']);
     });
 });
