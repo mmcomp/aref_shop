@@ -7623,6 +7623,33 @@
 							"response": []
 						},
 						{
+							"name": "Exams",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/user/products/quiz24/exams",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"products",
+										"quiz24",
+										"exams"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get Quiz Result",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
@@ -10522,6 +10549,29 @@
 					]
 				},
 				{
+					"name": "Dashboard",
+					"item": [
+						{
+							"name": "Get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/user/dashboard",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"dashboard"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Edit",
 					"request": {
 						"method": "PUT",
@@ -10546,6 +10596,14 @@
 								"edit"
 							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				}
