@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
 use App\Models\ProductDetailChair;
 use App\Models\User;
+use App\Models\UserQuiz;
 use App\Utils\Quiz24Service;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -585,6 +586,39 @@ class ProductController extends Controller
         $res = Quiz24Service::getExamReportForAUser($user->email, $examCode);
         return response()->json([
             'data' => $res,
+        ], 200);
+    }
+
+    public function getExamManifest($examId)
+    {
+        $exams = Quiz24Service::getAllExams();
+        $exam = null;
+        foreach ($exams['exams'] as $exam) {
+            if ($exam['id'] == $examId) {
+                $exam = $exam;
+                break;
+            }
+        }
+        if ($exam == null) {
+            return response()->json([
+                'errors' => ['exam' => ['Exam not found!']],
+            ], 404);
+        }
+        $examUsers = UserProduct::whereHas('product', function ($query) use ($examId) {
+            $query->where('type', 'quiz24');
+            $query->where('quiz24_data', 'like', '%' . $examId . '%');
+        })->pluck('users_id')->toArray();
+        $userExamResults = UserQuiz::select('status', 'user_id')->where('quiz_id', $exam['examCode'])->get();
+        foreach ($userExamResults as $userExamResult) {
+            $examUsers[] = $userExamResult->user_id;
+        }
+        $users = User::select('id', 'first_name', 'last_name', 'email')->whereIn('id', $examUsers)->get();
+        $users = $users->map(function ($user) use ($userExamResults) {
+            $user->exam_result = $userExamResults->where('user_id', $user->id)->first();
+            return $user;
+        });
+        return response()->json([
+            'data' => ['users' => $users, 'exam' => $exam],
         ], 200);
     }
 }
