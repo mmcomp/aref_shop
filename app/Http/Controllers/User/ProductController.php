@@ -316,12 +316,14 @@ class ProductController extends Controller
                 ->where('published', true)
                 ->where('type', 'quiz24')
                 ->whereHas('quizzes', function ($q3) {
-                    $q3->whereDate('startDateGregorian', '>=', now())
+                    $q3
+                        // ->whereDate('startDateGregorian', '>=', now())
                         ->where('endDateGregorian', '<=', now()->addMonth(1));
                 });
         })
             ->with('product.quizzes', function ($q4) {
-                $q4->whereDate('startDateGregorian', '>=', now())
+                $q4
+                    // ->whereDate('startDateGregorian', '>=', now())
                     ->where('endDateGregorian', '<=', now()->addMonth(1));
             })
             ->orderBy('updated_at', 'desc');

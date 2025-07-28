@@ -7240,6 +7240,173 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Banner",
+					"item": [
+						{
+							"name": "Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "desktop_image",
+											"type": "file",
+											"src": "/Users/mehrdad/Downloads/Screenshot_419.png"
+										},
+										{
+											"key": "mobile_image",
+											"type": "file",
+											"src": "/Users/mehrdad/Downloads/Screenshot_420.png"
+										},
+										{
+											"key": "link",
+											"value": "http://asdasdsdsd",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/banners",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"banners"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "desktop_image",
+											"type": "file",
+											"src": "/Users/mehrdad/Downloads/Screenshot_419.png",
+											"disabled": true
+										},
+										{
+											"key": "mobile_image",
+											"type": "file",
+											"src": "/Users/mehrdad/Downloads/Screenshot_420.png",
+											"disabled": true
+										},
+										{
+											"key": "link",
+											"value": "http://asdasdsdsd11",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "is_active",
+											"value": "1",
+											"description": "0 | 1",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/banners/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"banners",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "index",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/banners",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"banners"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "one",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/banners/2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"banners",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Toggle Active",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/banners/toggle-active/2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"banners",
+										"toggle-active",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/banners/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"banners",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -7724,6 +7891,32 @@
 										"user",
 										"products",
 										"get-quiz-products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Quiz Until 7 days",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/user/products/get-weekly-quiz-products",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"products",
+										"get-weekly-quiz-products"
 									]
 								}
 							},
@@ -10591,6 +10784,29 @@
 									"path": [
 										"user",
 										"dashboard"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Banner",
+					"item": [
+						{
+							"name": "Get",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/user/banners",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"banners"
 									]
 								}
 							},
