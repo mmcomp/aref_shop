@@ -30,6 +30,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
 use App\Models\ProductDetailChair;
+use App\Models\Quiz;
 use App\Models\User;
 use App\Models\UserQuiz;
 use App\Utils\Quiz24Service;
@@ -578,7 +579,11 @@ class ProductController extends Controller
         //     'page' => $page,
         // ], 200);
 
-        return Quiz24Service::getAllExams();
+        $webQuizzes = Quiz24Service::getAllExams();
+        foreach ($webQuizzes['exams'] as $quiz) {
+            (new Quiz())->fromQuiz($quiz);
+        }
+        return $webQuizzes;
     }
 
     public function getExamResultForUser($examCode, User $user)

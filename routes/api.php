@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupGatesController;
@@ -594,6 +595,18 @@ Route::group([
     Route::post('/', [SchoolController::class, 'store']);
     Route::put('/{school}', [SchoolController::class, 'update']);
     Route::delete('/{school}', [SchoolController::class, 'destroy']);
+});
+
+Route::group([
+    'middleware' => ['auth:api'],
+    'prefix' => 'banners',
+], function ($router) {
+    Route::get('/', [BannerController::class, 'index']);
+    Route::post('/', [BannerController::class, 'store']);
+    Route::get('/{id}', [BannerController::class, 'show']);
+    Route::post('/{id}', [BannerController::class, 'update']);
+    Route::delete('/{id}', [BannerController::class, 'destroy']);
+    Route::post('/toggle-active/{id}', [BannerController::class, 'setActive']);
 });
 
 Route::get('test', function (Request $request) {
