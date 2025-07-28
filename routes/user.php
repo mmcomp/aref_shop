@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryThreesController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\User\BannerController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\TeamUserController;
 use App\Http\Controllers\User\TeamUserMemberController;
@@ -85,6 +86,7 @@ Route::group(['middleware' => 'user'], function () {
         Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct'])->middleware('can:videosessions-of-user');
         Route::get('/getallChairs', [ProductController::class, 'GetListOfChairs']);
         Route::get('/get-quiz-products', [ProductController::class, 'getQuizProducts']);
+        Route::get('/get-weekly-quiz-products', [ProductController::class, 'getWeeklyQuizProducts']);
         Route::get('/get-free-quiz', [ProductController::class, 'getFreeQuiz']);
         Route::get('/get-quiz-url/{examCode}', [ProductController::class, 'getExamUrlForUser']);
         Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
@@ -253,5 +255,12 @@ Route::group(['middleware' => 'user'], function () {
         'prefix' => 'dashboard'
     ], function ($router) {
         Route::get('/', [DashboardController::class, 'index']);
+    });
+
+    Route::group([
+        'middleware' => ['auth:api'],
+        'prefix' => 'banners'
+    ], function ($router) {
+        Route::get('/', [BannerController::class, 'getActiveBanners']);
     });
 });

@@ -312,8 +312,19 @@ class ProductController extends Controller
     {
         $per_page = request()->get('per_page');
         $userProducts = UserProduct::where('users_id', Auth::user()->id)->whereHas('product', function ($q) {
-            $q->where('is_deleted', false)->where('published', true)->where('type', 'quiz24');
-        })->orderBy('updated_at', 'desc');
+            $q->where('is_deleted', false)
+                ->where('published', true)
+                ->where('type', 'quiz24')
+                ->whereHas('quizzes', function ($q3) {
+                    $q3->whereDate('startDateGregorian', '>=', now())
+                        ->where('endDateGregorian', '<=', now()->addMonth(1));
+                });
+        })
+            ->with('product.quizzes', function ($q4) {
+                $q4->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addMonth(1));
+            })
+            ->orderBy('updated_at', 'desc');
         if ($per_page == "all") {
             $userProducts = $userProducts->get();
         } else {
@@ -329,12 +340,40 @@ class ProductController extends Controller
         ])->response()->setStatusCode(200);
     }
 
+    public function getWeeklyQuizProducts()
+    {
+        $weeklyQuizProducts = Product::where('is_deleted', false)
+            ->where('published', true)
+            ->where('type', 'quiz24')
+            ->whereHas('quizzes', function ($q3) {
+                $q3->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addDays(7));
+            })
+            ->with('quizzes', function ($q4) {
+                $q4->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addDays(7));
+            })
+            ->get();
+
+        return (new ProductOfUserCollection($weeklyQuizProducts))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
     public function getFreeQuiz()
     {
         $freeQuizProducts = Product::where('is_deleted', false)
             ->where('published', true)
             ->where('type', 'quiz24')
             ->where('sale_price', 0)
+            ->whereHas('quizzes', function ($q3) {
+                $q3->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addMonth(1));
+            })
+            ->with('quizzes', function ($q4) {
+                $q4->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addMonth(1));
+            })
             ->get();
 
         return (new ProductOfUserCollection($freeQuizProducts))->additional([

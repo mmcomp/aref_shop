@@ -81,4 +81,13 @@ class Product extends Model
         return $this->hasMany('App\Models\OrderPackageDetail', 'order_details_id', 'id');
     }
 
+    public function productQuizzes()
+    {
+        return $this->hasMany(ProductQuiz::class, 'product_id', 'id');
+    }
+
+    public function quizzes()
+    {
+        return $this->hasManyThrough(Quiz::class, ProductQuiz::class, 'product_id', 'id', 'id', 'quiz_id');
+    }
 }
