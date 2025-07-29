@@ -41,4 +41,8 @@ class Order extends Model
     {
         return $this->hasMany('App\Models\Refund', 'orders_id', 'id')->where('is_deleted', false);
     }
+    public function school()
+    {
+        return $this->belongsTo('App\Models\School', 'school_id', 'id');
+    }
 }

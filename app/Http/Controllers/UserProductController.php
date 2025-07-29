@@ -30,7 +30,7 @@ class UserProductController extends Controller
      */
     public function reportSale(ReportSaleRequest $request)
     {
-        $school_id = null;
+        $school_id = $request->input('school_id');
         if (Auth::user()->group->type == 'school-admin') {
             $school_id = Auth::user()->school_id;
         }
@@ -84,7 +84,7 @@ class UserProductController extends Controller
                 });
             }
             if ($school_id) {
-                $orderDetails = $orderDetails->whereHas("user", function ($query) use ($school_id) {
+                $orderDetails->whereHas("order", function ($query) use ($school_id) {
                     $query->where('school_id', $school_id);
                 });
             }

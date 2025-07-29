@@ -34,7 +34,9 @@ class CouponController extends Controller
             $sort = $request->get('sort');
             $sort_dir = $request->get('sort_dir');
         }
-        $coupons = Coupon::where('is_deleted', false)->with('userCoupons.user');
+        $coupons = Coupon::where('is_deleted', false)
+            ->with('userCoupons.user')
+            ->with('orderDetail.order');
         $schoolId = $request->get('school_id');
         if (Auth::user()->group->type == 'school-admin') {
             $schoolId = Auth::user()->school_id;

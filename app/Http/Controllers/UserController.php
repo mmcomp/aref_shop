@@ -257,6 +257,11 @@ class UserController extends Controller
             if (Auth::user()->group->type == 'school-admin') {
                 $user->school_id = Auth::user()->school_id;
             }
+            $user->school_name = $request->school_name ?? $user->school_name;
+            $user->average_grade = $request->average_grade ?? $user->average_grade;
+            $user->konkur_year = $request->konkur_year ?? $user->konkur_year;
+            $user->consultant_name = $request->consultant_name ?? $user->consultant_name;
+
             $user->save();
             if ($request->has('first_name') || $request->has('last_name')) {
                 Quiz24Service::updateStudent([
