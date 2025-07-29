@@ -344,6 +344,7 @@ class ProductController extends Controller
 
     public function getWeeklyQuizProducts()
     {
+        $user = Auth::user();
         $weeklyQuizProducts = Product::where('is_deleted', false)
             ->where('published', true)
             ->where('type', 'quiz24')
@@ -356,6 +357,13 @@ class ProductController extends Controller
                     ->where('endDateGregorian', '<=', now()->addDays(7));
             })
             ->get();
+        $userProducts = UserProduct::where('users_id', $user->id)
+            ->whereIn('products_id', $weeklyQuizProducts->pluck('id'))
+            ->get();
+        $weeklyQuizProducts = $weeklyQuizProducts->map(function ($product) use ($userProducts) {
+            $product->hasIt = $userProducts->contains('products_id', $product->id) ? true : false;
+            return $product;
+        });
 
         return (new ProductOfUserCollection($weeklyQuizProducts))->additional([
             'errors' => null,
@@ -375,6 +383,28 @@ class ProductController extends Controller
             ->with('quizzes', function ($q4) {
                 $q4->whereDate('startDateGregorian', '>=', now())
                     ->where('endDateGregorian', '<=', now()->addMonth(1));
+            })
+            ->get();
+
+        return (new ProductOfUserCollection($freeQuizProducts))->additional([
+            'errors' => null,
+        ])->response()->setStatusCode(200);
+    }
+
+
+    public function getWeeklyFreeQuiz()
+    {
+        $freeQuizProducts = Product::where('is_deleted', false)
+            ->where('published', true)
+            ->where('type', 'quiz24')
+            ->where('sale_price', 0)
+            ->whereHas('quizzes', function ($q3) {
+                $q3->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addDays(7));
+            })
+            ->with('quizzes', function ($q4) {
+                $q4->whereDate('startDateGregorian', '>=', now())
+                    ->where('endDateGregorian', '<=', now()->addDays(7));
             })
             ->get();
 
@@ -421,7 +451,7 @@ class ProductController extends Controller
         $user = User::where('email', $request->user_mobile)->first();
         $userQuiz = $this->addUserQuiz($request->examCode, $user->id);
         $userQuiz->report = $request->report;
-        $userQuiz->status = 'completed';
+        $userQuiz->status = 'reported';
         $userQuiz->save();
         return response()->json([
             'data' => $userQuiz,

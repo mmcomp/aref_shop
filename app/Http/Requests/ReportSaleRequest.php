@@ -52,7 +52,8 @@ class ReportSaleRequest extends FormRequest
             ],
             'mode'=> 'required|string|in:product,order,date',
             'from_date' => 'nullable|date',
-            'to_date' => 'nullable|date'
+            'to_date' => 'nullable|date',
+            'school_id' => 'nullable|integer|exists:schools,id',
         ];
     }
     /**

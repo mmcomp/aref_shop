@@ -87,6 +87,7 @@ Route::group(['middleware' => 'user'], function () {
         Route::get('/getallChairs', [ProductController::class, 'GetListOfChairs']);
         Route::get('/get-quiz-products', [ProductController::class, 'getQuizProducts']);
         Route::get('/get-weekly-quiz-products', [ProductController::class, 'getWeeklyQuizProducts']);
+        Route::get('/get-weekly-free-quiz', [ProductController::class, 'getWeeklyFreeQuiz']);
         Route::get('/get-free-quiz', [ProductController::class, 'getFreeQuiz']);
         Route::get('/get-quiz-url/{examCode}', [ProductController::class, 'getExamUrlForUser']);
         Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);

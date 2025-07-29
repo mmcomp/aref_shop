@@ -69,6 +69,7 @@ class ProductOfUserResource extends JsonResource
                 'days' => $this->days,
                 'start_date' => $this->start_date,
                 'quizzes' => $this->quizzes,
+                'has_it' => $this->hasIt,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];
