@@ -49,7 +49,8 @@ class OrderDetailResource extends JsonResource
                 'total_price_with_coupon' => $this->total_price_with_coupon,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at,
-                'orders_id' => $this->orders_id
+                'orders_id' => $this->orders_id,
+                'school' => $this->order->school,
             ];
         }
     }

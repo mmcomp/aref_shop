@@ -8,6 +8,7 @@ use App\Models\UserVideoSession;
 use App\Models\ProductDetailVideo;
 use App\Models\ProductDetailPackage;
 use App\Models\Product;
+use App\Models\UserQuiz;
 use Illuminate\Support\Facades\Log;
 
 class Buying
@@ -63,7 +64,7 @@ class Buying
                 Log::info("[completeInsertAfterBuying] videoSessionIds" . json_encode($videoSessionIds));
             }
             if ($orderDetail->product->type == 'package') {
-                //$orderDetailPackage=$orderDetail->OrderPackageDetail;  
+                //$orderDetailPackage=$orderDetail->OrderPackageDetail;
                 $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
                 // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
 
@@ -105,6 +106,15 @@ class Buying
                 Log::info("[completeInsertAfterBuying] data" . json_encode($data));
                 UserProduct::insert($childData);
                 UserVideoSession::insert($data);
+            }
+            if ($orderDetail->product->type == 'quiz24') {
+                $quizzes = $orderDetail->product->quizzes;
+                foreach ($quizzes as $quiz) {
+                    $userQuiz = UserQuiz::where('users_id', $user)->where('quizzes_id', $quiz->id)->first();
+                    if (!$userQuiz) {
+                        UserQuiz::create(['users_id' => $user, 'quizzes_id' => $quiz->id, 'created_at' => $now, 'updated_at' => $now]);
+                    }
+                }
             }
         }
         Log::info("[completeInsertAfterBuying] last_data" . json_encode($data));
