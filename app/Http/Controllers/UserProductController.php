@@ -87,6 +87,9 @@ class UserProductController extends Controller
                 $orderDetails->whereHas("order", function ($query) use ($school_id) {
                     $query->where('school_id', $school_id);
                 });
+                // $orderDetails->whereHas("user", function ($query) use ($school_id) {
+                //     $query->where('school_id', $school_id);
+                // });
             }
             $orderDetails = $orderDetails->orderBy("updated_at", "desc")/*->with("order.orderDetails")*/
                 ->with("user")->get();

@@ -611,7 +611,7 @@ Route::group([
 
 Route::get('test', function (Request $request) {
     // return "test";
-    return App\Utils\Quiz24Service::getAllExams();
+    // return App\Utils\Quiz24Service::getAllExams();
     // $res = App\Utils\Quiz24Service::getSchools();
     // return ['userId' => $res];
 
@@ -629,4 +629,5 @@ Route::get('test', function (Request $request) {
     //     '09153254678',
     //     '2249682'
     // );
+    return App\Utils\Quiz24Service::getAExam(2304582);
 });

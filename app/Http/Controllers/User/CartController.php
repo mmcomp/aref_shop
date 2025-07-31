@@ -805,11 +805,13 @@ class CartController extends Controller
     public function addToOrder($request)
     {
         $user_id = Auth::user()->id;
+        $school_id = Auth::user()->school_id;
         $number = intval($request->input('number', "1"));
         $products_id = $request->input('products_id');
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if (!$order) {
             $order = Order::create([
+                'school_id' => $school_id,
                 'users_id' => $user_id,
                 'status' => 'waiting',
                 'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
