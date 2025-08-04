@@ -58,7 +58,7 @@ class ProductController extends Controller
                 if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
                 if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
                 if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
-                if ($searchName != null) $query->where('name', 'like','%'.$searchName.'%');
+                if ($searchName != null) $query->where('name', 'like', '%' . $searchName . '%');
             })
             ->orderBy('id', 'desc');
         if ($per_page == "all") {
@@ -173,18 +173,17 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-       $user_product= UserProduct::where("products_id",$id)->first();
-       if($user_product)
-       {
+        $user_product = UserProduct::where("products_id", $id)->first();
+        if ($user_product) {
             return (new ProductResource(null))->additional([
-                'errors' => ['fail' => ['you can not delete this product the user buy it before' ]],
+                'errors' => ['fail' => ['you can not delete this product the user buy it before']],
             ])->response()->setStatusCode(400);
-       }
+        }
         $product = Product::where('is_deleted', false)->find($id);
         if ($product != null) {
             $product->is_deleted = 1;
             try {
-                  ProductDetailPackage::where("child_products_id",$id)->delete();
+                ProductDetailPackage::where("child_products_id", $id)->delete();
                 $product->save();
                 return (new ProductResource(null))->additional([
                     'errors' => null,
@@ -483,23 +482,23 @@ class ProductController extends Controller
             ])->response()->setStatusCode(200);
 
 
-        //     $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
-        //     $allgroup=[];
-        //     $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+            //     $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
+            //     $allgroup=[];
+            //     $groups= ProductDetailPackage::groupBy("group")->pluck("group");
 
-        //    foreach($groups as $group)
-        //    {
-        //       $id=0;
-        //       foreach($product_detail_package_items as $product_detail_package_item)
-        //       {
-        //          if($product_detail_package_item->group===$group)
-        //          {
-        //             $tmpGroup= !isset($group) ? "others":$group;
-        //             $allgroup[$tmpGroup][]=$product_detail_package_item;
-        //             $id++;
-        //          }
-        //       }
-        //    }
+            //    foreach($groups as $group)
+            //    {
+            //       $id=0;
+            //       foreach($product_detail_package_items as $product_detail_package_item)
+            //       {
+            //          if($product_detail_package_item->group===$group)
+            //          {
+            //             $tmpGroup= !isset($group) ? "others":$group;
+            //             $allgroup[$tmpGroup][]=$product_detail_package_item;
+            //             $id++;
+            //          }
+            //       }
+            //    }
             //   return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
             //       'errors' => null,
             //   ])->response()->setStatusCode(200);
@@ -532,25 +531,22 @@ class ProductController extends Controller
 
 
             $product_detail_package_items = $per_page == "all" ? $product_detail_packages : $this->paginate($product_detail_packages, env('PAGE_COUNT'));
-            $allgroup=[];
-            $groups= ProductDetailPackage::groupBy("group")->pluck("group");
+            $allgroup = [];
+            $groups = ProductDetailPackage::groupBy("group")->pluck("group");
 
-           foreach($groups as $group)
-           {
-              $id=0;
-              foreach($product_detail_package_items as $product_detail_package_item)
-              {
-                 if($product_detail_package_item->group===$group)
-                 {
-                    $tmpGroup= !isset($group) ? "others":$group;
-                    $allgroup[$tmpGroup][]=$product_detail_package_item;
-                    $id++;
-                 }
-              }
-           }
-              return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
-                  'errors' => null,
-              ])->response()->setStatusCode(200);
+            foreach ($groups as $group) {
+                $id = 0;
+                foreach ($product_detail_package_items as $product_detail_package_item) {
+                    if ($product_detail_package_item->group === $group) {
+                        $tmpGroup = !isset($group) ? "others" : $group;
+                        $allgroup[$tmpGroup][] = $product_detail_package_item;
+                        $id++;
+                    }
+                }
+            }
+            return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+                'errors' => null,
+            ])->response()->setStatusCode(200);
         }
 
 
@@ -559,7 +555,8 @@ class ProductController extends Controller
         ])->response()->setStatusCode(404);
     }
 
-    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id){
+    public function ListOfChairsOfAProduct(GetPerPageRequest $request, $id)
+    {
         $raiseError = new RaiseError;
         $per_page = $request->get('per_page');
         $product = Product::where('is_deleted', false)->find($id);
@@ -586,9 +583,42 @@ class ProductController extends Controller
         return $webQuizzes;
     }
 
+    public function getAQuiz24Exam($examId)
+    {
+        $quiz = Quiz24Service::getAExam($examId);
+        (new Quiz())->fromQuiz($quiz['result']);
+        return response()->json([
+            'data' => $quiz,
+        ], 200);
+    }
+
     public function getExamResultForUser($examCode, User $user)
     {
         $res = Quiz24Service::getExamReportForAUser($user->email, $examCode);
+        $userQuiz = UserQuiz::where('user_id', $user->id)->where('quiz_id', $examCode)->first();
+        if (!$userQuiz) {
+            $userQuiz = new UserQuiz();
+            $userQuiz->user_id = $user->id;
+            $userQuiz->quiz_id = $examCode;
+        }
+        $transcript = $res['result'][0]['Transcript'];
+        $userQuiz->Correct = $transcript['Correct'];
+        $userQuiz->Wrong = $transcript['Wrong'];
+        $userQuiz->NoAnswer = $transcript['NoAnswer'];
+        $userQuiz->Balance = $transcript['Balance'];
+        $userQuiz->BestBalance = $transcript['BestBalance'];
+        $userQuiz->BalanceAvg = $transcript['BalanceAvg'];
+        $userQuiz->Score = $transcript['Score'];
+        $userQuiz->BestScore = $transcript['BestScore'];
+        $userQuiz->ScoreAvg = $transcript['ScoreAvg'];
+        $userQuiz->Rank = $transcript['Rank'];
+        $userQuiz->TotalCount = $transcript['TotalCount'];
+        $userQuiz->CorrectAvg = $transcript['CorrectAvg'];
+        $userQuiz->WrongAvg = $transcript['WrongAvg'];
+        $userQuiz->NoAnswerAvg = $transcript['NoAnswerAvg'];
+        $userQuiz->status = 'completed';
+        $userQuiz->save();
+
         return response()->json([
             'data' => $res,
         ], 200);
@@ -624,6 +654,66 @@ class ProductController extends Controller
         });
         return response()->json([
             'data' => ['users' => $users, 'exam' => $exam],
+        ], 200);
+    }
+
+    public function examResultForUser($examCode, User $user)
+    {
+        $res = Quiz24Service::getExamReportForAUser($user->email, $examCode);
+        $userQuiz = UserQuiz::where('user_id', $user->id)->where('quiz_id', $examCode)->first();
+        if (!$userQuiz) {
+            $userQuiz = new UserQuiz();
+            $userQuiz->user_id = $user->id;
+            $userQuiz->quiz_id = $examCode;
+        }
+        $transcript = $res['result'][0]['Transcript'];
+        $userQuiz->Correct = $transcript['Correct'];
+        $userQuiz->Wrong = $transcript['Wrong'];
+        $userQuiz->NoAnswer = $transcript['NoAnswer'];
+        $userQuiz->Balance = $transcript['Balance'];
+        $userQuiz->BestBalance = $transcript['BestBalance'];
+        $userQuiz->BalanceAvg = $transcript['BalanceAvg'];
+        $userQuiz->Score = $transcript['Score'];
+        $userQuiz->BestScore = $transcript['BestScore'];
+        $userQuiz->ScoreAvg = $transcript['ScoreAvg'];
+        $userQuiz->Rank = $transcript['Rank'];
+        $userQuiz->TotalCount = $transcript['TotalCount'];
+        $userQuiz->CorrectAvg = $transcript['CorrectAvg'];
+        $userQuiz->WrongAvg = $transcript['WrongAvg'];
+        $userQuiz->NoAnswerAvg = $transcript['NoAnswerAvg'];
+        $userQuiz->status = 'completed';
+        $userQuiz->save();
+        return response()->json([
+            'data' => $userQuiz,
+        ], 200);
+    }
+
+    public function getExamResultForAnExam(Request $request, $examCode)
+    {
+        $schoolId = $request->get('school_id');
+        if (Auth::user()->group->type == 'school-admin') {
+            $schoolId = Auth::user()->school_id;
+        }
+        $sort = "id";
+        $sort_dir = "desc";
+        if ($request->get('sort_dir') != null && $request->get('sort') != null) {
+            $sort = $request->get('sort');
+            $sort_dir = $request->get('sort_dir');
+        }
+        $results = UserQuiz::where('quiz_id', $examCode);
+        if ($schoolId) {
+            $results->whereHas('user', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId);
+            });
+        }
+        $results->orderBy($sort, $sort_dir);
+        if ($request->get('per_page') == "all") {
+            $results = $results->get();
+        } else {
+            $results = $results->paginate(env('PAGE_COUNT'));
+        }
+        return response()->json([
+            'data' => $results,
         ], 200);
     }
 }
