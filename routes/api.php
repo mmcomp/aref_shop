@@ -296,8 +296,10 @@ Route::group([
     Route::get('/get-packages-in-group/{id}', [ProductController::class, 'listOfPackagesOfProductGroup']);
     Route::get('/get-chairs/{id}', [ProductController::class, 'ListOfChairsOfAProduct']);
     Route::get('/quiz24/exams', [ProductController::class, 'getQuiz24Exams']);
+    Route::get('/quiz24/exam/{examId}', [ProductController::class, 'getAQuiz24Exam']);
     Route::get('/get-quiz-result/{examCode}/{user}', [ProductController::class, 'getExamResultForUser']);
     Route::get('/get-quiz-manifest/{examId}', [ProductController::class, 'getExamManifest']);
+    Route::get('/get-exam-result-for-an-exam/{examCode}', [ProductController::class, 'getExamResultForAnExam']);
 });
 Route::group([
     'middleware' => ['auth:api', 'can:productDetailChair'],
