@@ -1341,6 +1341,103 @@
 									"response": []
 								},
 								{
+									"name": "Get a Exam by Id",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{base_url}}/api/products/quiz24/exam/2304582",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"products",
+												"quiz24",
+												"exam",
+												"2304582"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get User Exam Result",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{base_url}}/api/products/get-quiz-result/2261480/28203",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"products",
+												"get-quiz-result",
+												"2261480",
+												"28203"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Exam Result",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{base_url}}/api/products/get-exam-result-for-an-exam/2261480?sort=id&sort_dir=asc&per_page=10",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"api",
+												"products",
+												"get-exam-result-for-an-exam",
+												"2261480"
+											],
+											"query": [
+												{
+													"key": "sort",
+													"value": "id"
+												},
+												{
+													"key": "sort_dir",
+													"value": "asc"
+												},
+												{
+													"key": "per_page",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Get Exams Manifest",
 									"protocolProfileBehavior": {
 										"disableBodyPruning": true
@@ -7856,7 +7953,7 @@
 									"raw": ""
 								},
 								"url": {
-									"raw": "{{base_url}}/user/products/get-quiz-result/4354534",
+									"raw": "{{base_url}}/user/products/get-quiz-result/2261480",
 									"host": [
 										"{{base_url}}"
 									],
@@ -7864,7 +7961,7 @@
 										"user",
 										"products",
 										"get-quiz-result",
-										"4354534"
+										"2261480"
 									]
 								}
 							},
@@ -7943,6 +8040,32 @@
 										"user",
 										"products",
 										"get-free-quiz"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Free Quiz Until 7 days",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/user/products/get-weekly-free-quiz",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"products",
+										"get-weekly-free-quiz"
 									]
 								}
 							},
