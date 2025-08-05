@@ -290,21 +290,29 @@ class ProductController extends Controller
 
     public function getExamUrlForUser($examCode)
     {
-        $user = Auth::user();
-        $res = Quiz24Service::getExamForAUser($user->email, $examCode);
-        $url = $res['url'];
-        $message = $res['message'];
-        if ($url) {
-            $this->addUserQuiz($examCode, $user->id);
-            return response()->json([
-                'data' => $url,
-                'errors' => null,
-            ], 200);
-        } else {
+        try {
+            $user = Auth::user();
+            $res = Quiz24Service::getExamForAUser($user->email, $examCode);
+            $url = $res['url'];
+            $message = $res['message'];
+            if ($url) {
+                $this->addUserQuiz($examCode, $user->id);
+                return response()->json([
+                    'data' => $url,
+                    'errors' => null,
+                ], 200);
+            } else {
+                return response()->json([
+                    'data' => null,
+                    'errors' => ['exam' => [$message]],
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('getExamUrlForUser error', ['error' => $e->getMessage()]);
             return response()->json([
                 'data' => null,
-                'errors' => ['exam' => [$message]],
-            ], 404);
+                'errors' => ['exam' => [$e->getMessage()]],
+            ], 500);
         }
     }
 
