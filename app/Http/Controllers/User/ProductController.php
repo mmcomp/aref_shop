@@ -24,6 +24,7 @@ use App\Models\ProductDetailPackage;
 
 use App\Http\Resources\UserProductChairsResource;
 use App\Http\Resources\GetListOfChairsResource;
+use App\Models\Quiz;
 use App\Models\User;
 use App\Models\UserProduct;
 use App\Models\UserQuiz;
@@ -448,6 +449,12 @@ class ProductController extends Controller
             $userQuiz->status = 'completed';
             $userQuiz->save();
             $res['report'] = $userQuiz->report;
+        }
+        $exam = Quiz::where('examCode', $examCode)->first();
+        if ($exam) {
+            $quiz = Quiz24Service::getAExam($exam->exam_id);
+            (new Quiz())->fromQuiz($quiz['result']);
+            $res['quiz'] = $quiz['result'];
         }
         return response()->json([
             'data' => $res,
