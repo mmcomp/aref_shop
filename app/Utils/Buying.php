@@ -9,6 +9,7 @@ use App\Models\ProductDetailVideo;
 use App\Models\ProductDetailPackage;
 use App\Models\Product;
 use App\Models\UserQuiz;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class Buying
@@ -108,6 +109,7 @@ class Buying
                 UserVideoSession::insert($data);
             }
             if ($orderDetail->product->type == 'quiz24') {
+                $now = Carbon::now();
                 $quizzes = $orderDetail->product->quizzes;
                 foreach ($quizzes as $quiz) {
                     $userQuiz = UserQuiz::where('user_id', $user)->where('quiz_id', $quiz->id)->first();
