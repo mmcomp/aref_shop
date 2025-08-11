@@ -110,9 +110,9 @@ class Buying
             if ($orderDetail->product->type == 'quiz24') {
                 $quizzes = $orderDetail->product->quizzes;
                 foreach ($quizzes as $quiz) {
-                    $userQuiz = UserQuiz::where('user_id', $user)->where('quizzes_id', $quiz->id)->first();
+                    $userQuiz = UserQuiz::where('user_id', $user)->where('quiz_id', $quiz->id)->first();
                     if (!$userQuiz) {
-                        UserQuiz::create(['user_id' => $user, 'quizzes_id' => $quiz->id, 'created_at' => $now, 'updated_at' => $now]);
+                        UserQuiz::create(['user_id' => $user, 'quiz_id' => $quiz->id, 'created_at' => $now, 'updated_at' => $now]);
                     }
                 }
             }
