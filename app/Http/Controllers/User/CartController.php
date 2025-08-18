@@ -29,6 +29,7 @@ use App\Models\UserCoupon;
 use App\Models\ProductDetailPackage;
 use App\Models\Payment;
 use App\Models\ProductDetailChair;
+use App\Models\User;
 use App\Utils\Buying;
 use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
@@ -609,6 +610,7 @@ class CartController extends Controller
     public function completeBuying()
     {
         $user_id = Auth::user()->id;
+        $user = User::find($user_id);
         $buying = new Buying;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
         if ($order) {
@@ -619,7 +621,9 @@ class CartController extends Controller
                 ])->setStatusCode(406);
             }
             if (!$order->amount) {
+                $user->refresh();
                 $order->status = "ok";
+                $order->school_id = $user->school_id;
                 $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $order->save();
                 $buying->completeInsertAfterBuying($order);
