@@ -613,6 +613,9 @@ class CartController extends Controller
         $user = User::find($user_id);
         $buying = new Buying;
         $order = Order::where('users_id', $user_id)->where('status', 'waiting')->first();
+        $order->school_id = $user->school_id;
+        $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+        $order->save();
         if ($order) {
             $validation = $this->validateOrderChairs($order);
             if (!$validation) {
@@ -621,9 +624,7 @@ class CartController extends Controller
                 ])->setStatusCode(406);
             }
             if (!$order->amount) {
-                $user->refresh();
                 $order->status = "ok";
-                $order->school_id = $user->school_id;
                 $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $order->save();
                 $buying->completeInsertAfterBuying($order);
