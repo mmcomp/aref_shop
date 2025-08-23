@@ -716,4 +716,27 @@ class ProductController extends Controller
             'data' => $results,
         ], 200);
     }
+
+    public function getProductSummary($productId)
+    {
+        $orderDetailsOK = OrderDetail::where('products_id', $productId)->whereHas('order', function ($query) {
+            $query->where('status', 'ok');
+        })->get();
+        $orderDetailsManualOK = OrderDetail::where('products_id', $productId)->whereHas('order', function ($query) {
+            $query->where('status', 'manual_ok');
+        })->get();
+        $totalPrice = $orderDetailsOK->sum('total_price') + $orderDetailsManualOK->sum('total_price');
+        $totalPriceWithCoupon = $orderDetailsOK->sum('total_price_with_coupon') + $orderDetailsManualOK->sum('total_price_with_coupon');
+        $result = [
+            'order_count' => $orderDetailsOK->count() + $orderDetailsManualOK->count(),
+            'order_gateway_count' => $orderDetailsOK->count(),
+            'order_manual_count' => $orderDetailsManualOK->count(),
+            'order_amount' => $totalPrice,
+            'order_amount_after_coupon' => $totalPriceWithCoupon,
+        ];
+
+        return response()->json([
+            'data' => $result,
+        ], 200);
+    }
 }
