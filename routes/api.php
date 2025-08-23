@@ -555,6 +555,7 @@ Route::group([
     'prefix' => 'user-products',
 ], function ($router) {
     Route::post('/report-sale', [UserProductController::class, 'reportSale']);
+    Route::get('/product-summary/{productId}', [ProductController::class, 'getProductSummary']);
 });
 // Route::group([
 //     'middleware' => ['auth:api','can:admin-order'],

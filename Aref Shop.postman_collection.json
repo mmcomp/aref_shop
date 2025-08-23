@@ -4939,6 +4939,38 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Product Summery",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"mode\" : \"product\",\n    \"products_id\":23\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/user-products/product-summary/12",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"user-products",
+										"product-summary",
+										"12"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
