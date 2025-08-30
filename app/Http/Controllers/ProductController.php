@@ -639,15 +639,18 @@ class ProductController extends Controller
                 'errors' => ['exam' => ['Exam not found!']],
             ], 404);
         }
-        $examUsers = UserProduct::whereHas('product', function ($query) use ($examId) {
-            $query->where('type', 'quiz24');
-            $query->where('quiz24_data', 'like', '%' . $examId . '%');
-        })->pluck('users_id')->toArray();
+        // $examUsers = UserProduct::whereHas('product', function ($query) use ($examId) {
+        //     $query->where('type', 'quiz24');
+        //     $query->whereHas('quizzes', function ($query) use ($examId) {
+        //         $query->where('quiz_id', $examId);
+        //     });
+        // })->pluck('users_id')->toArray();
         $userExamResults = UserQuiz::select('status', 'user_id')->where('quiz_id', $exam['examCode'])->get();
-        foreach ($userExamResults as $userExamResult) {
-            $examUsers[] = $userExamResult->user_id;
-        }
-        $users = User::select('id', 'first_name', 'last_name', 'email')->whereIn('id', $examUsers)->get();
+        // foreach ($userExamResults as $userExamResult) {
+        //     $examUsers[] = $userExamResult->user_id;
+        // }
+        $examUsers = $userExamResults->pluck('user_id');
+        $users = User::select('id', 'first_name', 'last_name', 'email')->whereIn('id', $examUsers)->paginate(env('PAGE_COUNT'));
         $users = $users->map(function ($user) use ($userExamResults) {
             $user->exam_result = $userExamResults->where('user_id', $user->id)->first();
             return $user;
