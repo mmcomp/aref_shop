@@ -651,13 +651,18 @@ class ProductController extends Controller
         // }
         $examUsers = $userExamResults->pluck('user_id');
         $users = User::select('id', 'first_name', 'last_name', 'email')->whereIn('id', $examUsers)->paginate(env('PAGE_COUNT'));
-        $users = $users->map(function ($user) use ($userExamResults) {
+        $users->getCollection()->transform(function ($user) use ($userExamResults) {
             $user->exam_result = $userExamResults->where('user_id', $user->id)->first();
             return $user;
         });
-        return response()->json([
-            'data' => ['users' => $users, 'exam' => $exam],
-        ], 200);
+        // $users = $users->map(function ($user) use ($userExamResults) {
+        //     $user->exam_result = $userExamResults->where('user_id', $user->id)->first();
+        //     return $user;
+        // });
+        return $users;
+        // return response()->json([
+        //     'data' => ['users' => $users, 'exam' => $exam],
+        // ], 200);
     }
 
     public function examResultForUser($examCode, User $user)
