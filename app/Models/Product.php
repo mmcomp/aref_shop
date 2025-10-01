@@ -36,7 +36,6 @@ class Product extends Model
        'days',
        'hour',
        'user_teacher_id',
-       'quiz24_data',
     ];
 
     public function categoryOnes()
