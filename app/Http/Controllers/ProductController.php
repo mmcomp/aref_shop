@@ -29,7 +29,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Storage;
 use App\Jobs\SynchronizeProductsWithCrmJob;
-use App\Models\ProductDetailChair;
+use App\Models\ProductQuiz;
 use App\Models\Quiz;
 use App\Models\User;
 use App\Models\UserQuiz;
@@ -109,13 +109,13 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-
-        $product = Product::where('is_deleted', false)->with('productFiles.file')->find($id);
+        $product = Product::where('is_deleted', false)->with('quizzes')->with('productFiles.file')->find($id);
         if ($product != null) {
             return (new ProductResource($product))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
+
         return (new ProductResource($product))->additional([
             'errors' => ['product' => ['Product not found!']],
         ])->response()->setStatusCode(404);
@@ -156,6 +156,20 @@ class ProductController extends Controller
             } else if (!$sw) {
                 $product->update($request->except('sale_price'));
             }
+
+            if ($product->type == "quiz24") {
+                ProductQuiz::where('product_id', $id)->delete();
+                foreach ($request->input('quiz24_data') as $examId) {
+                    $quiz = Quiz::where('exam_id', $examId)->first();
+                    if ($quiz) {
+                        ProductQuiz::create([
+                            'product_id' => $id,
+                            'quiz_id' => $quiz->id,
+                        ]);
+                    }
+                }
+            }
+
             return (new ProductResource(null))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
