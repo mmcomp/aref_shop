@@ -158,11 +158,11 @@ class Quiz24Service
         }
     }
 
-    static function getAExam($examId)
+    static function getAExam($examCode)
     {
         $req = [
             "userId" => intval(env('QUIZ24_SCHOOL_ID', "3525433")),
-            "examId" => $examId,
+            "examCode" => $examCode,
         ];
         Log::info('Quiz24Service getAExam request', ['request' => $req]);
 
