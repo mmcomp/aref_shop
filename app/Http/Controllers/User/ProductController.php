@@ -441,8 +441,8 @@ class ProductController extends Controller
         }
         $exam = Quiz::where('examCode', $examCode)->first();
         if ($exam) {
-            // $quiz = Quiz24Service::getAExam($examCode);
-            $quiz = Quiz24Service::getAExam($exam->exam_id);
+            $quiz = Quiz24Service::getAExam($examCode);
+            // $quiz = Quiz24Service::getAExam($exam->exam_id);
             Log::info('getExamResultForUser quiz', ['quiz' => $quiz]);
             if (isset($quiz['result'])) {
                 (new Quiz())->fromQuiz($quiz['result']);
