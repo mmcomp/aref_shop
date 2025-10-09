@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Auth;
 use DB;
 use Illuminate\Support\Facades\Request;
 use Log;
+use App\Http\Resources\User\QuizzCollection;
 
 class ProductController extends Controller
 {
@@ -320,33 +321,19 @@ class ProductController extends Controller
     public function getQuizProducts()
     {
         $per_page = request()->get('per_page');
-        $userProducts = UserProduct::where('users_id', Auth::user()->id)->whereHas('product', function ($q) {
-            $q->where('is_deleted', false)
-                ->where('published', true)
-                ->where('type', 'quiz24')
-                ->whereHas('quizzes', function ($q3) {
-                    $q3
-                        // ->whereDate('startDateGregorian', '>=', now())
-                        ->where('endDateGregorian', '<=', now()->addMonth(1));
-                });
-        })
-            ->with('product.quizzes', function ($q4) {
-                $q4
-                    // ->whereDate('startDateGregorian', '>=', now())
-                    ->where('endDateGregorian', '<=', now()->addMonth(1));
-            })
-            ->orderBy('updated_at', 'desc');
+
+        $userQuizzes = UserQuiz::where('user_id', Auth::user()->id);
         if ($per_page == "all") {
-            $userProducts = $userProducts->get();
+            $userQuizzes = $userQuizzes->get();
         } else {
-            $userProducts = $userProducts->paginate(env('PAGE_COUNT'));
+            $userQuizzes = $userQuizzes->paginate(env('PAGE_COUNT'));
+        }
+        $quizzes = collect([]);
+        foreach ($userQuizzes as $userQuiz) {
+            $quizzes->push($userQuiz);
         }
 
-        $products = $userProducts->map(function ($userProduct) {
-            return $userProduct->product;
-        });
-
-        return (new ProductOfUserCollection($products))->additional([
+        return (new QuizzCollection($quizzes))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
     }
@@ -453,8 +440,11 @@ class ProductController extends Controller
         $exam = Quiz::where('examCode', $examCode)->first();
         if ($exam) {
             $quiz = Quiz24Service::getAExam($exam->exam_id);
-            (new Quiz())->fromQuiz($quiz['result']);
-            $res['quiz'] = $quiz['result'];
+            Log::info('getExamResultForUser quiz', ['quiz' => $quiz]);
+            if ($quiz['result']) {
+                (new Quiz())->fromQuiz($quiz['result']);
+                $res['quiz'] = $quiz['result'];
+            }
         }
         return response()->json([
             'data' => $res,
