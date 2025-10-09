@@ -323,6 +323,8 @@ class ProductController extends Controller
         $per_page = request()->get('per_page');
 
         $userQuizzes = UserQuiz::where('user_id', Auth::user()->id);
+        $userQuizzes->with('quiz');
+        $userQuizzes->orderBy('created_at', 'desc');
         if ($per_page == "all") {
             $userQuizzes = $userQuizzes->get();
         } else {
@@ -330,7 +332,7 @@ class ProductController extends Controller
         }
         $quizzes = collect([]);
         foreach ($userQuizzes as $userQuiz) {
-            $quizzes->push($userQuiz);
+            $quizzes->push($userQuiz->quiz);
         }
 
         return (new QuizzCollection($quizzes))->additional([
@@ -439,11 +441,17 @@ class ProductController extends Controller
         }
         $exam = Quiz::where('examCode', $examCode)->first();
         if ($exam) {
+            // $quiz = Quiz24Service::getAExam($examCode);
             $quiz = Quiz24Service::getAExam($exam->exam_id);
             Log::info('getExamResultForUser quiz', ['quiz' => $quiz]);
-            if ($quiz['result']) {
+            if (isset($quiz['result'])) {
                 (new Quiz())->fromQuiz($quiz['result']);
                 $res['quiz'] = $quiz['result'];
+            } else {
+                return response()->json([
+                    'data' => null,
+                    'errors' => ['exam' => [$quiz['message']]],
+                ], 400);
             }
         }
         return response()->json([
