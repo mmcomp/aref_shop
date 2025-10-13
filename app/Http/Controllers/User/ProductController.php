@@ -332,7 +332,9 @@ class ProductController extends Controller
         }
         $quizzes = collect([]);
         foreach ($userQuizzes as $userQuiz) {
-            $quizzes->push($userQuiz->quiz);
+            if ($userQuiz->quiz) {
+                $quizzes->push($userQuiz->quiz);
+            }
         }
 
         return (new QuizzCollection($quizzes))->additional([
