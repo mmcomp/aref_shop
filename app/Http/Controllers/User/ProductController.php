@@ -37,6 +37,7 @@ use DB;
 use Illuminate\Support\Facades\Request;
 use Log;
 use App\Http\Resources\User\QuizzCollection;
+use App\Models\ProductQuiz;
 
 class ProductController extends Controller
 {
@@ -320,20 +321,43 @@ class ProductController extends Controller
 
     public function getQuizProducts()
     {
-        $per_page = request()->get('per_page');
-
-        $userQuizzes = UserQuiz::where('user_id', Auth::user()->id);
-        $userQuizzes->with('quiz');
-        $userQuizzes->orderBy('created_at', 'desc');
-        if ($per_page == "all") {
-            $userQuizzes = $userQuizzes->get();
-        } else {
-            $userQuizzes = $userQuizzes->paginate(env('PAGE_COUNT'));
+        $user = Auth::user();
+        $userQuizProducts = UserProduct::where('users_id', $user->id)->whereHas('product', function ($query) {
+            $query->where('type', 'quiz24');
+        })->pluck('products_id');
+        $userSupposedQuizzes = ProductQuiz::whereIn('product_id', $userQuizProducts)->pluck('quiz_id');
+        $registeredQuizzes = UserQuiz::where('user_id', $user->id)->whereIn('quiz_id', $userSupposedQuizzes)->pluck('quiz_id');
+        $shouldRegisterQuizzes = $userSupposedQuizzes->diff($registeredQuizzes);
+        foreach ($shouldRegisterQuizzes as $quiz) {
+            $userQuiz = UserQuiz::create([
+                'user_id' => $user->id,
+                'quiz_id' => $quiz,
+                'status' => 'started',
+            ]);
         }
+
+        $userQuizzes = UserQuiz::where('user_id', $user->id);
+        $userQuizzes->where(function ($query) {
+            $query->doesntHave('oldQuiz')->orWhereHas('oldQuiz', function ($query) {
+                $query->where('endDateGregorian', '<=', now()->addMonth(1));
+            });
+        });
+        $userQuizzes->where(function ($query) {
+            $query->doesntHave('quiz')->orWhereHas('quiz', function ($query) {
+                $query->where('endDateGregorian', '<=', now()->addMonth(1));
+            });
+        });
+
+
+        $userQuizzes->orderBy('created_at', 'desc');
+        $userQuizzes = $userQuizzes->get();
+
         $quizzes = collect([]);
         foreach ($userQuizzes as $userQuiz) {
             if ($userQuiz->quiz) {
                 $quizzes->push($userQuiz->quiz);
+            } else if ($userQuiz->oldQuiz) {
+                $quizzes->push($userQuiz->oldQuiz);
             }
         }
 

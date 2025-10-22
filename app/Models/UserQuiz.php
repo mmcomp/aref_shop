@@ -11,8 +11,13 @@ class UserQuiz extends Model
 
     protected $guarded = ['id'];
 
-    public function quiz()
+    public function oldQuiz()
     {
         return $this->hasOne(Quiz::class, 'examCode', 'quiz_id');
+    }
+
+    public function quiz()
+    {
+        return $this->hasOne(Quiz::class, 'id', 'quiz_id');
     }
 }
