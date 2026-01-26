@@ -14,6 +14,9 @@ return new class extends Migration
     {
         $orders = Order::where('school_id', null)->get();
         foreach ($orders as $order) {
+            if ($order->user == null) {
+                continue;
+            }
             $order->school_id = $order->user->school_id;
             $order->save();
         }
