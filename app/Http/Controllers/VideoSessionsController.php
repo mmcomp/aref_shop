@@ -390,6 +390,7 @@ class VideoSessionsController extends Controller
             $product_detail_video->refresh();
             $isSkyRoom = $request->input('is_sky_room') ? true : false;
             $skyRoom = null;
+            $videoLink = $request->input('video_link');
             if ($isSkyRoom) {
                 if ($video_sesssion->skyRoom) {
                     $skyRoom = $video_sesssion->skyRoom;
@@ -400,6 +401,7 @@ class VideoSessionsController extends Controller
                         'status' => 1,
                     ]));
                 }
+                $videoLink = $skyRoom->url;
             } else {
                 if ($video_sesssion->skyRoom) {
                     $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->id);
@@ -412,7 +414,7 @@ class VideoSessionsController extends Controller
                 'end_time' => $request->input('to_time'),
                 'price' => $request->input('price'),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
-                'video_link' => $request->input('video_link'),
+                'video_link' => $videoLink,
                 'is_aparat' => $request->input('is_aparat') && !$isSkyRoom,
                 'sky_room_id' => $isSkyRoom ? $skyRoom->id : null,
                 'is_sky_room' => $isSkyRoom,
