@@ -189,12 +189,27 @@ class SkyRoomService
         return $model;
     }
 
+    public function getUser(string $username): SkyRoomUser
+    {
+        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "getUser", "params" => ["username" => $username]]);
+        $responseData = $response->json();
+        $resp = new SkyRoomCommonResponse($responseData);
+        if (!$resp->ok) {
+            throw new \Exception($responseData["error_message"]);
+        }
+        return new SkyRoomUser($resp->result);
+    }
+
     public function createUser(SkyRoomUser $user): int
     {
         $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "createUser", "params" => $user->toArray()]);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
+            if ($responseData["error_code"] == 14) {
+                $foundUser = $this->getUser($user->username);
+                return $foundUser->id;
+            }
             throw new \Exception($responseData["error_message"]);
         }
         return $resp->result;
