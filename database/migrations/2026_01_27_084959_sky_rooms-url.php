@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sky_rooms', function (Blueprint $table) {
-            $table->renameColumn("room)id", "room_id");
+            // Note: renameColumn is not always supported reliably in MariaDB via Laravel Schema builder.
+            // The recommended way is to use a separate migration for renaming the column or use a raw SQL statement.
+            // Here is a version that works for MariaDB using raw SQL for renaming:
+            DB::statement('ALTER TABLE sky_rooms CHANGE `room)id` `room_id` INT');
             $table->string("url")->nullable()->after("max_users");
         });
     }
@@ -23,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sky_rooms', function (Blueprint $table) {
-            $table->renameColumn("room_id", "room)id");
+            DB::statement('ALTER TABLE sky_rooms CHANGE `room_id` `room)id` INT');
             $table->dropColumn("url");
         });
     }
