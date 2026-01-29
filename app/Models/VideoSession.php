@@ -17,7 +17,9 @@ class VideoSession extends Model
         "price",
         "video_session_type",
         "video_link",
-        "is_aparat"
+        "is_aparat",
+        "sky_room_id",
+        "is_sky_room"
     ];
 
     public function teacher()
@@ -33,5 +35,8 @@ class VideoSession extends Model
         return $this->hasOne("App\Models\UserVideoSession", "video_sessions_id", "id");
     }
 
-    
+    public function skyRoom()
+    {
+        return $this->belongsTo("App\Models\SkyRoom", "sky_room_id", "id");
+    }
 }

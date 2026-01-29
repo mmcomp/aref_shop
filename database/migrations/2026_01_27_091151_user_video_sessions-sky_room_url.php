@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Order;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $orders = Order::where('school_id', null)->get();
-        foreach ($orders as $order) {
-            if ($order->user == null) {
-                continue;
-            }
-            $order->school_id = $order->user->school_id;
-            $order->save();
-        }
+        Schema::table('user_video_sessions', function (Blueprint $table) {
+            $table->string("sky_room_url")->nullable()->after("video_sessions_id");
+        });
     }
 
     /**
@@ -27,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('user_video_sessions', function (Blueprint $table) {
+            $table->dropColumn("sky_room_url");
+        });
     }
 };

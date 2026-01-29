@@ -15,6 +15,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::table('quizzes', function (Blueprint $table) {
+            $table->string('title')->nullable()->after('examCode');
+        });
+        
         $webQuizzes = Quiz24Service::getAllExams();
         foreach ($webQuizzes['exams'] as $webQuiz) {
             (new Quiz())->fromQuiz($webQuiz);

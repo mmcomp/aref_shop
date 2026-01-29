@@ -370,6 +370,7 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         $weeklyQuizProducts = Product::where('is_deleted', false)
+            ->where('sale_price', '>',  0)
             ->where('published', true)
             ->where('type', 'quiz24')
             ->whereHas('quizzes', function ($q3) {
