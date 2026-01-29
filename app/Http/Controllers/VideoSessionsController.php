@@ -10,6 +10,8 @@ use App\Http\Requests\VideoSessionEditRequest;
 use App\Http\Requests\VideoSessionIndexRequest;
 use App\Http\Resources\VideoSessionsCollection;
 use App\Http\Resources\VideoSessionsResource;
+use App\Http\SkyRoom\SkyRoom;
+use App\Http\SkyRoom\SkyRoomService;
 use App\Models\Order;
 use App\Models\VideoSession;
 use App\Models\UserProduct;
@@ -30,6 +32,10 @@ use Illuminate\Support\Facades\Redis;
 
 class VideoSessionsController extends Controller
 {
+    public function __construct(private SkyRoomService $skyRoomService)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -295,8 +301,8 @@ class VideoSessionsController extends Controller
                 $data[] = [
                     'users_id' => $id,
                     'video_sessions_id' => $video_session->id,
-                    'created_at' =>  Carbon::now()->format('Y-m-d H:i:s'),
-                    'updated_at' =>  Carbon::now()->format('Y-m-d H:i:s')
+                    'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
                 ];
             }
         }
@@ -381,14 +387,40 @@ class VideoSessionsController extends Controller
                 "free_conference_description" => $request->input('free_conference_description'),
                 "free_conference_before_start_text" => $request->input('free_conference_before_start_text'),
             ]);
+            $product_detail_video->refresh();
+            $isSkyRoom = $request->input('is_sky_room') ? true : false;
+            $skyRoom = null;
+            $videoLink = $request->input('video_link');
+            if ($isSkyRoom) {
+                if ($video_sesssion->skyRoom) {
+                    $skyRoom = $video_sesssion->skyRoom;
+                } else {
+                    $skyRoom = $this->skyRoomService->createRoom(new SkyRoom([
+                        'name' => $video_sesssion->id,
+                        'title' => $product_detail_video->name,
+                        'status' => 1,
+                        "guest_login" => true,
+                        "op_login_first" => false,
+                        "max_users" => 1000,
+                    ]));
+                }
+                $videoLink = $skyRoom->url;
+            } else {
+                if ($video_sesssion->skyRoom) {
+                    $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->id);
+                    $video_sesssion->skyRoom->delete();
+                }
+            }
             $video_sesssion->update([
                 'start_date' => $request->input('date'),
                 'start_time' => $request->input('from_time'),
                 'end_time' => $request->input('to_time'),
                 'price' => $request->input('price'),
                 'video_session_type' => $request->input('video_session_type') ? $request->input('video_session_type') : 'offline',
-                'video_link' => $request->input('video_link'),
-                'is_aparat' => $request->input('is_aparat'),
+                'video_link' => $videoLink,
+                'is_aparat' => $request->input('is_aparat') && !$isSkyRoom,
+                'sky_room_id' => $isSkyRoom ? $skyRoom->id : null,
+                'is_sky_room' => $isSkyRoom,
             ]);
         }
         $raiseError->ValidationError(!$product_detail_video->videoSession, ['extraordinary' => ['No video Session is saved for the product']]);

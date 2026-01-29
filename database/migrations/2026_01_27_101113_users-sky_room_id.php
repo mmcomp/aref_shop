@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quizzes', function (Blueprint $table) {
-            $table->string('title')->nullable()->after('examCode');
+        Schema::table('users', function (Blueprint $table) {
+            $table->integer("sky_room_id")->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('quizzes', function (Blueprint $table) {
-            $table->dropColumn('title');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn("sky_room_id");
         });
     }
 };

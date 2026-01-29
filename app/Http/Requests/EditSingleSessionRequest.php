@@ -48,6 +48,7 @@ class EditSingleSessionRequest extends FormRequest
             'is_hidden' => 'in:0,1',
             'video_link' => "nullable",//'nullable|url',
             'is_aparat' =>  "nullable | boolean",
+            'is_sky_room' =>  "nullable | boolean",
             'video_session_type' => 'nullable|in:online,offline',
             'free_conference_start_mode' => 'in:playPage,productPage',
             'free_conference_description' => 'nullable|string',

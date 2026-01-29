@@ -612,25 +612,33 @@ Route::group([
     Route::post('/toggle-active/{id}', [BannerController::class, 'setActive']);
 });
 
-Route::get('test', function (Request $request) {
-    // return "test";
-    // return App\Utils\Quiz24Service::getAllExams();
-    // $res = App\Utils\Quiz24Service::getSchools();
-    // return ['userId' => $res];
+Route::get('sky-test', function (Request $request) {
+    try {
+        // $rooms = (new App\Http\SkyRoom\SkyRoomService())->getRooms();
+        // return response()->json(["rooms" => $rooms, "errors" => null], 200);
+        $room = (new App\Http\SkyRoom\SkyRoomService())->createRoom(new App\Http\SkyRoom\SkyRoom([
+            "name" => "test-room-4",
+            "title" => "تست روم 4",
+            "guest_login" => true,
+            "op_login_first" => true,
+            "max_users" => 100,
+            "status" => 1,
+        ]));
+        return $room;
 
-    // $res = App\Utils\Quiz24Service::registerStudent([
-    //     'userId' => 3514006,
-    //     'userName' => '09153068145',
-    //     'name' => 'حامد',
-    //     'family' => 'شاکری',
-    //     'password' => '09153068145',
-    // ]);
-
-    // return $res;
-
-    // return App\Utils\Quiz24Service::getExamReportForAUser(
-    //     '09153254678',
-    //     '2249682'
-    // );
-    return App\Utils\Quiz24Service::getAExam(2304582);
+        // $userId = (new App\Http\SkyRoom\SkyRoomService())->createUser(new App\Http\SkyRoom\SkyRoomUser([
+        //     "username" => "test-user-1",
+        //     "password" => "123456",
+        //     "nickname" => "تست کاربر 1",
+        //     "status" => 1,
+        //     "is_public" => true,
+        // ]));
+        // return $userId;
+    } catch (\Exception $e) {
+        return response()->json([
+            "errors" => [
+                "message" => $e->getMessage()
+            ]
+        ], 400);
+    }
 });

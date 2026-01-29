@@ -21,17 +21,13 @@ class Buying
         $user = 0;
         $product = null;
         $data = [];
+        $videoSessions = [];
         foreach ($order->orderDetails as $orderDetail) {
             $product = $orderDetail->products_id;
             $user = $order->users_id;
             $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
             if (!$found_user_product && ($orderDetail->product->type !== 'video')) {
                 UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
-                // $orderDetail->product->type == 'video'
-                //     ?
-                //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy])
-                //     :
-                //     UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
             }
             if ($orderDetail->product->type == 'video') {
                 if (!$found_user_product) {
@@ -40,12 +36,21 @@ class Buying
                     $found_user_product->partial = 0;
                     $found_user_product->update();
                 }
+                $videoSessionIds = [];
                 if ($orderDetail->all_videos_buy) {
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
+                    foreach ($videoSessionIds as $videoSessionId) {
+                        if (!in_array($videoSessionId, $videoSessions)) {
+                            $videoSessions[] = $videoSessionId;
+                        }
+                    }
                 } else {
                     if ($orderDetail->orderVideoDetails) {
                         foreach ($orderDetail->orderVideoDetails as $orderVideoDetail) {
                             $videoSessionIds[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
+                            if (!in_array($orderVideoDetail->productDetailVideo->video_sessions_id, $videoSessions)) {
+                                $videoSessions[] = $orderVideoDetail->productDetailVideo->video_sessions_id;
+                            }
                         }
                     }
                 }
@@ -61,19 +66,13 @@ class Buying
                         ];
                     }
                 }
-                Log::info("[completeInsertAfterBuying] orderDetail" . json_encode($orderDetail));
-                Log::info("[completeInsertAfterBuying] videoSessionIds" . json_encode($videoSessionIds));
             }
             if ($orderDetail->product->type == 'package') {
-                //$orderDetailPackage=$orderDetail->OrderPackageDetail;
                 $child_products = $orderDetail->OrderPackageDetail->pluck('product_child_id');
-                // $child_products = ProductDetailPackage::where('products_id', $orderDetail->product->id)->where('is_deleted', false)->pluck('child_products_id');
 
                 $childData = [];
                 $now = date("Y-m-d H:i:s");
-                Log::info("[completeInsertAfterBuying] child_products" . json_encode($child_products));
                 foreach ($child_products as $child_product) {
-                    //$child_product_id = ProductDetailPackage::where("id", $child_product)->pluck("child_products_id");
                     $tmp = ProductDetailPackage::where("id", $child_product)->first();
                     if (!$tmp) {
                         continue;
@@ -103,10 +102,7 @@ class Buying
                         }
                     }
                 }
-                Log::info("[completeInsertAfterBuying] childData" . json_encode($childData));
-                Log::info("[completeInsertAfterBuying] data" . json_encode($data));
                 UserProduct::insert($childData);
-                UserVideoSession::insert($data);
             }
             if ($orderDetail->product->type == 'quiz24') {
                 $now = Carbon::now();
@@ -119,7 +115,6 @@ class Buying
                 }
             }
         }
-        Log::info("[completeInsertAfterBuying] last_data" . json_encode($data));
         UserVideoSession::insert($data);
     }
 }
