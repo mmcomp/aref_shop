@@ -399,6 +399,9 @@ class VideoSessionsController extends Controller
                         'name' => $video_sesssion->id,
                         'title' => $product_detail_video->name,
                         'status' => 1,
+                        "guest_login" => true,
+                        "op_login_first" => false,
+                        "max_users" => 1000,
                     ]));
                 }
                 $videoLink = $skyRoom->url;
