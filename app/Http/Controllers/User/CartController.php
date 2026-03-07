@@ -825,17 +825,20 @@ class CartController extends Controller
 
         // Skip the header row (index 0)
         foreach (array_slice($rows, 1) as $index => $row) {
+            if ($index == 0) {
+                continue;
+            }
             $nationalCode = $row[3] ?? null;
             $mobile       = $row[2] ?? null;
             $productsId   = $row[4] ?? null;
 
             if (!$mobile) {
-                $results['failed'][] = ['row' => $index + 2, 'reason' => 'missing mobile (نام کاربری)'];
+                $results['failed'][] = ['row' => $index, 'reason' => 'missing mobile (نام کاربری)'];
                 continue;
             }
 
             if (!$productsId) {
-                $results['failed'][] = ['row' => $index + 2, 'reason' => 'missing products_id'];
+                $results['failed'][] = ['row' => $index, 'reason' => 'missing products_id'];
                 continue;
             }
 
@@ -848,13 +851,13 @@ class CartController extends Controller
             }
 
             if (!$user) {
-                $results['failed'][] = ['row' => $index + 2, 'reason' => 'user not found'];
+                $results['failed'][] = ['row' => $index, 'reason' => 'user not found'];
                 continue;
             }
 
             $product = Product::where('is_deleted', false)->where('id', $productsId)->first();
             if (!$product) {
-                $results['failed'][] = ['row' => $index + 2, 'reason' => 'product not found'];
+                $results['failed'][] = ['row' => $index, 'reason' => 'product not found'];
                 continue;
             }
 
@@ -862,7 +865,7 @@ class CartController extends Controller
                 ->where('products_id', $productsId)
                 ->exists();
             if ($alreadyOwned) {
-                $results['failed'][] = ['row' => $index + 2, 'reason' => 'user already has this product'];
+                $results['failed'][] = ['row' => $index, 'reason' => 'user already has this product'];
                 continue;
             }
 
@@ -894,7 +897,7 @@ class CartController extends Controller
                     $results['success']++;
                 });
             } catch (Exception $e) {
-                $results['failed'][] = ['row' => $index + 2, 'reason' => $e->getMessage()];
+                $results['failed'][] = ['row' => $index, 'reason' => $e->getMessage()];
             }
         }
 

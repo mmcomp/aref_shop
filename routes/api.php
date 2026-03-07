@@ -518,9 +518,14 @@ Route::group([
     Route::post('/complete-buying/{orders_id}', [OrderController::class, 'completeBuying']);
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
-    Route::post('/buy-product-with-excel', [CartController::class, 'buyProductForRows']);
 });
 
+Route::group([
+    'middleware' => [],
+    'prefix' => 'orders',
+], function ($router) {
+    Route::post('/buy-product-with-excel', [CartController::class, 'buyProductForRows']);
+});
 
 Route::group([
     'middleware' => ['auth:api', 'can:product'],
