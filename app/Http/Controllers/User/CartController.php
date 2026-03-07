@@ -825,9 +825,6 @@ class CartController extends Controller
 
         // Skip the header row (index 0)
         foreach (array_slice($rows, 1) as $index => $row) {
-            if ($index == 0) {
-                continue;
-            }
             $nationalCode = $row[3] ?? null;
             $mobile       = $row[2] ?? null;
             $productsId   = $row[4] ?? null;
