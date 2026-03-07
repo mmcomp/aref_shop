@@ -42,6 +42,7 @@ use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
@@ -517,6 +518,7 @@ Route::group([
     Route::post('/complete-buying/{orders_id}', [OrderController::class, 'completeBuying']);
     Route::post('/cancel-buying-product', [OrderController::class, 'cancelBuyingOfAProduct']);
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
+    Route::post('/buy-product-with-excel', [CartController::class, 'buyProductForRows']);
 });
 
 

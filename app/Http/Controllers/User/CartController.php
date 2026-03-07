@@ -30,12 +30,14 @@ use App\Models\ProductDetailPackage;
 use App\Models\Payment;
 use App\Models\ProductDetailChair;
 use App\Models\User;
+use App\Imports\BuyProductForRowsImport;
 use App\Utils\Buying;
 use App\Utils\MellatPayment;
 use App\Utils\RaiseError;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Log;
 use Exception;
@@ -806,6 +808,97 @@ class CartController extends Controller
     public function deleteAllOrderPackageDetails($orderDetailIds)
     {
         return OrderPackageDetail::find($orderDetailIds[0]->id)->delete();
+    }
+
+    /**
+     * Buy a product for each row in an uploaded Excel file.
+     * Expected columns: نام, نام خانوادگی, نام کاربری, کدملی, products_id
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function buyProductForRows(Request $request)
+    {
+        $rows = Excel::toArray(new BuyProductForRowsImport, $request->file('file'))[0];
+        $buying = new Buying;
+        $results = ['success' => 0, 'failed' => []];
+
+        // Skip the header row (index 0)
+        foreach (array_slice($rows, 1) as $index => $row) {
+            $nationalCode = $row[3] ?? null;
+            $mobile       = $row[2] ?? null;
+            $productsId   = $row[4] ?? null;
+
+            if (!$mobile) {
+                $results['failed'][] = ['row' => $index + 2, 'reason' => 'missing mobile (نام کاربری)'];
+                continue;
+            }
+
+            if (!$productsId) {
+                $results['failed'][] = ['row' => $index + 2, 'reason' => 'missing products_id'];
+                continue;
+            }
+
+            $user = null;
+            if ($nationalCode) {
+                $user = User::where('national_code', $nationalCode)->first();
+            }
+            if (!$user) {
+                $user = User::where('email', '0' . $mobile)->first();
+            }
+
+            if (!$user) {
+                $results['failed'][] = ['row' => $index + 2, 'reason' => 'user not found'];
+                continue;
+            }
+
+            $product = Product::where('is_deleted', false)->where('id', $productsId)->first();
+            if (!$product) {
+                $results['failed'][] = ['row' => $index + 2, 'reason' => 'product not found'];
+                continue;
+            }
+
+            $alreadyOwned = UserProduct::where('users_id', $user->id)
+                ->where('products_id', $productsId)
+                ->exists();
+            if ($alreadyOwned) {
+                $results['failed'][] = ['row' => $index + 2, 'reason' => 'user already has this product'];
+                continue;
+            }
+
+            try {
+                DB::transaction(function () use ($user, $product, $productsId, $buying, &$results) {
+                    $now   = Carbon::now()->format('Y-m-d H:i:s');
+                    $order = Order::create([
+                        'users_id'   => $user->id,
+                        'status'     => 'ok',
+                        'amount'     => $product->sale_price,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+
+                    OrderDetail::create([
+                        'orders_id'               => $order->id,
+                        'products_id'             => $productsId,
+                        'price'                   => $product->sale_price,
+                        'users_id'                => $user->id,
+                        'all_videos_buy'          => 1,
+                        'number'                  => 1,
+                        'total_price'             => $product->sale_price,
+                        'total_price_with_coupon' => $product->sale_price,
+                        'created_at'              => $now,
+                        'updated_at'              => $now,
+                    ]);
+
+                    $buying->completeInsertAfterBuying($order);
+                    $results['success']++;
+                });
+            } catch (Exception $e) {
+                $results['failed'][] = ['row' => $index + 2, 'reason' => $e->getMessage()];
+            }
+        }
+
+        return response()->json(['data' => $results, 'errors' => null])->setStatusCode(200);
     }
     public function addToOrder($request)
     {
