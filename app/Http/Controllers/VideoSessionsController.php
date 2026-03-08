@@ -399,7 +399,7 @@ class VideoSessionsController extends Controller
                         'name' => $video_sesssion->id,
                         'title' => $product_detail_video->name,
                         'status' => 1,
-                        "guest_login" => true,
+                        "guest_login" => $product_detail_video->price == 0,
                         "op_login_first" => false,
                         "max_users" => 1000,
                     ]));

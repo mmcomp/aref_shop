@@ -89,7 +89,6 @@ class SkyRoomUser
             "password" => $this->password,
             "nickname" => $this->nickname,
             "status" => $this->status,
-            "is_public" => $this->is_public,
         ];
     }
 }
@@ -207,7 +206,8 @@ class SkyRoomService
 
     public function createUser(SkyRoomUser $user): int
     {
-        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "createUser", "params" => $user->toArray()]);
+        $req = ["action" => "createUser", "params" => $user->toArray()];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -228,7 +228,9 @@ class SkyRoomService
                 "user_id" => $userId,
             ];
         }
-        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "addRoomUsers", "params" => ["room_id" => $roomId, "users" => $users]]);
+        $req = ["action" => "addRoomUsers", "params" => ["room_id" => $roomId, "users" => $users]];
+        dd(json_encode($req));
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -275,7 +277,6 @@ class SkyRoomService
                     "password" => $user->pass_txt,
                     "nickname" => $user->first_name . " " . $user->last_name,
                     "status" => 1,
-                    "is_public" => 1,
                     "url" => null,
                 ]));
                 $userSkyRoomIds[] = $userSkyRoomId;
@@ -286,7 +287,7 @@ class SkyRoomService
             }
         }
         foreach ($videoSessions as $videoSession) {
-            $this->addRoomUsers($videoSession->sky_room_id, $userSkyRoomIds);
+            $this->addRoomUsers($videoSession->skyRoom->service_id, $userSkyRoomIds);
         }
         foreach ($userVideoSessions as $userVideoSession) {
             if ($userVideoSession->user && $userVideoSession->sky_room_url == null) {
