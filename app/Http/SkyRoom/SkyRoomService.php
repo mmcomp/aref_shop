@@ -33,15 +33,19 @@ class SkyRoom
 
     public function toArray()
     {
-        return [
-            "name" => $this->name,
+        $output =  [
+            "name" => (string)$this->name,
             "title" => $this->title,
             "status" => $this->status,
             "guest_login" => $this->guest_login,
             "op_login_first" => $this->op_login_first,
             "max_users" => $this->max_users,
-            "service_id" => $this->service_id,
         ];
+
+        if ($this->service_id) {
+            $output["service_id"] = $this->service_id;
+        }
+        return $output;
     }
 }
 
@@ -138,7 +142,8 @@ class SkyRoomService
 
     private function _createRoom(SkyRoom $room): int
     {
-        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "createRoom", "params" => $room->toArray()]);
+        $req = ["action" => "createRoom", "params" => $room->toArray()];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
