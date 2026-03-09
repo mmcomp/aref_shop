@@ -744,6 +744,7 @@ class CartController extends Controller
                         "national_code" => $nationalCode,
                     ]
                 );
+                $user->save();
             }
 
             $product = Product::where('is_deleted', false)->where('id', $productsId)->first();
