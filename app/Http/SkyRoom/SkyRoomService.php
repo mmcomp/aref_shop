@@ -33,8 +33,8 @@ class SkyRoom
 
     public function toArray()
     {
-        $output =  [
-            "name" => (string)$this->name,
+        $output = [
+            "name" => (string) $this->name,
             "title" => $this->title,
             "status" => $this->status,
             "guest_login" => $this->guest_login,
@@ -179,7 +179,6 @@ class SkyRoomService
         $room = $this->getRoom($roomId);
         $url = $this->getRoomUrl($roomId);
         $model = new SkyRoomModel([
-            "id" => $room->id,
             "name" => $room->name,
             "title" => $room->title,
             "status" => $room->status,
@@ -187,6 +186,7 @@ class SkyRoomService
             "guest_login" => $room->guest_login,
             "op_login_first" => $room->op_login_first,
             "max_users" => $room->max_users,
+            "room_id" => $roomId,
             "url" => $url,
         ]);
         $model->save();
@@ -229,7 +229,6 @@ class SkyRoomService
             ];
         }
         $req = ["action" => "addRoomUsers", "params" => ["room_id" => $roomId, "users" => $users]];
-        dd(json_encode($req));
         $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
@@ -241,7 +240,7 @@ class SkyRoomService
 
     public function createLoginUrl(int $roomId, User $user): string
     {
-        $response = Http::post($this->baseUrl . $this->apiKey, [
+        $req = [
             "action" => "createLoginUrl",
             "params" => [
                 "room_id" => $roomId,
@@ -249,7 +248,8 @@ class SkyRoomService
                 "nickname" => $user->first_name . " " . $user->last_name,
                 "ttl" => 60 * 60 * 60 * 24 * 30 // 30 days
             ]
-        ]);
+        ];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -287,12 +287,16 @@ class SkyRoomService
             }
         }
         foreach ($videoSessions as $videoSession) {
-            $this->addRoomUsers($videoSession->skyRoom->service_id, $userSkyRoomIds);
+            $this->addRoomUsers($videoSession->skyRoom->room_id, $userSkyRoomIds);
         }
         foreach ($userVideoSessions as $userVideoSession) {
             if ($userVideoSession->user && $userVideoSession->sky_room_url == null) {
-                $userVideoSession->sky_room_url = $this->createLoginUrl($userVideoSession->videoSession->sky_room_id, $userVideoSession->user);
-                $userVideoSession->save();
+                $roomId = null;
+                if ($userVideoSession->videoSession && $userVideoSession->videoSession->skyRoom) {
+                    $roomId = $userVideoSession->videoSession->skyRoom->room_id;
+                    $userVideoSession->sky_room_url = $this->createLoginUrl($roomId, $userVideoSession->user);
+                    $userVideoSession->save();
+                }
             }
         }
     }

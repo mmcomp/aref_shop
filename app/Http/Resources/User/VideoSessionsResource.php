@@ -8,12 +8,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class VideoSessionsResource extends JsonResource
 {
     protected $value;
+    protected $skyRoomUrl;
 
-    public function checkToShowUrlOrNot($value)
+    public function checkToShowUrlOrNot($value, $skyRoomUrl)
     {
         $this->checkToShowUrlOrNot = $value;
+        $this->skyRoomUrl = $skyRoomUrl;
         return $this;
     }
+
     /**
      * Transform the resource into an array.
      *
@@ -22,6 +25,10 @@ class VideoSessionsResource extends JsonResource
      */
     public function toArray($request)
     {
+        $videoLink = $this->checkToShowUrlOrNot ? base64_encode($this->video_link) : null;
+        if ($this->is_sky_room && $this->skyRoomUrl) {
+            $videoLink = $this->skyRoomUrl;
+        }
         if($this->resource != null){
             return [
                 'id' => $this->id,
@@ -31,7 +38,7 @@ class VideoSessionsResource extends JsonResource
                 //'teacher'  => new UserResource($this->teacher),
                 // 'price' => $this->price,
                 'video_session_type' => $this->video_session_type,
-                'video_link' => $this->checkToShowUrlOrNot ? base64_encode($this->video_link) : null,
+                'video_link' => $videoLink,
                 "is_aparat" => $this->is_aparat,
                 "is_sky_room" => $this->is_sky_room,
                 'currentTime' => Carbon::now()->format('H:i:s')

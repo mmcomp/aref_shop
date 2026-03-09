@@ -10,9 +10,10 @@ class ProductDetailVideosResourceForShow extends JsonResource
 {
     protected $value;
 
-    public function check($value)
+    public function check($value, $skyRoomUrl)
     {
         $this->check = $value;
+        $this->skyRoomUrl = $skyRoomUrl;
         return $this;
     }
     /**
@@ -38,7 +39,7 @@ class ProductDetailVideosResourceForShow extends JsonResource
                 'product' => $this->product,
                 'price' => $this->price,
                 'files' => $files,
-                'video_session' => (new VideoSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check),
+                'video_session' => (new VideoSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check, $this->skyRoomUrl),
                 'extraordinary' => $this->extraordinary,
                 'is_hidden' => $this->is_hidden,
                 'single_purchase' => $this->single_purchase,

@@ -34,7 +34,7 @@ class ProductDetailVideosController extends Controller
             $found_user_videoSession = UserVideoSession::where('users_id', Auth::user()->id)->where('video_sessions_id', $product_detail_video->video_sessions_id)->first();
             $price = $product_detail_video->price != null ? $product_detail_video->price : ($product_detail_video->videoSession ?  $product_detail_video->videoSession->price : 0);
             $checkPriceAndUserVideoSession = (!$price || $found_user_videoSession);
-            return ((new ProductDetailVideosResourceForShow($product_detail_video))->check($checkPriceAndUserVideoSession))->additional([
+            return ((new ProductDetailVideosResourceForShow($product_detail_video))->check($checkPriceAndUserVideoSession, $found_user_videoSession->sky_room_url))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }
