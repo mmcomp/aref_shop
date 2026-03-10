@@ -405,6 +405,7 @@ class VideoSessionsController extends Controller
                     ]));
                 }
                 $videoLink = $skyRoom->url;
+                $this->skyRoomService->fixVideoSessions([$video_sesssion->id]);
             } else {
                 if ($video_sesssion->skyRoom) {
                     $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->id);

@@ -718,12 +718,12 @@ class CartController extends Controller
             $productsId = $row[4] ?? null;
 
             if (!$mobile) {
-                $results['failed'][] = ['row' => $index, 'reason' => 'missing mobile (نام کاربری)'];
+                $results['failed'][] = ['row' => $index + 1, 'reason' => 'missing mobile (نام کاربری)'];
                 continue;
             }
 
             if (!$productsId) {
-                $results['failed'][] = ['row' => $index, 'reason' => 'missing products_id'];
+                $results['failed'][] = ['row' => $index + 1, 'reason' => 'missing products_id'];
                 continue;
             }
 
@@ -749,7 +749,7 @@ class CartController extends Controller
 
             $product = Product::where('is_deleted', false)->where('id', $productsId)->first();
             if (!$product) {
-                $results['failed'][] = ['row' => $index, 'reason' => 'product not found'];
+                $results['failed'][] = ['row' => $index + 1, 'reason' => 'product not found'];
                 continue;
             }
 
@@ -757,7 +757,7 @@ class CartController extends Controller
                 ->where('products_id', $productsId)
                 ->exists();
             if ($alreadyOwned) {
-                $results['failed'][] = ['row' => $index, 'reason' => 'user already has this product'];
+                $results['failed'][] = ['row' => $index + 1, 'reason' => 'user already has this product'];
                 continue;
             }
 
@@ -789,7 +789,7 @@ class CartController extends Controller
                     $results['success']++;
                 });
             } catch (Exception $e) {
-                $results['failed'][] = ['row' => $index, 'reason' => $e->getMessage()];
+                $results['failed'][] = ['row' => $index + 1, 'reason' => $e->getMessage()];
             }
         }
 

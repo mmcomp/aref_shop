@@ -286,6 +286,9 @@ class SkyRoomService
                 $userSkyRoomIds[] = $user->sky_room_id;
             }
         }
+        if (\count($userSkyRoomIds) == 0) {
+            return;
+        }
         foreach ($videoSessions as $videoSession) {
             $this->addRoomUsers($videoSession->skyRoom->room_id, $userSkyRoomIds);
         }
