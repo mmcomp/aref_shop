@@ -26,10 +26,14 @@ class VideoSessionsResource extends JsonResource
     public function toArray($request)
     {
         $videoLink = $this->checkToShowUrlOrNot ? base64_encode($this->video_link) : null;
-        if ($this->is_sky_room && $this->skyRoomUrl) {
-            $videoLink = $this->skyRoomUrl;
+        if ($this->is_sky_room) {
+            if ($this->skyRoomUrl != "" && $this->price > 0) {
+                $videoLink = $this->skyRoomUrl;
+            } else {
+                $videoLink = $this->video_link;
+            }
         }
-        if($this->resource != null){
+        if ($this->resource != null) {
             return [
                 'id' => $this->id,
                 'start_date' => $this->start_date,
