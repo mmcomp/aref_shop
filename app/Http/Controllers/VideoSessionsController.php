@@ -408,7 +408,7 @@ class VideoSessionsController extends Controller
                 $this->skyRoomService->fixVideoSessions([$video_sesssion->id]);
             } else {
                 if ($video_sesssion->skyRoom) {
-                    $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->id);
+                    $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->room_id);
                     $video_sesssion->skyRoom->delete();
                 }
             }
