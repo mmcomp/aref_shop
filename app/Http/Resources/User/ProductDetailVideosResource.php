@@ -26,7 +26,7 @@ class ProductDetailVideosResource extends JsonResource
         if ($this->resource != null) {
             return [
                 'id' => $this->id,
-                'videoSession' => (new VideoSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check)
+                'videoSession' => (new VideoSessionsResource($this->videoSession))->checkToShowUrlOrNot($this->check, null)
             ];
         }
     }
