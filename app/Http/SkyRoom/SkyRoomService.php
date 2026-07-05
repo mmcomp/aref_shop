@@ -33,15 +33,19 @@ class SkyRoom
 
     public function toArray()
     {
-        return [
-            "name" => $this->name,
+        $output = [
+            "name" => (string) $this->name,
             "title" => $this->title,
             "status" => $this->status,
             "guest_login" => $this->guest_login,
             "op_login_first" => $this->op_login_first,
             "max_users" => $this->max_users,
-            "service_id" => $this->service_id,
         ];
+
+        if ($this->service_id) {
+            $output["service_id"] = $this->service_id;
+        }
+        return $output;
     }
 }
 
@@ -85,7 +89,6 @@ class SkyRoomUser
             "password" => $this->password,
             "nickname" => $this->nickname,
             "status" => $this->status,
-            "is_public" => $this->is_public,
         ];
     }
 }
@@ -138,7 +141,8 @@ class SkyRoomService
 
     private function _createRoom(SkyRoom $room): int
     {
-        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "createRoom", "params" => $room->toArray()]);
+        $req = ["action" => "createRoom", "params" => $room->toArray()];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -175,7 +179,6 @@ class SkyRoomService
         $room = $this->getRoom($roomId);
         $url = $this->getRoomUrl($roomId);
         $model = new SkyRoomModel([
-            "id" => $room->id,
             "name" => $room->name,
             "title" => $room->title,
             "status" => $room->status,
@@ -183,6 +186,7 @@ class SkyRoomService
             "guest_login" => $room->guest_login,
             "op_login_first" => $room->op_login_first,
             "max_users" => $room->max_users,
+            "room_id" => $roomId,
             "url" => $url,
         ]);
         $model->save();
@@ -202,7 +206,8 @@ class SkyRoomService
 
     public function createUser(SkyRoomUser $user): int
     {
-        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "createUser", "params" => $user->toArray()]);
+        $req = ["action" => "createUser", "params" => $user->toArray()];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -223,7 +228,8 @@ class SkyRoomService
                 "user_id" => $userId,
             ];
         }
-        $response = Http::post($this->baseUrl . $this->apiKey, ["action" => "addRoomUsers", "params" => ["room_id" => $roomId, "users" => $users]]);
+        $req = ["action" => "addRoomUsers", "params" => ["room_id" => $roomId, "users" => $users]];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -234,7 +240,7 @@ class SkyRoomService
 
     public function createLoginUrl(int $roomId, User $user): string
     {
-        $response = Http::post($this->baseUrl . $this->apiKey, [
+        $req = [
             "action" => "createLoginUrl",
             "params" => [
                 "room_id" => $roomId,
@@ -242,7 +248,8 @@ class SkyRoomService
                 "nickname" => $user->first_name . " " . $user->last_name,
                 "ttl" => 60 * 60 * 60 * 24 * 30 // 30 days
             ]
-        ]);
+        ];
+        $response = Http::post($this->baseUrl . $this->apiKey, $req);
         $responseData = $response->json();
         $resp = new SkyRoomCommonResponse($responseData);
         if (!$resp->ok) {
@@ -270,7 +277,6 @@ class SkyRoomService
                     "password" => $user->pass_txt,
                     "nickname" => $user->first_name . " " . $user->last_name,
                     "status" => 1,
-                    "is_public" => 1,
                     "url" => null,
                 ]));
                 $userSkyRoomIds[] = $userSkyRoomId;
@@ -280,13 +286,20 @@ class SkyRoomService
                 $userSkyRoomIds[] = $user->sky_room_id;
             }
         }
+        if (\count($userSkyRoomIds) == 0) {
+            return;
+        }
         foreach ($videoSessions as $videoSession) {
-            $this->addRoomUsers($videoSession->sky_room_id, $userSkyRoomIds);
+            $this->addRoomUsers($videoSession->skyRoom->room_id, $userSkyRoomIds);
         }
         foreach ($userVideoSessions as $userVideoSession) {
             if ($userVideoSession->user && $userVideoSession->sky_room_url == null) {
-                $userVideoSession->sky_room_url = $this->createLoginUrl($userVideoSession->videoSession->sky_room_id, $userVideoSession->user);
-                $userVideoSession->save();
+                $roomId = null;
+                if ($userVideoSession->videoSession && $userVideoSession->videoSession->skyRoom) {
+                    $roomId = $userVideoSession->videoSession->skyRoom->room_id;
+                    $userVideoSession->sky_room_url = $this->createLoginUrl($roomId, $userVideoSession->user);
+                    $userVideoSession->save();
+                }
             }
         }
     }

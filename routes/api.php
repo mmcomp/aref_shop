@@ -42,6 +42,7 @@ use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
@@ -519,6 +520,12 @@ Route::group([
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
 });
 
+Route::group([
+    'middleware' => [],
+    'prefix' => 'orders',
+], function ($router) {
+    Route::post('/buy-product-with-excel', [CartController::class, 'buyProductForRows']);
+});
 
 Route::group([
     'middleware' => ['auth:api', 'can:product'],

@@ -224,6 +224,7 @@ Route::group(['middleware' => 'user'], function () {
     ], function ($router) {
         Route::get('/free', [VideoSessionsController::class, 'freeSessions']);
         Route::get('/today', [VideoSessionsController::class, 'todaySessions']);
+        Route::post('/present', [VideoSessionsController::class, 'PresentSkyRoom']);
     });
 
 

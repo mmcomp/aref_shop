@@ -281,7 +281,7 @@ class TeamUserMemberController extends Controller
             else
                 $userFullName = "شخصی";
             foreach ($allNotApprovedMembers as $allNotApprovedMember) {
-                $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullName, env('KAVENEGAR_VERIFY'));
+                $this->smsObj->sendCode($allNotApprovedMember->mobile,   $userFullName, '', '', env('KAVENEGAR_VERIFY'));
             }
             return true;
         } else {

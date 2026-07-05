@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Http\SkyRoom\SkyRoomService;
 use App\Models\Order;
 use App\Models\UserProduct;
 use App\Models\UserVideoSession;
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Log;
 class Buying
 {
 
+    public function __construct(private SkyRoomService $skyRoomService)
+    {
+
+    }
+
     public function completeInsertAfterBuying(Order $order)
     {
 
@@ -22,6 +28,7 @@ class Buying
         $product = null;
         $data = [];
         $videoSessions = [];
+        $videoSessionIds = [];
         foreach ($order->orderDetails as $orderDetail) {
             $product = $orderDetail->products_id;
             $user = $order->users_id;
@@ -36,7 +43,6 @@ class Buying
                     $found_user_product->partial = 0;
                     $found_user_product->update();
                 }
-                $videoSessionIds = [];
                 if ($orderDetail->all_videos_buy) {
                     $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $product)->pluck('video_sessions_id')->toArray();
                     foreach ($videoSessionIds as $videoSessionId) {
@@ -116,5 +122,6 @@ class Buying
             }
         }
         UserVideoSession::insert($data);
+        $this->skyRoomService->fixVideoSessions($videoSessionIds);
     }
 }
