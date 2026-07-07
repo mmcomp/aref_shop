@@ -174,6 +174,94 @@ class Quiz24Service
         Log::info('Quiz24Service getAExam response', ['response' => $res]);
         return $res;
     }
+
+    public static function setClassification(array $data)
+    {
+        $req = [
+            "userId" => intval(env('QUIZ24_SCHOOL_ID', "3525433")),
+            "users" => $data,
+        ];
+        Log::info('Quiz24Service setClassification request', ['request' => $req]);
+
+        $response = Http::withHeaders([
+            "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
+        ])
+            ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "classification", $req);
+        $res = $response->json();
+        Log::info('Quiz24Service setClassification response', ['response' => $res]);
+        return $res;
+    }
+
+    public static function getClassification()
+    {
+        $req = [
+            "userId" => intval(env('QUIZ24_SCHOOL_ID', "3525433")),
+        ];
+        Log::info('Quiz24Service getClassification request', ['request' => $req]);
+
+        $response = Http::withHeaders([
+            "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
+        ])
+            ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "getClassification", $req);
+        $res = $response->json();
+        Log::info('Quiz24Service getClassification response', ['response' => $res]);
+        return $res;
+    }
+
+    public static function unClassification(array $data)
+    {
+        $req = [
+            "userId" => intval(env('QUIZ24_SCHOOL_ID', "3525433")),
+            "users" => $data,
+        ];
+        Log::info('Quiz24Service unClassification request', ['request' => $req]);
+
+        $response = Http::withHeaders([
+            "X-API-KEY" => env("QUIZ24_TOKEN", "apikey-f5d5aae0-a0af-41d1-b2bf-1d69fb01cb60")
+        ])
+            ->post(env("QUIZ24_URL", "https://www.quiz24.ir/api/v1/") . "unClassification", $req);
+        $res = $response->json();
+        Log::info('Quiz24Service unClassification response', ['response' => $res]);
+        return $res;
+    }
+
+    public static function addStudentToClass($classCode, $userName)
+    {
+        $currentClassifications = Quiz24Service::getClassification();
+        if ($currentClassifications["status"] != 100) {
+            return $currentClassifications;
+        }
+
+        $data = [];
+        $classFound = false;
+        foreach ($currentClassifications["result"] as $classData) {
+            $students = $classData["students"];
+            if ($classData["classCode"] == $classCode) {
+                $classFound = true;
+            }
+            foreach ($students as $student) {
+                if ($student["userName"] == $userName && $classData["classCode"] == $classCode) {
+                    return ["status" => 100];
+                }
+                $data[] = ["userName" => $student["userName"], "classCode" => $classData["classCode"]];
+            }
+        }
+        if (!$classFound) {
+            $data[] = ["userName" => $userName, "classCode" => $classCode];
+        }
+
+        return Quiz24Service::setClassification($data);
+    }
+
+    public static function removeStudentToClass($classCode, $userName)
+    {
+        Log::info('Quiz24Service removeStudentToClass classCode and userName', ['classCode' => $classCode, "userName" => $userName]);
+
+        $data[] = ["userName" => $userName, "classCode" => $classCode];
+
+        return Quiz24Service::unClassification($data);
+    }
+
 }
 
 // 3515012 hamed

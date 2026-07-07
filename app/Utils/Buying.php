@@ -31,8 +31,8 @@ class Buying
         $videoSessionIds = [];
         foreach ($order->orderDetails as $orderDetail) {
             $product = $orderDetail->products_id;
-            $user = $order->users_id;
-            $found_user_product = UserProduct::where('users_id', $user)->where('products_id', $product)->first();
+            $userId = $order->users_id;
+            $found_user_product = UserProduct::where('users_id', $userId)->where('products_id', $product)->first();
             if (!$found_user_product && ($orderDetail->product->type !== 'video')) {
                 UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
             }
@@ -119,6 +119,9 @@ class Buying
                         UserQuiz::create(['user_id' => $user, 'quiz_id' => $quiz->id, 'created_at' => $now, 'updated_at' => $now]);
                     }
                 }
+
+                $user = $order->user;
+                Quiz24Service::addStudentToClass($orderDetail->product->class_code, $user->email);
             }
         }
         UserVideoSession::insert($data);

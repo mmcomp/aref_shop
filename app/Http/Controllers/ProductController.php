@@ -55,10 +55,14 @@ class ProductController extends Controller
         $searchName = $request->input('search_name');
         $products = Product::where('is_deleted', false)
             ->where(function ($query) use ($category_ones_id, $category_twos_id, $category_threes_id, $searchName) {
-                if ($category_ones_id != null) $query->where('category_ones_id', $category_ones_id);
-                if ($category_twos_id != null) $query->where('category_twos_id', $category_twos_id);
-                if ($category_threes_id != null) $query->where('category_threes_id', $category_threes_id);
-                if ($searchName != null) $query->where('name', 'like', '%' . $searchName . '%');
+                if ($category_ones_id != null)
+                    $query->where('category_ones_id', $category_ones_id);
+                if ($category_twos_id != null)
+                    $query->where('category_twos_id', $category_twos_id);
+                if ($category_threes_id != null)
+                    $query->where('category_threes_id', $category_threes_id);
+                if ($searchName != null)
+                    $query->where('name', 'like', '%' . $searchName . '%');
             })
             ->orderBy('id', 'desc');
         if ($per_page == "all") {
@@ -137,6 +141,7 @@ class ProductController extends Controller
         $ids = [];
         $allIds = [];
         if ($product != null) {
+            $product->class_code = null;
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
             // ProductDetailChair::where('products_id',$id)->update([
             //     "price" => $product->sale_price
@@ -158,15 +163,20 @@ class ProductController extends Controller
             }
 
             if ($product->type == "quiz24") {
-                ProductQuiz::where('product_id', $id)->delete();
-                foreach ($request->input('quiz24_data') as $examId) {
-                    $quiz = Quiz::where('exam_id', $examId)->first();
-                    if ($quiz) {
-                        ProductQuiz::create([
-                            'product_id' => $id,
-                            'quiz_id' => $quiz->id,
-                        ]);
+                if ($request->exists('quiz24_data')) {
+                    ProductQuiz::where('product_id', $id)->delete();
+                    foreach ($request->input('quiz24_data') as $examId) {
+                        $quiz = Quiz::where('exam_id', $examId)->first();
+                        if ($quiz) {
+                            ProductQuiz::create([
+                                'product_id' => $id,
+                                'quiz_id' => $quiz->id,
+                            ]);
+                        }
                     }
+                }
+                if ($request->exists("class_code")) {
+                    $product->class_code = $request->input("class_code");
                 }
             }
 
@@ -558,7 +568,7 @@ class ProductController extends Controller
                     }
                 }
             }
-            return ((new  ProductDetailPackagesCollectionCollection($allgroup)))->additional([
+            return ((new ProductDetailPackagesCollectionCollection($allgroup)))->additional([
                 'errors' => null,
             ])->response()->setStatusCode(200);
         }

@@ -11,6 +11,7 @@ use App\Http\Requests\AddMicroProductToCartRequest;
 use App\Http\Requests\storeProductByMobileListRequest;
 use App\Http\Requests\storeProductPackageRequest;
 
+use App\Utils\Quiz24Service;
 use App\Utils\RaiseError;
 use App\Models\Order;
 use App\Models\User;
@@ -846,7 +847,9 @@ class OrderController extends Controller
                 ]);
                 if($product->type==="chairs"){
                     OrderChairDetail::where('order_details_id',$orderDetail->id)->delete();
-
+                }
+                if($product->type==="quiz24") {
+                    Quiz24Service::removeStudentToClass($product->class_code, $order->user->email);
                 }
             }
             return (new OrderResource(null))->additional([
