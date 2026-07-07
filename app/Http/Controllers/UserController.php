@@ -201,7 +201,7 @@ class UserController extends Controller
         $user->grade = $request->grade ?? 1;
         $user->description = $request->description;
         $user->reading_station_id = $request->reading_station_id;
-        $user->school = $request->school;
+        $user->school_name = $request->school;
         $user->major = $request->major;
         $user->saver_users_id = Auth::user()->id;
         if (Auth::user()->group->type == 'school-admin') {

@@ -36,6 +36,7 @@ class Product extends Model
        'days',
        'hour',
        'user_teacher_id',
+       'class_code',
     ];
 
     public function categoryOnes()

@@ -69,6 +69,7 @@ class ProductEditRequest extends FormRequest
             'start_date' => 'nullable|string|min:3|max:255',
             'quiz24_data' => 'nullable|array',
             'quiz24_data.*' => 'integer|min:0|max:1000000000',
+            'class_code' => 'nullable|integer|min:1',
         ];
     }
     /**

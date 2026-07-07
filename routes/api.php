@@ -13,6 +13,7 @@ use App\Http\Controllers\ProductDetailVideosController;
 use App\Http\Controllers\ProductCommentController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\UserController;
+use App\Utils\Quiz24Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryOnesController;
@@ -42,6 +43,7 @@ use App\Http\Controllers\ReadingStationSlutUsersController;
 use App\Http\Controllers\ReadingStationStrikeController;
 use App\Http\Controllers\ReadingStationUsersController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\VideoSessionsController as UserVideoSessionsController;
 
 /*
@@ -519,6 +521,12 @@ Route::group([
     Route::post('/cancel-buying-micro-product', [OrderController::class, 'cancelBuyingOfAMicroProduct']);
 });
 
+Route::group([
+    'middleware' => [],
+    'prefix' => 'orders',
+], function ($router) {
+    Route::post('/buy-product-with-excel', [CartController::class, 'buyProductForRows']);
+});
 
 Route::group([
     'middleware' => ['auth:api', 'can:product'],
@@ -612,33 +620,45 @@ Route::group([
     Route::post('/toggle-active/{id}', [BannerController::class, 'setActive']);
 });
 
-Route::get('sky-test', function (Request $request) {
-    try {
-        // $rooms = (new App\Http\SkyRoom\SkyRoomService())->getRooms();
-        // return response()->json(["rooms" => $rooms, "errors" => null], 200);
-        $room = (new App\Http\SkyRoom\SkyRoomService())->createRoom(new App\Http\SkyRoom\SkyRoom([
-            "name" => "test-room-4",
-            "title" => "تست روم 4",
-            "guest_login" => true,
-            "op_login_first" => true,
-            "max_users" => 100,
-            "status" => 1,
-        ]));
-        return $room;
+// Route::get('sky-test', function (Request $request) {
+//     try {
+//         // $rooms = (new App\Http\SkyRoom\SkyRoomService())->getRooms();
+//         // return response()->json(["rooms" => $rooms, "errors" => null], 200);
+//         $room = (new App\Http\SkyRoom\SkyRoomService())->createRoom(new App\Http\SkyRoom\SkyRoom([
+//             "name" => "test-room-4",
+//             "title" => "تست روم 4",
+//             "guest_login" => true,
+//             "op_login_first" => true,
+//             "max_users" => 100,
+//             "status" => 1,
+//         ]));
+//         return $room;
 
-        // $userId = (new App\Http\SkyRoom\SkyRoomService())->createUser(new App\Http\SkyRoom\SkyRoomUser([
-        //     "username" => "test-user-1",
-        //     "password" => "123456",
-        //     "nickname" => "تست کاربر 1",
-        //     "status" => 1,
-        //     "is_public" => true,
-        // ]));
-        // return $userId;
-    } catch (\Exception $e) {
-        return response()->json([
-            "errors" => [
-                "message" => $e->getMessage()
-            ]
-        ], 400);
-    }
-});
+//         // $userId = (new App\Http\SkyRoom\SkyRoomService())->createUser(new App\Http\SkyRoom\SkyRoomUser([
+//         //     "username" => "test-user-1",
+//         //     "password" => "123456",
+//         //     "nickname" => "تست کاربر 1",
+//         //     "status" => 1,
+//         //     "is_public" => true,
+//         // ]));
+//         // return $userId;
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             "errors" => [
+//                 "message" => $e->getMessage()
+//             ]
+//         ], 400);
+//     }
+// });
+
+// Route::get('quiz24-test', function (Request $request) {
+//         try {
+//             return Quiz24Service::addStudentToClass(149908,"09028888145");
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             "errors" => [
+//                 "message" => $e->getMessage()
+//             ]
+//         ], 400);
+//     }
+// });

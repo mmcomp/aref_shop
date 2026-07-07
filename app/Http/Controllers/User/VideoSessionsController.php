@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\PresentSkyRoomRequest;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsCollection;
 use App\Http\Resources\User\ProductDetailVideosForFreeSessionsResource;
 use App\Http\Resources\User\ProductDetailVideosForTodaySessionsCollection;
 use App\Models\ProductDetailVideo;
+use App\Models\UserVideoSessionPresent;
 use App\Utils\GetNameOfSessions;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -97,5 +99,20 @@ class VideoSessionsController extends Controller
         return (new ProductDetailVideosForTodaySessionsCollection($today_sessions))->additional([
             'errors' => null,
         ])->response()->setStatusCode(200);
+    }
+
+    public function PresentSkyRoom(PresentSkyRoomRequest $request)
+    {
+        $user = Auth::user();
+        $present = UserVideoSessionPresent::where("users_id", $user->id)->where("video_sessions_id", $request->video_session_id)->first();
+        if ($present == null) {
+            $present = new UserVideoSessionPresent([
+                "users_id" => $user->id,
+                "video_sessions_id" => $request->video_session_id,
+                "online_started_at" => Carbon::now(),
+            ]);
+
+            $present->save();
+        }
     }
 }

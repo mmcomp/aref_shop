@@ -25,6 +25,7 @@ class VideoSessionsResource extends JsonResource
                 'video_session_type' => $this->video_session_type,
                 'video_link' => $this->video_link,
                 'is_aparat' => $this->is_aparat,
+                'is_sky_room' => $this->is_sky_room,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
             ];

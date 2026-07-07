@@ -399,15 +399,16 @@ class VideoSessionsController extends Controller
                         'name' => $video_sesssion->id,
                         'title' => $product_detail_video->name,
                         'status' => 1,
-                        "guest_login" => true,
+                        "guest_login" => $product_detail_video->price == 0,
                         "op_login_first" => false,
                         "max_users" => 1000,
                     ]));
                 }
                 $videoLink = $skyRoom->url;
+                $this->skyRoomService->fixVideoSessions([$video_sesssion->id]);
             } else {
                 if ($video_sesssion->skyRoom) {
-                    $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->id);
+                    $this->skyRoomService->deleteRoom($video_sesssion->skyRoom->room_id);
                     $video_sesssion->skyRoom->delete();
                 }
             }

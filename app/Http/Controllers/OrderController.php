@@ -11,6 +11,7 @@ use App\Http\Requests\AddMicroProductToCartRequest;
 use App\Http\Requests\storeProductByMobileListRequest;
 use App\Http\Requests\storeProductPackageRequest;
 
+use App\Utils\Quiz24Service;
 use App\Utils\RaiseError;
 use App\Models\Order;
 use App\Models\User;
@@ -49,6 +50,10 @@ use App\Utils\AdminLog;
 
 class OrderController extends Controller
 {
+    public function __construct(private Buying $buying)
+    {
+
+    }
 
     /**
      * get info of an order
@@ -708,12 +713,12 @@ class OrderController extends Controller
         $order = Order::find($orders_id);
         $amount = $request->input('amount');
         $description = $request->input('description');
-        $buying = new Buying;
+        // $buying = new Buying;
         $order->status = "manual_ok";
         $order->amount = $amount;
         $order->comment = $description;
         $order->save();
-        $buying->completeInsertAfterBuying($order);
+        $this->buying->completeInsertAfterBuying($order);
         return (new OrderResource($order))->additional([
             'errors' => null,
         ])->response()->setStatusCode(201);
@@ -842,7 +847,9 @@ class OrderController extends Controller
                 ]);
                 if($product->type==="chairs"){
                     OrderChairDetail::where('order_details_id',$orderDetail->id)->delete();
-
+                }
+                if($product->type==="quiz24") {
+                    Quiz24Service::removeStudentToClass($product->class_code, $order->user->email);
                 }
             }
             return (new OrderResource(null))->additional([
