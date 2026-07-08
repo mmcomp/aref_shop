@@ -1,3 +1,4 @@
+# syntax=nexus.aref-group.ir/docker/dockerfile:1
 # ======================
 # 1. Node build stage
 # ======================
@@ -50,7 +51,7 @@ RUN docker-php-ext-install \
     soap
 
 # Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY ---from=nexus.aref-group.ir/docker/composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
