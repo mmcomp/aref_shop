@@ -47,7 +47,7 @@ jobs:
           set -e
           cd /home/aref/docker/aref-shop
           sed -i -E "s#(image: nexus\.aref-group\.ir/docker/aref-shop:)[^[:space:]]+#\1${{ steps.set_tag.outputs.tag }}#" docker-compose.yaml
-          docker compose pull shop-app
+          docker compose pull shop_app
           docker compose up -d --force-recreate init1 init2 shop_app shop_app1 
       - name: Update Alpland docker-compose.yaml and recreate services
         run: |
