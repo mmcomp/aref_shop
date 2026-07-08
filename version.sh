@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-MAIN_GO="main.go"
+MAIN_GO="version.txt"
 
 current_version=$(grep -E '^var version = "' "$MAIN_GO" | sed -E 's/^var version = "([^"]*)".*/\1/')
 if [[ -z "$current_version" ]]; then
