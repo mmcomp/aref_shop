@@ -143,24 +143,30 @@ class ProductController extends Controller
         if ($product != null) {
             $product->class_code = null;
             $product->sale_price = ($request->sale_price == null) ? $request->price : $request->sale_price;
-            // ProductDetailChair::where('products_id',$id)->update([
-            //     "price" => $product->sale_price
-            // ]);
-            $orderDetails = OrderDetail::get();
-            foreach ($orderDetails as $orderDetail) {
-                if (isset($orderDetail->order) && $orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
-                    $ids[] = $orderDetail->product->id;
-                }
+            $sw = false;
+            if ($product->type === "package") {
+                $orderDetails = OrderDetail::where("products_id", $id)->whereHas("order", function ($q) {
+                    $q->where("status", "ok");
+                })->count();
+                $child_product_ids = ProductDetailPackage::where('is_deleted', false)->whereIn('child_products_id', $id)->count();
+                $sw = $orderDetails + $child_product_ids > 0;
             }
-            $child_product_ids = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $ids)->pluck('child_products_id')->toArray();
-            $allIds = array_merge($ids, $child_product_ids);
-            $sw = in_array($id, $allIds) ? 1 : 0;
+            // $orderDetails = OrderDetail::get();
+            // foreach ($orderDetails as $orderDetail) {
+            //     if (isset($orderDetail->order) && $orderDetail->order->status == "ok" && $orderDetail->product->type == "package") {
+            //         $ids[] = $orderDetail->product->id;
+            //     }
+            // }
+            // $child_product_ids = ProductDetailPackage::where('is_deleted', false)->whereIn('products_id', $ids)->pluck('child_products_id')->toArray();
+            // $allIds = array_merge($ids, $child_product_ids);
+            // $sw = in_array($id, $allIds) ? 1 : 0;
             $raiseError->ValidationError($sw && $product->type != $request->input('type'), ['type' => ['You should not change the type of product!']]);
-            if ($sw && $product->type == $request->input('type')) {
-                $product->update($request->except('sale_price', 'type'));
-            } else if (!$sw) {
-                $product->update($request->except('sale_price'));
-            }
+            // if ($sw && $product->type == $request->input('type')) {
+            //     $product->update($request->except('sale_price', 'type'));
+            // } else if (!$sw) {
+            //     $product->update($request->except('sale_price'));
+            // }
+            $product->update($request->except('sale_price'));
 
             if ($product->type == "quiz24") {
                 if ($request->exists('quiz24_data')) {

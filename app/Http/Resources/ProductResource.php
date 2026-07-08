@@ -50,6 +50,7 @@ class ProductResource extends JsonResource
                 'education_system' => $this->education_system,
                 'hour' => $this->hour,
                 'days' => $this->days,
+                'class_code' => $this->class_code,
                 'start_date' => $this->start_date,
                 'created_at' => $this->created_at,
                 'updated_at' => $this->updated_at
