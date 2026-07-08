@@ -1,3 +1,4 @@
+# syntax=nexus.aref-group.ir/docker/dockerfile:1
 # ======================
 # 1. Node build stage
 # ======================
