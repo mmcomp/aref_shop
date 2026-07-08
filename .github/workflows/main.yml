@@ -1,0 +1,63 @@
+name: Build and Deploy php for aref &alpland
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      # push tag v1.0.8 -> image tag 1.0.8
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to build"
+        required: true
+jobs:
+  build-push-deploy:
+    runs-on: docker
+    steps:
+      - name: Checkout via SSH (git pull)
+        run: |
+          set -e
+          REPO_SSH_URL="git@github.com:mmcomp/aref_shop.git"
+          if [ -d ".git" ]; then
+            git remote set-url origin "$REPO_SSH_URL"
+            git fetch origin
+            git checkout "${GITHUB_REF_NAME:-main}" || true
+            git pull origin "${GITHUB_REF_NAME:-main}"
+          else
+            git clone "$REPO_SSH_URL" .
+            git checkout "${GITHUB_REF_NAME:-main}" || true
+          fi
+      - name: Determine image tag
+        id: set_tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${GITHUB_REF_NAME#v}"   # strips leading "v" from tag like v1.0.4
+          fi
+          echo "Using image tag: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Build image
+        run: docker build -t nexus.aref-group.ir/docker/aref-shop:${{ steps.set_tag.outputs.tag }} .
+      - name: Push image
+        run: docker push nexus.aref-group.ir/docker/aref-shop:${{ steps.set_tag.outputs.tag }}
+      - name: Update aref docker-compose.yaml and recreate service
+        run: |
+          set -e
+          cd /home/aref/docker/aref-shop
+          sed -i -E "s#(image: nexus\.aref-group\.ir/docker/aref-shop:)[^[:space:]]+#\1${{ steps.set_tag.outputs.tag }}#" docker-compose.yaml
+          docker compose pull aref-shop
+          docker compose up -d --force-recreate aref-shop
+      - name: Update Alpland docker-compose.yaml and recreate services
+        run: |
+          set -e
+          cd /home/aref/docker/alpland
+          # Both init10 and alpland services reference the aref-shop image,
+          # sed updates every matching "image:" line in the file.
+          sed -i -E "s#(image: nexus\.aref-group\.ir/docker/aref-shop:)[^[:space:]]+#\1${{ steps.set_tag.outputs.tag }}#" docker-compose.yaml
+          docker compose pull init10 alpland
+          # init10 (copy app code) and init20 (copy frontend build) must rerun
+          # in order before alpland (php-fpm) is recreated, since alpland
+          # depends_on init20's successful completion.
+          docker compose up -d --force-recreate init10 init20 alpland
+      - name: Clean up old images
+        run: docker image prune -fa
