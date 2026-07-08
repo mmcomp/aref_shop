@@ -3,9 +3,13 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-MAIN_GO="version.txt"
+MAIN_GO="abbas"
+
 
 current_version=$(grep -E '^var version = "' "$MAIN_GO" | sed -E 's/^var version = "([^"]*)".*/\1/')
+echo "START"
+
+
 if [[ -z "$current_version" ]]; then
   echo "Could not find version in $MAIN_GO" >&2
   exit 1
