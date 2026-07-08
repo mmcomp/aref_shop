@@ -1,6 +1,8 @@
 name: Build and Deploy php for aref &alpland
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*.*.*"
       # push tag v1.0.8 -> image tag 1.0.8
