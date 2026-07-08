@@ -1,4 +1,4 @@
-name: Build and Deploy aref-shop
+name: Build and Deploy php for aref &alpland
 on:
   push:
     tags:
