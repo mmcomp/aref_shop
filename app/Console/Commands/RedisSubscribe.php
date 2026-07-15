@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Log;
 use App\Models\ChatMessage;
 use App\Models\UserVideoSession;
 use App\Models\ProductDetailVideo;
-use Predis\Client;
 
 class RedisSubscribe extends Command
 {
@@ -43,20 +42,13 @@ class RedisSubscribe extends Command
      */
     public function handle()
     {
-        $client = new Client();
-        Redis::subscribe([env('REDIS_CHAT_CHANEL', 'chat-channel')], function ($message) use ($client) {
+        Redis::subscribe([env('REDIS_CHAT_CHANEL', 'chat-channel')], function ($message) {
             Log::info("message recieved " . $message);
             $chatData = json_decode($message);
-            $keys = $client->keys(env('REDIS_PREFIX', 'aref_shop_') . 'user_*');
-            Log::info("keys :" . var_export($keys, true));
-            $tokens = [];
-            foreach($keys as $key) {
-                $token = $client->get($key);
-                $tokens[$token] = str_replace(env('REDIS_PREFIX', 'aref_shop_') . 'user_', "", $key);
-            }
+            $userId = Redis::get('token_' . $chatData->Token);
 
             ChatMessage::create([
-                'users_id' => $tokens[$chatData->Token],
+                'users_id' => $userId,
                 'ip_address' => "",
                 'video_sessions_id' => $chatData->Data->video_session_id,
                 'message' => $chatData->Data->msg
