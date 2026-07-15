@@ -62,8 +62,12 @@ class BaseAuthController extends Controller
                 'new_token' => $token
             ]));
             Log::info("Pub : " . json_encode($res));
+            if ($value) {
+                Redis::del('token_' . $value);
+            }
         }
         Redis::set('user_' . $user->id, $token, 'EX', 7 * 24 * 3600);
+        Redis::set('token_' . $token, $user->id, 'EX', 7 * 24 * 3600);
         $first_name = $user->first_name == null ? '' : $user->first_name;
         $last_name = $user->last_name == null ? '' : $user->last_name;
         Redis::set('name_' . $user->id, $first_name . ' ' . $last_name, 'EX', 7 * 24 * 3600);
