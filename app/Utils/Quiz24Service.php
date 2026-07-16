@@ -233,12 +233,8 @@ class Quiz24Service
         }
 
         $data = [];
-        $classFound = false;
         foreach ($currentClassifications["result"] as $classData) {
             $students = $classData["students"];
-            if ($classData["classCode"] == $classCode) {
-                $classFound = true;
-            }
             foreach ($students as $student) {
                 if ($student["userName"] == $userName && $classData["classCode"] == $classCode) {
                     return ["status" => 100];
@@ -246,9 +242,9 @@ class Quiz24Service
                 $data[] = ["userName" => $student["userName"], "classCode" => $classData["classCode"]];
             }
         }
-        if (!$classFound) {
-            $data[] = ["userName" => $userName, "classCode" => $classCode];
-        }
+
+        $data[] = ["userName" => $userName, "classCode" => $classCode];
+
 
         return Quiz24Service::setClassification($data);
     }
