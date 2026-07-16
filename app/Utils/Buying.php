@@ -24,7 +24,6 @@ class Buying
     public function completeInsertAfterBuying(Order $order)
     {
 
-        $user = 0;
         $product = null;
         $data = [];
         $videoSessions = [];
@@ -34,11 +33,11 @@ class Buying
             $userId = $order->users_id;
             $found_user_product = UserProduct::where('users_id', $userId)->where('products_id', $product)->first();
             if (!$found_user_product && ($orderDetail->product->type !== 'video')) {
-                UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => 0]);
+                UserProduct::create(['users_id' => $userId, 'products_id' => $product, 'partial' => 0]);
             }
             if ($orderDetail->product->type == 'video') {
                 if (!$found_user_product) {
-                    UserProduct::create(['users_id' => $user, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
+                    UserProduct::create(['users_id' => $userId, 'products_id' => $product, 'partial' => !$orderDetail->all_videos_buy]);
                 } else if ($found_user_product && $found_user_product->partial === 1 && $orderDetail->all_videos_buy === 1) {
                     $found_user_product->partial = 0;
                     $found_user_product->update();
@@ -62,11 +61,11 @@ class Buying
                 }
                 $now = date("Y-m-d H:i:s");
                 foreach ($videoSessionIds as $videoSessionId) {
-                    $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $user)->first();
+                    $found_user_video_session = UserVideoSession::where('video_sessions_id', $videoSessionId)->where('users_id', $userId)->first();
                     if (!$found_user_video_session) {
                         $data[] = [
                             "video_sessions_id" => $videoSessionId,
-                            "users_id" => $user,
+                            "users_id" => $userId,
                             'created_at' => $now,
                             'updated_at' => $now
                         ];
@@ -84,7 +83,7 @@ class Buying
                         continue;
                     }
                     $childData[] = [
-                        'users_id' => $user,
+                        'users_id' => $userId,
                         'products_id' =>  $tmp->child_products_id, //$child_product,
                         'created_at' => $now,
                         'updated_at' => $now
@@ -95,11 +94,11 @@ class Buying
                         $videoSessionIds = ProductDetailVideo::where('is_deleted', false)->where('products_id', $p->id)->pluck('video_sessions_id')->toArray();
 
                         foreach ($videoSessionIds as $video_session_id) {
-                            $found_user_video_session = UserVideoSession::where('users_id', $user)->where('video_sessions_id', $video_session_id)->first();
+                            $found_user_video_session = UserVideoSession::where('users_id', $userId)->where('video_sessions_id', $video_session_id)->first();
 
                             if (!$found_user_video_session) {
                                 $data[] = [
-                                    'users_id' => $user,
+                                    'users_id' => $userId,
                                     'video_sessions_id' => $video_session_id,
                                     'created_at' => $now,
                                     'updated_at' => $now
@@ -114,14 +113,13 @@ class Buying
                 $now = Carbon::now();
                 $quizzes = $orderDetail->product->quizzes;
                 foreach ($quizzes as $quiz) {
-                    $userQuiz = UserQuiz::where('user_id', $user)->where('quiz_id', $quiz->id)->first();
+                    $userQuiz = UserQuiz::where('user_id', $userId)->where('quiz_id', $quiz->id)->first();
                     if (!$userQuiz) {
-                        UserQuiz::create(['user_id' => $user, 'quiz_id' => $quiz->id, 'created_at' => $now, 'updated_at' => $now]);
+                        UserQuiz::create(['user_id' => $userId, 'quiz_id' => $quiz->id, 'created_at' => $now, 'updated_at' => $now]);
                     }
                 }
 
-                $user = $order->user;
-                Quiz24Service::addStudentToClass($orderDetail->product->class_code, $user->email);
+                Quiz24Service::addStudentToClass($orderDetail->product->class_code, $order->user->email);
             }
         }
         UserVideoSession::insert($data);
