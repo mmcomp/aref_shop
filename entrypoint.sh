@@ -1,12 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "⏳ Waiting for database connection..."
-until php artisan db:show > /dev/null 2>&1; do
-  echo "Database not ready yet, retrying in 2s..."
-  sleep 2
-done
-echo "✅ Database connection OK"
+
 
 echo "🚀 Running migrations..."
 php artisan migrate --force
